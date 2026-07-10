@@ -1,0 +1,17 @@
+{
+  "data_version": "MEIHUA_TRIGRAMS_V1",
+  "line_order": "bottom_up",
+  "source": "Phase 1 frozen Xiantian trigram-number table",
+  "unicode_source_url": "https://www.unicode.org/charts/nameslist/n_2600.html",
+  "verification": "The eight frozen number/element/line records are exhaustively asserted by tests; symbols are checked against the Unicode trigram range U+2630-U+2637.",
+  "trigrams": [
+    {"number": 1, "name_zh": "乾", "symbol": "☰", "element": "金", "lines_bottom_up": [1, 1, 1], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 2, "name_zh": "兑", "symbol": "☱", "element": "金", "lines_bottom_up": [1, 1, 0], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 3, "name_zh": "离", "symbol": "☲", "element": "火", "lines_bottom_up": [1, 0, 1], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 4, "name_zh": "震", "symbol": "☳", "element": "木", "lines_bottom_up": [1, 0, 0], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 5, "name_zh": "巽", "symbol": "☴", "element": "木", "lines_bottom_up": [0, 1, 1], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 6, "name_zh": "坎", "symbol": "☵", "element": "水", "lines_bottom_up": [0, 1, 0], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 7, "name_zh": "艮", "symbol": "☶", "element": "土", "lines_bottom_up": [0, 0, 1], "data_version": "MEIHUA_TRIGRAMS_V1"},
+    {"number": 8, "name_zh": "坤", "symbol": "☷", "element": "土", "lines_bottom_up": [0, 0, 0], "data_version": "MEIHUA_TRIGRAMS_V1"}
+  ]
+}
