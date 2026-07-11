@@ -99,11 +99,12 @@ def draft_hex(record):
     })
 
 
-def test_all_knowledge_starts_canonical_only_and_blank():
+def test_formal_knowledge_has_only_batch001_drafts_and_canonical_entries():
     hexagrams, lines = load_interpretation_knowledge()
     assert len(hexagrams) == 64 and len(lines) == 384
     records = [*hexagrams.values(), *lines.values()]
-    assert {item.review_status for item in records} == {KnowledgeReviewStatus.CANONICAL_ONLY}
+    assert sum(item.review_status is KnowledgeReviewStatus.DRAFT for item in records) == 16
+    assert sum(item.review_status is KnowledgeReviewStatus.CANONICAL_ONLY for item in records) == 432
     assert all(item.reviewer is None and item.approved_by is None for item in records)
 
 
@@ -324,7 +325,7 @@ def test_internal_draft_service_really_carries_draft_evidence_without_charge(
         knowledge_access_policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW),
     ).interpret(phase2_request)
     assert [item.evidence_id for item in result.interpretation.program_content.knowledge_evidence_trace] == [
-        f"D-H-{number}"
+        f"D-H-{number}", f"D-L-{number}-{phase2_chart.moving_line}"
     ]
     assert result.is_preview is True
     assert result.should_charge is False

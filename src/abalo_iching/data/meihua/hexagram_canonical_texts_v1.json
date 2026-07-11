@@ -800,7 +800,7 @@
     {
       "king_wen_number": 12,
       "hexagram_name": "否",
-      "canonical_judgment_text": "不利君子貞，大往小來。",
+      "canonical_judgment_text": "否之匪人，不利君子貞，大往小來。",
       "source_name": "王弼《周易注》底本公开镜像（冻结主文本，待逐条人工版本核对）",
       "source_reference": "https://gist.githubusercontent.com/sui1491/52e8214c8e5f4a189b94f5ea2b8bdb05/raw/d628f824a90d7b41b5149199e0fa0767e030b3af/%E6%98%93%E7%BB%8F%E5%85%A8%E6%96%87",
       "source_accessed_at": "2026-07-11",
@@ -4559,6 +4559,20 @@
           "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
         }
       ]
+    }
+  ],
+  "correction_version": "MEIHUA_CANONICAL_CORRECTIONS_V1",
+  "applied_corrections": [
+    {
+      "king_wen_number": 12,
+      "field": "canonical_judgment_text",
+      "replacement": "否之匪人，不利君子貞，大往小來。",
+      "reason": "Frozen primary transcription omitted the opening phrase 否之匪人.",
+      "cross_check_sources": [
+        "https://ctext.org/book-of-changes/pi",
+        "https://zh.wikisource.org/zh-hant/%E5%91%A8%E6%98%93/%E5%90%A6"
+      ],
+      "review_note": "Canonical source correction only; modern interpretation remains an AI editorial DRAFT pending human review."
     }
   ]
 }

@@ -1,0 +1,537 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abalo.local/schemas/meihua-batch-001-review.schema.json",
+  "title": "Meihua Batch 001 Human Review Workbench",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "batch_id",
+    "workbench_type",
+    "formal_import_enabled",
+    "records"
+  ],
+  "properties": {
+    "batch_id": {
+      "const": "MEIHUA-KNOWLEDGE-BATCH-001"
+    },
+    "workbench_type": {
+      "const": "AI_EDITORIAL_DRAFT_PENDING_HUMAN_REVIEW"
+    },
+    "formal_import_enabled": {
+      "const": false
+    },
+    "records": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/reviewRecord"
+      }
+    }
+  },
+  "$defs": {
+    "reviewRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "batch_id",
+        "item_id",
+        "item_type",
+        "king_wen_number",
+        "hexagram_name",
+        "upper_trigram",
+        "lower_trigram",
+        "line_position",
+        "line_name",
+        "canonical_text_from_project",
+        "canonical_data_version",
+        "canonical_source_name",
+        "canonical_source_reference",
+        "canonical_source_hash",
+        "current_cross_check_status",
+        "normalization_rules",
+        "extraction_script_version",
+        "source_comparison",
+        "current_knowledge_status",
+        "workbench_status",
+        "knowledge_evidence",
+        "human_signoff",
+        "review_fields",
+        "review_card_path"
+      ],
+      "properties": {
+        "batch_id": {
+          "const": "MEIHUA-KNOWLEDGE-BATCH-001"
+        },
+        "item_id": {
+          "type": "string",
+          "pattern": "^H(?:01|02|03|04|11|12|34|55)(?:-L[1-6])?$"
+        },
+        "item_type": {
+          "enum": [
+            "HEXAGRAM",
+            "LINE"
+          ]
+        },
+        "king_wen_number": {
+          "enum": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12,
+            34,
+            55
+          ]
+        },
+        "hexagram_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4
+        },
+        "upper_trigram": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2
+        },
+        "lower_trigram": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2
+        },
+        "line_position": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 6
+        },
+        "line_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "初",
+            "二",
+            "三",
+            "四",
+            "五",
+            "上"
+          ]
+        },
+        "canonical_text_from_project": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 500
+        },
+        "canonical_data_version": {
+          "const": "MEIHUA_CANONICAL_TEXTS_V1"
+        },
+        "canonical_source_name": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300
+        },
+        "canonical_source_reference": {
+          "type": "string",
+          "format": "uri"
+        },
+        "canonical_source_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "current_cross_check_status": {
+          "enum": [
+            "PENDING_HUMAN_REVIEW",
+            "SOURCE_VARIANT_REQUIRES_REVIEW"
+          ]
+        },
+        "normalization_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "extraction_script_version": {
+          "const": "MEIHUA_REVIEW_BATCH_BUILDER_V1"
+        },
+        "source_comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "project_text",
+            "ctext_text",
+            "wikisource_text",
+            "character_level_match",
+            "punctuation_only_difference",
+            "simplified_traditional_difference",
+            "substantive_variant_detected",
+            "variant_notes",
+            "source_accessed_at",
+            "human_review_required",
+            "ctext_url",
+            "wikisource_url"
+          ],
+          "properties": {
+            "project_text": {
+              "type": "string",
+              "minLength": 2
+            },
+            "ctext_text": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 2
+            },
+            "wikisource_text": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 2
+            },
+            "character_level_match": {
+              "type": "boolean"
+            },
+            "punctuation_only_difference": {
+              "type": "boolean"
+            },
+            "simplified_traditional_difference": {
+              "type": "boolean"
+            },
+            "substantive_variant_detected": {
+              "type": "boolean"
+            },
+            "variant_notes": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 500
+            },
+            "source_accessed_at": {
+              "type": "string",
+              "format": "date"
+            },
+            "human_review_required": {
+              "const": true
+            },
+            "ctext_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "wikisource_url": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "current_knowledge_status": {
+          "const": "DRAFT"
+        },
+        "workbench_status": {
+          "const": "READY_FOR_CONTENT_REVIEW"
+        },
+        "knowledge_evidence": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "human_signoff": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "person",
+                "completed_at",
+                "decision"
+              ],
+              "properties": {
+                "person": {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 100
+                },
+                "completed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "decision": {
+                  "const": "CONTENT_REVIEW_COMPLETE_NOT_APPROVED"
+                }
+              }
+            }
+          ]
+        },
+        "review_fields": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "judgment_paraphrase",
+            "core_theme",
+            "situation_pattern",
+            "favorable_conditions",
+            "risk_conditions",
+            "action_tendency",
+            "relationship_boundaries",
+            "career_boundaries",
+            "cooperation_boundaries",
+            "prohibited_inferences",
+            "evidence_direction",
+            "evidence_strength",
+            "reviewer_notes",
+            "review_decision",
+            "literal_paraphrase",
+            "moving_stage_relationship"
+          ],
+          "properties": {
+            "judgment_paraphrase": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "core_theme": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "situation_pattern": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "favorable_conditions": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "risk_conditions": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "action_tendency": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "relationship_boundaries": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "career_boundaries": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "cooperation_boundaries": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "prohibited_inferences": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 300
+              },
+              "maxItems": 12
+            },
+            "evidence_direction": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "evidence_strength": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "reviewer_notes": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "review_decision": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "literal_paraphrase": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            },
+            "moving_stage_relationship": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 2000
+            }
+          }
+        },
+        "review_card_path": {
+          "type": "string",
+          "pattern": "^(hexagrams|lines)/H[0-9]{2}_[A-Z0-9_]+\\.md$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "item_type": {
+                "const": "HEXAGRAM"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "line_position": {
+                "type": "null"
+              },
+              "line_name": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "line_position": {
+                "type": "integer"
+              },
+              "line_name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "workbench_status": {
+                "const": "HUMAN_REVIEW_COMPLETE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "human_signoff": {
+                "type": "object"
+              },
+              "review_fields": {
+                "properties": {
+                  "judgment_paraphrase": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "core_theme": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "situation_pattern": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "favorable_conditions": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "risk_conditions": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "action_tendency": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "relationship_boundaries": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "career_boundaries": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "cooperation_boundaries": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "evidence_direction": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "evidence_strength": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  },
+                  "review_decision": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "human_signoff": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
