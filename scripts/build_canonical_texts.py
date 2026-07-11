@@ -27,7 +27,7 @@ def _normalize(text: str) -> str:
     return text.strip().replace("無", "无")
 
 
-def build(source: Path, phase1_hexagrams: Path) -> dict[str, object]:
+def build(source: Path, phase1_hexagrams: Path, corrections_path: Path | None = None) -> dict[str, object]:
     source_bytes = source.read_bytes()
     source_text = source_bytes.decode("utf-8-sig")
     phase1 = json.loads(phase1_hexagrams.read_text(encoding="utf-8"))["hexagrams"]
@@ -77,6 +77,16 @@ def build(source: Path, phase1_hexagrams: Path) -> dict[str, object]:
     malformed = [number for number, item in records.items() if len(item["lines"]) != 6]
     if missing or malformed:
         raise ValueError(f"Canonical extraction incomplete: missing={missing}, malformed={malformed}")
+    corrections: list[dict[str, object]] = []
+    if corrections_path is not None:
+        correction_payload = json.loads(corrections_path.read_text(encoding="utf-8"))
+        corrections = correction_payload["corrections"]
+        for correction in corrections:
+            number = int(correction["king_wen_number"])
+            field = str(correction["field"])
+            if field != "canonical_judgment_text":
+                raise ValueError(f"Unsupported canonical correction field: {field}")
+            records[number][field] = correction["replacement"]
     return {
         "canonical_data_version": CANONICAL_VERSION,
         "text_scope": "Received Zhouyi judgment and six line statements only; excludes Tuan, Xiang, Wenyan and Qian/Kun use statements.",
@@ -91,6 +101,8 @@ def build(source: Path, phase1_hexagrams: Path) -> dict[str, object]:
             "special source formatting repair for hexagram 8",
         ],
         "variant_policy": "Frozen primary transcription pending full human recension comparison; source URLs are review targets, not proof of completed line-by-line comparison.",
+        "correction_version": correction_payload["correction_version"] if corrections_path is not None else None,
+        "applied_corrections": corrections,
         "hexagrams": [records[number] for number in range(1, 65)],
     }
 
@@ -100,8 +112,9 @@ def main() -> None:
     parser.add_argument("source", type=Path)
     parser.add_argument("phase1_hexagrams", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--corrections", type=Path)
     args = parser.parse_args()
-    payload = build(args.source, args.phase1_hexagrams)
+    payload = build(args.source, args.phase1_hexagrams, args.corrections)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"CANONICAL_HEXAGRAMS={len(payload['hexagrams'])}")

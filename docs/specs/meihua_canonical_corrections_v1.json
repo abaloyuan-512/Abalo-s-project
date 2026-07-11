@@ -1,0 +1,16 @@
+{
+  "correction_version": "MEIHUA_CANONICAL_CORRECTIONS_V1",
+  "corrections": [
+    {
+      "king_wen_number": 12,
+      "field": "canonical_judgment_text",
+      "replacement": "否之匪人，不利君子貞，大往小來。",
+      "reason": "Frozen primary transcription omitted the opening phrase 否之匪人.",
+      "cross_check_sources": [
+        "https://ctext.org/book-of-changes/pi",
+        "https://zh.wikisource.org/zh-hant/%E5%91%A8%E6%98%93/%E5%90%A6"
+      ],
+      "review_note": "Canonical source correction only; modern interpretation remains an AI editorial DRAFT pending human review."
+    }
+  ]
+}

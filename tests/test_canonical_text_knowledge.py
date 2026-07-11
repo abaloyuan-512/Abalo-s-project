@@ -49,6 +49,8 @@ def test_source_policy_records_primary_hash_and_cross_checks():
         "punctuation normalization",
         "special source formatting repair for hexagram 8",
     ]
+    assert payload["correction_version"] == "MEIHUA_CANONICAL_CORRECTIONS_V1"
+    assert payload["hexagrams"][11]["canonical_judgment_text"] == "否之匪人，不利君子貞，大往小來。"
 
 
 def test_canonical_scope_excludes_commentaries_and_use_nine_six():

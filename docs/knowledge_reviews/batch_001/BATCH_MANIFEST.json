@@ -1,0 +1,91 @@
+{
+  "batch_id": "MEIHUA-KNOWLEDGE-BATCH-001",
+  "record_count": 16,
+  "hexagram_record_count": 8,
+  "line_record_count": 8,
+  "formal_knowledge_sha256": "63ecdb1f81bf4b5530ed92c5f5d466c40bf8f4a25d175288e0675b9795932dcb",
+  "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1",
+  "selection": [
+    {
+      "king_wen_number": 1,
+      "hexagram_item_id": "H01",
+      "line_item_id": "H01-L1",
+      "line_position": 1
+    },
+    {
+      "king_wen_number": 2,
+      "hexagram_item_id": "H02",
+      "line_item_id": "H02-L6",
+      "line_position": 6
+    },
+    {
+      "king_wen_number": 3,
+      "hexagram_item_id": "H03",
+      "line_item_id": "H03-L1",
+      "line_position": 1
+    },
+    {
+      "king_wen_number": 4,
+      "hexagram_item_id": "H04",
+      "line_item_id": "H04-L1",
+      "line_position": 1
+    },
+    {
+      "king_wen_number": 11,
+      "hexagram_item_id": "H11",
+      "line_item_id": "H11-L3",
+      "line_position": 3
+    },
+    {
+      "king_wen_number": 12,
+      "hexagram_item_id": "H12",
+      "line_item_id": "H12-L5",
+      "line_position": 5
+    },
+    {
+      "king_wen_number": 34,
+      "hexagram_item_id": "H34",
+      "line_item_id": "H34-L4",
+      "line_position": 4
+    },
+    {
+      "king_wen_number": 55,
+      "hexagram_item_id": "H55",
+      "line_item_id": "H55-L2",
+      "line_position": 2
+    }
+  ],
+  "formal_import_enabled": false,
+  "generated_outputs": [
+    "README.md",
+    "BATCH_MANIFEST.json",
+    "SOURCE_COMPARISON.md",
+    "REVIEW_GUIDE.md",
+    "REVIEW_DECISION_LOG.md",
+    "MEIHUA_KNOWLEDGE_BATCH_001_REVIEW.xlsx",
+    "hexagrams/H01_QIAN.md",
+    "lines/H01_L1.md",
+    "hexagrams/H02_KUN.md",
+    "lines/H02_L6.md",
+    "hexagrams/H03_ZHUN.md",
+    "lines/H03_L1.md",
+    "hexagrams/H04_MENG.md",
+    "lines/H04_L1.md",
+    "hexagrams/H11_TAI.md",
+    "lines/H11_L3.md",
+    "hexagrams/H12_PI.md",
+    "lines/H12_L5.md",
+    "hexagrams/H34_DA_ZHUANG.md",
+    "lines/H34_L4.md",
+    "hexagrams/H55_FENG.md",
+    "lines/H55_L2.md",
+    "H12_CANONICAL_CORRECTION_AUDIT.md"
+  ],
+  "canonical_data_sha256": "63343a4118207b0f267576faa294a06122c36b26f7e5a8ac0b36b91707404cb9",
+  "formal_status_counts": {
+    "CANONICAL_ONLY": 432,
+    "DRAFT": 16,
+    "REVIEWED": 0,
+    "APPROVED": 0
+  }
+}
