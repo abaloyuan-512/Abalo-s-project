@@ -55,6 +55,7 @@ def chart_to_json(chart: MeihuaChart, *, indent: int | None = 2) -> str:
 
 
 def chart_from_dict(data: dict[str, Any]) -> MeihuaChart:
+    """Deserialize trusted internal data; callers must not pass external JSON here."""
     input_data = data["input"]
     chart_input = MeihuaInput(
         first_number=input_data["first_number"],
@@ -132,7 +133,40 @@ def chart_from_dict(data: dict[str, Any]) -> MeihuaChart:
 
 
 def chart_from_json(payload: str) -> MeihuaChart:
+    """Deserialize trusted internal JSON; preserved for Phase 1 compatibility."""
     data = json.loads(payload)
     if not isinstance(data, dict):
         raise TypeError("Serialized chart must be a JSON object")
     return chart_from_dict(data)
+
+
+chart_from_dict_trusted = chart_from_dict
+chart_from_json_trusted = chart_from_json
+
+
+def chart_from_untrusted_json(payload: str) -> MeihuaChart:
+    """Reject externally supplied derived facts unless they exactly match a fresh deterministic cast."""
+    from .engine import cast_meihua
+    from .exceptions import InputValidationError
+
+    try:
+        data = json.loads(payload)
+        if not isinstance(data, dict) or not isinstance(data.get("input"), dict):
+            raise InputValidationError("External chart payload must contain an input object")
+        input_data = data["input"]
+        chart_input = MeihuaInput(
+            first_number=input_data["first_number"],
+            second_number=input_data["second_number"],
+            third_number=input_data["third_number"],
+            cast_at=datetime.fromisoformat(input_data["cast_at"]),
+            timezone_name=input_data["timezone_name"],
+            question_id=input_data.get("question_id"),
+        )
+        recomputed = cast_meihua(chart_input)
+    except InputValidationError:
+        raise
+    except Exception as exc:
+        raise InputValidationError("External chart payload is malformed") from exc
+    if chart_to_dict(recomputed) != data:
+        raise InputValidationError("External chart payload contains forged or inconsistent derived fields")
+    return recomputed

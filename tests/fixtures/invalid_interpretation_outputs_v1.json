@@ -1,0 +1,14 @@
+{
+  "fixture_version": "MEIHUA_INVALID_AI_NARRATIVE_OUTPUTS_V2",
+  "note": "Program facts, conclusions, Evidence sections and timing are absent from the AI schema.",
+  "mutations": [
+    {"id": "program-fact", "field": "plain_language_explanation.0.text", "value": "本卦为坤。", "error": "program_fact_restatement"},
+    {"id": "moving-line", "field": "plain_language_explanation.0.text", "value": "本次动爻位于三爻。", "error": "program_fact_restatement"},
+    {"id": "time", "field": "plain_language_explanation.0.text", "value": "七月十五号会有消息。", "error": "ai_time_content_forbidden"},
+    {"id": "mind-reading", "field": "plain_language_explanation.0.text", "value": "他其实舍不得你。", "error": "third_party_mind_reading"},
+    {"id": "financial", "field": "plain_language_explanation.0.text", "value": "建议现在买币。", "error": "financial_instruction"},
+    {"id": "medical", "field": "plain_language_explanation.0.text", "value": "建议把药停了。", "error": "medical_instruction"},
+    {"id": "absolute", "field": "plain_language_explanation.0.text", "value": "这个结果稳稳会成。", "error": "absolute_assertion"},
+    {"id": "unknown-evidence", "field": "plain_language_explanation.0.evidence_ids", "value": ["E999"], "error": "unknown_evidence_id"}
+  ]
+}
