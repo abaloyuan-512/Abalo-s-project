@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import unicodedata
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any
@@ -20,6 +19,12 @@ from abalo_iching.meihua.exceptions import InputValidationError
 
 CONTRACT_VERSION = "SITES_MEIHUA_API_CONTRACT_V1"
 LIVE_VALIDATION_STATUS = "BLOCKED_BY_EXECUTION_POLICY"
+INVALID_REQUEST_ID_FALLBACK = "invalid-request"
+REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$", re.ASCII)
+RFC3339_TIMESTAMP_PATTERN = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$",
+    re.ASCII,
+)
 _ALLOWED_FIELDS = {
     "contract_version", "request_id", "question_text", "numbers", "locale",
     "client_timestamp", "user_acknowledgements",
@@ -39,13 +44,21 @@ def _safe_audit_id(request_id: str) -> str:
     return "audit-" + hashlib.sha256(request_id.encode("utf-8")).hexdigest()[:16]
 
 
-def safe_request_id(value: Any) -> str:
-    """Return only a bounded, printable request ID suitable for public errors."""
-    if not isinstance(value, str) or not 1 <= len(value) <= 128:
-        return "invalid-request"
-    if any(unicodedata.category(character).startswith("C") for character in value):
-        return "invalid-request"
-    return value
+def validate_and_normalize_request_id(value: Any) -> str | None:
+    """Validate the frozen public ID grammar without trimming or rewriting."""
+    if not isinstance(value, str) or value == INVALID_REQUEST_ID_FALLBACK:
+        return None
+    return value if REQUEST_ID_PATTERN.fullmatch(value) else None
+
+
+def _valid_client_timestamp(value: Any) -> bool:
+    if not isinstance(value, str) or RFC3339_TIMESTAMP_PATTERN.fullmatch(value) is None:
+        return False
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None
 
 
 def _gate() -> dict[str, Any]:
@@ -92,8 +105,8 @@ def _error_response(request_id: str, code: str, message: str, generated_at: date
 def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | None]:
     if not isinstance(payload, dict):
         return None, ("INVALID_REQUEST", "请求必须是JSON对象。")
-    request_id = payload.get("request_id")
-    if not isinstance(request_id, str) or safe_request_id(request_id) == "invalid-request":
+    request_id = validate_and_normalize_request_id(payload.get("request_id"))
+    if request_id is None:
         return None, ("INVALID_REQUEST", "request_id必须是非空字符串且不超过128字符。")
     extras = set(payload) - _ALLOWED_FIELDS
     if extras & _CLIENT_DERIVED_FIELDS:
@@ -121,11 +134,7 @@ def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | No
     if payload.get("locale") != "zh-CN":
         return None, ("INVALID_REQUEST", "Phase 3A仅支持zh-CN。")
     timestamp = payload.get("client_timestamp")
-    try:
-        parsed_timestamp = datetime.fromisoformat(timestamp) if isinstance(timestamp, str) else None
-    except ValueError:
-        parsed_timestamp = None
-    if parsed_timestamp is None or parsed_timestamp.tzinfo is None:
+    if not _valid_client_timestamp(timestamp):
         return None, ("INVALID_REQUEST", "client_timestamp必须是带时区的ISO 8601时间，仅供审计参考。")
     acknowledgements = payload.get("user_acknowledgements")
     expected_ack = {"deterministic_only": True, "narrative_unverified": True}
@@ -133,7 +142,7 @@ def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | No
         return None, ("INVALID_REQUEST", "必须确认确定性结果边界和Narrative未验证状态。")
     return {
         "contract_version": CONTRACT_VERSION,
-        "request_id": request_id.strip(),
+        "request_id": request_id,
         "question_text": question.strip(),
         "numbers": numbers,
         "locale": "zh-CN",
@@ -155,7 +164,7 @@ def process_sites_meihua_request(
     generated_at = (clock or _now)()
     if generated_at.tzinfo is None:
         raise ValueError("clock must return an aware datetime")
-    request_id = safe_request_id(request_payload.get("request_id") if isinstance(request_payload, dict) else None)
+    request_id = validate_and_normalize_request_id(request_payload.get("request_id") if isinstance(request_payload, dict) else None) or INVALID_REQUEST_ID_FALLBACK
     validated, error = _validate(request_payload)
     if error:
         return _error_response(request_id, error[0], error[1], generated_at)

@@ -8,7 +8,7 @@
   "properties": {
     "error_code": {"enum": ["INVALID_REQUEST", "EMPTY_QUESTION", "INVALID_NUMBER_COUNT", "INVALID_NUMBER_TYPE", "MULTIPLE_QUESTIONS_NOT_ALLOWED", "CLIENT_CALCULATION_NOT_ACCEPTED", "ENGINE_ERROR", "NARRATIVE_UNVERIFIED", "FORMAL_PERSISTENCE_BLOCKED", "CHARGING_BLOCKED", "CLOSED_BETA_BLOCKED"]},
     "message": {"type": "string", "minLength": 1},
-    "request_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$"},
+    "request_id": {"type": "string", "minLength": 1, "maxLength": 128, "anyOf": [{"const": "invalid-request"}, {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"}]},
     "audit_id": {"type": "string", "pattern": "^audit-[a-f0-9]{16}$"}
   }
 }
