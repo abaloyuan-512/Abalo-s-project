@@ -26,7 +26,7 @@ from .exceptions import (
     ProviderSchemaError,
     ProviderTimeoutError,
 )
-from .models import AINarrativeContent, PromptPackage, ProviderResult
+from .models import AINarrativeDraftContent, PromptPackage, ProviderResult
 
 DEFAULT_MODEL = "gpt-5.6-terra"
 DEFAULT_MAX_OUTPUT_TOKENS = 2000
@@ -73,7 +73,7 @@ class OpenAIInterpretationProvider:
                     {"role": "system", "content": prompt.system_prompt},
                     {"role": "user", "content": prompt.user_payload_json},
                 ],
-                text_format=AINarrativeContent,
+                text_format=AINarrativeDraftContent,
                 store=False,
                 tools=[],
                 max_output_tokens=max_output_tokens,

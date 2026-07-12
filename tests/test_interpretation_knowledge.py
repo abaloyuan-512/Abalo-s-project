@@ -209,9 +209,13 @@ def test_approved_knowledge_content_enters_production_prompt_and_trace(
     monkeypatch.setattr(knowledge_module, "load_interpretation_knowledge", lambda: (changed_hexagrams, changed_lines))
     selection = select_knowledge(phase2_chart)
     payload = json.loads(PromptBuilder().build(phase2_request, selection, phase2_synthesis).user_payload_json)
-    assert payload["allowed_knowledge_evidence"][0]["evidence_id"] == f"K-H-{number}"
-    assert payload["allowed_knowledge_evidence"][0]["core_theme"] == "生产知识正文"
-    assert payload["allowed_knowledge_evidence"][0]["prohibited_inferences"]
+    approved_entries = [
+        item for item in payload["evidence_reference_catalog"]["entries"]
+        if item["evidence_source_type"].startswith("APPROVED_")
+    ]
+    assert len(approved_entries) == 2
+    assert approved_entries[0]["safe_evidence_content"]["core_theme"] == "生产知识正文"
+    assert approved_entries[0]["safe_evidence_content"]["prohibited_inferences"]
     from abalo_iching.interpretation.renderer import ProgramInterpretationRenderer
     rendered = ProgramInterpretationRenderer().render(phase2_request, selection, phase2_synthesis)
     assert rendered.knowledge_evidence_trace == selection.knowledge_evidence
@@ -230,8 +234,12 @@ def test_reviewed_and_draft_evidence_reach_only_internal_preview_prompts(monkeyp
     draft = select_knowledge(phase2_chart, policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW))
     assert {item.evidence_id[0] for item in draft.knowledge_evidence} == {"D", "R"}
     prompt = json.loads(PromptBuilder().build(phase2_request, draft, phase2_synthesis).user_payload_json)
-    assert {item["evidence_id"][0] for item in prompt["allowed_knowledge_evidence"]} == {"D", "R"}
-    assert all(item["preview"] for item in prompt["allowed_knowledge_evidence"])
+    preview_entries = [
+        item for item in prompt["evidence_reference_catalog"]["entries"]
+        if "_PREVIEW" in item["evidence_source_type"]
+    ]
+    assert {item["evidence_source_type"].split("_", 1)[0] for item in preview_entries} == {"DRAFT", "REVIEWED"}
+    assert all(item["safe_evidence_content"]["preview"] for item in preview_entries)
 
 
 def test_preview_knowledge_cannot_be_relabelled_as_production(

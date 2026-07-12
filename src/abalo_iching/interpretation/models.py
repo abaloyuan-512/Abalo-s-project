@@ -392,6 +392,28 @@ class AINarrativeContent(StrictModel):
     review_questions: list[AINarrativeClaim] = Field(min_length=1, max_length=4)
 
 
+class AINarrativeDraftClaim(StrictModel):
+    """Provider-owned fields only; fixed narrative metadata is intentionally absent."""
+
+    text: str = Field(min_length=4, max_length=300)
+    evidence_refs: list[str] = Field(min_length=1, max_length=6)
+    subject_scope: SubjectScope
+
+    @field_validator("evidence_refs")
+    @classmethod
+    def unique_evidence_ids(cls, value: list[str]) -> list[str]:
+        if len(value) != len(set(value)):
+            raise ValueError("Evidence refs must be unique within a claim")
+        return value
+
+
+class AINarrativeDraftContent(StrictModel):
+    plain_language_explanation: list[AINarrativeDraftClaim] = Field(min_length=1, max_length=4)
+    real_world_advice: list[AINarrativeDraftClaim] = Field(min_length=1, max_length=4)
+    conditions_that_change_outcome: list[AINarrativeDraftClaim] = Field(max_length=4)
+    review_questions: list[AINarrativeDraftClaim] = Field(min_length=1, max_length=4)
+
+
 class ModelMetadata(StrictModel):
     provider_name: str = "UNSET"
     response_id: str | None = None
@@ -438,7 +460,7 @@ class PromptPackage:
 
 @dataclass(frozen=True, slots=True)
 class ProviderResult:
-    parsed_output: AINarrativeContent | dict[str, Any]
+    parsed_output: AINarrativeContent | AINarrativeDraftContent | dict[str, Any]
     response_id: str | None
     model: str
     input_tokens: int

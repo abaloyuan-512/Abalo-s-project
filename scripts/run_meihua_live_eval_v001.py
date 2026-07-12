@@ -9,7 +9,8 @@ from zoneinfo import ZoneInfo
 ROOT=Path(__file__).resolve().parents[1]
 DATASET=ROOT/"evals/meihua/live_eval_v001/dataset.json"
 MODEL="gpt-5.6-terra"; EVAL_VERSION="MEIHUA_LIVE_EVAL_V001"
-PROMPT_VERSION="MEIHUA_INTERPRETATION_PROMPT_V3"; REPAIR_PROMPT_VERSION="MEIHUA_REPAIR_PROMPT_V2"; VALIDATOR_CONTRACT_VERSION="MEIHUA_INTERPRETATION_VALIDATOR_V2"
+PROMPT_VERSION="MEIHUA_INTERPRETATION_PROMPT_V5"; REPAIR_PROMPT_VERSION="MEIHUA_REPAIR_PROMPT_V4"; VALIDATOR_CONTRACT_VERSION="MEIHUA_INTERPRETATION_VALIDATOR_V2"
+PROVIDER_SCHEMA_VERSION="MEIHUA_AI_NARRATIVE_DRAFT_SCHEMA_V3"; NARRATIVE_ASSEMBLY_VERSION="MEIHUA_NARRATIVE_ASSEMBLY_V1"; EVIDENCE_CATALOG_VERSION="MEIHUA_EVIDENCE_REFERENCE_CATALOG_V1"
 MAX_CASES=16; MAX_TOTAL_ATTEMPTS=32; MAX_OUTPUT_TOKENS=2000
 TERMINAL={"VALIDATION_PASSED","VALIDATION_FAILED","PROVIDER_REFUSED","PROVIDER_INCOMPLETE","PROVIDER_ERROR","PARSE_FAILED","AUTHENTICATION_FAILED","MODEL_NOT_FOUND","MODEL_PERMISSION_DENIED","API_PARAMETER_CONTRACT_ERROR","STRUCTURED_OUTPUT_CONTRACT_ERROR"}
 GLOBAL_FUSE={"AUTHENTICATION_FAILED","MODEL_NOT_FOUND","MODEL_PERMISSION_DENIED","API_PARAMETER_CONTRACT_ERROR","STRUCTURED_OUTPUT_CONTRACT_ERROR"}
@@ -63,10 +64,10 @@ def reconcile_unknown(journal:Path)->set[tuple]:
     return unknown
 
 def event_base(run_id,case,effort,attempt):
-    return {"run_id":run_id,"attempt_id":f"{case['case_id']}:{MODEL}:{effort}:{attempt}","eval_version":EVAL_VERSION,"dataset_version":EVAL_VERSION,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"prompt_version":PROMPT_VERSION,"repair_prompt_version":REPAIR_PROMPT_VERSION if attempt==2 else None,"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"attempt_number":attempt,"started_at":now(),"finished_at":None,"lifecycle_status":"STARTED","response_id":None,"provider_error_type":None,"validation_errors":[],"input_tokens":0,"output_tokens":0,"total_tokens":0,"latency_ms":0}
+    return {"run_id":run_id,"attempt_id":f"{case['case_id']}:{MODEL}:{effort}:{attempt}","eval_version":EVAL_VERSION,"dataset_version":EVAL_VERSION,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"prompt_version":PROMPT_VERSION,"repair_prompt_version":REPAIR_PROMPT_VERSION if attempt==2 else None,"provider_schema_version":PROVIDER_SCHEMA_VERSION,"narrative_assembly_version":NARRATIVE_ASSEMBLY_VERSION,"evidence_catalog_version":EVIDENCE_CATALOG_VERSION,"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"attempt_number":attempt,"started_at":now(),"finished_at":None,"lifecycle_status":"STARTED","response_id":None,"provider_error_type":None,"validation_errors":[],"input_tokens":0,"output_tokens":0,"total_tokens":0,"latency_ms":0}
 
 def _final(case,effort,n,terminal,envelope,errors):
-    return {"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"terminal_status":terminal,"attempts_used":n,"validation_errors":errors,"response_id":envelope.get("response_id"),"request_id":envelope.get("request_id"),"input_tokens":envelope.get("input_tokens",0),"output_tokens":envelope.get("output_tokens",0),"total_tokens":envelope.get("total_tokens",0),"latency_ms":envelope.get("latency_ms",0),"raw_output_text_sha256":envelope.get("raw_output_text_sha256"),"parse_error_type":envelope.get("parse_error_type"),"parse_error_safe_summary":envelope.get("parse_error_safe_summary"),"is_preview":True,"should_charge":False,"persist_as_formal_report_allowed":False,"program_content_sha256":envelope.get("program_content_sha256","unavailable"),"prompt_version":envelope.get("prompt_version",PROMPT_VERSION),"repair_prompt_version":envelope.get("repair_prompt_version"),"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":envelope.get("prompt_sha256"),"knowledge_version":"MEIHUA_INTERPRETATION_KNOWLEDGE_V1","canonical_version":"MEIHUA_CANONICAL_TEXTS_V1","ai_narrative":envelope.get("parsed_result")}
+    return {"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"terminal_status":terminal,"attempts_used":n,"validation_errors":errors,"response_id":envelope.get("response_id"),"request_id":envelope.get("request_id"),"input_tokens":envelope.get("input_tokens",0),"output_tokens":envelope.get("output_tokens",0),"total_tokens":envelope.get("total_tokens",0),"latency_ms":envelope.get("latency_ms",0),"raw_output_text_sha256":envelope.get("raw_output_text_sha256"),"parse_error_type":envelope.get("parse_error_type"),"parse_error_safe_summary":envelope.get("parse_error_safe_summary"),"is_preview":True,"should_charge":False,"persist_as_formal_report_allowed":False,"program_content_sha256":envelope.get("program_content_sha256","unavailable"),"prompt_version":envelope.get("prompt_version",PROMPT_VERSION),"repair_prompt_version":envelope.get("repair_prompt_version"),"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"provider_schema_version":PROVIDER_SCHEMA_VERSION,"narrative_assembly_version":NARRATIVE_ASSEMBLY_VERSION,"evidence_catalog_version":EVIDENCE_CATALOG_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":envelope.get("prompt_sha256"),"knowledge_version":"MEIHUA_INTERPRETATION_KNOWLEDGE_V1","canonical_version":"MEIHUA_CANONICAL_TEXTS_V1","ai_narrative":envelope.get("parsed_result")}
 
 def global_fuse_reason(recent_results:list[dict])->str|None:
     if recent_results and recent_results[-1].get("terminal_status") in GLOBAL_FUSE: return recent_results[-1]["terminal_status"]
@@ -74,9 +75,11 @@ def global_fuse_reason(recent_results:list[dict])->str|None:
     if len(recent_results)>=2 and all(x.get("terminal_status")=="PROVIDER_ERROR" and any(e in structural for e in x.get("validation_errors",[])) for x in recent_results[-2:]): return "REPEATED_PROVIDER_STRUCTURE_ERROR"
     return None
 
-def parse_ai_narrative(raw_text:str)->dict:
-    from abalo_iching.interpretation.models import AINarrativeContent
-    return AINarrativeContent.model_validate_json(raw_text).model_dump(mode="json")
+def parse_ai_narrative(raw_text:str,catalog_payload:dict)->dict:
+    from abalo_iching.interpretation.models import AINarrativeDraftContent
+    from abalo_iching.interpretation.narrative_assembly import assemble_narrative
+    draft=AINarrativeDraftContent.model_validate_json(raw_text)
+    return assemble_narrative(draft,catalog_payload).model_dump(mode="json")
 
 def _raw_path(out:Path,case:dict,effort:str,n:int)->Path:
     return out/"raw_responses"/f"{case['case_id']}_{effort}_{n}.json"
@@ -95,7 +98,7 @@ def _recover_returned(case,effort,out,journal,results,validator):
                 if raw_file.is_file():
                     raw_text=json.loads(raw_file.read_text("utf-8")).get("output_text")
                     if raw_text:
-                        try: parsed=parse_ai_narrative(raw_text)
+                        try: parsed=parse_ai_narrative(raw_text,returned["evidence_reference_catalog"])
                         except Exception as exc: parse_error=type(exc).__name__
             if returned.get("refusal_present"):
                 terminal="PROVIDER_REFUSED"; errors=[]
@@ -154,7 +157,7 @@ def run_one(case,effort,out:Path,provider,validator,*,confirm_retry_unknown=Fals
         if returned.get("response_status")=="incomplete":
             terminal="PROVIDER_INCOMPLETE"; errors=[str(returned.get("incomplete_details") or "incomplete")]; append_jsonl(journal,{**ret,"lifecycle_status":terminal,"validation_errors":errors}); final=_final(case,effort,n,terminal,ret,errors); upsert_result(results,final); return final
         if ret["safe_parsed_result"] is None and raw_text:
-            try: ret["safe_parsed_result"]=parse_ai_narrative(raw_text)
+            try: ret["safe_parsed_result"]=parse_ai_narrative(raw_text,ret["evidence_reference_catalog"])
             except Exception as exc:
                 ret["parse_error_type"]=type(exc).__name__; ret["parse_error_safe_summary"]="AINarrativeContent local validation failed"
         if ret["safe_parsed_result"] is None:
@@ -200,7 +203,8 @@ def live_components(client):
     from time import perf_counter
     from abalo_iching.interpretation.enums import KnowledgeAccessMode
     from abalo_iching.interpretation.knowledge import KnowledgeAccessPolicy,select_knowledge
-    from abalo_iching.interpretation.models import AINarrativeContent
+    from abalo_iching.interpretation.models import AINarrativeDraftContent
+    from abalo_iching.interpretation.narrative_assembly import assemble_narrative
     from abalo_iching.interpretation.prompt_builder import PromptBuilder
     from abalo_iching.interpretation.renderer import ProgramInterpretationRenderer
     from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
@@ -209,29 +213,34 @@ def live_components(client):
     cache={}
     def context(case):
         if case["case_id"] not in cache:
-            req=_request(case); policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW); knowledge=select_knowledge(req.chart,policy=policy); synthesis=ConclusionSynthesizer().synthesize(req.chart,knowledge); program=ProgramInterpretationRenderer().render(req,knowledge,synthesis); cache[case["case_id"]]=(req,knowledge,synthesis,program)
+            from abalo_iching.interpretation.evidence_references import build_evidence_reference_catalog
+            req=_request(case); policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW); knowledge=select_knowledge(req.chart,policy=policy); synthesis=ConclusionSynthesizer().synthesize(req.chart,knowledge); program=ProgramInterpretationRenderer().render(req,knowledge,synthesis); catalog=build_evidence_reference_catalog(req,knowledge,synthesis); cache[case["case_id"]]=(req,knowledge,synthesis,program,catalog)
         return cache[case["case_id"]]
     def provider(case,effort,n,repair_context=None):
-        req,knowledge,synthesis,program=context(case); repair_context=repair_context or {}; repair_errors=list(repair_context.get("validation_errors",[])); prompt=PromptBuilder().build(req,knowledge,synthesis,repair_errors=repair_errors if n==2 else None); repair_version=REPAIR_PROMPT_VERSION if n==2 else None
+        req,knowledge,synthesis,program,catalog=context(case); repair_context=repair_context or {}; repair_errors=list(repair_context.get("validation_errors",[])); prompt=PromptBuilder().build(req,knowledge,synthesis,repair_errors=repair_errors if n==2 else None); repair_version=REPAIR_PROMPT_VERSION if n==2 else None
         material=prompt.user_payload_json
         if n==2: material += "\nREPAIR_ERROR_TYPE="+str(repair_context.get("parse_error_type"))+"\nRepair only AI narrative fields. Do not generate conclusion, chart facts, timing, support/blocking, or program summary."
         prompt_hash=hashlib.sha256(material.encode()).hexdigest(); started=perf_counter()
-        raw=client.responses.with_raw_response.parse(model=MODEL,input=[{"role":"system","content":prompt.system_prompt},{"role":"user","content":material}],text_format=AINarrativeContent,reasoning={"effort":effort},max_output_tokens=MAX_OUTPUT_TOKENS,tools=[],store=False)
+        raw=client.responses.with_raw_response.parse(model=MODEL,input=[{"role":"system","content":prompt.system_prompt},{"role":"user","content":material}],text_format=AINarrativeDraftContent,reasoning={"effort":effort},max_output_tokens=MAX_OUTPUT_TOKENS,tools=[],store=False)
         data=raw.http_response.json(); usage=data.get("usage") or {}; output_text=None; refusal=None
         for item in data.get("output") or []:
             for content in item.get("content") or []:
                 if content.get("type")=="output_text": output_text=content.get("text")
                 elif content.get("type")=="refusal": refusal=content.get("refusal") or "refusal"
-        return {"response_id":data.get("id"),"response_status":data.get("status"),"request_id":getattr(raw,"request_id",None),"incomplete_details":data.get("incomplete_details"),"refusal_present":refusal is not None,"refusal_category":"SAFE_REFUSAL" if refusal else None,"input_tokens":int(usage.get("input_tokens",0) or 0),"output_tokens":int(usage.get("output_tokens",0) or 0),"total_tokens":int(usage.get("total_tokens",0) or 0),"latency_ms":int((perf_counter()-started)*1000),"parsed_result":None,"parse_error_type":None,"parse_error_safe_summary":None,"program_content_sha256":hashlib.sha256(program.model_dump_json().encode()).hexdigest(),"prompt_version":prompt.prompt_version,"repair_prompt_version":repair_version,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":prompt_hash,"_raw_response_json":data,"_raw_output_text":output_text}
+        parsed_result=None; parse_error_type=None
+        if output_text:
+            try: parsed_result=assemble_narrative(AINarrativeDraftContent.model_validate_json(output_text),catalog).model_dump(mode="json")
+            except Exception as exc: parse_error_type=type(exc).__name__
+        return {"response_id":data.get("id"),"response_status":data.get("status"),"request_id":getattr(raw,"request_id",None),"incomplete_details":data.get("incomplete_details"),"refusal_present":refusal is not None,"refusal_category":"SAFE_REFUSAL" if refusal else None,"input_tokens":int(usage.get("input_tokens",0) or 0),"output_tokens":int(usage.get("output_tokens",0) or 0),"total_tokens":int(usage.get("total_tokens",0) or 0),"latency_ms":int((perf_counter()-started)*1000),"parsed_result":parsed_result,"parse_error_type":parse_error_type,"parse_error_safe_summary":"Draft parsing or Evidence ref assembly failed" if parse_error_type else None,"evidence_reference_catalog":catalog.to_payload(),"program_content_sha256":hashlib.sha256(program.model_dump_json().encode()).hexdigest(),"prompt_version":prompt.prompt_version,"repair_prompt_version":repair_version,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"provider_schema_version":PROVIDER_SCHEMA_VERSION,"narrative_assembly_version":NARRATIVE_ASSEMBLY_VERSION,"evidence_catalog_version":EVIDENCE_CATALOG_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":prompt_hash,"_raw_response_json":data,"_raw_output_text":output_text}
     def validator(case,parsed):
-        req,knowledge,synthesis,_=context(case)
+        req,knowledge,synthesis,_,_=context(case)
         try: InterpretationValidator().validate(parsed,req,knowledge,synthesis); return []
         except InterpretationValidationError as exc: return list(exc.errors)
     return provider,validator
 
 def mock_provider(case,effort,n,repair_context=None):
     material=f"{case['case_id']}|{effort}|attempt={n}|errors={json.dumps(repair_context or {},sort_keys=True)}"
-    return {"response_id":f"mock-{case['case_id']}-{effort}-{n}","response_status":"completed","refusal_present":False,"parsed_result":{"safe":"synthetic mock narrative"},"input_tokens":100,"output_tokens":50,"total_tokens":150,"latency_ms":10,"program_content_sha256":hashlib.sha256(case["case_id"].encode()).hexdigest(),"prompt_version":PROMPT_VERSION,"repair_prompt_version":REPAIR_PROMPT_VERSION if n==2 else None,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":hashlib.sha256(material.encode()).hexdigest()}
+    return {"response_id":f"mock-{case['case_id']}-{effort}-{n}","response_status":"completed","refusal_present":False,"parsed_result":{"safe":"synthetic mock narrative"},"input_tokens":100,"output_tokens":50,"total_tokens":150,"latency_ms":10,"program_content_sha256":hashlib.sha256(case["case_id"].encode()).hexdigest(),"prompt_version":PROMPT_VERSION,"repair_prompt_version":REPAIR_PROMPT_VERSION if n==2 else None,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"provider_schema_version":PROVIDER_SCHEMA_VERSION,"narrative_assembly_version":NARRATIVE_ASSEMBLY_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":hashlib.sha256(material.encode()).hexdigest()}
 def mock_validator(case,parsed): return []
 def run_mock(out:Path):
     validate_output_dir(out); out.mkdir(parents=True,exist_ok=True); dataset=json.loads(DATASET.read_text("utf-8"))

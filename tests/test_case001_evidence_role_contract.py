@@ -56,7 +56,12 @@ def test_case001_selected_draft_action_knowledge_is_allowed():
     payload = attempts[0]["parsed_result"]
     validate(payload, request, knowledge, synthesis)
     prompt = json.loads(PromptBuilder().build(request, knowledge, synthesis).user_payload_json)
-    assert {"D-H-1", "D-L-1-1"} <= set(prompt["evidence_role_constraints"]["action_option_ids"])
+    draft_refs = {
+        item["evidence_ref"] for item in prompt["evidence_reference_catalog"]["entries"]
+        if item["evidence_source_type"].startswith("DRAFT_")
+    }
+    assert draft_refs <= set(prompt["evidence_role_constraints"]["action_option_refs"])
+    assert len(draft_refs) == 2
 
 
 def test_unselected_or_unrelated_knowledge_is_not_action_evidence():

@@ -7,6 +7,16 @@ from scripts.run_meihua_live_eval_v001 import _request
 from scripts.validate_meihua_live_eval_v001 import validate
 
 def case(): return json.loads(DATASET.read_text("utf-8"))["cases"][0]
+def draft_json(value, request, knowledge, synthesis):
+    from abalo_iching.interpretation.evidence_references import build_evidence_reference_catalog
+    catalog=build_evidence_reference_catalog(request,knowledge,synthesis)
+    ref_by_id={item.canonical_evidence_id:item.evidence_ref for item in catalog.entries}
+    payload=value.model_dump(mode="json")
+    for claims in payload.values():
+        for claim in claims:
+            claim["evidence_refs"]=[ref_by_id[item] for item in claim.pop("evidence_ids")]
+            claim.pop("narrative_kind"); claim.pop("epistemic_basis")
+    return json.dumps(payload,ensure_ascii=False)
 def test_zero_state_blocked_and_not_human_review(tmp_path):
     s=write_blocked(tmp_path); assert s["status"]=="BLOCKED_NO_API_KEY" and s["human_review_status"]=="NOT_AVAILABLE"
     assert validate(tmp_path)["validation"]=="NOT_PASS"
@@ -91,14 +101,14 @@ def test_repair_prompt_is_distinct_and_contains_first_error():
             from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
             knowledge=select_knowledge(req.chart,policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW))
             parsed=build_conservative_fake_output(req,ConclusionSynthesizer().synthesize(req.chart,knowledge))
-            data={"id":"resp-contract","status":"completed","output":[{"type":"message","content":[{"type":"output_text","text":parsed.model_dump_json()}]}],"usage":{"input_tokens":21,"output_tokens":13,"total_tokens":34},"incomplete_details":None}
+            data={"id":"resp-contract","status":"completed","output":[{"type":"message","content":[{"type":"output_text","text":draft_json(parsed,req,knowledge,ConclusionSynthesizer().synthesize(req.chart,knowledge))}]}],"usage":{"input_tokens":21,"output_tokens":13,"total_tokens":34},"incomplete_details":None}
             return SimpleNamespace(request_id="req-contract",http_response=SimpleNamespace(json=lambda:data))
     responses=Responses(); responses.with_raw_response=responses
     provider,validator=live_components(SimpleNamespace(responses=responses))
     first=provider(case(),"low",1,{})
     second=provider(case(),"low",2,{"validation_errors":["EVIDENCE_REFERENCE_NOT_ALLOWED"]})
-    assert first["parsed_result"] is None
-    assert validator(case(),parse_ai_narrative(first["_raw_output_text"]))==[]
+    assert first["parsed_result"] is not None
+    assert validator(case(),first["parsed_result"])==[]
     assert first["prompt_sha256"]!=second["prompt_sha256"]
     assert "EVIDENCE_REFERENCE_NOT_ALLOWED" in captured[1]["input"][1]["content"]
     assert captured[0]["reasoning"]["effort"]=="low"
@@ -145,7 +155,7 @@ def test_raw_response_parse_failure_keeps_metadata_and_repairs(tmp_path):
                 from abalo_iching.interpretation.knowledge import KnowledgeAccessPolicy,select_knowledge
                 from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
                 k=select_knowledge(req.chart,policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW))
-                text=build_conservative_fake_output(req,ConclusionSynthesizer().synthesize(req.chart,k)).model_dump_json()
+                synth=ConclusionSynthesizer().synthesize(req.chart,k); text=draft_json(build_conservative_fake_output(req,synth),req,k,synth)
             data={"id":f"resp-raw-{calls}","status":"completed","output":[{"type":"message","content":[{"type":"output_text","text":text}]}],"usage":{"input_tokens":40,"output_tokens":20,"total_tokens":60}}
             return SimpleNamespace(request_id=f"req-{calls}",http_response=SimpleNamespace(json=lambda:data))
     responses=Responses(); responses.with_raw_response=responses
@@ -190,7 +200,7 @@ def test_successful_smoke_uses_one_config_denominator(tmp_path):
 def test_journal_and_result_carry_v3_audit_versions(tmp_path):
     result=run_one(case(),"low",tmp_path,mock_provider,mock_validator)
     started=read_jsonl(tmp_path/"attempt_journal.jsonl")[0]
-    assert started["prompt_version"]=="MEIHUA_INTERPRETATION_PROMPT_V3"
+    assert started["prompt_version"]=="MEIHUA_INTERPRETATION_PROMPT_V5"
     assert started["validator_contract_version"]=="MEIHUA_INTERPRETATION_VALIDATOR_V2"
     assert started["dataset_version"]=="MEIHUA_LIVE_EVAL_V001"
     assert result["validator_contract_version"]=="MEIHUA_INTERPRETATION_VALIDATOR_V2"

@@ -9,7 +9,10 @@ from zoneinfo import TZPATH
 from .enums import NarrativeReleaseStatus, ServiceStatus
 from .exceptions import InterpretationValidationError
 from .knowledge import KnowledgeAccessPolicy, select_knowledge
+from .evidence_references import build_evidence_reference_catalog
 from .models import InterpretationRequest, MeihuaInterpretation, ModelMetadata, ServiceResult
+from .models import AINarrativeContent, AINarrativeDraftContent
+from .narrative_assembly import assemble_narrative
 from .prompt_builder import PromptBuilder
 from .provider_protocol import InterpretationProvider
 from .renderer import ProgramInterpretationRenderer
@@ -58,6 +61,7 @@ class InterpretationService:
     def interpret(self, request: InterpretationRequest) -> ServiceResult:
         knowledge = select_knowledge(request.chart, policy=self.knowledge_access_policy)
         synthesis = self.synthesizer.synthesize(request.chart, knowledge)
+        evidence_catalog = build_evidence_reference_catalog(request, knowledge, synthesis)
         program_content = self.renderer.render(request, knowledge, synthesis)
         repair_errors: list[str] | None = None
         provider_attempts: list[dict[str, int | str | None]] = []
@@ -81,7 +85,16 @@ class InterpretationService:
                 }
             )
             try:
-                output = self.validator.validate(provider_result.parsed_output, request, knowledge, synthesis)
+                provider_output = provider_result.parsed_output
+                if isinstance(provider_output, AINarrativeContent):
+                    assembled = provider_output
+                elif isinstance(provider_output, AINarrativeDraftContent):
+                    assembled = assemble_narrative(provider_output, evidence_catalog)
+                elif provider_result.provider_name == "FAKE":
+                    assembled = provider_output
+                else:
+                    assembled = assemble_narrative(provider_output, evidence_catalog)
+                output = self.validator.validate(assembled, request, knowledge, synthesis)
             except InterpretationValidationError as exc:
                 repair_errors = list(exc.errors)
                 if attempt == 2:

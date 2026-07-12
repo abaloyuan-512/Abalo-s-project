@@ -11,7 +11,7 @@ from abalo_iching.interpretation.prompt_builder import (
 
 def test_system_prompt_is_single_narrative_only_resource():
     prompt = load_system_prompt()
-    assert "只负责生成安全的 AINarrativeContent" in prompt
+    assert "只负责生成安全的 AINarrativeDraftContent" in prompt
     assert "不得输出、复述或改写本卦" in prompt
     assert "不得输出日期" in prompt
     assert "不得增加 summary" in prompt
@@ -55,20 +55,22 @@ def test_prompt_payload_excludes_program_owned_conclusion_chart_and_timing(
     assert payload["program_owned_constraints"]["ai_must_not_output_timing"] is True
 
 
-def test_prompt_v3_exposes_machine_readable_evidence_roles(
+def test_prompt_v5_exposes_machine_readable_evidence_refs(
     phase2_request, phase2_knowledge, phase2_synthesis
 ):
     package = PromptBuilder().build(phase2_request, phase2_knowledge, phase2_synthesis)
     payload = json.loads(package.user_payload_json)
-    assert package.prompt_version == "MEIHUA_INTERPRETATION_PROMPT_V3"
+    assert package.prompt_version == "MEIHUA_INTERPRETATION_PROMPT_V5"
     assert set(payload["evidence_role_constraints"]) == {
-        "explanation_ids", "action_option_ids", "condition_ids", "review_question_ids"
+        "explanation_refs", "action_option_refs", "condition_refs", "review_question_refs"
     }
-    assert payload["evidence_role_instructions"]["real_world_advice_must_use_action_option_ids"] is True
-    assert payload["evidence_role_instructions"]["conditions_must_use_condition_ids"] is True
+    assert payload["evidence_role_instructions"]["real_world_advice_must_use_action_option_refs"] is True
+    assert payload["evidence_role_instructions"]["conditions_must_use_condition_refs"] is True
+    assert all(item["evidence_ref"].startswith("EV") for item in payload["evidence_reference_catalog"]["entries"])
+    assert all("canonical_evidence_id" not in item for item in payload["evidence_reference_catalog"]["entries"])
 
 
-def test_repair_v2_has_actionable_safe_role_context(
+def test_repair_v4_has_actionable_safe_role_context(
     phase2_request, phase2_knowledge, phase2_synthesis
 ):
     payload = json.loads(PromptBuilder().build(
@@ -78,8 +80,8 @@ def test_repair_v2_has_actionable_safe_role_context(
         repair_errors=["action_evidence_role_mismatch"],
     ).user_payload_json)
     repair = payload["repair_context"]
-    assert payload["repair_prompt_version"] == REPAIR_PROMPT_VERSION == "MEIHUA_REPAIR_PROMPT_V2"
+    assert payload["repair_prompt_version"] == REPAIR_PROMPT_VERSION == "MEIHUA_REPAIR_PROMPT_V4"
     assert repair["error_field"] == "real_world_advice"
-    assert repair["allowed_action_option_ids"] == payload["evidence_role_constraints"]["action_option_ids"]
+    assert repair["allowed_action_option_refs"] == payload["evidence_role_constraints"]["action_option_refs"]
     assert repair["only_modify_ai_narrative_fields"] is True
     assert {"program_facts", "program_conclusion", "timing", "evidence_direction"} <= set(repair["must_not_modify"])

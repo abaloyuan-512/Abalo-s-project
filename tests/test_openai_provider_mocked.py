@@ -58,14 +58,14 @@ def test_provider_requires_environment_key_without_disclosing_details(monkeypatc
         )
 
 
-def test_provider_uses_responses_parse_pydantic_store_false_and_no_tools(monkeypatch, valid_interpretation):
+def test_provider_uses_responses_parse_pydantic_store_false_and_no_tools(monkeypatch, valid_narrative_draft):
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-placeholder-not-a-real-key")
     monkeypatch.delenv("ABALO_OPENAI_MODEL", raising=False)
     response = SimpleNamespace(
         id="resp_test",
         model=DEFAULT_MODEL,
         status="completed",
-        output_parsed=valid_interpretation,
+        output_parsed=valid_narrative_draft,
         usage=SimpleNamespace(input_tokens=11, output_tokens=7, total_tokens=18),
         output=[],
     )
@@ -73,7 +73,7 @@ def test_provider_uses_responses_parse_pydantic_store_false_and_no_tools(monkeyp
     provider = OpenAIInterpretationProvider(client_factory=lambda **_: client)
     result = provider.generate(PromptPackage("system", "{}", "v1"), attempt_number=1)
     assert client.responses.kwargs["model"] == DEFAULT_MODEL
-    assert client.responses.kwargs["text_format"] is type(valid_interpretation)
+    assert client.responses.kwargs["text_format"] is type(valid_narrative_draft)
     assert "model_metadata" not in client.responses.kwargs["text_format"].model_fields
     assert client.responses.kwargs["store"] is False
     assert client.responses.kwargs["tools"] == []
@@ -82,19 +82,19 @@ def test_provider_uses_responses_parse_pydantic_store_false_and_no_tools(monkeyp
     assert result.provider_name == "OPENAI_RESPONSES_API"
 
 
-def test_model_can_be_overridden_only_by_abalo_environment(monkeypatch, valid_interpretation):
+def test_model_can_be_overridden_only_by_abalo_environment(monkeypatch, valid_narrative_draft):
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-placeholder-not-a-real-key")
     monkeypatch.setenv("ABALO_OPENAI_MODEL", "test-model")
-    response = SimpleNamespace(id="r", model="test-model", status="completed", output_parsed=valid_interpretation, usage=None, output=[])
+    response = SimpleNamespace(id="r", model="test-model", status="completed", output_parsed=valid_narrative_draft, usage=None, output=[])
     client = FakeClient(response)
     OpenAIInterpretationProvider(client_factory=lambda **_: client).generate(PromptPackage("s", "{}", "v"), attempt_number=1)
     assert client.responses.kwargs["model"] == "test-model"
 
 
-def test_valid_max_output_tokens_environment_override_is_passed(monkeypatch, valid_interpretation):
+def test_valid_max_output_tokens_environment_override_is_passed(monkeypatch, valid_narrative_draft):
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-placeholder-not-a-real-key")
     monkeypatch.setenv("ABALO_OPENAI_MAX_OUTPUT_TOKENS", "2500")
-    response = SimpleNamespace(id="r", model="m", status="completed", output_parsed=valid_interpretation, usage=None, output=[])
+    response = SimpleNamespace(id="r", model="m", status="completed", output_parsed=valid_narrative_draft, usage=None, output=[])
     client = FakeClient(response)
     OpenAIInterpretationProvider(client_factory=lambda **_: client).generate(PromptPackage("s", "{}", "v"), attempt_number=1)
     assert client.responses.kwargs["max_output_tokens"] == 2500
