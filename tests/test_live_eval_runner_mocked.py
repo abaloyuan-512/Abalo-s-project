@@ -183,7 +183,7 @@ def test_recovery_validation_failure_calls_only_attempt_two(tmp_path):
 def test_smoke_is_fixed_and_full_run_resumes_without_duplicate(tmp_path):
     calls=[]
     def provider(c,e,n,context=None): calls.append((c["case_id"],e,n)); return mock_provider(c,e,n,context)
-    summary=run_smoke(tmp_path,provider,mock_validator)
+    summary=run_smoke(tmp_path,provider,mock_validator,"CASE-001")
     assert summary["status"]=="SMOKE_COMPLETED" and calls==[("CASE-001","low",1)] and summary["human_review_status"]=="NOT_AVAILABLE"
     dataset=json.loads(DATASET.read_text("utf-8"))
     for c,e in build_plan(dataset): run_one(c,e,tmp_path,provider,mock_validator)
@@ -192,10 +192,49 @@ def test_smoke_is_fixed_and_full_run_resumes_without_duplicate(tmp_path):
     assert metrics_from_journal(read_jsonl(tmp_path/"attempt_journal.jsonl"))["total_api_attempts"]==16
 
 def test_successful_smoke_uses_one_config_denominator(tmp_path):
-    summary=run_smoke(tmp_path,mock_provider,mock_validator)
+    summary=run_smoke(tmp_path,mock_provider,mock_validator,"CASE-001")
     assert summary["metrics"]["final_pass_rate"]==1.0
     assert summary["metrics"]["expected_config_count"]==1
     assert summary["metrics"]["passed_config_count"]==1
+
+@pytest.mark.parametrize("case_id",["CASE-001","CASE-007"])
+def test_cli_accepts_only_guarded_smoke_cases(case_id,tmp_path):
+    args=build_parser().parse_args(["--output-dir",str(tmp_path),"--live-smoke-case",case_id])
+    assert args.live_smoke_case==case_id
+
+@pytest.mark.parametrize("case_id",["CASE-003","CASE-012","anything"])
+def test_cli_rejects_other_smoke_cases(case_id,tmp_path):
+    with pytest.raises(SystemExit): build_parser().parse_args(["--output-dir",str(tmp_path),"--live-smoke-case",case_id])
+
+@pytest.mark.parametrize("case_id",["CASE-001","CASE-007"])
+def test_guarded_smoke_runs_only_selected_case_low(case_id,tmp_path):
+    calls=[]
+    def provider(c,e,n,context=None): calls.append((c["case_id"],e,n)); return mock_provider(c,e,n,context)
+    summary=run_smoke(tmp_path,provider,mock_validator,case_id)
+    assert calls==[(case_id,"low",1)]
+    assert summary["smoke_case"]==case_id and summary["reasoning_effort"]=="low"
+    assert summary["metrics"]["expected_config_count"]==1
+    started=next(x for x in read_jsonl(tmp_path/"attempt_journal.jsonl") if x["lifecycle_status"]=="STARTED")
+    assert started["run_id"]==f"LIVE-SMOKE-{case_id}"
+    result=read_jsonl(tmp_path/"config_results.jsonl")[0]
+    assert result["should_charge"] is False
+    assert result["persist_as_formal_report_allowed"] is False
+    from abalo_iching.interpretation.enums import NarrativeReleaseStatus
+    assert NarrativeReleaseStatus.UNVERIFIED.value=="UNVERIFIED"
+
+def test_case007_smoke_repairs_at_most_once(tmp_path):
+    calls=[]
+    def provider(c,e,n,context=None): calls.append((c["case_id"],e,n)); return mock_provider(c,e,n,context)
+    validations=0
+    def validator(c,p):
+        nonlocal validations; validations+=1; return ["REPAIR_REQUIRED"] if validations==1 else []
+    summary=run_smoke(tmp_path,provider,validator,"CASE-007")
+    assert summary["status"]=="SMOKE_COMPLETED"
+    assert calls==[("CASE-007","low",1),("CASE-007","low",2)]
+
+def test_run_smoke_rejects_unapproved_case_even_without_cli(tmp_path):
+    with pytest.raises(LiveEvalGuardError,match="INVALID_SMOKE_CASE"):
+        run_smoke(tmp_path,mock_provider,mock_validator,"CASE-003")
 
 def test_journal_and_result_carry_v3_audit_versions(tmp_path):
     result=run_one(case(),"low",tmp_path,mock_provider,mock_validator)

@@ -252,10 +252,11 @@ def write_blocked(out:Path):
 def write_dry_run(out:Path):
     validate_output_dir(out); out.mkdir(parents=True,exist_ok=True); (out/"attempt_journal.jsonl").write_text("",encoding="utf-8"); (out/"config_results.jsonl").write_text("",encoding="utf-8"); summary={"status":EvalStatus.NOT_STARTED.value,"dry_run_completed":True,"human_review_status":"NOT_AVAILABLE","metrics":metrics_from_journal([])}; atomic_json(out/"summary.json",summary); return summary
 
-def run_smoke(out:Path,provider,validator)->dict:
-    validate_output_dir(out); dataset=json.loads(DATASET.read_text("utf-8")); case=next(x for x in dataset["cases"] if x["case_id"]=="CASE-001")
-    result=run_one(case,"low",out,provider,validator,run_id="LIVE-SMOKE-CASE-001")
-    results=read_jsonl(out/"config_results.jsonl"); summary={"status":"SMOKE_COMPLETED" if result.get("terminal_status")=="VALIDATION_PASSED" else "FAILED","human_review_status":"NOT_AVAILABLE","smoke_case":"CASE-001","reasoning_effort":"low","metrics":metrics_from_journal(read_jsonl(out/"attempt_journal.jsonl"),expected_config_count=1)}; atomic_json(out/"summary.json",summary); return summary
+def run_smoke(out:Path,provider,validator,case_id:str)->dict:
+    validate_output_dir(out); dataset=json.loads(DATASET.read_text("utf-8")); case=next((x for x in dataset["cases"] if x["case_id"]==case_id),None)
+    if case is None or case_id not in {"CASE-001","CASE-007"}: raise LiveEvalGuardError("INVALID_SMOKE_CASE")
+    result=run_one(case,"low",out,provider,validator,run_id=f"LIVE-SMOKE-{case_id}")
+    results=read_jsonl(out/"config_results.jsonl"); summary={"status":"SMOKE_COMPLETED" if result.get("terminal_status")=="VALIDATION_PASSED" else "FAILED","human_review_status":"NOT_AVAILABLE","smoke_case":case_id,"reasoning_effort":"low","metrics":metrics_from_journal(read_jsonl(out/"attempt_journal.jsonl"),expected_config_count=1)}; atomic_json(out/"summary.json",summary); return summary
 
 def _request(case):
     from abalo_iching import MeihuaInput,cast_meihua
@@ -265,8 +266,11 @@ def _request(case):
     chart=cast_meihua(MeihuaInput(*case["numbers"],datetime(2026,7,12,12,tzinfo=ZoneInfo("Asia/Shanghai")),"Asia/Shanghai"))
     return InterpretationRequest(question_id=case["case_id"],question_domain=domain,normalized_question=case["question"],decision_goal=case["decision_goal"],time_horizon=case["time_horizon"],real_world_context=case["real_world_context"],chart=chart)
 
+def build_parser()->argparse.ArgumentParser:
+    p=argparse.ArgumentParser(); p.add_argument("--output-dir",type=Path,required=True); p.add_argument("--dry-run",action="store_true"); p.add_argument("--mock",action="store_true"); p.add_argument("--live-smoke-case",choices=["CASE-001","CASE-007"]); p.add_argument("--confirm-live-eval",action="store_true"); p.add_argument("--confirm-max-attempts",type=int); p.add_argument("--confirm-retry-unknown-outcome",action="store_true"); return p
+
 def main():
-    p=argparse.ArgumentParser(); p.add_argument("--output-dir",type=Path,required=True); p.add_argument("--dry-run",action="store_true"); p.add_argument("--mock",action="store_true"); p.add_argument("--live-smoke-case",choices=["CASE-001"]); p.add_argument("--confirm-live-eval",action="store_true"); p.add_argument("--confirm-max-attempts",type=int); p.add_argument("--confirm-retry-unknown-outcome",action="store_true"); a=p.parse_args()
+    a=build_parser().parse_args()
     validate_output_dir(a.output_dir)
     if a.mock: print(json.dumps(run_mock(a.output_dir),ensure_ascii=False)); return
     if a.dry_run: print(json.dumps(write_dry_run(a.output_dir),ensure_ascii=False)); return
@@ -278,7 +282,7 @@ def main():
     if not accessible:
         a.output_dir.mkdir(parents=True,exist_ok=True); atomic_json(a.output_dir/"summary.json",{"status":EvalStatus.BLOCKED_MODEL_UNAVAILABLE.value,"human_review_status":"NOT_AVAILABLE","responses_generation_calls":0}); return
     provider,validator=live_components(client)
-    if a.live_smoke_case: print(json.dumps(run_smoke(a.output_dir,provider,validator),ensure_ascii=False)); return
+    if a.live_smoke_case: print(json.dumps(run_smoke(a.output_dir,provider,validator,a.live_smoke_case),ensure_ascii=False)); return
     dataset=json.loads(DATASET.read_text("utf-8")); a.output_dir.mkdir(parents=True,exist_ok=True); recent=[]
     for case,effort in build_plan(dataset):
         try:
