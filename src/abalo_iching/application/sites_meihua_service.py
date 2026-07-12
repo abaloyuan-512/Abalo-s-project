@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import unicodedata
 from collections.abc import Callable
 from datetime import datetime
 from typing import Any
@@ -36,6 +37,15 @@ def _now() -> datetime:
 
 def _safe_audit_id(request_id: str) -> str:
     return "audit-" + hashlib.sha256(request_id.encode("utf-8")).hexdigest()[:16]
+
+
+def safe_request_id(value: Any) -> str:
+    """Return only a bounded, printable request ID suitable for public errors."""
+    if not isinstance(value, str) or not 1 <= len(value) <= 128:
+        return "invalid-request"
+    if any(unicodedata.category(character).startswith("C") for character in value):
+        return "invalid-request"
+    return value
 
 
 def _gate() -> dict[str, Any]:
@@ -83,7 +93,7 @@ def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | No
     if not isinstance(payload, dict):
         return None, ("INVALID_REQUEST", "请求必须是JSON对象。")
     request_id = payload.get("request_id")
-    if not isinstance(request_id, str) or not request_id.strip() or len(request_id) > 128:
+    if not isinstance(request_id, str) or safe_request_id(request_id) == "invalid-request":
         return None, ("INVALID_REQUEST", "request_id必须是非空字符串且不超过128字符。")
     extras = set(payload) - _ALLOWED_FIELDS
     if extras & _CLIENT_DERIVED_FIELDS:
@@ -145,8 +155,7 @@ def process_sites_meihua_request(
     generated_at = (clock or _now)()
     if generated_at.tzinfo is None:
         raise ValueError("clock must return an aware datetime")
-    request_id = request_payload.get("request_id", "invalid-request") if isinstance(request_payload, dict) else "invalid-request"
-    request_id = request_id if isinstance(request_id, str) and request_id else "invalid-request"
+    request_id = safe_request_id(request_payload.get("request_id") if isinstance(request_payload, dict) else None)
     validated, error = _validate(request_payload)
     if error:
         return _error_response(request_id, error[0], error[1], generated_at)

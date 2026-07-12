@@ -17,6 +17,6 @@
   },
   "narrative": {"status": "UNVERIFIED", "available": false, "content": null, "blocked_reason": "解释功能尚未完成真实路径验证", "live_validation_status": "BLOCKED_BY_EXECUTION_POLICY"},
   "release_gate": {"should_charge": false, "formal_report_persistence_allowed": false, "closed_beta_allowed": false, "narrative_release_status": "UNVERIFIED"},
-  "audit": {"engine_version": "MEIHUA_ENGINE_PHASE1_V1", "contract_version": "SITES_MEIHUA_API_CONTRACT_V1", "calculation_source": "PYTHON_AUTHORITATIVE_ENGINE", "generated_at": "2026-07-13T10:30:00+08:00", "client_timestamp": "2026-07-13T10:00:00+08:00", "client_timestamp_used_for_calculation": false, "synthetic_or_real_input": "SYNTHETIC", "request_hash": "example-redacted-hash", "audit_id": "audit-bee55d67a95299fe"},
+  "audit": {"engine_version": "MEIHUA_ENGINE_PHASE1_V1", "contract_version": "SITES_MEIHUA_API_CONTRACT_V1", "calculation_source": "PYTHON_AUTHORITATIVE_ENGINE", "generated_at": "2026-07-13T10:30:00+08:00", "client_timestamp": "2026-07-13T10:00:00+08:00", "client_timestamp_used_for_calculation": false, "synthetic_or_real_input": "SYNTHETIC", "request_hash": "c768d97d1edd15ffa2dcbc3a15fe216cbfd8ca30c5f3c6795155d6b3aae0df32", "audit_id": "audit-bee55d67a95299fe"},
   "errors": []
 }
