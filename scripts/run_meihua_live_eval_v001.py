@@ -1,6 +1,6 @@
 """Reliable, resumable Phase 2C runner. Live generation is always explicitly gated."""
 from __future__ import annotations
-import argparse, hashlib, inspect, json, os, statistics, uuid
+import argparse, hashlib, inspect, json, math, os, statistics, uuid
 from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 ROOT=Path(__file__).resolve().parents[1]
 DATASET=ROOT/"evals/meihua/live_eval_v001/dataset.json"
 MODEL="gpt-5.6-terra"; EVAL_VERSION="MEIHUA_LIVE_EVAL_V001"
+PROMPT_VERSION="MEIHUA_INTERPRETATION_PROMPT_V3"; REPAIR_PROMPT_VERSION="MEIHUA_REPAIR_PROMPT_V2"; VALIDATOR_CONTRACT_VERSION="MEIHUA_INTERPRETATION_VALIDATOR_V2"
 MAX_CASES=16; MAX_TOTAL_ATTEMPTS=32; MAX_OUTPUT_TOKENS=2000
 TERMINAL={"VALIDATION_PASSED","VALIDATION_FAILED","PROVIDER_REFUSED","PROVIDER_INCOMPLETE","PROVIDER_ERROR","PARSE_FAILED","AUTHENTICATION_FAILED","MODEL_NOT_FOUND","MODEL_PERMISSION_DENIED","API_PARAMETER_CONTRACT_ERROR","STRUCTURED_OUTPUT_CONTRACT_ERROR"}
 GLOBAL_FUSE={"AUTHENTICATION_FAILED","MODEL_NOT_FOUND","MODEL_PERMISSION_DENIED","API_PARAMETER_CONTRACT_ERROR","STRUCTURED_OUTPUT_CONTRACT_ERROR"}
@@ -62,10 +63,10 @@ def reconcile_unknown(journal:Path)->set[tuple]:
     return unknown
 
 def event_base(run_id,case,effort,attempt):
-    return {"run_id":run_id,"attempt_id":f"{case['case_id']}:{MODEL}:{effort}:{attempt}","eval_version":EVAL_VERSION,"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"attempt_number":attempt,"started_at":now(),"finished_at":None,"lifecycle_status":"STARTED","response_id":None,"provider_error_type":None,"validation_errors":[],"input_tokens":0,"output_tokens":0,"total_tokens":0,"latency_ms":0}
+    return {"run_id":run_id,"attempt_id":f"{case['case_id']}:{MODEL}:{effort}:{attempt}","eval_version":EVAL_VERSION,"dataset_version":EVAL_VERSION,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"prompt_version":PROMPT_VERSION,"repair_prompt_version":REPAIR_PROMPT_VERSION if attempt==2 else None,"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"attempt_number":attempt,"started_at":now(),"finished_at":None,"lifecycle_status":"STARTED","response_id":None,"provider_error_type":None,"validation_errors":[],"input_tokens":0,"output_tokens":0,"total_tokens":0,"latency_ms":0}
 
 def _final(case,effort,n,terminal,envelope,errors):
-    return {"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"terminal_status":terminal,"attempts_used":n,"validation_errors":errors,"response_id":envelope.get("response_id"),"request_id":envelope.get("request_id"),"input_tokens":envelope.get("input_tokens",0),"output_tokens":envelope.get("output_tokens",0),"total_tokens":envelope.get("total_tokens",0),"latency_ms":envelope.get("latency_ms",0),"raw_output_text_sha256":envelope.get("raw_output_text_sha256"),"parse_error_type":envelope.get("parse_error_type"),"parse_error_safe_summary":envelope.get("parse_error_safe_summary"),"is_preview":True,"should_charge":False,"persist_as_formal_report_allowed":False,"program_content_sha256":envelope.get("program_content_sha256","unavailable"),"prompt_version":envelope.get("prompt_version","MEIHUA_INTERPRETATION_PROMPT_V1"),"repair_prompt_version":envelope.get("repair_prompt_version"),"prompt_sha256":envelope.get("prompt_sha256"),"knowledge_version":"MEIHUA_INTERPRETATION_KNOWLEDGE_V1","canonical_version":"MEIHUA_CANONICAL_TEXTS_V1","ai_narrative":envelope.get("parsed_result")}
+    return {"case_id":case["case_id"],"model":MODEL,"reasoning_effort":effort,"terminal_status":terminal,"attempts_used":n,"validation_errors":errors,"response_id":envelope.get("response_id"),"request_id":envelope.get("request_id"),"input_tokens":envelope.get("input_tokens",0),"output_tokens":envelope.get("output_tokens",0),"total_tokens":envelope.get("total_tokens",0),"latency_ms":envelope.get("latency_ms",0),"raw_output_text_sha256":envelope.get("raw_output_text_sha256"),"parse_error_type":envelope.get("parse_error_type"),"parse_error_safe_summary":envelope.get("parse_error_safe_summary"),"is_preview":True,"should_charge":False,"persist_as_formal_report_allowed":False,"program_content_sha256":envelope.get("program_content_sha256","unavailable"),"prompt_version":envelope.get("prompt_version",PROMPT_VERSION),"repair_prompt_version":envelope.get("repair_prompt_version"),"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":envelope.get("prompt_sha256"),"knowledge_version":"MEIHUA_INTERPRETATION_KNOWLEDGE_V1","canonical_version":"MEIHUA_CANONICAL_TEXTS_V1","ai_narrative":envelope.get("parsed_result")}
 
 def global_fuse_reason(recent_results:list[dict])->str|None:
     if recent_results and recent_results[-1].get("terminal_status") in GLOBAL_FUSE: return recent_results[-1]["terminal_status"]
@@ -168,11 +169,13 @@ def run_one(case,effort,out:Path,provider,validator,*,confirm_retry_unknown=Fals
         final=_final(case,effort,n,terminal,ret,errors); upsert_result(results,final); return final
     return {"skipped":"ALREADY_TERMINAL"}
 
-def metrics_from_journal(rows):
+def metrics_from_journal(rows,expected_config_count=16):
     starts=[r for r in rows if r["lifecycle_status"]=="STARTED"]; ids={r["attempt_id"] for r in starts}; returned={r["attempt_id"]:r for r in rows if r["lifecycle_status"]=="PROVIDER_RETURNED"}; terminals=[r for r in rows if r["lifecycle_status"] in TERMINAL]
     lats=[x.get("latency_ms",0) for x in returned.values()]; passed={r["attempt_id"] for r in terminals if r["lifecycle_status"]=="VALIDATION_PASSED"}
     first={r["attempt_id"] for r in starts if r["attempt_number"]==1}; configs={tuple(r[x] for x in ("case_id","model","reasoning_effort")) for r in terminals if r["lifecycle_status"]=="VALIDATION_PASSED"}
-    return {"base_calls":len(first),"repair_retries":len(ids-first),"total_api_attempts":len(ids),"first_pass_rate":len(passed&first)/len(first) if first else None,"final_pass_rate":len(configs)/16,"provider_refusals":sum(r["lifecycle_status"]=="PROVIDER_REFUSED" for r in terminals),"incomplete":sum(r["lifecycle_status"]=="PROVIDER_INCOMPLETE" for r in terminals),"parse_failures":sum(r["lifecycle_status"]=="PARSE_FAILED" for r in terminals),"validation_failures":sum(r["lifecycle_status"]=="VALIDATION_FAILED" for r in terminals),"timeouts":sum("Timeout" in str(r.get("provider_error_type")) for r in terminals),"rate_limits":sum("RateLimit" in str(r.get("provider_error_type")) for r in terminals),"connection_errors":sum("Connection" in str(r.get("provider_error_type")) for r in terminals),"authentication_failures":sum("Authentication" in str(r.get("provider_error_type")) for r in terminals),"input_tokens":sum(x.get("input_tokens",0) or 0 for x in returned.values()),"output_tokens":sum(x.get("output_tokens",0) or 0 for x in returned.values()),"total_tokens":sum(x.get("total_tokens",0) or 0 for x in returned.values()),"average_latency_ms":statistics.mean(lats) if lats else 0,"p50_latency_ms":statistics.median(lats) if lats else 0,"p95_latency_ms":sorted(lats)[max(0,int(len(lats)*.95)-1)] if lats else 0}
+    completed={tuple(r[x] for x in ("case_id","model","reasoning_effort")) for r in terminals}
+    p95=sorted(lats)[math.ceil(.95*len(lats))-1] if lats else 0
+    return {"base_calls":len(first),"repair_retries":len(ids-first),"total_api_attempts":len(ids),"first_pass_rate":len(passed&first)/len(first) if first else None,"final_pass_rate":len(configs)/expected_config_count if expected_config_count else None,"completed_config_count":len(completed),"expected_config_count":expected_config_count,"passed_config_count":len(configs),"provider_refusals":sum(r["lifecycle_status"]=="PROVIDER_REFUSED" for r in terminals),"incomplete":sum(r["lifecycle_status"]=="PROVIDER_INCOMPLETE" for r in terminals),"parse_failures":sum(r["lifecycle_status"]=="PARSE_FAILED" for r in terminals),"validation_failures":sum(r["lifecycle_status"]=="VALIDATION_FAILED" for r in terminals),"timeouts":sum("Timeout" in str(r.get("provider_error_type")) for r in terminals),"rate_limits":sum("RateLimit" in str(r.get("provider_error_type")) for r in terminals),"connection_errors":sum("Connection" in str(r.get("provider_error_type")) for r in terminals),"authentication_failures":sum("Authentication" in str(r.get("provider_error_type")) for r in terminals),"input_tokens":sum(x.get("input_tokens",0) or 0 for x in returned.values()),"output_tokens":sum(x.get("output_tokens",0) or 0 for x in returned.values()),"total_tokens":sum(x.get("total_tokens",0) or 0 for x in returned.values()),"average_latency_ms":statistics.mean(lats) if lats else 0,"p50_latency_ms":statistics.median(lats) if lats else 0,"p95_latency_ms":p95}
 
 def summarize(rows): return metrics_from_journal(rows)
 
@@ -209,7 +212,7 @@ def live_components(client):
             req=_request(case); policy=KnowledgeAccessPolicy(KnowledgeAccessMode.INTERNAL_DRAFT_PREVIEW); knowledge=select_knowledge(req.chart,policy=policy); synthesis=ConclusionSynthesizer().synthesize(req.chart,knowledge); program=ProgramInterpretationRenderer().render(req,knowledge,synthesis); cache[case["case_id"]]=(req,knowledge,synthesis,program)
         return cache[case["case_id"]]
     def provider(case,effort,n,repair_context=None):
-        req,knowledge,synthesis,program=context(case); repair_context=repair_context or {}; repair_errors=list(repair_context.get("validation_errors",[])); prompt=PromptBuilder().build(req,knowledge,synthesis,repair_errors=repair_errors if n==2 else None); repair_version="MEIHUA_REPAIR_PROMPT_V1" if n==2 else None
+        req,knowledge,synthesis,program=context(case); repair_context=repair_context or {}; repair_errors=list(repair_context.get("validation_errors",[])); prompt=PromptBuilder().build(req,knowledge,synthesis,repair_errors=repair_errors if n==2 else None); repair_version=REPAIR_PROMPT_VERSION if n==2 else None
         material=prompt.user_payload_json
         if n==2: material += "\nREPAIR_ERROR_TYPE="+str(repair_context.get("parse_error_type"))+"\nRepair only AI narrative fields. Do not generate conclusion, chart facts, timing, support/blocking, or program summary."
         prompt_hash=hashlib.sha256(material.encode()).hexdigest(); started=perf_counter()
@@ -219,7 +222,7 @@ def live_components(client):
             for content in item.get("content") or []:
                 if content.get("type")=="output_text": output_text=content.get("text")
                 elif content.get("type")=="refusal": refusal=content.get("refusal") or "refusal"
-        return {"response_id":data.get("id"),"response_status":data.get("status"),"request_id":getattr(raw,"request_id",None),"incomplete_details":data.get("incomplete_details"),"refusal_present":refusal is not None,"refusal_category":"SAFE_REFUSAL" if refusal else None,"input_tokens":int(usage.get("input_tokens",0) or 0),"output_tokens":int(usage.get("output_tokens",0) or 0),"total_tokens":int(usage.get("total_tokens",0) or 0),"latency_ms":int((perf_counter()-started)*1000),"parsed_result":None,"parse_error_type":None,"parse_error_safe_summary":None,"program_content_sha256":hashlib.sha256(program.model_dump_json().encode()).hexdigest(),"prompt_version":prompt.prompt_version,"repair_prompt_version":repair_version,"prompt_sha256":prompt_hash,"_raw_response_json":data,"_raw_output_text":output_text}
+        return {"response_id":data.get("id"),"response_status":data.get("status"),"request_id":getattr(raw,"request_id",None),"incomplete_details":data.get("incomplete_details"),"refusal_present":refusal is not None,"refusal_category":"SAFE_REFUSAL" if refusal else None,"input_tokens":int(usage.get("input_tokens",0) or 0),"output_tokens":int(usage.get("output_tokens",0) or 0),"total_tokens":int(usage.get("total_tokens",0) or 0),"latency_ms":int((perf_counter()-started)*1000),"parsed_result":None,"parse_error_type":None,"parse_error_safe_summary":None,"program_content_sha256":hashlib.sha256(program.model_dump_json().encode()).hexdigest(),"prompt_version":prompt.prompt_version,"repair_prompt_version":repair_version,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":prompt_hash,"_raw_response_json":data,"_raw_output_text":output_text}
     def validator(case,parsed):
         req,knowledge,synthesis,_=context(case)
         try: InterpretationValidator().validate(parsed,req,knowledge,synthesis); return []
@@ -228,7 +231,7 @@ def live_components(client):
 
 def mock_provider(case,effort,n,repair_context=None):
     material=f"{case['case_id']}|{effort}|attempt={n}|errors={json.dumps(repair_context or {},sort_keys=True)}"
-    return {"response_id":f"mock-{case['case_id']}-{effort}-{n}","response_status":"completed","refusal_present":False,"parsed_result":{"safe":"synthetic mock narrative"},"input_tokens":100,"output_tokens":50,"total_tokens":150,"latency_ms":10,"program_content_sha256":hashlib.sha256(case["case_id"].encode()).hexdigest(),"prompt_version":"MEIHUA_INTERPRETATION_PROMPT_V1","repair_prompt_version":"MEIHUA_REPAIR_PROMPT_V1" if n==2 else None,"prompt_sha256":hashlib.sha256(material.encode()).hexdigest()}
+    return {"response_id":f"mock-{case['case_id']}-{effort}-{n}","response_status":"completed","refusal_present":False,"parsed_result":{"safe":"synthetic mock narrative"},"input_tokens":100,"output_tokens":50,"total_tokens":150,"latency_ms":10,"program_content_sha256":hashlib.sha256(case["case_id"].encode()).hexdigest(),"prompt_version":PROMPT_VERSION,"repair_prompt_version":REPAIR_PROMPT_VERSION if n==2 else None,"validator_contract_version":VALIDATOR_CONTRACT_VERSION,"dataset_version":EVAL_VERSION,"prompt_sha256":hashlib.sha256(material.encode()).hexdigest()}
 def mock_validator(case,parsed): return []
 def run_mock(out:Path):
     validate_output_dir(out); out.mkdir(parents=True,exist_ok=True); dataset=json.loads(DATASET.read_text("utf-8"))
@@ -243,7 +246,7 @@ def write_dry_run(out:Path):
 def run_smoke(out:Path,provider,validator)->dict:
     validate_output_dir(out); dataset=json.loads(DATASET.read_text("utf-8")); case=next(x for x in dataset["cases"] if x["case_id"]=="CASE-001")
     result=run_one(case,"low",out,provider,validator,run_id="LIVE-SMOKE-CASE-001")
-    results=read_jsonl(out/"config_results.jsonl"); summary={"status":"SMOKE_COMPLETED" if result.get("terminal_status")=="VALIDATION_PASSED" else "FAILED","human_review_status":"NOT_AVAILABLE","smoke_case":"CASE-001","reasoning_effort":"low","metrics":metrics_from_journal(read_jsonl(out/"attempt_journal.jsonl"))}; atomic_json(out/"summary.json",summary); return summary
+    results=read_jsonl(out/"config_results.jsonl"); summary={"status":"SMOKE_COMPLETED" if result.get("terminal_status")=="VALIDATION_PASSED" else "FAILED","human_review_status":"NOT_AVAILABLE","smoke_case":"CASE-001","reasoning_effort":"low","metrics":metrics_from_journal(read_jsonl(out/"attempt_journal.jsonl"),expected_config_count=1)}; atomic_json(out/"summary.json",summary); return summary
 
 def _request(case):
     from abalo_iching import MeihuaInput,cast_meihua

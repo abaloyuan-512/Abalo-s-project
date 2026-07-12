@@ -8,12 +8,15 @@ import unicodedata
 
 from pydantic import ValidationError
 
-from abalo_iching.meihua.enums import EvidencePolarity, EvidenceType
+from abalo_iching.meihua.enums import EvidencePolarity
 from abalo_iching.meihua.hexagrams import load_hexagrams
 
 from .enums import EpistemicBasis, NarrativeKind
+from .evidence_roles import evidence_role_constraints
 from .exceptions import InterpretationValidationError
 from .models import AINarrativeClaim, AINarrativeContent, InterpretationRequest, KnowledgeSelection, SynthesisResult
+
+VALIDATOR_CONTRACT_VERSION = "MEIHUA_INTERPRETATION_VALIDATOR_V2"
 
 
 def normalize_text(value: str) -> str:
@@ -84,32 +87,19 @@ class InterpretationValidator:
             raise InterpretationValidationError([f"schema:{location}" for location in locations]) from exc
 
         errors: list[str] = []
+        roles = evidence_role_constraints(request, knowledge, synthesis)
         evidence_by_id = {item.evidence_id: item for item in request.chart.evidence}
-        knowledge_by_id = {item.evidence_id: item for item in knowledge.knowledge_evidence}
+        knowledge_by_id = {
+            item.evidence_id: item
+            for item in knowledge.knowledge_evidence
+            if item.evidence_id in roles.selected_knowledge_ids
+        }
         unified_evidence = {**evidence_by_id, **knowledge_by_id}
         allowed_ids = set(unified_evidence)
         if knowledge.access_mode == "PRODUCTION" and any(
             item.preview or not item.evidence_id.startswith("K-") for item in knowledge.knowledge_evidence
         ):
             errors.append("preview_knowledge_in_production")
-        relation_ids = {
-            item.evidence_id
-            for item in request.chart.evidence
-            if item.evidence_type
-            in {
-                EvidenceType.INITIAL_BODY_USE_RELATION,
-                EvidenceType.CHANGED_BODY_USE_RELATION,
-                EvidenceType.BODY_SEASONAL_STRENGTH,
-                EvidenceType.INITIAL_USE_SEASONAL_STRENGTH,
-                EvidenceType.CHANGED_USE_SEASONAL_STRENGTH,
-                EvidenceType.MOVING_LINE_STAGE,
-            }
-        } | set(knowledge.allowed_knowledge_evidence_ids)
-        action_ids = set(synthesis.supporting_evidence_ids) | set(synthesis.blocking_evidence_ids)
-        condition_ids = {
-            item.evidence_ids[0] for item in synthesis.relation_assessments if item.conditions or item.warnings
-        }
-
         for field, claim in _claims(output):
             ids = set(claim.evidence_ids)
             if ids - allowed_ids:
@@ -118,18 +108,20 @@ class InterpretationValidator:
                 errors.append(f"{field}_narrative_kind_mismatch")
             if claim.epistemic_basis is not _FIELD_BASIS[field]:
                 errors.append(f"{field}_epistemic_basis_mismatch")
-            if field == "plain_language_explanation" and ids - relation_ids:
+            if field == "plain_language_explanation" and ids - roles.explanation_ids:
                 errors.append("explanation_evidence_role_mismatch")
             if field == "real_world_advice":
-                if not ids or ids - action_ids:
+                if not ids or ids - roles.action_option_ids:
                     errors.append("action_evidence_role_mismatch")
                 if not normalize_text(claim.text).startswith(tuple(normalize_text(item) for item in _ACTION_PREFIXES)):
                     errors.append("action_option_not_noncoercive")
             if field == "conditions_that_change_outcome":
-                if not condition_ids or ids - condition_ids or claim.text != _CONDITION_TEMPLATE:
+                if not roles.condition_ids or ids - roles.condition_ids or claim.text != _CONDITION_TEMPLATE:
                     errors.append("condition_not_program_grounded")
             if field == "review_questions" and not claim.text.endswith(("?", "？")):
                 errors.append("review_question_not_question")
+            if field == "review_questions" and ids - roles.review_question_ids:
+                errors.append("review_question_evidence_role_mismatch")
             errors.extend(self._validate_evidence_semantics(claim, unified_evidence))
             for evidence_id in ids & set(knowledge_by_id):
                 for prohibited in knowledge_by_id[evidence_id].prohibited_inferences:

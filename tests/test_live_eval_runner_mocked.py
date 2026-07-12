@@ -38,6 +38,19 @@ def test_parse_failure_recorded(tmp_path):
     r=run_one(case(),"low",tmp_path,lambda *x:{"parsed":None},mock_validator); assert r["terminal_status"]=="PARSE_FAILED"
 def test_metrics_are_from_attempt_journal(tmp_path):
     run_one(case(),"low",tmp_path,mock_provider,mock_validator); m=metrics_from_journal(read_jsonl(tmp_path/"attempt_journal.jsonl")); assert m["total_api_attempts"]==1 and m["total_tokens"]==150
+
+def test_metrics_use_nearest_rank_p95_and_explicit_expected_count():
+    rows=[]
+    for attempt,latency in ((1,8417),(2,6522)):
+        base=event_base("metrics",case(),"low",attempt)
+        rows.extend([base,{**base,"lifecycle_status":"PROVIDER_RETURNED","latency_ms":latency},{**base,"lifecycle_status":"VALIDATION_FAILED"}])
+    metrics=metrics_from_journal(rows,expected_config_count=1)
+    assert metrics["p50_latency_ms"]==7469.5
+    assert metrics["p95_latency_ms"]==8417
+    assert metrics["p95_latency_ms"]>=metrics["p50_latency_ms"]
+    assert metrics["completed_config_count"]==1
+    assert metrics["expected_config_count"]==1
+    assert metrics["passed_config_count"]==0
 def test_mock_full_16_is_complete(tmp_path):
     s=run_mock(tmp_path); assert s["status"]=="COMPLETED_PENDING_HUMAN_REVIEW" and s["metrics"]["total_api_attempts"]==16
     assert validate(tmp_path)["validation"]=="PASS"
@@ -167,6 +180,21 @@ def test_smoke_is_fixed_and_full_run_resumes_without_duplicate(tmp_path):
     assert calls.count(("CASE-001","low",1))==1
     assert len(read_jsonl(tmp_path/"config_results.jsonl"))==16
     assert metrics_from_journal(read_jsonl(tmp_path/"attempt_journal.jsonl"))["total_api_attempts"]==16
+
+def test_successful_smoke_uses_one_config_denominator(tmp_path):
+    summary=run_smoke(tmp_path,mock_provider,mock_validator)
+    assert summary["metrics"]["final_pass_rate"]==1.0
+    assert summary["metrics"]["expected_config_count"]==1
+    assert summary["metrics"]["passed_config_count"]==1
+
+def test_journal_and_result_carry_v3_audit_versions(tmp_path):
+    result=run_one(case(),"low",tmp_path,mock_provider,mock_validator)
+    started=read_jsonl(tmp_path/"attempt_journal.jsonl")[0]
+    assert started["prompt_version"]=="MEIHUA_INTERPRETATION_PROMPT_V3"
+    assert started["validator_contract_version"]=="MEIHUA_INTERPRETATION_VALIDATOR_V2"
+    assert started["dataset_version"]=="MEIHUA_LIVE_EVAL_V001"
+    assert result["validator_contract_version"]=="MEIHUA_INTERPRETATION_VALIDATOR_V2"
+    assert result["dataset_version"]=="MEIHUA_LIVE_EVAL_V001"
 
 @pytest.mark.parametrize("status",sorted(GLOBAL_FUSE))
 def test_fatal_contract_and_access_errors_trigger_global_fuse(status):
