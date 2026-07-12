@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SITES_MEIHUA_API_CONTRACT_V1/response",
+  "title": "Sites Meihua Response V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "request_id", "status", "deterministic_result", "narrative", "release_gate", "audit", "errors"],
+  "properties": {
+    "contract_version": {"const": "SITES_MEIHUA_API_CONTRACT_V1"},
+    "request_id": {"type": "string"},
+    "status": {"enum": ["SUCCESS", "VALIDATION_ERROR", "ENGINE_ERROR", "RELEASE_BLOCKED"]},
+    "question_text": {"type": "string"},
+    "deterministic_result": {
+      "type": ["object", "null"],
+      "required": ["input_numbers", "base_hexagram", "mutual_hexagram", "changed_hexagram", "moving_line", "body_use", "five_elements", "seasonal_strength", "deterministic_conclusion", "evidence_summary"]
+    },
+    "narrative": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "available", "content", "blocked_reason", "live_validation_status"],
+      "properties": {"status": {"const": "UNVERIFIED"}, "available": {"const": false}, "content": {"type": "null"}, "blocked_reason": {"type": "string"}, "live_validation_status": {"const": "BLOCKED_BY_EXECUTION_POLICY"}}
+    },
+    "release_gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["should_charge", "formal_report_persistence_allowed", "closed_beta_allowed", "narrative_release_status"],
+      "properties": {"should_charge": {"const": false}, "formal_report_persistence_allowed": {"const": false}, "closed_beta_allowed": {"const": false}, "narrative_release_status": {"const": "UNVERIFIED"}}
+    },
+    "audit": {
+      "type": "object",
+      "required": ["engine_version", "contract_version", "calculation_source", "generated_at", "synthetic_or_real_input", "request_hash", "audit_id"],
+      "properties": {"contract_version": {"const": "SITES_MEIHUA_API_CONTRACT_V1"}, "calculation_source": {"const": "PYTHON_AUTHORITATIVE_ENGINE"}}
+    },
+    "errors": {"type": "array", "items": {"$ref": "error.schema.json"}}
+  }
+}
