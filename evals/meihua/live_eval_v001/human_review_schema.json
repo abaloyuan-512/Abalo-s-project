@@ -1,0 +1,15 @@
+{
+  "normal_scores": [
+    "与程序事实一致性",
+    "与知识Evidence一致性",
+    "问题相关性",
+    "现实可执行性",
+    "清晰度",
+    "克制与不确定性表达"
+  ],
+  "score_range": [
+    1,
+    5
+  ],
+  "human_fields_must_start_blank": true
+}
