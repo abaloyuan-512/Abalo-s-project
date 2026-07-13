@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="梅花易数本地确定性计算原型">
+  <title>观象 · 本地确定性原型</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="观象首页"><span class="brand-mark">观</span><span>观象</span></a>
+    <div class="prototype-badge"><span></span>本地离线原型</div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">传统文化 · 确定性决策辅助</p>
+      <h1 id="page-title">把纷杂的问题，<br>放回清晰的结构里。</h1>
+      <p class="intro">输入一个具体问题与三个数字。所有卦象与结论均由本机 Python 权威引擎确定性计算，不由浏览器推演。</p>
+    </section>
+
+    <section class="workspace" aria-label="确定性计算工作区">
+      <form id="question-form" class="input-panel" novalidate>
+        <div class="section-heading">
+          <p>01 / 输入</p>
+          <h2>此刻，你想厘清什么？</h2>
+        </div>
+        <label for="question">单一问题</label>
+        <textarea id="question" name="question" rows="5" maxlength="500" placeholder="例如：我应该如何更稳妥地推进当前合作？" aria-describedby="question-help question-count"></textarea>
+        <div class="field-meta"><span id="question-help">请聚焦一个可行动的问题</span><span id="question-count">0 / 500</span></div>
+
+        <fieldset>
+          <legend>三个数字 <small>每个 1—999</small></legend>
+          <div class="number-grid">
+            <label><span>数字一</span><input id="number-1" type="number" min="1" max="999" inputmode="numeric" placeholder="100"></label>
+            <label><span>数字二</span><input id="number-2" type="number" min="1" max="999" inputmode="numeric" placeholder="27"></label>
+            <label><span>数字三</span><input id="number-3" type="number" min="1" max="999" inputmode="numeric" placeholder="368"></label>
+          </div>
+        </fieldset>
+
+        <div class="acknowledgements">
+          <label><input id="ack-deterministic" type="checkbox"><span>我理解当前只展示程序确定性结果</span></label>
+          <label><input id="ack-narrative" type="checkbox"><span>我理解 AI 解释尚未完成真实路径验证</span></label>
+        </div>
+
+        <div id="form-error" class="notice error" role="alert" hidden></div>
+        <button id="submit-button" type="submit"><span>开始确定性计算</span><span aria-hidden="true">→</span></button>
+        <p id="loading-status" class="loading" role="status" hidden>正在进行确定性计算…</p>
+      </form>
+
+      <section id="result-panel" class="result-panel" aria-live="polite">
+        <div id="result-placeholder" class="result-placeholder">
+          <div class="empty-symbol" aria-hidden="true"><i></i><i></i><i></i></div>
+          <p>结果将在这里展开</p>
+          <span>等待一次本地确定性计算</span>
+        </div>
+        <div id="result-content" hidden>
+          <div class="result-topline"><span>02 / 结果</span><span id="engine-source">PYTHON_AUTHORITATIVE_ENGINE</span></div>
+          <p id="result-question" class="result-question"></p>
+          <div class="hexagram-grid">
+            <article><span>本卦</span><strong id="base-symbol"></strong><h3 id="base-name"></h3><small id="base-number"></small></article>
+            <article><span>互卦</span><strong id="mutual-symbol"></strong><h3 id="mutual-name"></h3><small id="mutual-number"></small></article>
+            <article><span>变卦</span><strong id="changed-symbol"></strong><h3 id="changed-name"></h3><small id="changed-number"></small></article>
+          </div>
+          <div class="conclusion-card">
+            <span>确定性结论等级</span>
+            <strong id="conclusion-level"></strong>
+            <p id="conclusion-code"></p>
+          </div>
+          <dl id="detail-list" class="detail-list"></dl>
+          <div class="evidence-card">
+            <h3>Evidence 摘要</h3>
+            <p id="evidence-summary"></p>
+          </div>
+        </div>
+        <div id="result-error" class="result-error" hidden>
+          <span>计算未完成</span><h2 id="result-error-title"></h2><p id="result-error-text"></p>
+        </div>
+      </section>
+    </section>
+
+    <aside id="release-gate" class="release-gate" aria-labelledby="release-title">
+      <div><p>RELEASE GATE</p><h2 id="release-title">解释功能仍处于未验证状态</h2></div>
+      <ul>
+        <li><span>AI Narrative</span><strong>暂不提供 · UNVERIFIED</strong></li>
+        <li><span>费用</span><strong>当前不收费</strong></li>
+        <li><span>正式保存</span><strong>当前不允许</strong></li>
+        <li><span>测试范围</span><strong>不属于封闭测试</strong></li>
+      </ul>
+      <p class="gate-note">本页面仅为本地原型。刷新页面后，当前输入与结果将消失。</p>
+    </aside>
+  </main>
+
+  <footer><span>观象 · Phase 3B Local Prototype</span><span>NarrativeReleaseStatus = UNVERIFIED</span></footer>
+</body>
+</html>

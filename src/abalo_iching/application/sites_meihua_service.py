@@ -118,10 +118,13 @@ def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | No
     if payload.get("contract_version") != CONTRACT_VERSION:
         return None, ("INVALID_REQUEST", f"contract_version必须为{CONTRACT_VERSION}。")
     question = payload.get("question_text")
-    if not isinstance(question, str) or not question.strip():
+    if not isinstance(question, str) or len(question) < 1:
         return None, ("EMPTY_QUESTION", "问题不能为空。")
-    if len(question.strip()) > 500:
+    if len(question) > 500:
         return None, ("INVALID_REQUEST", "问题不得超过500字符。")
+    normalized_question = question.strip()
+    if not normalized_question:
+        return None, ("EMPTY_QUESTION", "问题不能为空。")
     if len(re.findall(r"[?？]", question)) > 1:
         return None, ("MULTIPLE_QUESTIONS_NOT_ALLOWED", "一次请求只能包含一个问题。")
     numbers = payload.get("numbers")
@@ -143,7 +146,7 @@ def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | No
     return {
         "contract_version": CONTRACT_VERSION,
         "request_id": request_id,
-        "question_text": question.strip(),
+        "question_text": normalized_question,
         "numbers": numbers,
         "locale": "zh-CN",
         "client_timestamp": timestamp,
