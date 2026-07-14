@@ -3,96 +3,157 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="梅花易数本地确定性计算原型">
-  <title>观象 · 本地确定性原型</title>
+  <meta name="description" content="观象：基于固定规则生成梅花易数卦象结构的本地原型">
+  <title>观象 · 传统文化决策辅助</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23173f39'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='36' fill='%23f4efe3'%3E%E8%A7%82%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="/assets/app.css">
   <script src="/assets/app.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="观象首页"><span class="brand-mark">观</span><span>观象</span></a>
-    <div class="prototype-badge"><span></span>本地离线原型</div>
+    <a class="brand" href="#top" aria-label="返回观象首页">
+      <span class="brand-mark" aria-hidden="true">观</span>
+      <span>观象</span>
+    </a>
+    <div class="prototype-badge"><span aria-hidden="true"></span>本地离线原型</div>
   </header>
 
-  <main>
+  <main id="top">
     <section class="hero" aria-labelledby="page-title">
-      <p class="eyebrow">传统文化 · 确定性决策辅助</p>
+      <p class="eyebrow">传统文化 · 决策辅助</p>
       <h1 id="page-title">把纷杂的问题，<br>放回清晰的结构里。</h1>
-      <p class="intro">输入一个具体问题与三个数字。所有卦象与结论均由本机 Python 权威引擎确定性计算，不由浏览器推演。</p>
+      <p class="intro">提出一个具体问题，并输入三个当下想到的数字。系统将依据固定规则生成卦象结构，帮助你从另一个角度审视当前局面。</p>
+      <a class="text-link" href="#question-section">从一个具体问题开始<span aria-hidden="true">↓</span></a>
     </section>
 
-    <section class="workspace" aria-label="确定性计算工作区">
+    <section class="value-section" aria-labelledby="value-title">
+      <p class="section-index">如何使用</p>
+      <div>
+        <h2 id="value-title">先看结构，再做判断</h2>
+        <p>观象不替你作决定，也不宣称预知未来。它把固定规则所形成的卦象、体用和旺衰关系清楚呈现，作为一次安静的思考参照。</p>
+      </div>
+      <ol class="value-steps">
+        <li><span>一</span>写下一个可行动的问题</li>
+        <li><span>二</span>输入三个当下想到的数字</li>
+        <li><span>三</span>查看程序生成的结构</li>
+      </ol>
+    </section>
+
+    <section id="question-section" class="question-section" aria-labelledby="question-title">
+      <div class="section-heading">
+        <p>01 / 提问</p>
+        <h2 id="question-title">此刻，你想厘清什么？</h2>
+        <span>一次聚焦一个具体问题，会更容易看清结构。</span>
+      </div>
+
       <form id="question-form" class="input-panel" novalidate>
-        <div class="section-heading">
-          <p>01 / 输入</p>
-          <h2>此刻，你想厘清什么？</h2>
+        <div class="field-group">
+          <label for="question">你的问题</label>
+          <textarea id="question" name="question" rows="4" maxlength="500" placeholder="例如：我应该如何更稳妥地推进当前合作？" aria-describedby="question-help question-count" aria-invalid="false"></textarea>
+          <div class="field-meta"><span id="question-help">请使用 1—500 个字符</span><span id="question-count">0 / 500</span></div>
         </div>
-        <label for="question">单一问题</label>
-        <textarea id="question" name="question" rows="5" maxlength="500" placeholder="例如：我应该如何更稳妥地推进当前合作？" aria-describedby="question-help question-count"></textarea>
-        <div class="field-meta"><span id="question-help">请聚焦一个可行动的问题</span><span id="question-count">0 / 500</span></div>
 
         <fieldset>
-          <legend>三个数字 <small>每个 1—999</small></legend>
+          <legend>三个数字 <small>每个数字为 1—999 的整数</small></legend>
           <div class="number-grid">
-            <label><span>数字一</span><input id="number-1" type="number" min="1" max="999" inputmode="numeric" placeholder="100"></label>
-            <label><span>数字二</span><input id="number-2" type="number" min="1" max="999" inputmode="numeric" placeholder="27"></label>
-            <label><span>数字三</span><input id="number-3" type="number" min="1" max="999" inputmode="numeric" placeholder="368"></label>
+            <label for="number-1"><span>数字一</span><input id="number-1" name="number-1" type="number" min="1" max="999" inputmode="numeric" placeholder="100" aria-invalid="false"></label>
+            <label for="number-2"><span>数字二</span><input id="number-2" name="number-2" type="number" min="1" max="999" inputmode="numeric" placeholder="27" aria-invalid="false"></label>
+            <label for="number-3"><span>数字三</span><input id="number-3" name="number-3" type="number" min="1" max="999" inputmode="numeric" placeholder="368" aria-invalid="false"></label>
           </div>
         </fieldset>
 
-        <div class="acknowledgements">
-          <label><input id="ack-deterministic" type="checkbox"><span>我理解当前只展示程序确定性结果</span></label>
-          <label><input id="ack-narrative" type="checkbox"><span>我理解 AI 解释尚未完成真实路径验证</span></label>
+        <div class="acknowledgements" aria-label="使用边界确认">
+          <label><input id="ack-deterministic" type="checkbox"><span>我理解当前结果来自固定规则计算，不代表确定事实。</span></label>
+          <label><input id="ack-narrative" type="checkbox"><span>我理解当前版本暂不提供完整的 AI 解读。</span></label>
         </div>
 
-        <div id="form-error" class="notice error" role="alert" hidden></div>
-        <button id="submit-button" type="submit"><span>开始确定性计算</span><span aria-hidden="true">→</span></button>
-        <p id="loading-status" class="loading" role="status" hidden>正在进行确定性计算…</p>
+        <div id="form-error" class="notice error" role="alert" aria-live="assertive" hidden></div>
+        <button id="submit-button" class="primary-button" type="submit"><span>查看卦象结构</span><span aria-hidden="true">→</span></button>
+        <p id="loading-status" class="loading" role="status" aria-live="polite" hidden>正在依据固定规则生成结构…</p>
       </form>
-
-      <section id="result-panel" class="result-panel" aria-live="polite">
-        <div id="result-placeholder" class="result-placeholder">
-          <div class="empty-symbol" aria-hidden="true"><i></i><i></i><i></i></div>
-          <p>结果将在这里展开</p>
-          <span>等待一次本地确定性计算</span>
-        </div>
-        <div id="result-content" hidden>
-          <div class="result-topline"><span>02 / 结果</span><span id="engine-source">PYTHON_AUTHORITATIVE_ENGINE</span></div>
-          <p id="result-question" class="result-question"></p>
-          <div class="hexagram-grid">
-            <article><span>本卦</span><strong id="base-symbol"></strong><h3 id="base-name"></h3><small id="base-number"></small></article>
-            <article><span>互卦</span><strong id="mutual-symbol"></strong><h3 id="mutual-name"></h3><small id="mutual-number"></small></article>
-            <article><span>变卦</span><strong id="changed-symbol"></strong><h3 id="changed-name"></h3><small id="changed-number"></small></article>
-          </div>
-          <div class="conclusion-card">
-            <span>确定性结论等级</span>
-            <strong id="conclusion-level"></strong>
-            <p id="conclusion-code"></p>
-          </div>
-          <dl id="detail-list" class="detail-list"></dl>
-          <div class="evidence-card">
-            <h3>Evidence 摘要</h3>
-            <p id="evidence-summary"></p>
-          </div>
-        </div>
-        <div id="result-error" class="result-error" hidden>
-          <span>计算未完成</span><h2 id="result-error-title"></h2><p id="result-error-text"></p>
-        </div>
-      </section>
     </section>
 
-    <aside id="release-gate" class="release-gate" aria-labelledby="release-title">
-      <div><p>RELEASE GATE</p><h2 id="release-title">解释功能仍处于未验证状态</h2></div>
+    <section id="result-panel" class="result-section" aria-labelledby="result-title" aria-live="polite" hidden>
+      <div id="result-placeholder" hidden></div>
+      <div id="result-content" hidden>
+        <div class="result-heading">
+          <div>
+            <p class="section-index">02 / 结果</p>
+            <h2 id="result-title" tabindex="-1">本次卦象结构</h2>
+          </div>
+          <p id="result-question" class="result-question"></p>
+        </div>
+
+        <section class="tendency-card" aria-labelledby="tendency-title">
+          <p>核心倾向</p>
+          <h3 id="tendency-title"><span id="conclusion-level"></span></h3>
+          <p class="boundary-note">这是基于卦象结构的程序判断，不代表事件必然结果。</p>
+        </section>
+
+        <section class="result-block" aria-labelledby="hexagram-title">
+          <div class="block-heading"><p>三卦结构</p><h3 id="hexagram-title">结构如何展开</h3></div>
+          <div class="hexagram-grid">
+            <article><span>本卦</span><strong id="base-symbol"></strong><h4 id="base-name"></h4><small id="base-number"></small></article>
+            <article><span>互卦</span><strong id="mutual-symbol"></strong><h4 id="mutual-name"></h4><small id="mutual-number"></small></article>
+            <article><span>变卦</span><strong id="changed-symbol"></strong><h4 id="changed-name"></h4><small id="changed-number"></small></article>
+          </div>
+        </section>
+
+        <section class="result-block" aria-labelledby="structure-title">
+          <div class="block-heading"><p>关键结构</p><h3 id="structure-title">本次计算所形成的关系</h3></div>
+          <dl id="detail-list" class="detail-list"></dl>
+        </section>
+
+        <section class="result-block evidence-card" aria-labelledby="evidence-title">
+          <div class="block-heading"><p>程序证据</p><h3 id="evidence-title">本次判断依据概览</h3></div>
+          <div class="evidence-summary-grid">
+            <div><strong id="evidence-count">0</strong><span>程序规则证据</span></div>
+            <div><strong id="knowledge-count">0</strong><span>已批准知识</span></div>
+            <div><strong id="knowledge-label">仅依据程序规则</strong><span>当前模式</span></div>
+          </div>
+          <p id="evidence-summary" class="sr-only"></p>
+        </section>
+
+        <details id="technical-details" class="technical-details">
+          <summary>查看技术详情</summary>
+          <dl class="technical-grid">
+            <div><dt>原始结论代码</dt><dd id="conclusion-code"></dd></div>
+            <div><dt>计算来源</dt><dd id="engine-source"></dd></div>
+            <div><dt>知识模式</dt><dd id="knowledge-mode"></dd></div>
+            <div><dt>原始证据类型</dt><dd id="evidence-types"></dd></div>
+          </dl>
+        </details>
+
+        <button id="reset-button" class="secondary-button" type="button"><span>重新提问</span><span aria-hidden="true">↺</span></button>
+      </div>
+
+      <div id="result-error" class="result-error" role="alert" hidden>
+        <span>计算未完成</span>
+        <h2 id="result-error-title" tabindex="-1"></h2>
+        <p id="result-error-text"></p>
+        <button id="error-back-button" class="secondary-button" type="button"><span>返回修改</span><span aria-hidden="true">↑</span></button>
+      </div>
+    </section>
+
+    <aside id="release-gate" class="version-section" aria-labelledby="release-title">
+      <div class="version-intro">
+        <p class="section-index">当前版本说明</p>
+        <h2 id="release-title">这是一个边界清晰的本地原型</h2>
+        <p>当前版本用于审阅确定性计算与界面表达，不提供完整解释、保存或收费能力。</p>
+      </div>
       <ul>
-        <li><span>AI Narrative</span><strong>暂不提供 · UNVERIFIED</strong></li>
-        <li><span>费用</span><strong>当前不收费</strong></li>
-        <li><span>正式保存</span><strong>当前不允许</strong></li>
-        <li><span>测试范围</span><strong>不属于封闭测试</strong></li>
+        <li><span>完整 AI 解读</span><strong>暂未开放</strong></li>
+        <li><span>收费</span><strong>当前不收费</strong></li>
+        <li><span>正式保存</span><strong>当前不保存</strong></li>
+        <li><span>测试范围</span><strong>仅限本地原型</strong></li>
       </ul>
-      <p class="gate-note">本页面仅为本地原型。刷新页面后，当前输入与结果将消失。</p>
+      <details class="version-details">
+        <summary>版本技术信息</summary>
+        <p>NarrativeReleaseStatus = UNVERIFIED</p>
+      </details>
     </aside>
   </main>
 
-  <footer><span>观象 · Phase 3B Local Prototype</span><span>NarrativeReleaseStatus = UNVERIFIED</span></footer>
+  <footer><span>观象 · 本地产品界面 v0.1</span><span>仅作传统文化结构参考</span></footer>
 </body>
 </html>

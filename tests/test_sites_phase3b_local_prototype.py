@@ -2,7 +2,9 @@ import http.client
 import json
 import threading
 from contextlib import contextmanager
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
 
 import jsonschema
 import pytest
@@ -197,10 +199,53 @@ def source_text():
     return "\n".join(path.read_text(encoding="utf-8") for path in [SITE / "index.html", SITE / "assets/app.css", SITE / "assets/app.js"])
 
 
+class ElementCollector(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.elements = []
+
+    def handle_starttag(self, tag, attrs):
+        self.elements.append((tag, dict(attrs)))
+
+
+def parsed_elements():
+    parser = ElementCollector()
+    parser.feed((SITE / "index.html").read_text(encoding="utf-8"))
+    return parser.elements
+
+
 def test_page_has_no_external_resources_or_inline_script():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     assert "http://" not in html and "https://" not in html and "<script>" not in html
     assert 'src="/assets/app.js"' in html and 'href="/assets/app.css"' in html
+
+
+def test_favicon_is_a_single_embedded_svg_without_an_http_resource():
+    icons = [attrs for tag, attrs in parsed_elements() if tag == "link" and "icon" in attrs.get("rel", "").split()]
+    assert len(icons) == 1
+    href = icons[0].get("href", "")
+    assert icons[0].get("type") == "image/svg+xml"
+    assert href.startswith("data:image/svg+xml,")
+    assert not href.startswith(("/", "http://", "https://"))
+    assert "<svg" in unquote(href.split(",", maxsplit=1)[1])
+
+
+def test_form_fields_start_without_stale_error_associations():
+    fields = {attrs["id"]: attrs for tag, attrs in parsed_elements() if tag in {"textarea", "input"} and "id" in attrs}
+    for field_id in ["question", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative"]:
+        assert fields[field_id].get("aria-invalid") in {None, "false"}
+        assert "form-error" not in fields[field_id].get("aria-describedby", "").split()
+    assert fields["question"]["aria-describedby"] == "question-help question-count"
+
+
+def test_form_error_association_covers_all_fields_and_has_a_clear_lifecycle():
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    assert "number-${index}" in js
+    for field_id in ["ack-deterministic", "ack-narrative"]:
+        assert field_id in js
+    for behavior in ["validatedFields", "markFieldInvalid", "clearFieldError", "clearFormError", 'field.setAttribute("aria-describedby"', 'field.removeAttribute("aria-describedby")', 'field.setAttribute("aria-invalid", "true")', 'field.setAttribute("aria-invalid", "false")']:
+        assert behavior in js
+    assert "resetExperience" in js and "clearFormError();" in js
 
 
 @pytest.mark.parametrize("forbidden", ["localStorage", "sessionStorage", "indexedDB", "document.cookie", "innerHTML", "eval(", "new Function", "OPENAI_API_KEY", "api.openai.com"])
@@ -219,7 +264,7 @@ def test_frontend_posts_contract_only_to_same_origin_endpoint():
 
 def test_frontend_release_gate_is_visible_and_frozen():
     html = (SITE / "index.html").read_text(encoding="utf-8")
-    for text in ["UNVERIFIED", "当前不收费", "当前不允许", "不属于封闭测试", "本页面仅为本地原型"]:
+    for text in ["UNVERIFIED", "当前不收费", "当前不保存", "仅限本地原型", "这是一个边界清晰的本地原型"]:
         assert text in html
 
 
@@ -241,8 +286,27 @@ def test_frontend_rejects_malformed_release_envelope_before_render():
 
 def test_frontend_success_view_names_all_required_deterministic_fields():
     text = source_text()
-    for label in ["本卦", "互卦", "变卦", "动爻", "体卦", "初始用卦", "变化用卦", "初始体用关系", "变化体用关系", "五行", "旺衰", "节气 / 月支", "确定性结论等级", "Evidence 摘要", "PYTHON_AUTHORITATIVE_ENGINE"]:
+    for label in ["本次卦象结构", "核心倾向", "本卦", "互卦", "变卦", "动爻", "体卦", "初始用卦", "变化用卦", "初始体用关系", "变化体用关系", "五行", "旺衰", "节气 / 月支", "程序证据", "查看技术详情"]:
         assert label in text
+
+
+def test_frontend_product_view_keeps_internal_fields_in_closed_technical_details():
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    before_details, technical = html.split('<details id="technical-details"', maxsplit=1)
+    assert "Evidence" not in before_details
+    assert "PYTHON_AUTHORITATIVE_ENGINE" not in before_details
+    assert "SITES_MEIHUA_API_CONTRACT_V1" not in before_details
+    assert "request_id" not in html and "audit_id" not in html
+    assert "原始结论代码" in technical and "原始证据类型" in technical
+    assert "open" not in technical.split(">", maxsplit=1)[0]
+
+
+def test_frontend_reset_and_scroll_respect_local_only_and_reduced_motion():
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    assert "resetExperience" in js
+    assert 'matchMedia("(prefers-reduced-motion: reduce)")' in js
+    assert 'fetch("/api/v1/meihua"' in js
+    assert js.count("fetch(") == 1
 
 
 def test_adapter_has_no_algorithm_provider_key_or_external_client():

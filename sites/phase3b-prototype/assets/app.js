@@ -2,13 +2,13 @@
 
 const CONTRACT_VERSION = "SITES_MEIHUA_API_CONTRACT_V1";
 const ERROR_MESSAGES = {
-  INVALID_REQUEST: ["输入未通过校验", "请检查问题长度、时间与确认项后重试。"],
+  INVALID_REQUEST: ["输入未通过校验", "请检查问题长度、三个数字和确认项。"],
   EMPTY_QUESTION: ["还没有具体问题", "请输入一个非空白问题。"],
-  INVALID_NUMBER_COUNT: ["数字数量不正确", "请完整输入三个数字。"],
+  INVALID_NUMBER_COUNT: ["数字尚未填写完整", "请完整输入三个数字。"],
   INVALID_NUMBER_TYPE: ["数字不在有效范围", "三个数字都必须是 1 至 999 的整数。"],
   MULTIPLE_QUESTIONS_NOT_ALLOWED: ["一次只处理一个问题", "请保留一个最想厘清的问题。"],
-  CLIENT_CALCULATION_NOT_ACCEPTED: ["请求包含不受支持内容", "浏览器只提交原始输入，卦象由 Python 引擎计算。"],
-  ENGINE_ERROR: ["确定性引擎暂时未完成计算", "当前没有生成结果，请稍后在本机重试。"],
+  CLIENT_CALCULATION_NOT_ACCEPTED: ["请求包含不受支持的内容", "页面只提交原始输入，结构由本地服务生成。"],
+  ENGINE_ERROR: ["暂时无法生成结构", "当前没有生成结果，请稍后在本机重试。"],
 };
 const CONCLUSION_LABELS = {
   CLEARLY_FAVORABLE: "明显有利",
@@ -25,15 +25,26 @@ const RELATION_LABELS = {
   BODY_GENERATES_USE: "体生用",
   USE_CONTROLS_BODY: "用克体",
 };
+const KNOWLEDGE_MODE_LABELS = {
+  PROGRAM_ONLY: "仅依据程序规则",
+  PROGRAM_AND_APPROVED_KNOWLEDGE: "程序规则与已批准知识",
+};
 
 const byId = (id) => document.getElementById(id);
 const form = byId("question-form");
 const question = byId("question");
 const submitButton = byId("submit-button");
 const loadingStatus = byId("loading-status");
+const resultPanel = byId("result-panel");
+const formError = byId("form-error");
+const validatedFields = [question, ...[1, 2, 3].map((index) => byId(`number-${index}`)), byId("ack-deterministic"), byId("ack-narrative")];
 
 function setText(id, value) { byId(id).textContent = String(value); }
 function show(element, visible) { element.hidden = !visible; }
+function scrollToElement(element) {
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  element.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+}
 
 function createRequestId() {
   const random = globalThis.crypto && typeof globalThis.crypto.randomUUID === "function"
@@ -46,17 +57,51 @@ function rawNumbers() {
   return [1, 2, 3].map((index) => byId(`number-${index}`).value);
 }
 
+function errorDescriptionIds(field) {
+  return (field.getAttribute("aria-describedby") || "").split(/\s+/).filter((id) => id && id !== formError.id);
+}
+
+function clearFieldError(field) {
+  field.setAttribute("aria-invalid", "false");
+  const ids = errorDescriptionIds(field);
+  if (ids.length) field.setAttribute("aria-describedby", ids.join(" "));
+  else field.removeAttribute("aria-describedby");
+}
+
+function clearInvalidState() {
+  validatedFields.forEach(clearFieldError);
+}
+
+function clearFormError() {
+  clearInvalidState();
+  setText("form-error", "");
+  show(formError, false);
+}
+
+function markFieldInvalid(field) {
+  clearInvalidState();
+  field.setAttribute("aria-invalid", "true");
+  field.setAttribute("aria-describedby", [...errorDescriptionIds(field), formError.id].join(" "));
+}
+
 function validateInput() {
+  clearInvalidState();
   const rawQuestion = question.value;
   if (rawQuestion.length < 1 || rawQuestion.length > 500 || rawQuestion.trim().length === 0) {
-    return "问题必须包含 1 至 500 个原始字符，且不能只有空白。";
+    markFieldInvalid(question);
+    return { message: "请输入一个 1 至 500 个字符的具体问题，不能只填写空格。", focus: question };
   }
   const numbers = rawNumbers().map(Number);
-  if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 999)) {
-    return "请填写三个 1 至 999 的整数。";
+  const invalidIndex = numbers.findIndex((value, index) => rawNumbers()[index] === "" || !Number.isInteger(value) || value < 1 || value > 999);
+  if (invalidIndex !== -1) {
+    const input = byId(`number-${invalidIndex + 1}`);
+    markFieldInvalid(input);
+    return { message: "请完整填写三个 1 至 999 的整数。", focus: input };
   }
   if (!byId("ack-deterministic").checked || !byId("ack-narrative").checked) {
-    return "请先确认确定性结果与 AI 解释未验证边界。";
+    const input = byId("ack-deterministic").checked ? byId("ack-narrative") : byId("ack-deterministic");
+    markFieldInvalid(input);
+    return { message: "请先确认结果边界与当前版本的解读范围。", focus: input };
   }
   return null;
 }
@@ -85,13 +130,20 @@ function validEnvelope(response) {
     && response.release_gate.narrative_release_status === "UNVERIFIED";
 }
 
+function revealResult() {
+  show(resultPanel, true);
+  scrollToElement(resultPanel);
+}
+
 function renderError(code, fallbackTitle) {
-  const mapped = ERROR_MESSAGES[code] || [fallbackTitle || "响应格式异常", "未展示任何确定性结果，请检查本地服务后重试。"];
+  const mapped = ERROR_MESSAGES[code] || [fallbackTitle || "响应格式异常", "未展示任何结果，请检查本地服务后重试。"];
   show(byId("result-placeholder"), false);
   show(byId("result-content"), false);
   show(byId("result-error"), true);
   setText("result-error-title", mapped[0]);
   setText("result-error-text", mapped[1]);
+  revealResult();
+  byId("result-error-title").focus({ preventScroll: true });
 }
 
 function addDetail(label, value) {
@@ -107,7 +159,7 @@ function addDetail(label, value) {
 function hexagram(prefix, item) {
   setText(`${prefix}-symbol`, item.symbol);
   setText(`${prefix}-name`, item.name);
-  setText(`${prefix}-number`, `第 ${item.king_wen_number} 卦`);
+  setText(`${prefix}-number`, `文王卦序 · 第 ${item.king_wen_number} 卦`);
 }
 
 function renderSuccess(response) {
@@ -116,38 +168,60 @@ function renderSuccess(response) {
     return;
   }
   const result = response.deterministic_result;
+  const conclusion = result.deterministic_conclusion.conclusion_level;
+  const evidence = result.evidence_summary;
   show(byId("result-placeholder"), false);
   show(byId("result-error"), false);
   show(byId("result-content"), true);
-  setText("result-question", response.question_text);
+  setText("result-question", `“${response.question_text}”`);
+  setText("conclusion-level", CONCLUSION_LABELS[conclusion] || "证据不足");
+  setText("conclusion-code", conclusion);
+  setText("engine-source", response.audit.calculation_source);
+  setText("knowledge-mode", evidence.knowledge_mode);
+  setText("evidence-types", evidence.evidence_types.join("、"));
   hexagram("base", result.base_hexagram);
   hexagram("mutual", result.mutual_hexagram);
   hexagram("changed", result.changed_hexagram);
-  const conclusion = result.deterministic_conclusion.conclusion_level;
-  setText("conclusion-level", CONCLUSION_LABELS[conclusion] || conclusion);
-  setText("conclusion-code", conclusion);
   byId("detail-list").replaceChildren();
-  addDetail("输入数字", result.input_numbers.join(" · "));
   addDetail("动爻", `第 ${result.moving_line} 爻`);
   addDetail("体卦", result.body_use.body_trigram);
   addDetail("初始用卦", result.body_use.initial_use_trigram);
   addDetail("变化用卦", result.body_use.changed_use_trigram);
   addDetail("初始体用关系", RELATION_LABELS[result.body_use.initial_relation] || result.body_use.initial_relation);
   addDetail("变化体用关系", RELATION_LABELS[result.body_use.changed_relation] || result.body_use.changed_relation);
-  addDetail("五行", `体 ${result.five_elements.body} · 初用 ${result.five_elements.initial_use} · 变用 ${result.five_elements.changed_use}`);
-  addDetail("旺衰", `体 ${STRENGTH_LABELS[result.seasonal_strength.body]} · 初用 ${STRENGTH_LABELS[result.seasonal_strength.initial_use]} · 变用 ${STRENGTH_LABELS[result.seasonal_strength.changed_use]}`);
+  addDetail("五行", `体：${result.five_elements.body}　初用：${result.five_elements.initial_use}　变用：${result.five_elements.changed_use}`);
+  addDetail("旺衰", `体：${STRENGTH_LABELS[result.seasonal_strength.body]}　初用：${STRENGTH_LABELS[result.seasonal_strength.initial_use]}　变用：${STRENGTH_LABELS[result.seasonal_strength.changed_use]}`);
   addDetail("节气 / 月支", `${result.seasonal_strength.solar_term} / ${result.seasonal_strength.month_branch}`);
-  const evidence = result.evidence_summary;
-  setText("evidence-summary", `${evidence.count} 条程序 Evidence · ${evidence.evidence_types.join("、")} · 知识模式 ${evidence.knowledge_mode} · 已批准知识 ${evidence.approved_knowledge_items_used} 条`);
+  setText("evidence-count", `${evidence.count} 条`);
+  setText("knowledge-count", `${evidence.approved_knowledge_items_used} 条`);
+  setText("knowledge-label", KNOWLEDGE_MODE_LABELS[evidence.knowledge_mode] || "仅依据程序规则");
+  setText("evidence-summary", `程序规则证据 ${evidence.count} 条，已批准知识 ${evidence.approved_knowledge_items_used} 条。`);
+  byId("technical-details").open = false;
+  revealResult();
+  byId("result-title").focus({ preventScroll: true });
+}
+
+function resetExperience() {
+  form.reset();
+  question.value = "";
+  setText("question-count", "0 / 500");
+  clearFormError();
+  show(byId("result-content"), false);
+  show(byId("result-error"), false);
+  show(resultPanel, false);
+  byId("technical-details").open = false;
+  scrollToElement(byId("question-section"));
+  question.focus({ preventScroll: true });
 }
 
 async function submit(event) {
   event.preventDefault();
-  show(byId("form-error"), false);
+  clearFormError();
   const error = validateInput();
   if (error) {
-    setText("form-error", error);
+    setText("form-error", error.message);
     show(byId("form-error"), true);
+    error.focus.focus();
     return;
   }
   submitButton.disabled = true;
@@ -176,15 +250,30 @@ async function submit(event) {
   }
 }
 
-question.addEventListener("input", () => setText("question-count", `${question.value.length} / 500`));
+question.addEventListener("input", () => {
+  setText("question-count", `${question.value.length} / 500`);
+  if (question.getAttribute("aria-invalid") === "true") clearFormError();
+});
+[1, 2, 3].forEach((index) => byId(`number-${index}`).addEventListener("input", (event) => {
+  if (event.currentTarget.getAttribute("aria-invalid") === "true") clearFormError();
+}));
+["ack-deterministic", "ack-narrative"].forEach((id) => byId(id).addEventListener("change", (event) => {
+  if (event.currentTarget.getAttribute("aria-invalid") === "true") clearFormError();
+}));
 form.addEventListener("submit", submit);
+byId("reset-button").addEventListener("click", resetExperience);
+byId("error-back-button").addEventListener("click", () => {
+  scrollToElement(byId("question-section"));
+  question.focus({ preventScroll: true });
+});
 
 const preview = new URLSearchParams(window.location.search).get("preview");
 if (preview === "engine-error") {
   renderError("ENGINE_ERROR");
 } else if (preview === "validation-error") {
   question.value = "   ";
+  markFieldInvalid(question);
   setText("question-count", "3 / 500");
-  setText("form-error", "问题必须包含 1 至 500 个原始字符，且不能只有空白。");
+  setText("form-error", "请输入一个 1 至 500 个字符的具体问题，不能只填写空格。");
   show(byId("form-error"), true);
 }
