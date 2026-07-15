@@ -127,12 +127,25 @@ class ConclusionSynthesizer:
         self.assessor = assessor or RelationAssessor()
 
     def synthesize(self, chart: MeihuaChart, knowledge: KnowledgeSelection) -> SynthesisResult:
+        """Preserve the Phase 2 Knowledge notice wrapper around the shared core."""
+        extra_warnings = (knowledge.unreviewed_notice,) if knowledge.unreviewed_notice else ()
+        return self._synthesize_chart(chart, extra_warnings=extra_warnings)
+
+    def synthesize_chart(self, chart: MeihuaChart) -> SynthesisResult:
+        """Synthesize deterministic Chart Evidence without reading Knowledge."""
+        return self._synthesize_chart(chart, extra_warnings=())
+
+    def _synthesize_chart(
+        self,
+        chart: MeihuaChart,
+        *,
+        extra_warnings: tuple[str, ...],
+    ) -> SynthesisResult:
         initial = self.assessor.assess(chart, RelationPhase.INITIAL)
         changed = self.assessor.assess(chart, RelationPhase.CHANGED)
         assessments = [item for item in (initial, changed) if item is not None]
         warnings = [warning for item in assessments for warning in item.warnings]
-        if knowledge.unreviewed_notice:
-            warnings.append(knowledge.unreviewed_notice)
+        warnings.extend(extra_warnings)
         if initial is None or changed is None:
             return SynthesisResult(
                 conclusion_level=ConclusionLevel.INSUFFICIENT_EVIDENCE,
