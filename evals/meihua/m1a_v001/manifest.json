@@ -1,0 +1,21 @@
+{
+  "batch3_version": "MEIHUA_M1A_BATCH3_V001",
+  "candidate_count": 384,
+  "closed_beta_allowed": false,
+  "domain_goal_combination_count": 17,
+  "external_model_called": false,
+  "fixed_cast_time": "2026-07-10T12:00:00+08:00",
+  "fixture_count": 17,
+  "formal_report_persistence_allowed": false,
+  "input_nature": "SYNTHETIC",
+  "narrative_release_status": "UNVERIFIED",
+  "sentinel_count": 4,
+  "should_charge": false,
+  "time_horizons": [
+    "CURRENT",
+    "NEXT_30_DAYS",
+    "NEXT_QUARTER",
+    "NEXT_6_MONTHS"
+  ],
+  "timezone": "Asia/Shanghai"
+}

@@ -1,0 +1,35 @@
+{
+  "$id": "urn:abalo:m1a:runner-output:v001",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "closed_beta_allowed": {
+      "const": false
+    },
+    "formal_report_persistence_allowed": {
+      "const": false
+    },
+    "narrative_release_status": {
+      "const": "UNVERIFIED"
+    },
+    "schema_version": {
+      "const": "MEIHUA_M1A_RUNNER_OUTPUT_V001"
+    },
+    "should_charge": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "batch_id",
+    "runner_version",
+    "configuration_hash",
+    "results",
+    "summary",
+    "narrative_release_status",
+    "should_charge",
+    "formal_report_persistence_allowed",
+    "closed_beta_allowed"
+  ],
+  "type": "object"
+}

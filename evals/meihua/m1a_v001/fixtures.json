@@ -1,0 +1,2656 @@
+[
+  {
+    "base_fixture_signature": "cd815f2c3aac8a7c2360e6d641fe3f46d3acb364a250888fb9627d3a7ad85bd8",
+    "candidate_id": "M1A-CANDIDATE-01-01-02",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "92cc6964fbe04f5b857801ddcea26852830458550ef5be65dfa4ff49002c869d",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "M1A3-CU-MOVING-LINE-STAGE-EARLY-FORMATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-CHANGED-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "M1A3-CU-MOVING-LINE-STAGE-EARLY-FORMATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+    ],
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-001",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“工作与职业发展”情境下，围绕“当前阶段”，我当前最需要识别哪些阻力与支持条件？",
+    "private_catalog_hash": "f01e5f277cfb83120e2b4e7d608a901898be8eeec671622a99db7989116c2cee",
+    "program_hash": "a2fbebb1a9bd38cc4e6f612b1ad81dec867592cd6867db23f1bcc82d061e55ec",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "f71fa25c0b76f6e022306d9fd8cfbd7d9ac642c0996dfcbe048cda4891a51fee",
+    "question_domain": "WORK_CAREER",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": true,
+    "synthetic_numbers": [
+      1,
+      1,
+      2
+    ],
+    "time_horizon": "CURRENT",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "79ef1dfb638173ba3067f1362be75881716295d405b7ff0b4a5ffb8020a5b831",
+    "candidate_id": "M1A-CANDIDATE-01-03-04",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "2cc5b60eb5c9b03c49d3c28bb46d221e75ec1414899c8925e51f28771cec3e12",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-USE-GENERATES-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-INSUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SEASON-WEAKENS-USE-GENERATES-BODY",
+      "M1A3-CU-MOVING-LINE-STAGE-EXTERNAL-TURNING-POINT",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-CHANGED-RELATION-USE-GENERATES-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-FAVORABLE",
+      "M1A3-CU-INITIAL-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-INSUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SEASON-WEAKENS-USE-GENERATES-BODY",
+      "M1A3-CU-MOVING-LINE-STAGE-EXTERNAL-TURNING-POINT",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED"
+    ],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-002",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“工作与职业发展”情境下，围绕“未来30天”，我应重点观察和核实哪些现实信号？",
+    "private_catalog_hash": "8411218ed645ec69cf223ef7fd0ced865abed6fe812048f7fcba286e2270f871",
+    "program_hash": "1c9b295ef8c9a48c386d55de65658cc71a77c93853d2a521cc2b0931a0be0e4c",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "b89217bf0785c1c963230fe516e2cb188e9a9b50cc952f6be92defda7b063193",
+    "question_domain": "WORK_CAREER",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      3,
+      4
+    ],
+    "time_horizon": "NEXT_30_DAYS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "8951982d04189948f98b534ea8c576c3002be56814b3b66b9e12ca670d2b3650",
+    "candidate_id": "M1A-CANDIDATE-01-04-05",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "1d811a3a58aee087fb30d1025af2757643a6af4e0fc1309fb17990d8b2069390",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-GENERATES-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-CLEARLY-UNFAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-SUFFICIENT",
+      "M1A3-CU-INITIAL-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-MODIFIER-RULE-BODY-GENERATES-USE-REMAINS-CONSUMPTIVE",
+      "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "M1A3-CU-MOVING-LINE-STAGE-CORE-DECISION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-UNFAVORABLE-CLEAR"
+    ],
+    "condition_count": 0,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-CHANGED-RELATION-BODY-GENERATES-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-CLEARLY-UNFAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-SUFFICIENT",
+      "M1A3-CU-INITIAL-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-MODIFIER-RULE-BODY-GENERATES-USE-REMAINS-CONSUMPTIVE",
+      "M1A3-CU-MOVING-LINE-STAGE-CORE-DECISION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-UNFAVORABLE-CLEAR"
+    ],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-003",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“工作与职业发展”情境下，围绕“未来一个季度”，我应如何规划下一步自身可控行动？",
+    "private_catalog_hash": "72d54425c7948ae6d35fa12b5bf890b346d7406939569e31bc62c12f8b7a5567",
+    "program_hash": "8d736925f9a24073a2b6dfdfd750077c12d16cd822660184c020270c2e66e497",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "a99f20024d650e85bff55695c64cba5acdbd0fdacc29d33663d3aabde176e465",
+    "question_domain": "WORK_CAREER",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV02",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV03",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      4,
+      5
+    ],
+    "time_horizon": "NEXT_QUARTER",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "5409e30583046cf176c96caf0fb47901fc4bd12e8a47aa72d148ddbca585ff59",
+    "candidate_id": "M1A-CANDIDATE-01-08-01",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "93b9867eb545955d7c61c0b93c6d44491ad115988813c14abd66d6616ab8d640",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-USE-GENERATES-BODY",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SEASON-SUPPORTS-USE-GENERATES-BODY",
+      "M1A3-CU-MOVING-LINE-STAGE-GERMINATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-FAVORABLE-CONDITIONAL"
+    ],
+    "condition_count": 1,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-FAVORABLE",
+      "M1A3-CU-INITIAL-RELATION-USE-GENERATES-BODY",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SEASON-SUPPORTS-USE-GENERATES-BODY",
+      "M1A3-CU-MOVING-LINE-STAGE-GERMINATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-FAVORABLE-CONDITIONAL"
+    ],
+    "decision_goal": "PREPARE_COMMUNICATION",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-004",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“工作与职业发展”情境下，围绕“未来6个月”，我应如何准备一次现实沟通，并观察哪些反馈？",
+    "private_catalog_hash": "10289323336b4d8eae5d7adaa94015e577594e8ea2db344cd42313162f6bfa2b",
+    "program_hash": "f27f3f46850c8ca79f36222699c14a59ef1e1da9f83edf00115713747c6be0a9",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "f868e1fb3effee0e0b0d7cb2347f5b8300a67c969af1a884de94108eb1cf1907",
+    "question_domain": "WORK_CAREER",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV02",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      8,
+      1
+    ],
+    "time_horizon": "NEXT_6_MONTHS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "b91535b0ac6ed0c3feab4c2a5675d85d2cab0ed38ab2a028f6e0ad3fe222fc5b",
+    "candidate_id": "M1A-CANDIDATE-01-01-03",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "02b6255ffc0f71074ddb5f37957a229b5e8f28b8867e9b2f0079792fae4da1d4",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-INTERNAL-THRESHOLD",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-MIXED",
+      "M1A3-CU-MOVING-LINE-STAGE-INTERNAL-THRESHOLD",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-MIXED"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-005",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“项目与合作推进”情境下，围绕“当前阶段”，我应如何调整自己的投入与边界？",
+    "private_catalog_hash": "2e4a563a54218cf27b356c3ab53fe2c341bde5e7944aa5abf8415d77592db60e",
+    "program_hash": "6c7c985466bb38989c1a5d0404cff9a7d0d9798932bde6561ffe069079bdc925",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "f11c52355e99807b370f20e5d9a5186aa14969a91ac0d089aa59e90bcd594bd3",
+    "question_domain": "PROJECT_COOPERATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": true,
+    "synthetic_numbers": [
+      1,
+      1,
+      3
+    ],
+    "time_horizon": "CURRENT",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "985f6984b8682d00aad120dc967ccc1f8be3f778c04d2e43b431a62ec5257c36",
+    "candidate_id": "M1A-CANDIDATE-06-01-06",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "2e234b017411e08a42b1c4dd0a25bf102f3742bb0f6df5184f91d15c9efdd303",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-BODY-GENERATES-USE",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-BODY-GENERATES-USE-REMAINS-CONSUMPTIVE",
+      "M1A3-CU-MOVING-LINE-STAGE-CLOSING-OR-EXCESS",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-DIRECTION-CONFLICT"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-FAVORABLE",
+      "M1A3-CU-INITIAL-RELATION-BODY-GENERATES-USE",
+      "M1A3-CU-MOVING-LINE-STAGE-CLOSING-OR-EXCESS",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-DIRECTION-CONFLICT"
+    ],
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-006",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“项目与合作推进”情境下，围绕“未来30天”，我当前最需要识别哪些阻力与支持条件？",
+    "private_catalog_hash": "7f43e0d347e3e0fb026890a2aa7c1e075145d62d93165c02d7f5344db37a3d89",
+    "program_hash": "d71e2ec8ec54ff9eaeddced4808030373fcd3c12e8c5913cb90ce49e7c66d226",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "04135d3bd496c0e1d02328bba20f4015220323252f7aaa59b7cb44500e914073",
+    "question_domain": "PROJECT_COOPERATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      6,
+      1,
+      6
+    ],
+    "time_horizon": "NEXT_30_DAYS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "1ca9c157d1724e137eb228a575939f2cba0217698b140dc5c69fe5115c28c69f",
+    "candidate_id": "M1A-CANDIDATE-01-06-06",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "598a1b4a01fdeaf8422ca945eee2cc263c9953b7528951db458d99b1f680de1c",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-USE-GENERATES-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-CLEARLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-SUFFICIENT",
+      "M1A3-CU-INITIAL-RELATION-USE-GENERATES-BODY",
+      "M1A3-CU-MODIFIER-RULE-SEASON-SUPPORTS-USE-GENERATES-BODY",
+      "M1A3-CU-MOVING-LINE-STAGE-CLOSING-OR-EXCESS",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-FAVORABLE-CLEAR"
+    ],
+    "condition_count": 0,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-CONCLUSION-LEVEL-CLEARLY-FAVORABLE",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-FAVORABLE-CLEAR"
+    ],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-007",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“项目与合作推进”情境下，围绕“未来一个季度”，我应重点观察和核实哪些现实信号？",
+    "private_catalog_hash": "bd1968188fa4b8767c3318e2b2bcebb53be90f9737a59ea3f669cb382cc8a737",
+    "program_hash": "e2761b8071ac09617abfe0d6cd1fbaf39f58476eed12beaa41cd922651ae8052",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "ae060cef56263933929843dee2883148bf9d052b2ff19e878e6e0f1edb8b0d2f",
+    "question_domain": "PROJECT_COOPERATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV02",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      6,
+      6
+    ],
+    "time_horizon": "NEXT_QUARTER",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "38ad4eaa458183120a8c53e4015da4f44a8e9363f761415415c5d0f97f60c363",
+    "candidate_id": "M1A-CANDIDATE-01-03-02",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "45bf45703a4eab5afe4641df55623b4b742ec04074a9b87c92663d0511e66171",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "M1A3-CU-MOVING-LINE-STAGE-EARLY-FORMATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-MIXED"
+    ],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-008",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“项目与合作推进”情境下，围绕“未来6个月”，我应如何规划下一步自身可控行动？",
+    "private_catalog_hash": "7c6e365eeb2a48e40389e98a95102ae566d1538942487d41684efbd107ac9baa",
+    "program_hash": "429395495629202d903fc4d7147134ffef2ab383b11df36c35f820e124e54540",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "c88b03b49c3af4be02581b5a410ac0193ce4637713de8bb9973b75fa55ec7128",
+    "question_domain": "PROJECT_COOPERATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      3,
+      2
+    ],
+    "time_horizon": "NEXT_6_MONTHS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "cfa4e936c110dbddba0ed070ce310407d156196de73045e184f32334ece68611",
+    "candidate_id": "M1A-CANDIDATE-01-04-02",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "672cd6fbaa94b26d40f237270b39c9ebb42f99bd5e3d336f7156806975870ff2",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-EARLY-FORMATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-MIXED"
+    ],
+    "decision_goal": "PREPARE_COMMUNICATION",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-009",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“项目与合作推进”情境下，围绕“当前阶段”，我应如何准备一次现实沟通，并观察哪些反馈？",
+    "private_catalog_hash": "cf69addcd31804b2538bfc57e92814b95e15a90c72fad4d35994658a665d4a95",
+    "program_hash": "38f2d51b7761bd446f7f67a5e7ff41c237ca70a154918bf8d2a6fdaf8e2fe1c7",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "b507c833c8958f2e23b3a58e152c4d26175a006088fd916f4eac6b361a646559",
+    "question_domain": "PROJECT_COOPERATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      4,
+      2
+    ],
+    "time_horizon": "CURRENT",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "740e2cc3832ca2cb3504498dcf35b760a0fff4fee6f662e146f0d6cf0f65bc59",
+    "candidate_id": "M1A-CANDIDATE-01-04-03",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "9820a2737f87e2cc9481bc37e24c0e7228f3b6a1a7ea998a569aa60892ae43c6",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "M1A3-CU-MOVING-LINE-STAGE-INTERNAL-THRESHOLD",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-DIRECTION-CONFLICT"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-UNFAVORABLE"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-010",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“关系与沟通”情境下，围绕“未来30天”，我应如何调整自己的投入与边界？",
+    "private_catalog_hash": "45f7e537a809d6a1b990189e13d8e4171afbead40f23c70a5fdbc66722260562",
+    "program_hash": "a2c83542e34f81930c7a3f8f738770b02d1fbc584b115f51b8acb2a5756c3c7d",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "5c301749d225ef7421d3376dc7b431442ea763ccb7329eea95841335465a790a",
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "GREEDY_MAX_UNCOVERED_CLASSIFICATION_UNITS",
+    "sentinel": true,
+    "synthetic_numbers": [
+      1,
+      4,
+      3
+    ],
+    "time_horizon": "NEXT_30_DAYS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "324a29c6f19e03b662a84578ebf68c15911f9d42880fa5cc6c3de691aff541e4",
+    "candidate_id": "M1A-CANDIDATE-01-01-01",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "87d6bd5a6660ee110958ade863e6f3b1a9203aca04e48edee9f153d3daba246a",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-GERMINATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-011",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“关系与沟通”情境下，围绕“未来一个季度”，我应重点观察和核实哪些现实信号？",
+    "private_catalog_hash": "31c3eb1dea672c9d64e1d1b367c0be31931e3f72276298fbdbb067e855f5fe63",
+    "program_hash": "525e49179cae72a909ab88ce94b14133116fd40aa8d1ae8f0f6f95a5a146fcd5",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "5a0dfeb8ff53931fc5913ab13a78a6cd4514365c3b04cf9396bd585cfe9e6b5d",
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      1,
+      1
+    ],
+    "time_horizon": "NEXT_QUARTER",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "97513f0b84b0cf58c056ea8bdd88551085d04dbbea0fbfebab9ba7f619ed0f3f",
+    "candidate_id": "M1A-CANDIDATE-01-01-04",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "2b5c235a5a9a7127aacdfafa09da74099359bf39e14180d5ef3172c8b0e9d456",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-EXTERNAL-TURNING-POINT",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-012",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“关系与沟通”情境下，围绕“未来6个月”，我应如何规划下一步自身可控行动？",
+    "private_catalog_hash": "dbb8306b354567aa270fa855940918fceca36b17960870964be38fe7dc95d472",
+    "program_hash": "2c0f9bd19c91d95bef9a94081229afedb397413a2089c37184b8c0015c513c12",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "5a0dfeb8ff53931fc5913ab13a78a6cd4514365c3b04cf9396bd585cfe9e6b5d",
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      1,
+      4
+    ],
+    "time_horizon": "NEXT_6_MONTHS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "8f4311e88d37716eaf14b34a324dbced884453f97541a173a13ec952eead888c",
+    "candidate_id": "M1A-CANDIDATE-01-01-05",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "68123ef7abd71fcd4785e1dd70ed91c06db763d2af9da17769db7e159ca44887",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-USE-CONTROLS-BODY",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "M1A3-CU-MOVING-LINE-STAGE-CORE-DECISION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "PREPARE_COMMUNICATION",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-013",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“关系与沟通”情境下，围绕“当前阶段”，我应如何准备一次现实沟通，并观察哪些反馈？",
+    "private_catalog_hash": "48c14dba33864317aa11009ef64af55dafc69e6af2eec1761bab647718ab81f0",
+    "program_hash": "7572d53693723990489cd399842b2bac40a8e390b0134988338e3bcdf77dac2e",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "f71fa25c0b76f6e022306d9fd8cfbd7d9ac642c0996dfcbe048cda4891a51fee",
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      1,
+      5
+    ],
+    "time_horizon": "CURRENT",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "7b3128e5adef405ad337ddcbdc8d61dbe67ebf1ceea5c3223671e7bc4007cdca",
+    "candidate_id": "M1A-CANDIDATE-01-01-06",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "c29e00ebc5cd04ea10b60a8b72d30e73711d764f75f290592bcf72acc4e2f991",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-CLOSING-OR-EXCESS",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-014",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“个人规划”情境下，围绕“未来30天”，我应如何调整自己的投入与边界？",
+    "private_catalog_hash": "aa8959db31c5a92d7925a2ce362e5930e4e4526fbe833e948e425166e460d0f9",
+    "program_hash": "b42e786c7a77ca88a4c5c8a3de1aa98454c7a79fa8d93ca1df4a177c22cf0bb7",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "f11c52355e99807b370f20e5d9a5186aa14969a91ac0d089aa59e90bcd594bd3",
+    "question_domain": "PERSONAL_PLANNING",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": true,
+    "synthetic_numbers": [
+      1,
+      1,
+      6
+    ],
+    "time_horizon": "NEXT_30_DAYS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "35dd4286d43792e33fac20dd219812eee7d34105a552cea0ef321f3497c3d547",
+    "candidate_id": "M1A-CANDIDATE-01-02-01",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "be42f14532f05440d3261d9de32f93598aae04cf84f0ec175b344cfdeccfbf39",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-GENERATES-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-UNFAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-BODY-GENERATES-USE-REMAINS-CONSUMPTIVE",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-GERMINATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-015",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“个人规划”情境下，围绕“未来一个季度”，我当前最需要识别哪些阻力与支持条件？",
+    "private_catalog_hash": "3d819cf7fa4e58e8cb512d91f717660d16219dac22f48fc582a503af03766146",
+    "program_hash": "34f059f788df5fb85ff567b51a3622e59fab863e53fddfca64e607b5884ea233",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "6f2ce589e5ee9eb81225e91c347044087ae2b025604e2de0f12e21e54d3ccbb7",
+    "question_domain": "PERSONAL_PLANNING",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      2,
+      1
+    ],
+    "time_horizon": "NEXT_QUARTER",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "713fdb85fb9d884e5e40a49a73b881393580f290d6d01781c1adceb24277bc8b",
+    "candidate_id": "M1A-CANDIDATE-01-02-02",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "e28c3dcca496bd1f4fb643afc623dc4b0d582bb6a0a22d26e2c035617860abae",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-FAVORABLE",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-EARLY-FORMATION",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-016",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“个人规划”情境下，围绕“未来6个月”，我应重点观察和核实哪些现实信号？",
+    "private_catalog_hash": "c329fa1ff81015d06c4e899c8891c767add6c0c34c62a2d5b3df4799715f8549",
+    "program_hash": "1523478fdbb58a4cbb92cf5131324568acd010ae72920c63fd6fa1e706fb53a7",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "f894a3191af98f3d2932794255eca494402fa2eb86144f0f472d5d972e33aac1",
+    "question_domain": "PERSONAL_PLANNING",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      2,
+      2
+    ],
+    "time_horizon": "NEXT_6_MONTHS",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "base_fixture_signature": "5b998c0d3b707572403b8bf64cee0933990be3dd3c377b1f8136e6f589ac2891",
+    "candidate_id": "M1A-CANDIDATE-01-02-03",
+    "cast_time": "2026-07-10T12:00:00+08:00",
+    "catalog_version": "MEIHUA_M1A_SAFE_EVIDENCE_CATALOG_V1",
+    "chart_hash": "3815ef4867cdb877168a76746b37a517e4b4fca777affb2db6e8a49e35d2362c",
+    "classification_tags": [
+      "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "M1A3-CU-MOVING-LINE-STAGE-INTERNAL-THRESHOLD",
+      "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-MIXED"
+    ],
+    "condition_count": 2,
+    "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+    "covered_units": [],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "fixture_id": "M1A-V001-017",
+    "fixture_version": "MEIHUA_M1A_FIXTURE_V001",
+    "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+    "manual_review_status": "UNREVIEWED",
+    "normalized_question": "在“个人规划”情境下，围绕“当前阶段”，我应如何规划下一步自身可控行动？",
+    "private_catalog_hash": "af4b6ccf0b07e15ad4393c745eb8c34a1f6ac8f96e8660063a91d922ecf740d7",
+    "program_hash": "b649ad9e88b8161e8892ea5a28dfc088e93c239aa29cf2b63880bf11d105fc61",
+    "prompt_version": "MEIHUA_M1A_PROMPT_V1",
+    "provider_catalog_hash": "9f93216e4a87f2bc99765893527894667800270370c64a995a9f5d2855c2498a",
+    "question_domain": "PERSONAL_PLANNING",
+    "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "safe_evidence_count": 9,
+    "safe_evidence_short_references": [
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV01",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV02",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 1,
+        "evidence_ref": "M1AEV03",
+        "polarity": "MIXED",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION",
+          "ACTION_OPTION",
+          "CONDITION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV04",
+        "polarity": "NEGATIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "STRONG"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV05",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV06",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV07",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV08",
+        "polarity": "POSITIVE",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "MEDIUM"
+      },
+      {
+        "condition_count": 0,
+        "evidence_ref": "M1AEV09",
+        "polarity": "NEUTRAL",
+        "roles": [
+          "EXPLANATION",
+          "REVIEW_QUESTION"
+        ],
+        "strength": "WEAK"
+      }
+    ],
+    "selection_reason": "V2_DOMAIN_GOAL_BASE_FIXTURE_FLOOR",
+    "sentinel": false,
+    "synthetic_numbers": [
+      1,
+      2,
+      3
+    ],
+    "time_horizon": "CURRENT",
+    "timezone": "Asia/Shanghai",
+    "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  }
+]

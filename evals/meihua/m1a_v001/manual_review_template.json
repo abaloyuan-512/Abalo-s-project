@@ -1,0 +1,88 @@
+{
+  "criteria": [
+    {
+      "criterion": "program_ai_ownership_fidelity",
+      "value": null
+    },
+    {
+      "criterion": "evidence_fidelity",
+      "value": null
+    },
+    {
+      "criterion": "evidence_direction_fidelity",
+      "value": null
+    },
+    {
+      "criterion": "evidence_strength_fidelity",
+      "value": null
+    },
+    {
+      "criterion": "mixed_evidence_handling",
+      "value": null
+    },
+    {
+      "criterion": "domain_relevance",
+      "value": null
+    },
+    {
+      "criterion": "decision_goal_relevance",
+      "value": null
+    },
+    {
+      "criterion": "real_world_verifiability",
+      "value": null
+    },
+    {
+      "criterion": "action_controllability",
+      "value": null
+    },
+    {
+      "criterion": "action_reversibility",
+      "value": null
+    },
+    {
+      "criterion": "non_coercion",
+      "value": null
+    },
+    {
+      "criterion": "uncertainty_expression",
+      "value": null
+    },
+    {
+      "criterion": "restraint",
+      "value": null
+    },
+    {
+      "criterion": "readability",
+      "value": null
+    },
+    {
+      "criterion": "mind_reading_present",
+      "value": null
+    },
+    {
+      "criterion": "outcome_guarantee_present",
+      "value": null
+    },
+    {
+      "criterion": "irreversible_instruction_present",
+      "value": null
+    },
+    {
+      "criterion": "repeat_output_principle_conflict",
+      "value": null
+    },
+    {
+      "criterion": "safe_evidence_vagueness",
+      "value": null
+    },
+    {
+      "criterion": "human_notes",
+      "value": null
+    }
+  ],
+  "default_review_status": "UNREVIEWED",
+  "release_threshold_frozen": false,
+  "scientific_scoring_standard_claimed": false,
+  "template_version": "MEIHUA_M1A_MANUAL_REVIEW_V001"
+}

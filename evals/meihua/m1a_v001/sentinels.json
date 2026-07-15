@@ -1,0 +1,78 @@
+[
+  {
+    "catalog_hash": "f71fa25c0b76f6e022306d9fd8cfbd7d9ac642c0996dfcbe048cda4891a51fee",
+    "configuration_hash": "ab892c3546d3b9275074f1d6b99ece1e167340a8ea8cee64a0e1e5c13dc4b445",
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "evidence_direction_changed": false,
+    "fixture_id": "M1A-V001-001",
+    "mock_replay_output_hash": "a5136d1738aa3f28f90fed947c78869210f47cdf58589d712fca1f2b4b4196b1",
+    "principle_action_conflict_status": "NOT_DETECTED_IN_FIXED_MOCK_REPLAY",
+    "program_hash": "a2fbebb1a9bd38cc4e6f612b1ad81dec867592cd6867db23f1bcc82d061e55ec",
+    "program_ownership_changed": false,
+    "question_domain": "WORK_CAREER",
+    "repeat_run_count": 3,
+    "synthetic_numbers": [
+      1,
+      1,
+      2
+    ],
+    "time_horizon": "CURRENT"
+  },
+  {
+    "catalog_hash": "f11c52355e99807b370f20e5d9a5186aa14969a91ac0d089aa59e90bcd594bd3",
+    "configuration_hash": "c924ff4a837e3b7fbed1a46d7a57b302aa69aa3d289c9d4e7a28eb9036ac0684",
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "evidence_direction_changed": false,
+    "fixture_id": "M1A-V001-005",
+    "mock_replay_output_hash": "588368062573ec22e585ef3252f2ab1db14ce3b0b6794f95b899aa62e19d8b45",
+    "principle_action_conflict_status": "NOT_DETECTED_IN_FIXED_MOCK_REPLAY",
+    "program_hash": "6c7c985466bb38989c1a5d0404cff9a7d0d9798932bde6561ffe069079bdc925",
+    "program_ownership_changed": false,
+    "question_domain": "PROJECT_COOPERATION",
+    "repeat_run_count": 3,
+    "synthetic_numbers": [
+      1,
+      1,
+      3
+    ],
+    "time_horizon": "CURRENT"
+  },
+  {
+    "catalog_hash": "5c301749d225ef7421d3376dc7b431442ea763ccb7329eea95841335465a790a",
+    "configuration_hash": "5f26428dcc300fc6d81a4d7d50cdfe89ddcf23f0596b19562dea974d39448a25",
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "evidence_direction_changed": false,
+    "fixture_id": "M1A-V001-010",
+    "mock_replay_output_hash": "5a906fd0453f0f144f5c18cd3ad186ff8633d59a1a35e49c96c054669768cbc6",
+    "principle_action_conflict_status": "NOT_DETECTED_IN_FIXED_MOCK_REPLAY",
+    "program_hash": "a2c83542e34f81930c7a3f8f738770b02d1fbc584b115f51b8acb2a5756c3c7d",
+    "program_ownership_changed": false,
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "repeat_run_count": 3,
+    "synthetic_numbers": [
+      1,
+      4,
+      3
+    ],
+    "time_horizon": "NEXT_30_DAYS"
+  },
+  {
+    "catalog_hash": "f11c52355e99807b370f20e5d9a5186aa14969a91ac0d089aa59e90bcd594bd3",
+    "configuration_hash": "db4d0980112b8d14e47ab757d6441a91da12b74563617ff453d3f6ec3840c72f",
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "evidence_direction_changed": false,
+    "fixture_id": "M1A-V001-014",
+    "mock_replay_output_hash": "4345a76bc83de1a8db44d4cb1bb67fbdc40613da562bc118967405ecec19e455",
+    "principle_action_conflict_status": "NOT_DETECTED_IN_FIXED_MOCK_REPLAY",
+    "program_hash": "b42e786c7a77ca88a4c5c8a3de1aa98454c7a79fa8d93ca1df4a177c22cf0bb7",
+    "program_ownership_changed": false,
+    "question_domain": "PERSONAL_PLANNING",
+    "repeat_run_count": 3,
+    "synthetic_numbers": [
+      1,
+      1,
+      6
+    ],
+    "time_horizon": "NEXT_30_DAYS"
+  }
+]

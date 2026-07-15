@@ -1,0 +1,786 @@
+{
+  "candidate_count": 384,
+  "classification_version": "MEIHUA_M1A_CLASSIFICATION_V001",
+  "defined_not_observed_unit_count": 3,
+  "matrix_policy": "DEFINED_SINGLE_AXIS_AND_OBSERVED_COMPOSITES_ONLY",
+  "reachable_unit_count": 56,
+  "undefined_combinations_excluded": true,
+  "units": [
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "changed_relation equals the authoritative value BODY_CONTROLS_USE.",
+      "dimension": "changed_relation",
+      "reachable": true,
+      "reachable_candidate_count": 78,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "chart.changed_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-CHANGED-RELATION-BODY-CONTROLS-USE",
+      "value": "BODY_CONTROLS_USE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "changed_relation equals the authoritative value BODY_GENERATES_USE.",
+      "dimension": "changed_relation",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-02-01",
+      "source_fields": [
+        "chart.changed_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-CHANGED-RELATION-BODY-GENERATES-USE",
+      "value": "BODY_GENERATES_USE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "changed_relation equals the authoritative value SAME_ELEMENT.",
+      "dimension": "changed_relation",
+      "reachable": true,
+      "reachable_candidate_count": 84,
+      "representative_candidate": "M1A-CANDIDATE-01-01-03",
+      "source_fields": [
+        "chart.changed_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-CHANGED-RELATION-SAME-ELEMENT",
+      "value": "SAME_ELEMENT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "changed_relation equals the authoritative value USE_CONTROLS_BODY.",
+      "dimension": "changed_relation",
+      "reachable": true,
+      "reachable_candidate_count": 78,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "chart.changed_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-CHANGED-RELATION-USE-CONTROLS-BODY",
+      "value": "USE_CONTROLS_BODY"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "changed_relation equals the authoritative value USE_GENERATES_BODY.",
+      "dimension": "changed_relation",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-03-01",
+      "source_fields": [
+        "chart.changed_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-CHANGED-RELATION-USE-GENERATES-BODY",
+      "value": "USE_GENERATES_BODY"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "conclusion_level equals the authoritative value CLEARLY_FAVORABLE.",
+      "dimension": "conclusion_level",
+      "reachable": true,
+      "reachable_candidate_count": 12,
+      "representative_candidate": "M1A-CANDIDATE-01-06-06",
+      "source_fields": [
+        "synthesis.conclusion_level"
+      ],
+      "unit_id": "M1A3-CU-CONCLUSION-LEVEL-CLEARLY-FAVORABLE",
+      "value": "CLEARLY_FAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "conclusion_level equals the authoritative value CLEARLY_UNFAVORABLE.",
+      "dimension": "conclusion_level",
+      "reachable": true,
+      "reachable_candidate_count": 28,
+      "representative_candidate": "M1A-CANDIDATE-01-04-05",
+      "source_fields": [
+        "synthesis.conclusion_level"
+      ],
+      "unit_id": "M1A3-CU-CONCLUSION-LEVEL-CLEARLY-UNFAVORABLE",
+      "value": "CLEARLY_UNFAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "conclusion_level equals the authoritative value CONDITIONALLY_FAVORABLE.",
+      "dimension": "conclusion_level",
+      "reachable": true,
+      "reachable_candidate_count": 84,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "synthesis.conclusion_level"
+      ],
+      "unit_id": "M1A3-CU-CONCLUSION-LEVEL-CONDITIONALLY-FAVORABLE",
+      "value": "CONDITIONALLY_FAVORABLE"
+    },
+    {
+      "coverage_status": "DEFINED_NOT_OBSERVED",
+      "definition": "conclusion_level equals the authoritative value INSUFFICIENT_EVIDENCE.",
+      "dimension": "conclusion_level",
+      "reachable": false,
+      "reachable_candidate_count": 0,
+      "representative_candidate": null,
+      "source_fields": [
+        "synthesis.conclusion_level"
+      ],
+      "unit_id": "M1A3-CU-CONCLUSION-LEVEL-INSUFFICIENT-EVIDENCE",
+      "value": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "conclusion_level equals the authoritative value MIXED_OR_UNSETTLED.",
+      "dimension": "conclusion_level",
+      "reachable": true,
+      "reachable_candidate_count": 260,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "synthesis.conclusion_level"
+      ],
+      "unit_id": "M1A3-CU-CONCLUSION-LEVEL-MIXED-OR-UNSETTLED",
+      "value": "MIXED_OR_UNSETTLED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 28,
+      "representative_candidate": "M1A-CANDIDATE-01-04-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-FAVORABLE",
+      "value": "INITIAL:FAVORABLE|CHANGED:FAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 34,
+      "representative_candidate": "M1A-CANDIDATE-01-04-02",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-MIXED",
+      "value": "INITIAL:FAVORABLE|CHANGED:MIXED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 46,
+      "representative_candidate": "M1A-CANDIDATE-01-04-03",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-FAVORABLE-CHANGED-UNFAVORABLE",
+      "value": "INITIAL:FAVORABLE|CHANGED:UNFAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 34,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-FAVORABLE",
+      "value": "INITIAL:MIXED|CHANGED:FAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 48,
+      "representative_candidate": "M1A-CANDIDATE-01-01-03",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-MIXED",
+      "value": "INITIAL:MIXED|CHANGED:MIXED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 44,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-MIXED-CHANGED-UNFAVORABLE",
+      "value": "INITIAL:MIXED|CHANGED:UNFAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 46,
+      "representative_candidate": "M1A-CANDIDATE-01-03-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-FAVORABLE",
+      "value": "INITIAL:UNFAVORABLE|CHANGED:FAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 44,
+      "representative_candidate": "M1A-CANDIDATE-01-03-02",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-MIXED",
+      "value": "INITIAL:UNFAVORABLE|CHANGED:MIXED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "Ordered initial and changed directions emitted by the authoritative relation assessments.",
+      "dimension": "direction_pair",
+      "reachable": true,
+      "reachable_candidate_count": 60,
+      "representative_candidate": "M1A-CANDIDATE-01-04-05",
+      "source_fields": [
+        "synthesis.relation_assessments[].phase",
+        "synthesis.relation_assessments[].direction"
+      ],
+      "unit_id": "M1A3-CU-DIRECTION-PAIR-INITIAL-UNFAVORABLE-CHANGED-UNFAVORABLE",
+      "value": "INITIAL:UNFAVORABLE|CHANGED:UNFAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_polarity equals the authoritative value MIXED.",
+      "dimension": "evidence_polarity",
+      "reachable": true,
+      "reachable_candidate_count": 248,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].polarity"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-POLARITY-MIXED",
+      "value": "MIXED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_polarity equals the authoritative value NEGATIVE.",
+      "dimension": "evidence_polarity",
+      "reachable": true,
+      "reachable_candidate_count": 359,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].polarity"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-POLARITY-NEGATIVE",
+      "value": "NEGATIVE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_polarity equals the authoritative value NEUTRAL.",
+      "dimension": "evidence_polarity",
+      "reachable": true,
+      "reachable_candidate_count": 384,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].polarity"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-POLARITY-NEUTRAL",
+      "value": "NEUTRAL"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_polarity equals the authoritative value POSITIVE.",
+      "dimension": "evidence_polarity",
+      "reachable": true,
+      "reachable_candidate_count": 378,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].polarity"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-POLARITY-POSITIVE",
+      "value": "POSITIVE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_role equals the authoritative value ACTION_OPTION.",
+      "dimension": "evidence_role",
+      "reachable": true,
+      "reachable_candidate_count": 384,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].allowed_roles"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-ROLE-ACTION-OPTION",
+      "value": "ACTION_OPTION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_role equals the authoritative value CONDITION.",
+      "dimension": "evidence_role",
+      "reachable": true,
+      "reachable_candidate_count": 332,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].allowed_roles"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-ROLE-CONDITION",
+      "value": "CONDITION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_role equals the authoritative value EXPLANATION.",
+      "dimension": "evidence_role",
+      "reachable": true,
+      "reachable_candidate_count": 384,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].allowed_roles"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-ROLE-EXPLANATION",
+      "value": "EXPLANATION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_role equals the authoritative value REVIEW_QUESTION.",
+      "dimension": "evidence_role",
+      "reachable": true,
+      "reachable_candidate_count": 384,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].allowed_roles"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-ROLE-REVIEW-QUESTION",
+      "value": "REVIEW_QUESTION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_strength equals the authoritative value MEDIUM.",
+      "dimension": "evidence_strength",
+      "reachable": true,
+      "reachable_candidate_count": 384,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].strength"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-STRENGTH-MEDIUM",
+      "value": "MEDIUM"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_strength equals the authoritative value STRONG.",
+      "dimension": "evidence_strength",
+      "reachable": true,
+      "reachable_candidate_count": 370,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "catalog.entries[].strength"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-STRENGTH-STRONG",
+      "value": "STRONG"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_strength equals the authoritative value WEAK.",
+      "dimension": "evidence_strength",
+      "reachable": true,
+      "reachable_candidate_count": 384,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "catalog.entries[].strength"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-STRENGTH-WEAK",
+      "value": "WEAK"
+    },
+    {
+      "coverage_status": "DEFINED_NOT_OBSERVED",
+      "definition": "evidence_sufficiency equals the authoritative value INSUFFICIENT.",
+      "dimension": "evidence_sufficiency",
+      "reachable": false,
+      "reachable_candidate_count": 0,
+      "representative_candidate": null,
+      "source_fields": [
+        "synthesis.evidence_sufficiency"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-SUFFICIENCY-INSUFFICIENT",
+      "value": "INSUFFICIENT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_sufficiency equals the authoritative value LIMITED.",
+      "dimension": "evidence_sufficiency",
+      "reachable": true,
+      "reachable_candidate_count": 344,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "synthesis.evidence_sufficiency"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-SUFFICIENCY-LIMITED",
+      "value": "LIMITED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "evidence_sufficiency equals the authoritative value SUFFICIENT.",
+      "dimension": "evidence_sufficiency",
+      "reachable": true,
+      "reachable_candidate_count": 40,
+      "representative_candidate": "M1A-CANDIDATE-01-04-05",
+      "source_fields": [
+        "synthesis.evidence_sufficiency"
+      ],
+      "unit_id": "M1A3-CU-EVIDENCE-SUFFICIENCY-SUFFICIENT",
+      "value": "SUFFICIENT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "initial_relation equals the authoritative value BODY_CONTROLS_USE.",
+      "dimension": "initial_relation",
+      "reachable": true,
+      "reachable_candidate_count": 78,
+      "representative_candidate": "M1A-CANDIDATE-01-03-04",
+      "source_fields": [
+        "chart.initial_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-INITIAL-RELATION-BODY-CONTROLS-USE",
+      "value": "BODY_CONTROLS_USE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "initial_relation equals the authoritative value BODY_GENERATES_USE.",
+      "dimension": "initial_relation",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-06-01",
+      "source_fields": [
+        "chart.initial_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-INITIAL-RELATION-BODY-GENERATES-USE",
+      "value": "BODY_GENERATES_USE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "initial_relation equals the authoritative value SAME_ELEMENT.",
+      "dimension": "initial_relation",
+      "reachable": true,
+      "reachable_candidate_count": 84,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "chart.initial_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-INITIAL-RELATION-SAME-ELEMENT",
+      "value": "SAME_ELEMENT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "initial_relation equals the authoritative value USE_CONTROLS_BODY.",
+      "dimension": "initial_relation",
+      "reachable": true,
+      "reachable_candidate_count": 78,
+      "representative_candidate": "M1A-CANDIDATE-01-03-01",
+      "source_fields": [
+        "chart.initial_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-INITIAL-RELATION-USE-CONTROLS-BODY",
+      "value": "USE_CONTROLS_BODY"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "initial_relation equals the authoritative value USE_GENERATES_BODY.",
+      "dimension": "initial_relation",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-06-04",
+      "source_fields": [
+        "chart.initial_body_use_relation"
+      ],
+      "unit_id": "M1A3-CU-INITIAL-RELATION-USE-GENERATES-BODY",
+      "value": "USE_GENERATES_BODY"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-03-04",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-INSUFFICIENT",
+      "value": "BODY-CONTROL-CAPACITY-INSUFFICIENT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-BODY-CONTROL-CAPACITY-SUFFICIENT",
+      "value": "BODY-CONTROL-CAPACITY-SUFFICIENT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 132,
+      "representative_candidate": "M1A-CANDIDATE-01-02-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-BODY-GENERATES-USE-REMAINS-CONSUMPTIVE",
+      "value": "BODY-GENERATES-USE-REMAINS-CONSUMPTIVE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 152,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-SAME-ELEMENT-NEVER-DIRECTIONAL",
+      "value": "SAME-ELEMENT-NEVER-DIRECTIONAL"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 60,
+      "representative_candidate": "M1A-CANDIDATE-01-03-01",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-SEASON-SUPPORTS-USE-GENERATES-BODY",
+      "value": "SEASON-SUPPORTS-USE-GENERATES-BODY"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 72,
+      "representative_candidate": "M1A-CANDIDATE-01-03-04",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-SEASON-WEAKENS-USE-GENERATES-BODY",
+      "value": "SEASON-WEAKENS-USE-GENERATES-BODY"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "An authoritative modifier rule emitted by RelationAssessor.",
+      "dimension": "modifier_rule",
+      "reachable": true,
+      "reachable_candidate_count": 144,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "synthesis.relation_assessments[].modifier_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-MODIFIER-RULE-USE-CONTROLS-BODY-REMAINS-UNFAVORABLE",
+      "value": "USE-CONTROLS-BODY-REMAINS-UNFAVORABLE"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "moving_line_stage equals the authoritative value CLOSING_OR_EXCESS.",
+      "dimension": "moving_line_stage",
+      "reachable": true,
+      "reachable_candidate_count": 64,
+      "representative_candidate": "M1A-CANDIDATE-01-01-06",
+      "source_fields": [
+        "chart.moving_line_stage"
+      ],
+      "unit_id": "M1A3-CU-MOVING-LINE-STAGE-CLOSING-OR-EXCESS",
+      "value": "CLOSING_OR_EXCESS"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "moving_line_stage equals the authoritative value CORE_DECISION.",
+      "dimension": "moving_line_stage",
+      "reachable": true,
+      "reachable_candidate_count": 64,
+      "representative_candidate": "M1A-CANDIDATE-01-01-05",
+      "source_fields": [
+        "chart.moving_line_stage"
+      ],
+      "unit_id": "M1A3-CU-MOVING-LINE-STAGE-CORE-DECISION",
+      "value": "CORE_DECISION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "moving_line_stage equals the authoritative value EARLY_FORMATION.",
+      "dimension": "moving_line_stage",
+      "reachable": true,
+      "reachable_candidate_count": 64,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "chart.moving_line_stage"
+      ],
+      "unit_id": "M1A3-CU-MOVING-LINE-STAGE-EARLY-FORMATION",
+      "value": "EARLY_FORMATION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "moving_line_stage equals the authoritative value EXTERNAL_TURNING_POINT.",
+      "dimension": "moving_line_stage",
+      "reachable": true,
+      "reachable_candidate_count": 64,
+      "representative_candidate": "M1A-CANDIDATE-01-01-04",
+      "source_fields": [
+        "chart.moving_line_stage"
+      ],
+      "unit_id": "M1A3-CU-MOVING-LINE-STAGE-EXTERNAL-TURNING-POINT",
+      "value": "EXTERNAL_TURNING_POINT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "moving_line_stage equals the authoritative value GERMINATION.",
+      "dimension": "moving_line_stage",
+      "reachable": true,
+      "reachable_candidate_count": 64,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "chart.moving_line_stage"
+      ],
+      "unit_id": "M1A3-CU-MOVING-LINE-STAGE-GERMINATION",
+      "value": "GERMINATION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "moving_line_stage equals the authoritative value INTERNAL_THRESHOLD.",
+      "dimension": "moving_line_stage",
+      "reachable": true,
+      "reachable_candidate_count": 64,
+      "representative_candidate": "M1A-CANDIDATE-01-01-03",
+      "source_fields": [
+        "chart.moving_line_stage"
+      ],
+      "unit_id": "M1A3-CU-MOVING-LINE-STAGE-INTERNAL-THRESHOLD",
+      "value": "INTERNAL_THRESHOLD"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-BOTH-FAVORABLE-CLEAR.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 12,
+      "representative_candidate": "M1A-CANDIDATE-01-06-06",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-FAVORABLE-CLEAR",
+      "value": "MEIHUA-V2A-BOTH-FAVORABLE-CLEAR"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-BOTH-FAVORABLE-CONDITIONAL.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 16,
+      "representative_candidate": "M1A-CANDIDATE-01-04-01",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-FAVORABLE-CONDITIONAL",
+      "value": "MEIHUA-V2A-BOTH-FAVORABLE-CONDITIONAL"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-BOTH-MIXED.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 48,
+      "representative_candidate": "M1A-CANDIDATE-01-01-03",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-MIXED",
+      "value": "MEIHUA-V2A-BOTH-MIXED"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-BOTH-UNFAVORABLE-CLEAR.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 28,
+      "representative_candidate": "M1A-CANDIDATE-01-04-05",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-BOTH-UNFAVORABLE-CLEAR",
+      "value": "MEIHUA-V2A-BOTH-UNFAVORABLE-CLEAR"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-DIRECTION-CONFLICT.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 92,
+      "representative_candidate": "M1A-CANDIDATE-01-03-01",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-DIRECTION-CONFLICT",
+      "value": "MEIHUA-V2A-DIRECTION-CONFLICT"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-FAVORABLE-MIXED.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 68,
+      "representative_candidate": "M1A-CANDIDATE-01-01-01",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-FAVORABLE-MIXED",
+      "value": "MEIHUA-V2A-FAVORABLE-MIXED"
+    },
+    {
+      "coverage_status": "DEFINED_NOT_OBSERVED",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-MISSING-RELATION.",
+      "dimension": "synthesis_rule",
+      "reachable": false,
+      "reachable_candidate_count": 0,
+      "representative_candidate": null,
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-MISSING-RELATION",
+      "value": "MEIHUA-V2A-MISSING-RELATION"
+    },
+    {
+      "coverage_status": "COVERABLE",
+      "definition": "synthesis_rule equals the authoritative value MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR.",
+      "dimension": "synthesis_rule",
+      "reachable": true,
+      "reachable_candidate_count": 120,
+      "representative_candidate": "M1A-CANDIDATE-01-01-02",
+      "source_fields": [
+        "synthesis.synthesis_rule_ids"
+      ],
+      "unit_id": "M1A3-CU-SYNTHESIS-RULE-MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR",
+      "value": "MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "$id": "urn:abalo:m1a:fixture:v001",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "cast_time": {
+      "const": "2026-07-10T12:00:00+08:00"
+    },
+    "fixture_id": {
+      "pattern": "^M1A-V001-[0-9]{3}$",
+      "type": "string"
+    },
+    "fixture_version": {
+      "const": "MEIHUA_M1A_FIXTURE_V001"
+    },
+    "manual_review_status": {
+      "const": "UNREVIEWED"
+    },
+    "sentinel": {
+      "type": "boolean"
+    },
+    "synthetic_numbers": {
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        }
+      ],
+      "type": "array"
+    },
+    "timezone": {
+      "const": "Asia/Shanghai"
+    }
+  },
+  "required": [
+    "fixture_id",
+    "fixture_version",
+    "synthetic_numbers",
+    "cast_time",
+    "timezone",
+    "question_domain",
+    "decision_goal",
+    "time_horizon",
+    "normalized_question",
+    "question_template_version",
+    "contract_version",
+    "chart_hash",
+    "program_hash",
+    "provider_catalog_hash",
+    "private_catalog_hash",
+    "classification_tags",
+    "base_fixture_signature",
+    "selection_reason",
+    "covered_units",
+    "safe_evidence_short_references",
+    "engine_version",
+    "rule_version",
+    "trigram_data_version",
+    "hexagram_data_version",
+    "catalog_version",
+    "prompt_version",
+    "validator_version",
+    "manual_review_status",
+    "sentinel"
+  ],
+  "type": "object"
+}
