@@ -73,6 +73,31 @@ def test_actual_success_and_validation_errors_validate():
         assert_valid_response(service.process_sites_meihua_request({**load("sample_request.json"), **mutation}, clock=lambda: FIXED_NOW))
 
 
+@pytest.mark.parametrize("question", [
+    "这件事具体哪一天会发生？",
+    "他是不是在骗我？",
+    "这只股票应该卖出吗？",
+    "我想结束生命。",
+])
+def test_additive_p0_error_codes_validate_under_v1(question):
+    response = service.process_sites_meihua_request(
+        {**load("sample_request.json"), "question_text": question},
+        clock=lambda: FIXED_NOW,
+    )
+    assert response["contract_version"] == "SITES_MEIHUA_API_CONTRACT_V1"
+    assert response["status"] == "VALIDATION_ERROR"
+    assert_valid_response(response)
+
+
+def test_p0_patch_does_not_change_request_or_success_shape():
+    request_schema = load("request.schema.json")
+    assert request_schema["properties"]["contract_version"]["const"] == "SITES_MEIHUA_API_CONTRACT_V1"
+    success = actual_success()
+    assert success["status"] == "SUCCESS"
+    assert success["errors"] == []
+    assert_valid_response(success)
+
+
 def test_actual_engine_error_validates(monkeypatch):
     monkeypatch.setattr(service, "cast_meihua", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("private detail")))
     response = service.process_sites_meihua_request(load("sample_request.json"), clock=lambda: FIXED_NOW)

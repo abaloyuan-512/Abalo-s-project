@@ -61,6 +61,97 @@ def test_invalid_requests_have_stable_safe_errors(mutation, code):
     assert "Traceback" not in serialized and "Abalo-s-project" not in serialized
 
 
+@pytest.mark.parametrize(("question", "code"), [
+    ("具体哪一天会有结果？", "UNSUPPORTED_PREDICTION_REQUEST"),
+    ("这次一定会成功吗？", "UNSUPPORTED_PREDICTION_REQUEST"),
+    ("他到底爱不爱我？", "UNSUPPORTED_THIRD_PARTY_INFERENCE"),
+    ("公司是不是准备裁掉我？", "UNSUPPORTED_THIRD_PARTY_INFERENCE"),
+    ("我是否应该停药？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("这只股票什么时候买入？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("下一期彩票买什么号码？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("这场官司会不会赢？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("我想自杀，等卦象出来再求助。", "IMMEDIATE_SAFETY_RISK"),
+])
+def test_p0_rejections_are_safe_and_have_no_deterministic_result(monkeypatch, question, code):
+    import abalo_iching.application.sites_meihua_service as service
+
+    monkeypatch.setattr(service, "cast_meihua", lambda *a, **k: (_ for _ in ()).throw(AssertionError("cast called")))
+    response = process({**request(), "question_text": question})
+    assert response["status"] == "VALIDATION_ERROR"
+    assert response["deterministic_result"] is None
+    assert response["errors"][0]["error_code"] == code
+    serialized = json.dumps(response, ensure_ascii=False)
+    assert question not in serialized
+    assert "pattern" not in serialized.lower() and "regex" not in serialized.lower()
+
+
+@pytest.mark.parametrize("variant", [
+    "valid", "missing_numbers", "zero_numbers", "unacknowledged",
+    "bad_timestamp", "bad_locale", "multiple_question_marks",
+])
+def test_immediate_safety_precedes_divination_fields(monkeypatch, variant):
+    import abalo_iching.application.sites_meihua_service as service
+
+    payload = {
+        **request(),
+        "question_text": "我现在想伤害自己，要不要等卦象出来再决定是否求助？",
+    }
+    if variant == "missing_numbers":
+        payload.pop("numbers")
+    elif variant == "zero_numbers":
+        payload["numbers"] = [0, 2, 3]
+    elif variant == "unacknowledged":
+        payload["user_acknowledgements"] = {
+            "deterministic_only": False,
+            "narrative_unverified": False,
+        }
+    elif variant == "bad_timestamp":
+        payload["client_timestamp"] = "not-a-time"
+    elif variant == "bad_locale":
+        payload["locale"] = "en-US"
+    elif variant == "multiple_question_marks":
+        payload["question_text"] += "还要继续吗？"
+    monkeypatch.setattr(
+        service,
+        "cast_meihua",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("cast called")),
+    )
+    response = process(payload)
+    assert response["status"] == "VALIDATION_ERROR"
+    assert response["errors"][0]["error_code"] == "IMMEDIATE_SAFETY_RISK"
+    assert response["deterministic_result"] is None
+
+
+@pytest.mark.parametrize(("question", "code"), [
+    ("我能不能把药量减一半？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("这只基金还能不能加仓？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("下一期大乐透选哪些号？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("这场官司我能赢吗？", "UNSUPPORTED_HIGH_RISK_REQUEST"),
+    ("供应商是不是故意骗我？", "UNSUPPORTED_THIRD_PARTY_INFERENCE"),
+])
+@pytest.mark.parametrize("variant", ["valid", "missing_numbers", "unacknowledged"])
+def test_other_p0_categories_precede_divination_fields(monkeypatch, question, code, variant):
+    import abalo_iching.application.sites_meihua_service as service
+
+    payload = {**request(), "question_text": question}
+    if variant == "missing_numbers":
+        payload.pop("numbers")
+    elif variant == "unacknowledged":
+        payload["user_acknowledgements"] = {
+            "deterministic_only": False,
+            "narrative_unverified": False,
+        }
+    monkeypatch.setattr(
+        service,
+        "cast_meihua",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("cast called")),
+    )
+    response = process(payload)
+    assert response["status"] == "VALIDATION_ERROR"
+    assert response["errors"][0]["error_code"] == code
+    assert response["deterministic_result"] is None
+
+
 def test_client_timestamp_is_audit_only():
     first = process()
     payload = {**request(), "client_timestamp": "2035-01-01T00:00:00+08:00"}

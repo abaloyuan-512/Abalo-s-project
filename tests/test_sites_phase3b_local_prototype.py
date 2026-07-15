@@ -1,5 +1,6 @@
 import http.client
 import json
+import logging
 import threading
 from contextlib import contextmanager
 from html.parser import HTMLParser
@@ -120,6 +121,28 @@ def test_valid_post_calls_real_service_and_returns_schema_valid_success():
     assert headers["Cache-Control"] == "no-store"
     assert payload["audit"]["calculation_source"] == "PYTHON_AUTHORITATIVE_ENGINE"
     jsonschema.validate(payload, RESPONSE_SCHEMA)
+
+
+def test_p0_rejection_log_does_not_include_question_or_sensitive_match(caplog):
+    question = "我能不能把药量减一半？"
+    body = json.dumps(valid_request(question), ensure_ascii=False).encode()
+    with caplog.at_level(logging.INFO, logger="sites.phase3b.local"):
+        with running_server() as port:
+            status, _headers, raw = request(
+                port,
+                "POST",
+                "/api/v1/meihua",
+                body,
+                {"Content-Type": "application/json"},
+            )
+    payload = json.loads(raw)
+    rendered_logs = "\n".join(record.getMessage() for record in caplog.records)
+    assert status == 200
+    assert payload["errors"][0]["error_code"] == "UNSUPPORTED_HIGH_RISK_REQUEST"
+    assert question not in rendered_logs
+    assert "药量减一半" not in rendered_logs
+    assert "request_id=phase3b-synthetic-test-001" in rendered_logs
+    assert "error=UNSUPPORTED_HIGH_RISK_REQUEST" in rendered_logs
 
 
 def test_http_adapter_delegates_to_process_service(monkeypatch):
@@ -275,6 +298,21 @@ def test_frontend_has_loading_input_success_and_error_states():
         assert marker in html
     for code in ["INVALID_REQUEST", "EMPTY_QUESTION", "INVALID_NUMBER_COUNT", "INVALID_NUMBER_TYPE", "MULTIPLE_QUESTIONS_NOT_ALLOWED", "CLIENT_CALCULATION_NOT_ACCEPTED", "ENGINE_ERROR"]:
         assert code in js
+
+
+def test_frontend_has_safe_p0_messages_and_server_message_fallback():
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    for code in [
+        "UNSUPPORTED_PREDICTION_REQUEST",
+        "UNSUPPORTED_THIRD_PARTY_INFERENCE",
+        "UNSUPPORTED_HIGH_RISK_REQUEST",
+        "IMMEDIATE_SAFETY_RISK",
+    ]:
+        assert code in js
+    assert "SAFE_SERVER_MESSAGE_CODES.has(code)" in js
+    assert 'typeof safeMessage === "string"' in js
+    assert "responseError && responseError.message" in js
+    assert 'ERROR_MESSAGES[code] || [fallbackTitle || "响应格式异常"' in js
 
 
 def test_frontend_rejects_malformed_release_envelope_before_render():

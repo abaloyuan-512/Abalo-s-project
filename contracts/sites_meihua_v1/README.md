@@ -17,3 +17,9 @@ keys, prompts, local paths, Git identity, or raw internal Evidence objects.
 No HTTP transport is selected in Phase 3A. A later HTTPS adapter must preserve
 these request and response shapes and delegate all calculation to
 `process_sites_meihua_request`.
+
+The Phase 3G P0 input guard adds four error codes to the V1 allowlist:
+`UNSUPPORTED_PREDICTION_REQUEST`, `UNSUPPORTED_THIRD_PARTY_INFERENCE`,
+`UNSUPPORTED_HIGH_RISK_REQUEST`, and `IMMEDIATE_SAFETY_RISK`. This is an
+additive error-code patch only. The contract version, request schema, response
+envelope, success response, and endpoint remain unchanged.

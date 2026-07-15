@@ -8,8 +8,18 @@ const ERROR_MESSAGES = {
   INVALID_NUMBER_TYPE: ["数字不在有效范围", "三个数字都必须是 1 至 999 的整数。"],
   MULTIPLE_QUESTIONS_NOT_ALLOWED: ["一次只处理一个问题", "请保留一个最想厘清的问题。"],
   CLIENT_CALCULATION_NOT_ACCEPTED: ["请求包含不受支持的内容", "页面只提交原始输入，结构由本地服务生成。"],
+  UNSUPPORTED_PREDICTION_REQUEST: ["这个问题不适合生成结果", "请改为询问当前条件、行动或观察信号。"],
+  UNSUPPORTED_THIRD_PARTY_INFERENCE: ["无法判断他人的内心或隐私", "请改为关注自己的行动、边界和可观察信号。"],
+  UNSUPPORTED_HIGH_RISK_REQUEST: ["这个问题需要现实中的专业判断", "本页面没有生成卦象，请依据可靠信息寻求合适的专业支持。"],
+  IMMEDIATE_SAFETY_RISK: ["请优先处理现实中的安全", "请不要等待预测结果；如存在迫近危险，请立即联系当地紧急服务和可信任的人。"],
   ENGINE_ERROR: ["暂时无法生成结构", "当前没有生成结果，请稍后在本机重试。"],
 };
+const SAFE_SERVER_MESSAGE_CODES = new Set([
+  "UNSUPPORTED_PREDICTION_REQUEST",
+  "UNSUPPORTED_THIRD_PARTY_INFERENCE",
+  "UNSUPPORTED_HIGH_RISK_REQUEST",
+  "IMMEDIATE_SAFETY_RISK",
+]);
 const CONCLUSION_LABELS = {
   CLEARLY_FAVORABLE: "明显有利",
   CONDITIONALLY_FAVORABLE: "有条件有利",
@@ -135,13 +145,16 @@ function revealResult() {
   scrollToElement(resultPanel);
 }
 
-function renderError(code, fallbackTitle) {
+function renderError(code, fallbackTitle, safeMessage) {
   const mapped = ERROR_MESSAGES[code] || [fallbackTitle || "响应格式异常", "未展示任何结果，请检查本地服务后重试。"];
+  const message = SAFE_SERVER_MESSAGE_CODES.has(code) && typeof safeMessage === "string" && safeMessage.length > 0
+    ? safeMessage
+    : mapped[1];
   show(byId("result-placeholder"), false);
   show(byId("result-content"), false);
   show(byId("result-error"), true);
   setText("result-error-title", mapped[0]);
-  setText("result-error-text", mapped[1]);
+  setText("result-error-text", message);
   revealResult();
   byId("result-error-title").focus({ preventScroll: true });
 }
@@ -239,8 +252,8 @@ async function submit(event) {
     } else if (payload.status === "SUCCESS") {
       renderSuccess(payload);
     } else {
-      const errorCode = Array.isArray(payload.errors) && payload.errors[0] ? payload.errors[0].error_code : null;
-      renderError(errorCode, "计算未完成");
+      const responseError = Array.isArray(payload.errors) && payload.errors[0] ? payload.errors[0] : null;
+      renderError(responseError && responseError.error_code, "计算未完成", responseError && responseError.message);
     }
   } catch (_error) {
     renderError(null, "本地服务暂不可用");

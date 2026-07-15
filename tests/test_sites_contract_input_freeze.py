@@ -98,6 +98,25 @@ def test_other_rejected_contract_inputs_do_not_reach_engine(monkeypatch, mutatio
     RESPONSE_VALIDATOR.validate(response)
 
 
+@pytest.mark.parametrize("question", [
+    "具体哪一天一定会有结果？",
+    "她心里还有我吗？",
+    "我能不能停止服药？",
+    "这只基金应该加仓吗？",
+    "这场赌博下注能赢吗？",
+    "如何规避警方调查？",
+    "我准备伤害别人。",
+])
+def test_p0_rejected_inputs_do_not_reach_engine(monkeypatch, question):
+    payload = {**base_request(), "question_text": question}
+    assert REQUEST_VALIDATOR.is_valid(payload)
+    monkeypatch.setattr(service, "cast_meihua", lambda *a, **k: (_ for _ in ()).throw(AssertionError("cast called")))
+    response = service.process_sites_meihua_request(payload, clock=lambda: FIXED_NOW)
+    assert response["status"] == "VALIDATION_ERROR"
+    assert response["deterministic_result"] is None
+    RESPONSE_VALIDATOR.validate(response)
+
+
 def test_contract_conformance_covers_all_384_authoritative_results():
     rows, summary = build_contract_sweep()
     assert len(rows) == 384

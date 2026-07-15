@@ -17,6 +17,8 @@ from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
 from abalo_iching.meihua import MeihuaInput, cast_meihua
 from abalo_iching.meihua.exceptions import InputValidationError
 
+from .sites_question_input_policy import evaluate_question_input
+
 CONTRACT_VERSION = "SITES_MEIHUA_API_CONTRACT_V1"
 LIVE_VALIDATION_STATUS = "BLOCKED_BY_EXECUTION_POLICY"
 INVALID_REQUEST_ID_FALLBACK = "invalid-request"
@@ -125,6 +127,10 @@ def _validate(payload: Any) -> tuple[dict[str, Any] | None, tuple[str, str] | No
     normalized_question = question.strip()
     if not normalized_question:
         return None, ("EMPTY_QUESTION", "问题不能为空。")
+    input_decision = evaluate_question_input(normalized_question)
+    if not input_decision.allowed:
+        assert input_decision.error_code is not None and input_decision.message is not None
+        return None, (input_decision.error_code, input_decision.message)
     if len(re.findall(r"[?？]", question)) > 1:
         return None, ("MULTIPLE_QUESTIONS_NOT_ALLOWED", "一次请求只能包含一个问题。")
     numbers = payload.get("numbers")
