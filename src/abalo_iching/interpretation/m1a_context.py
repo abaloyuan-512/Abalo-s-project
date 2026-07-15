@@ -2,15 +2,33 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Protocol
 
 from abalo_iching.meihua.enums import EvidencePolarity, EvidenceStrength, EvidenceType
 from abalo_iching.meihua.models import MeihuaChart
 
 from .models import SynthesisResult
 from .synthesis import ConclusionSynthesizer
+
+M1A_PROGRAM_HASH_VERSION = "MEIHUA_M1A_PROGRAM_HASH_V1"
+
+
+class M1AIntakeView(Protocol):
+    """Neutral view of an Application-validated M1AIntake; defines no product enums."""
+
+    question_id: str
+    question_domain: object
+    decision_goal: object
+    time_horizon: object
+    normalized_question: str
+    question_template_version: str
+    contract_version: str
+    is_synthetic: bool
 
 
 class M1AEvidenceRole(StrEnum):
@@ -103,6 +121,53 @@ class M1AProgramContext:
     hexagram_data_version: str
     calendar_provider: str
     engine_version: str
+
+
+def _stable_json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def m1a_program_hash(context: M1AProgramContext) -> str:
+    """Hash all program-owned M1-A state without serializing it to a Provider."""
+    payload = {
+        "hash_version": M1A_PROGRAM_HASH_VERSION,
+        "synthesis": context.synthesis.model_dump(mode="json"),
+        "private_chart_evidence": [
+            {
+                "evidence_id": item.evidence_id,
+                "evidence_type": item.evidence_type.value,
+                "source_ref": item.source_ref,
+                "fact": item.fact,
+                "rule_statement": item.rule_statement,
+                "polarity": item.polarity.value,
+                "strength": item.strength.value,
+                "data_version": item.data_version,
+            }
+            for item in context.private_chart_evidence
+        ],
+        "provider_evidence_allowlist": [
+            {
+                "canonical_evidence_id": item.canonical_evidence_id,
+                "provider_evidence_ref": item.provider_evidence_ref,
+                "safe_evidence_content": item.safe_evidence_content,
+                "polarity": item.polarity.value,
+                "strength": item.strength.value,
+                "allowed_roles": [role.value for role in item.allowed_roles],
+                "conditions": list(item.conditions),
+                "private_mapping_hash": item.private_mapping_hash,
+                "provider_payload_hash": item.provider_payload_hash,
+            }
+            for item in context.provider_evidence_allowlist
+        ],
+        "versions": {
+            "rule_version": context.rule_version,
+            "trigram_data_version": context.trigram_data_version,
+            "hexagram_data_version": context.hexagram_data_version,
+            "calendar_provider": context.calendar_provider,
+            "engine_version": context.engine_version,
+        },
+    }
+    return hashlib.sha256(_stable_json(payload).encode("utf-8")).hexdigest()
 
 
 def build_m1a_program_context(chart: MeihuaChart) -> M1AProgramContext:
