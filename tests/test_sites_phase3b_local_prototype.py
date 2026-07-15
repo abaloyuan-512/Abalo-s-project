@@ -15,6 +15,7 @@ from scripts import run_sites_phase3b_local_server as local_server
 ROOT = Path(__file__).parents[1]
 SITE = ROOT / "sites" / "phase3b-prototype"
 RESPONSE_SCHEMA = json.loads((ROOT / "contracts/sites_meihua_v1/response.schema.json").read_text(encoding="utf-8"))
+RESPONSE_SCHEMA_V2 = json.loads((ROOT / "contracts/sites_meihua_v2/response.schema.json").read_text(encoding="utf-8"))
 
 
 def valid_request(question_text="我应该如何更稳妥地推进当前合作？"):
@@ -26,6 +27,24 @@ def valid_request(question_text="我应该如何更稳妥地推进当前合作�
         "locale": "zh-CN",
         "client_timestamp": "2026-07-13T10:00:00+08:00",
         "user_acknowledgements": {"deterministic_only": True, "narrative_unverified": True},
+    }
+
+
+def valid_v2_request():
+    return {
+        "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+        "request_id": "phase3g-structured-test-001",
+        "question_domain": "PROJECT_COOPERATION",
+        "decision_goal": "PLAN_NEXT_STEP",
+        "time_horizon": "NEXT_30_DAYS",
+        "numbers": [100, 27, 368],
+        "locale": "zh-CN",
+        "client_timestamp": "2026-07-15T10:00:00+08:00",
+        "user_acknowledgements": {
+            "deterministic_only": True,
+            "narrative_unverified": True,
+            "structured_question_confirmed": True,
+        },
     }
 
 
@@ -120,6 +139,51 @@ def test_valid_post_calls_real_service_and_returns_schema_valid_success():
     assert headers["Cache-Control"] == "no-store"
     assert payload["audit"]["calculation_source"] == "PYTHON_AUTHORITATIVE_ENGINE"
     jsonschema.validate(payload, RESPONSE_SCHEMA)
+
+
+def test_v2_post_is_explicitly_routed_to_structured_service():
+    body = json.dumps(valid_v2_request(), ensure_ascii=False).encode()
+    with running_server() as port:
+        status, headers, raw = request(port, "POST", "/api/v2/meihua", body, {"Content-Type": "application/json"})
+    payload = json.loads(raw)
+    assert status == 200 and payload["status"] == "SUCCESS"
+    assert headers["Cache-Control"] == "no-store"
+    assert payload["contract_version"] == "SITES_MEIHUA_API_CONTRACT_V2"
+    assert payload["normalized_question"].startswith("在“")
+    jsonschema.validate(payload, RESPONSE_SCHEMA_V2)
+
+
+def test_v1_and_v2_http_routes_do_not_cross_services(monkeypatch):
+    calls = []
+    real_v1 = local_server.process_sites_meihua_request
+    real_v2 = local_server.process_sites_meihua_v2_request
+
+    def tracked_v1(payload):
+        calls.append("v1")
+        return real_v1(payload)
+
+    def tracked_v2(payload):
+        calls.append("v2")
+        return real_v2(payload)
+
+    monkeypatch.setattr(local_server, "process_sites_meihua_request", tracked_v1)
+    monkeypatch.setattr(local_server, "process_sites_meihua_v2_request", tracked_v2)
+    with running_server() as port:
+        request(port, "POST", "/api/v1/meihua", json.dumps(valid_request()).encode(), {"Content-Type": "application/json"})
+        request(port, "POST", "/api/v2/meihua", json.dumps(valid_v2_request()).encode(), {"Content-Type": "application/json"})
+    assert calls == ["v1", "v2"]
+
+
+@pytest.mark.parametrize(("path", "version", "schema"), [
+    ("/api/v1/meihua", "SITES_MEIHUA_API_CONTRACT_V1", RESPONSE_SCHEMA),
+    ("/api/v2/meihua", "SITES_MEIHUA_API_CONTRACT_V2", RESPONSE_SCHEMA_V2),
+])
+def test_transport_errors_preserve_selected_contract(path, version, schema):
+    with running_server() as port:
+        status, _headers, raw = request(port, "POST", path, b"{bad", {"Content-Type": "application/json"})
+    payload = json.loads(raw)
+    assert status == 400 and payload["contract_version"] == version
+    jsonschema.validate(payload, schema)
 
 
 def test_http_adapter_delegates_to_process_service(monkeypatch):
@@ -231,11 +295,11 @@ def test_favicon_is_a_single_embedded_svg_without_an_http_resource():
 
 
 def test_form_fields_start_without_stale_error_associations():
-    fields = {attrs["id"]: attrs for tag, attrs in parsed_elements() if tag in {"textarea", "input"} and "id" in attrs}
-    for field_id in ["question", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative"]:
+    fields = {attrs["id"]: attrs for tag, attrs in parsed_elements() if tag in {"select", "input"} and "id" in attrs}
+    for field_id in ["question-domain", "decision-goal", "time-horizon", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative", "ack-structured"]:
         assert fields[field_id].get("aria-invalid") in {None, "false"}
         assert "form-error" not in fields[field_id].get("aria-describedby", "").split()
-    assert fields["question"]["aria-describedby"] == "question-help question-count"
+    assert "textarea" not in {tag for tag, _attrs in parsed_elements()}
 
 
 def test_form_error_association_covers_all_fields_and_has_a_clear_lifecycle():
@@ -255,11 +319,30 @@ def test_frontend_avoids_storage_unsafe_dom_key_and_external_model(forbidden):
 
 def test_frontend_posts_contract_only_to_same_origin_endpoint():
     js = (SITE / "assets/app.js").read_text(encoding="utf-8")
-    assert 'fetch("/api/v1/meihua"' in js
-    for field in ["contract_version", "request_id", "question_text", "numbers", "locale", "client_timestamp", "user_acknowledgements"]:
+    assert 'fetch("/api/v2/meihua"' in js
+    for field in ["contract_version", "request_id", "question_domain", "decision_goal", "time_horizon", "numbers", "locale", "client_timestamp", "user_acknowledgements", "structured_question_confirmed"]:
         assert field in js
-    for forbidden in ["base_hexagram:", "evidence:", "deterministic_conclusion:"]:
+    for forbidden in ["question_text", "question_context", "base_hexagram:", "evidence:", "deterministic_conclusion:"]:
         assert forbidden not in js
+
+
+def test_frontend_uses_finite_goals_clears_numbers_and_has_no_free_text():
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    assert "<textarea" not in html
+    assert "question-count" not in html and "maxlength=" not in html
+    assert js.count("clearNumbers();") >= 3
+    assert "GOALS_BY_DOMAIN" in js and "populateGoals" in js
+    for domain in ["WORK_CAREER", "PROJECT_COOPERATION", "RELATIONSHIP_COMMUNICATION", "PERSONAL_PLANNING"]:
+        assert domain in js
+    assert 'setText("result-question", `服务端规范化问题：' in js
+
+
+def test_structured_form_has_native_keyboard_order_and_summary_before_numbers():
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    ids = ["question-domain", "decision-goal", "time-horizon", "summary-domain", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative", "ack-structured", "submit-button"]
+    positions = [html.index(f'id="{value}"') for value in ids]
+    assert positions == sorted(positions)
 
 
 def test_frontend_release_gate_is_visible_and_frozen():
@@ -273,7 +356,7 @@ def test_frontend_has_loading_input_success_and_error_states():
     js = (SITE / "assets/app.js").read_text(encoding="utf-8")
     for marker in ["question-form", "loading-status", "result-content", "result-error", "evidence-summary"]:
         assert marker in html
-    for code in ["INVALID_REQUEST", "EMPTY_QUESTION", "INVALID_NUMBER_COUNT", "INVALID_NUMBER_TYPE", "MULTIPLE_QUESTIONS_NOT_ALLOWED", "CLIENT_CALCULATION_NOT_ACCEPTED", "ENGINE_ERROR"]:
+    for code in ["INVALID_REQUEST", "INVALID_NUMBER_COUNT", "INVALID_NUMBER_TYPE", "CLIENT_INPUT_NOT_ACCEPTED", "ENGINE_ERROR"]:
         assert code in js
 
 
@@ -305,7 +388,7 @@ def test_frontend_reset_and_scroll_respect_local_only_and_reduced_motion():
     js = (SITE / "assets/app.js").read_text(encoding="utf-8")
     assert "resetExperience" in js
     assert 'matchMedia("(prefers-reduced-motion: reduce)")' in js
-    assert 'fetch("/api/v1/meihua"' in js
+    assert 'fetch("/api/v2/meihua"' in js
     assert js.count("fetch(") == 1
 
 

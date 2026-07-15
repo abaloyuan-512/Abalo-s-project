@@ -20,8 +20,12 @@ if str(SRC) not in sys.path:
 from abalo_iching.application.sites_meihua_service import (  # noqa: E402
     process_sites_meihua_request,
 )
+from abalo_iching.application.sites_meihua_service_v2 import (  # noqa: E402
+    process_sites_meihua_v2_request,
+)
 
-_contract_error_response = process_sites_meihua_request
+_v1_contract_error_response = process_sites_meihua_request
+_v2_contract_error_response = process_sites_meihua_v2_request
 
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
@@ -54,13 +58,15 @@ def validate_host(host: str) -> str:
     return host
 
 
-def _adapter_error() -> dict[str, Any]:
-    """Reuse Contract V1's safe validation envelope without invoking the engine."""
-    return _contract_error_response({})
+def _adapter_error(version: str) -> dict[str, Any]:
+    """Return the selected contract's safe envelope without invoking the engine."""
+    if version == "v2":
+        return _v2_contract_error_response({})
+    return _v1_contract_error_response({})
 
 
 class Phase3BRequestHandler(BaseHTTPRequestHandler):
-    """Serve a fixed file allowlist and one Contract V1 endpoint."""
+    """Serve a fixed file allowlist and explicitly separated V1/V2 endpoints."""
 
     server_version = "SitesPhase3BLocal/1"
     sys_version = ""
@@ -127,12 +133,19 @@ class Phase3BRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         started = time.perf_counter()
-        if self.path.split("?", 1)[0] != "/api/v1/meihua":
+        path = self.path.split("?", 1)[0]
+        routes = {
+            "/api/v1/meihua": ("v1", process_sites_meihua_request),
+            "/api/v2/meihua": ("v2", process_sites_meihua_v2_request),
+        }
+        route = routes.get(path)
+        if route is None:
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
+        contract_version, service = route
         content_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
         if content_type != "application/json":
-            response = _adapter_error()
+            response = _adapter_error(contract_version)
             self._send_json(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, response)
             self._safe_log(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, response, started)
             return
@@ -141,7 +154,7 @@ class Phase3BRequestHandler(BaseHTTPRequestHandler):
         except ValueError:
             content_length = -1
         if content_length < 0 or content_length > MAX_BODY_BYTES:
-            response = _adapter_error()
+            response = _adapter_error(contract_version)
             self._send_json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, response)
             self._safe_log(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, response, started)
             return
@@ -149,14 +162,14 @@ class Phase3BRequestHandler(BaseHTTPRequestHandler):
         try:
             payload = json.loads(body.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):
-            response = _adapter_error()
+            response = _adapter_error(contract_version)
             self._send_json(HTTPStatus.BAD_REQUEST, response)
             self._safe_log(HTTPStatus.BAD_REQUEST, response, started)
             return
         try:
-            response = process_sites_meihua_request(payload)
+            response = service(payload)
         except Exception:  # pragma: no cover - defensive transport boundary
-            response = _adapter_error()
+            response = _adapter_error(contract_version)
             self._send_json(HTTPStatus.INTERNAL_SERVER_ERROR, response)
             self._safe_log(HTTPStatus.INTERNAL_SERVER_ERROR, response, started)
             return

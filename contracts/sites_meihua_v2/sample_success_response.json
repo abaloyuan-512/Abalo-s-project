@@ -1,0 +1,37 @@
+{
+  "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+  "request_id": "client-request-id",
+  "status": "SUCCESS",
+  "structured_intake": {"question_domain": "PROJECT_COOPERATION", "decision_goal": "PLAN_NEXT_STEP", "time_horizon": "NEXT_30_DAYS"},
+  "normalized_question": "在“项目与合作推进”情境下，围绕“未来30天”，我应如何规划下一步自身可控行动？",
+  "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1",
+  "deterministic_result": {
+    "input_numbers": [100, 27, 368],
+    "base_hexagram": {"king_wen_number": 55, "name": "雷火丰", "symbol": "䷶"},
+    "mutual_hexagram": {"king_wen_number": 28, "name": "泽风大过", "symbol": "䷛"},
+    "changed_hexagram": {"king_wen_number": 34, "name": "雷天大壮", "symbol": "䷡"},
+    "moving_line": 2,
+    "body_use": {"body_trigram": "震", "initial_use_trigram": "离", "changed_use_trigram": "乾", "initial_relation": "BODY_GENERATES_USE", "changed_relation": "USE_CONTROLS_BODY"},
+    "five_elements": {"body": "木", "initial_use": "火", "changed_use": "金"},
+    "seasonal_strength": {"body": "CONFINED", "initial_use": "RESTING", "changed_use": "SUPPORTED", "solar_term": "小暑", "month_branch": "未"},
+    "deterministic_conclusion": {
+      "conclusion_level": "CLEARLY_UNFAVORABLE",
+      "evidence_sufficiency": "SUFFICIENT",
+      "supporting_evidence_ids": [],
+      "blocking_evidence_ids": ["E02", "E03"],
+      "conflicting_evidence_ids": [],
+      "required_conditions": [],
+      "synthesis_rule_ids": ["MEIHUA-V2A-BOTH-UNFAVORABLE-CLEAR"],
+      "warnings": ["当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"],
+      "relation_assessments": [
+        {"phase": "INITIAL", "relation": "BODY_GENERATES_USE", "direction": "UNFAVORABLE", "strength": "MEDIUM", "body_strength": "CONFINED", "use_strength": "RESTING", "modifier_rule_ids": ["BODY-GENERATES-USE-REMAINS-CONSUMPTIVE"], "evidence_ids": ["E02", "E06", "E07"], "conditions": [], "warnings": []},
+        {"phase": "CHANGED", "relation": "USE_CONTROLS_BODY", "direction": "UNFAVORABLE", "strength": "STRONG", "body_strength": "CONFINED", "use_strength": "SUPPORTED", "modifier_rule_ids": ["USE-CONTROLS-BODY-REMAINS-UNFAVORABLE"], "evidence_ids": ["E03", "E06", "E08"], "conditions": [], "warnings": []}
+      ]
+    },
+    "evidence_summary": {"count": 9, "evidence_types": ["BASE_HEXAGRAM", "BODY_SEASONAL_STRENGTH", "CHANGED_BODY_USE_RELATION", "CHANGED_USE_SEASONAL_STRENGTH", "INITIAL_BODY_USE_RELATION", "INITIAL_USE_SEASONAL_STRENGTH", "MOVING_LINE_STAGE", "MUTUAL_LOWER_RELATION", "MUTUAL_UPPER_RELATION"], "knowledge_mode": "PRODUCTION", "approved_knowledge_items_used": 0}
+  },
+  "narrative": {"status": "UNVERIFIED", "available": false, "content": null, "blocked_reason": "解释功能尚未完成真实路径验证", "live_validation_status": "BLOCKED_BY_EXECUTION_POLICY"},
+  "release_gate": {"should_charge": false, "formal_report_persistence_allowed": false, "closed_beta_allowed": false, "narrative_release_status": "UNVERIFIED"},
+  "audit": {"engine_version": "MEIHUA_ENGINE_PHASE1_V1", "contract_version": "SITES_MEIHUA_API_CONTRACT_V2", "calculation_source": "PYTHON_AUTHORITATIVE_ENGINE", "generated_at": "2026-07-15T10:00:00+08:00", "client_timestamp": "2026-07-15T10:00:00+08:00", "client_timestamp_used_for_calculation": false, "synthetic_or_real_input": "SYNTHETIC", "request_hash": "c2aaa56a65900344adc0729649866bd903ad82f50d3329a483c7109eb75c3bb8", "audit_id": "audit-e391af0e96bc6263", "question_template_version": "SITES_STRUCTURED_QUESTION_TEMPLATE_V1"},
+  "errors": []
+}

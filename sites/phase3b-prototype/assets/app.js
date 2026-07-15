@@ -1,13 +1,36 @@
 "use strict";
 
-const CONTRACT_VERSION = "SITES_MEIHUA_API_CONTRACT_V1";
+const CONTRACT_VERSION = "SITES_MEIHUA_API_CONTRACT_V2";
+const GOALS_BY_DOMAIN = {
+  WORK_CAREER: ["IDENTIFY_OBSTACLES", "PLAN_NEXT_STEP", "PREPARE_COMMUNICATION", "OBSERVE_VERIFY_SIGNALS"],
+  PROJECT_COOPERATION: ["IDENTIFY_OBSTACLES", "PLAN_NEXT_STEP", "PREPARE_COMMUNICATION", "ADJUST_COMMITMENT_BOUNDARIES", "OBSERVE_VERIFY_SIGNALS"],
+  RELATIONSHIP_COMMUNICATION: ["PLAN_NEXT_STEP", "PREPARE_COMMUNICATION", "ADJUST_COMMITMENT_BOUNDARIES", "OBSERVE_VERIFY_SIGNALS"],
+  PERSONAL_PLANNING: ["IDENTIFY_OBSTACLES", "PLAN_NEXT_STEP", "ADJUST_COMMITMENT_BOUNDARIES", "OBSERVE_VERIFY_SIGNALS"],
+};
+const DOMAIN_LABELS = {
+  WORK_CAREER: "工作与职业发展",
+  PROJECT_COOPERATION: "项目与合作推进",
+  RELATIONSHIP_COMMUNICATION: "关系与沟通",
+  PERSONAL_PLANNING: "个人规划",
+};
+const GOAL_LABELS = {
+  IDENTIFY_OBSTACLES: "识别阻力与支持",
+  PLAN_NEXT_STEP: "规划下一步行动",
+  PREPARE_COMMUNICATION: "准备现实沟通",
+  ADJUST_COMMITMENT_BOUNDARIES: "调整投入与边界",
+  OBSERVE_VERIFY_SIGNALS: "观察并核实现实信号",
+};
+const HORIZON_LABELS = {
+  CURRENT: "当前阶段",
+  NEXT_30_DAYS: "未来30天",
+  NEXT_QUARTER: "未来一个季度",
+  NEXT_6_MONTHS: "未来6个月",
+};
 const ERROR_MESSAGES = {
-  INVALID_REQUEST: ["输入未通过校验", "请检查问题长度、三个数字和确认项。"],
-  EMPTY_QUESTION: ["还没有具体问题", "请输入一个非空白问题。"],
+  INVALID_REQUEST: ["结构化选择未通过校验", "请检查领域、目标、时间、三个数字和确认项。"],
   INVALID_NUMBER_COUNT: ["数字尚未填写完整", "请完整输入三个数字。"],
   INVALID_NUMBER_TYPE: ["数字不在有效范围", "三个数字都必须是 1 至 999 的整数。"],
-  MULTIPLE_QUESTIONS_NOT_ALLOWED: ["一次只处理一个问题", "请保留一个最想厘清的问题。"],
-  CLIENT_CALCULATION_NOT_ACCEPTED: ["请求包含不受支持的内容", "页面只提交原始输入，结构由本地服务生成。"],
+  CLIENT_INPUT_NOT_ACCEPTED: ["请求包含不受支持的内容", "页面只提交结构化选择和原始数字。"],
   ENGINE_ERROR: ["暂时无法生成结构", "当前没有生成结果，请稍后在本机重试。"],
 };
 const CONCLUSION_LABELS = {
@@ -32,12 +55,17 @@ const KNOWLEDGE_MODE_LABELS = {
 
 const byId = (id) => document.getElementById(id);
 const form = byId("question-form");
-const question = byId("question");
+const domain = byId("question-domain");
+const goal = byId("decision-goal");
+const horizon = byId("time-horizon");
 const submitButton = byId("submit-button");
 const loadingStatus = byId("loading-status");
 const resultPanel = byId("result-panel");
 const formError = byId("form-error");
-const validatedFields = [question, ...[1, 2, 3].map((index) => byId(`number-${index}`)), byId("ack-deterministic"), byId("ack-narrative")];
+const structuredFields = [domain, goal, horizon];
+const numberFields = [1, 2, 3].map((index) => byId(`number-${index}`));
+const acknowledgementFields = [byId("ack-deterministic"), byId("ack-narrative"), byId("ack-structured")];
+const validatedFields = [...structuredFields, ...numberFields, ...acknowledgementFields];
 
 function setText(id, value) { byId(id).textContent = String(value); }
 function show(element, visible) { element.hidden = !visible; }
@@ -50,12 +78,11 @@ function createRequestId() {
   const random = globalThis.crypto && typeof globalThis.crypto.randomUUID === "function"
     ? globalThis.crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  return `phase3b-local-${random}`;
+  return `phase3g-local-${random}`;
 }
 
-function rawNumbers() {
-  return [1, 2, 3].map((index) => byId(`number-${index}`).value);
-}
+function rawNumbers() { return numberFields.map((field) => field.value); }
+function clearNumbers() { numberFields.forEach((field) => { field.value = ""; }); }
 
 function errorDescriptionIds(field) {
   return (field.getAttribute("aria-describedby") || "").split(/\s+/).filter((id) => id && id !== formError.id);
@@ -68,9 +95,7 @@ function clearFieldError(field) {
   else field.removeAttribute("aria-describedby");
 }
 
-function clearInvalidState() {
-  validatedFields.forEach(clearFieldError);
-}
+function clearInvalidState() { validatedFields.forEach(clearFieldError); }
 
 function clearFormError() {
   clearInvalidState();
@@ -84,24 +109,46 @@ function markFieldInvalid(field) {
   field.setAttribute("aria-describedby", [...errorDescriptionIds(field), formError.id].join(" "));
 }
 
+function refreshSummary() {
+  setText("summary-domain", DOMAIN_LABELS[domain.value] || "尚未选择");
+  setText("summary-goal", GOAL_LABELS[goal.value] || "尚未选择");
+  setText("summary-horizon", HORIZON_LABELS[horizon.value] || "尚未选择");
+  submitButton.disabled = !domain.value || !goal.value || !horizon.value;
+}
+
+function populateGoals() {
+  const allowed = GOALS_BY_DOMAIN[domain.value] || [];
+  goal.replaceChildren();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = allowed.length ? "请选择决策目标" : "请先选择领域";
+  goal.append(placeholder);
+  allowed.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = GOAL_LABELS[value];
+    goal.append(option);
+  });
+  goal.disabled = allowed.length === 0;
+}
+
 function validateInput() {
   clearInvalidState();
-  const rawQuestion = question.value;
-  if (rawQuestion.length < 1 || rawQuestion.length > 500 || rawQuestion.trim().length === 0) {
-    markFieldInvalid(question);
-    return { message: "请输入一个 1 至 500 个字符的具体问题，不能只填写空格。", focus: question };
+  const missingStructured = structuredFields.find((field) => !field.value);
+  if (missingStructured) {
+    markFieldInvalid(missingStructured);
+    return { message: "请完整选择领域、决策目标和时间窗口。", focus: missingStructured };
   }
   const numbers = rawNumbers().map(Number);
   const invalidIndex = numbers.findIndex((value, index) => rawNumbers()[index] === "" || !Number.isInteger(value) || value < 1 || value > 999);
   if (invalidIndex !== -1) {
-    const input = byId(`number-${invalidIndex + 1}`);
-    markFieldInvalid(input);
-    return { message: "请完整填写三个 1 至 999 的整数。", focus: input };
+    markFieldInvalid(numberFields[invalidIndex]);
+    return { message: "请完整填写三个 1 至 999 的整数。", focus: numberFields[invalidIndex] };
   }
-  if (!byId("ack-deterministic").checked || !byId("ack-narrative").checked) {
-    const input = byId("ack-deterministic").checked ? byId("ack-narrative") : byId("ack-deterministic");
-    markFieldInvalid(input);
-    return { message: "请先确认结果边界与当前版本的解读范围。", focus: input };
+  const missingAck = acknowledgementFields.find((field) => !field.checked);
+  if (missingAck) {
+    markFieldInvalid(missingAck);
+    return { message: "请先确认结构化问题、结果边界与当前版本的解读范围。", focus: missingAck };
   }
   return null;
 }
@@ -110,11 +157,17 @@ function buildRequest() {
   return {
     contract_version: CONTRACT_VERSION,
     request_id: createRequestId(),
-    question_text: question.value,
+    question_domain: domain.value,
+    decision_goal: goal.value,
+    time_horizon: horizon.value,
     numbers: rawNumbers().map(Number),
     locale: "zh-CN",
     client_timestamp: new Date().toISOString(),
-    user_acknowledgements: { deterministic_only: true, narrative_unverified: true },
+    user_acknowledgements: {
+      deterministic_only: true,
+      narrative_unverified: true,
+      structured_question_confirmed: true,
+    },
   };
 }
 
@@ -163,7 +216,7 @@ function hexagram(prefix, item) {
 }
 
 function renderSuccess(response) {
-  if (!response.deterministic_result || !Array.isArray(response.errors) || response.errors.length !== 0) {
+  if (!response.deterministic_result || typeof response.normalized_question !== "string" || !Array.isArray(response.errors) || response.errors.length !== 0) {
     renderError(null, "响应格式异常");
     return;
   }
@@ -173,7 +226,7 @@ function renderSuccess(response) {
   show(byId("result-placeholder"), false);
   show(byId("result-error"), false);
   show(byId("result-content"), true);
-  setText("result-question", `“${response.question_text}”`);
+  setText("result-question", `服务端规范化问题：“${response.normalized_question}”`);
   setText("conclusion-level", CONCLUSION_LABELS[conclusion] || "证据不足");
   setText("conclusion-code", conclusion);
   setText("engine-source", response.audit.calculation_source);
@@ -203,15 +256,16 @@ function renderSuccess(response) {
 
 function resetExperience() {
   form.reset();
-  question.value = "";
-  setText("question-count", "0 / 500");
+  populateGoals();
+  clearNumbers();
   clearFormError();
+  refreshSummary();
   show(byId("result-content"), false);
   show(byId("result-error"), false);
   show(resultPanel, false);
   byId("technical-details").open = false;
   scrollToElement(byId("question-section"));
-  question.focus({ preventScroll: true });
+  domain.focus({ preventScroll: true });
 }
 
 async function submit(event) {
@@ -227,53 +281,52 @@ async function submit(event) {
   submitButton.disabled = true;
   show(loadingStatus, true);
   try {
-    const response = await fetch("/api/v1/meihua", {
+    const response = await fetch("/api/v2/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(buildRequest()),
       cache: "no-store",
     });
     const payload = await response.json();
-    if (!validEnvelope(payload)) {
-      renderError(null, "响应格式异常");
-    } else if (payload.status === "SUCCESS") {
-      renderSuccess(payload);
-    } else {
-      const errorCode = Array.isArray(payload.errors) && payload.errors[0] ? payload.errors[0].error_code : null;
-      renderError(errorCode, "计算未完成");
-    }
+    if (!validEnvelope(payload)) renderError(null, "响应格式异常");
+    else if (payload.status === "SUCCESS") renderSuccess(payload);
+    else renderError(Array.isArray(payload.errors) && payload.errors[0] ? payload.errors[0].error_code : null, "计算未完成");
   } catch (_error) {
     renderError(null, "本地服务暂不可用");
   } finally {
-    submitButton.disabled = false;
     show(loadingStatus, false);
+    refreshSummary();
   }
 }
 
-question.addEventListener("input", () => {
-  setText("question-count", `${question.value.length} / 500`);
-  if (question.getAttribute("aria-invalid") === "true") clearFormError();
+domain.addEventListener("change", () => {
+  populateGoals();
+  clearNumbers();
+  clearFormError();
+  refreshSummary();
 });
-[1, 2, 3].forEach((index) => byId(`number-${index}`).addEventListener("input", (event) => {
-  if (event.currentTarget.getAttribute("aria-invalid") === "true") clearFormError();
+[goal, horizon].forEach((field) => field.addEventListener("change", () => {
+  clearNumbers();
+  clearFormError();
+  refreshSummary();
 }));
-["ack-deterministic", "ack-narrative"].forEach((id) => byId(id).addEventListener("change", (event) => {
-  if (event.currentTarget.getAttribute("aria-invalid") === "true") clearFormError();
-}));
+numberFields.forEach((field) => field.addEventListener("input", clearFormError));
+acknowledgementFields.forEach((field) => field.addEventListener("change", clearFormError));
 form.addEventListener("submit", submit);
 byId("reset-button").addEventListener("click", resetExperience);
 byId("error-back-button").addEventListener("click", () => {
   scrollToElement(byId("question-section"));
-  question.focus({ preventScroll: true });
+  domain.focus({ preventScroll: true });
 });
+
+populateGoals();
+refreshSummary();
 
 const preview = new URLSearchParams(window.location.search).get("preview");
 if (preview === "engine-error") {
   renderError("ENGINE_ERROR");
 } else if (preview === "validation-error") {
-  question.value = "   ";
-  markFieldInvalid(question);
-  setText("question-count", "3 / 500");
-  setText("form-error", "请输入一个 1 至 500 个字符的具体问题，不能只填写空格。");
+  markFieldInvalid(domain);
+  setText("form-error", "请完整选择领域、决策目标和时间窗口。");
   show(byId("form-error"), true);
 }
