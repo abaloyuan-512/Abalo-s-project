@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Protocol, runtime_checkable
 
 from .enums import EpistemicBasis, NarrativeKind, ServiceStatus
 from .exceptions import (
@@ -45,6 +46,14 @@ from .provider_protocol import InterpretationProvider
 from .release import narrative_release_snapshot
 
 M1A_SERVICE_VERSION = "MEIHUA_M1A_OFFLINE_SERVICE_V1"
+M1A_OFFLINE_PROVIDER_CAPABILITY = "MEIHUA_M1A_OFFLINE_PROVIDER_CAPABILITY_V1"
+
+
+@runtime_checkable
+class M1AOfflineProviderCapability(Protocol):
+    """M1-A-local pre-call gate; the historical Provider protocol stays unchanged."""
+
+    m1a_offline_capability: str
 
 
 class M1AFailureCode(StrEnum):
@@ -153,6 +162,16 @@ def _provider_failure_code(exc: ProviderError) -> M1AFailureCode:
     return M1AFailureCode.PROVIDER_UNEXPECTED
 
 
+def _is_approved_offline_provider(provider: object) -> bool:
+    try:
+        return (
+            isinstance(provider, M1AOfflineProviderCapability)
+            and provider.m1a_offline_capability == M1A_OFFLINE_PROVIDER_CAPABILITY
+        )
+    except Exception:
+        return False
+
+
 def _assemble_claim(
     claim: AINarrativeDraftClaim,
     *,
@@ -196,6 +215,8 @@ class M1AService:
         self.validator = validator or M1AValidator()
 
     def interpret(self, intake: M1AIntakeView, context: M1AProgramContext) -> M1AServiceResult:
+        if not _is_approved_offline_provider(self.provider):
+            return self._failure(M1AFailureCode.PROVIDER_NOT_OFFLINE)
         initial_program_hash = m1a_program_hash(context)
         try:
             catalog = build_m1a_evidence_catalog(context)

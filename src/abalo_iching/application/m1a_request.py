@@ -26,8 +26,24 @@ class M1AIntake:
     contract_version: str
     is_synthetic: bool
 
+    def __post_init__(self) -> None:
+        self.validate_m1a_boundary()
 
-def build_m1a_intake(
+    def validate_m1a_boundary(self) -> None:
+        """Re-run the authoritative Application boundary validation."""
+        validate_m1a_intake_fields(
+            question_id=self.question_id,
+            question_domain=self.question_domain,
+            decision_goal=self.decision_goal,
+            time_horizon=self.time_horizon,
+            normalized_question=self.normalized_question,
+            question_template_version=self.question_template_version,
+            contract_version=self.contract_version,
+            is_synthetic=self.is_synthetic,
+        )
+
+
+def validate_m1a_intake_fields(
     *,
     question_id: str,
     question_domain: QuestionDomain,
@@ -37,8 +53,8 @@ def build_m1a_intake(
     question_template_version: str,
     contract_version: str,
     is_synthetic: bool,
-) -> M1AIntake:
-    """Accept only server-validated V2 values and recheck their canonical question."""
+) -> None:
+    """Validate M1-A fields against the single authoritative Contract V2 path."""
     if not isinstance(question_id, str) or not question_id or question_id.strip() != question_id:
         raise ValueError("question_id must be a non-empty normalized string")
     if len(question_id) > 128:
@@ -61,7 +77,21 @@ def build_m1a_intake(
     if contract_version != CONTRACT_VERSION_V2:
         raise ValueError("contract_version must match Contract V2")
     if is_synthetic is not True:
-        raise ValueError("M1-A Batch 1 accepts synthetic inputs only")
+        raise ValueError("M1-A accepts synthetic inputs only")
+
+
+def build_m1a_intake(
+    *,
+    question_id: str,
+    question_domain: QuestionDomain,
+    decision_goal: DecisionGoal,
+    time_horizon: TimeHorizon,
+    normalized_question: str,
+    question_template_version: str,
+    contract_version: str,
+    is_synthetic: bool,
+) -> M1AIntake:
+    """Accept only server-validated V2 values and recheck their canonical question."""
     return M1AIntake(
         question_id=question_id,
         question_domain=question_domain,
@@ -70,5 +100,5 @@ def build_m1a_intake(
         normalized_question=normalized_question,
         question_template_version=question_template_version,
         contract_version=contract_version,
-        is_synthetic=True,
+        is_synthetic=is_synthetic,
     )

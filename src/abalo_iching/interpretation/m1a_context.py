@@ -30,6 +30,10 @@ class M1AIntakeView(Protocol):
     contract_version: str
     is_synthetic: bool
 
+    def validate_m1a_boundary(self) -> None:
+        """Fail closed unless the official Application boundary remains valid."""
+        ...
+
 
 class M1AEvidenceRole(StrEnum):
     """Narrative uses that a future deterministic projection may permit."""

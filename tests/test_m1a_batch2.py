@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from abalo_iching.application.m1a_request import build_m1a_intake
+from abalo_iching.application.m1a_request import M1AIntake, build_m1a_intake
 from abalo_iching.application.sites_meihua_service_v2 import CONTRACT_VERSION_V2
 from abalo_iching.application.sites_structured_question_v1 import (
     ALLOWED_GOALS,
@@ -47,7 +47,11 @@ from abalo_iching.interpretation.m1a_prompt_builder import (
     M1APromptPayloadError,
     M1APromptBuilder,
 )
-from abalo_iching.interpretation.m1a_service import M1AFailureCode, M1AService
+from abalo_iching.interpretation.m1a_service import (
+    M1A_OFFLINE_PROVIDER_CAPABILITY,
+    M1AFailureCode,
+    M1AService,
+)
 from abalo_iching.interpretation.m1a_validator import M1A_VALIDATOR_VERSION, M1AValidator
 from abalo_iching.interpretation.models import (
     AINarrativeDraftClaim,
@@ -136,6 +140,8 @@ def _valid_draft(intake, catalog) -> AINarrativeDraftContent:
 
 
 class RecordingProvider:
+    m1a_offline_capability = M1A_OFFLINE_PROVIDER_CAPABILITY
+
     def __init__(self, outputs, *, provider_name="FAKE", context_to_mutate=None):
         self.outputs = list(outputs)
         self.provider_name = provider_name
@@ -161,6 +167,17 @@ class RecordingProvider:
             provider_name=self.provider_name,
             prompt_version=prompt.prompt_version,
         )
+
+
+class UnmarkedProvider:
+    def __init__(self):
+        self.generate_calls = 0
+        self.prompts = []
+
+    def generate(self, prompt, *, attempt_number):
+        self.generate_calls += 1
+        self.prompts.append(prompt)
+        raise AssertionError("an unapproved Provider must never be called")
 
 
 @pytest.fixture
@@ -461,12 +478,13 @@ def test_provider_cannot_output_program_owned_metadata(m1a_catalog):
     assert any(item.startswith("schema:") for item in exc.value.errors)
 
 
-def test_successful_service_assembly_attaches_authoritative_metadata_and_preserves_program(
-    m1a_context, m1a_catalog
+@pytest.mark.parametrize("provider_name", ["FAKE", "MOCK"])
+def test_approved_offline_provider_assembly_attaches_metadata_and_preserves_program(
+    provider_name, m1a_context, m1a_catalog
 ):
     intake = _intake()
     initial_hash = m1a_program_hash(m1a_context)
-    provider = RecordingProvider([_valid_draft(intake, m1a_catalog)])
+    provider = RecordingProvider([_valid_draft(intake, m1a_catalog)], provider_name=provider_name)
     result = M1AService(provider).interpret(intake, m1a_context)
     assert result.status is ServiceStatus.SUCCESS
     assert result.assembly is not None
@@ -485,6 +503,28 @@ def test_successful_service_assembly_attaches_authoritative_metadata_and_preserv
         item.evidence_id not in provider.prompts[0].user_payload_json
         for item in m1a_context.private_chart_evidence
     )
+
+
+def test_unmarked_provider_is_rejected_before_generate_and_receives_no_prompt(m1a_context):
+    provider = UnmarkedProvider()
+    result = M1AService(provider).interpret(_intake(), m1a_context)
+    assert result.failure_code is M1AFailureCode.PROVIDER_NOT_OFFLINE
+    assert result.assembly is None
+    assert provider.generate_calls == 0
+    assert provider.prompts == []
+
+
+def test_invalid_official_intake_is_rechecked_before_provider_call(m1a_context):
+    valid = _intake()
+    forged = object.__new__(M1AIntake)
+    for field in valid.__dataclass_fields__:
+        object.__setattr__(forged, field, getattr(valid, field))
+    object.__setattr__(forged, "normalized_question", "bypassed client question")
+    provider = RecordingProvider([])
+    result = M1AService(provider).interpret(forged, m1a_context)
+    assert result.failure_code is M1AFailureCode.PROGRAM_INTEGRITY
+    assert result.assembly is None
+    assert provider.prompts == []
 
 
 @pytest.mark.parametrize(
@@ -556,11 +596,15 @@ def test_provider_side_program_mutation_is_detected_before_assembly(m1a_context,
 
 def test_non_fake_provider_identity_is_rejected_without_formal_output(m1a_context, m1a_catalog):
     intake = _intake()
-    result = M1AService(
-        RecordingProvider([_valid_draft(intake, m1a_catalog)], provider_name="OPENAI_RESPONSES_API")
-    ).interpret(intake, m1a_context)
+    provider = RecordingProvider(
+        [_valid_draft(intake, m1a_catalog)],
+        provider_name="OPENAI_RESPONSES_API",
+    )
+    result = M1AService(provider).interpret(intake, m1a_context)
     assert result.failure_code is M1AFailureCode.PROVIDER_NOT_OFFLINE
     assert result.assembly is None
+    assert len(result.provider_attempts) == 0
+    assert len(provider.prompts) == 1
 
 
 def test_release_gate_remains_unverified_and_three_flags_false(m1a_context, m1a_catalog):

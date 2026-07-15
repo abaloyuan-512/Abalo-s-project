@@ -49,6 +49,24 @@ def _intake(domain: QuestionDomain, goal: DecisionGoal, horizon: TimeHorizon) ->
     )
 
 
+def _direct_intake_fields(
+    domain: QuestionDomain = QuestionDomain.WORK_CAREER,
+    goal: DecisionGoal = DecisionGoal.PLAN_NEXT_STEP,
+    horizon: TimeHorizon = TimeHorizon.CURRENT,
+) -> dict[str, object]:
+    question, template_version = generate_structured_question(domain, goal, horizon)
+    return {
+        "question_id": f"synthetic-direct-{domain.value}-{goal.value}-{horizon.value}",
+        "question_domain": domain,
+        "decision_goal": goal,
+        "time_horizon": horizon,
+        "normalized_question": question,
+        "question_template_version": template_version,
+        "contract_version": CONTRACT_VERSION_V2,
+        "is_synthetic": True,
+    }
+
+
 def test_all_17_v2_domain_goal_combinations_build_m1a_intake():
     intakes = [
         _intake(domain, goal, TimeHorizon.CURRENT)
@@ -150,6 +168,56 @@ def test_m1a_intake_requires_v2_enum_instances_and_synthetic_marker():
         build_m1a_intake(**{**common, "is_synthetic": False})
 
 
+@pytest.mark.parametrize(
+    ("field", "invalid_value"),
+    [
+        ("question_domain", "WORK_CAREER"),
+        ("decision_goal", "PLAN_NEXT_STEP"),
+        ("time_horizon", "CURRENT"),
+    ],
+)
+def test_direct_m1a_intake_rejects_non_v2_enum_types(field, invalid_value):
+    with pytest.raises(TypeError, match="Contract V2 enum"):
+        M1AIntake(**{**_direct_intake_fields(), field: invalid_value})
+
+
+@pytest.mark.parametrize(
+    ("field", "invalid_value", "message"),
+    [
+        ("normalized_question", "client supplied question", "server-owned"),
+        ("question_template_version", "QUESTION_TEMPLATE_V0", "V2 template"),
+        ("contract_version", "MEIHUA_SITES_CONTRACT_V1", "Contract V2"),
+        ("is_synthetic", False, "synthetic"),
+    ],
+)
+def test_direct_m1a_intake_rejects_non_authoritative_values(field, invalid_value, message):
+    with pytest.raises(ValueError, match=message):
+        M1AIntake(**{**_direct_intake_fields(), field: invalid_value})
+
+
+@pytest.mark.parametrize("question_id", ["", " padded-id ", "x" * 129])
+def test_direct_m1a_intake_rejects_invalid_question_id(question_id):
+    with pytest.raises(ValueError, match="question_id"):
+        M1AIntake(**{**_direct_intake_fields(), "question_id": question_id})
+
+
+def test_direct_m1a_intake_accepts_all_17_legal_combinations_and_rejects_three_illegal_ones():
+    legal = 0
+    illegal = 0
+    for domain in QuestionDomain:
+        for goal in DecisionGoal:
+            if goal in ALLOWED_GOALS[domain]:
+                M1AIntake(**_direct_intake_fields(domain, goal))
+                legal += 1
+            else:
+                intake_fields = _direct_intake_fields()
+                intake_fields.update(question_domain=domain, decision_goal=goal)
+                with pytest.raises(ValueError, match="allowed combination"):
+                    M1AIntake(**intake_fields)
+                illegal += 1
+    assert (legal, illegal) == (17, 3)
+
+
 def test_program_context_retains_no_chart_input_or_raw_numbers(phase2_chart):
     context = build_m1a_program_context(phase2_chart)
     assert isinstance(context, M1AProgramContext)
@@ -227,17 +295,33 @@ def test_chart_only_core_matches_phase2_and_phase2_notice_wrapper_is_unchanged(
     assert synthesizer.synthesize(phase2_chart, phase2_knowledge) == legacy
 
 
-def test_interpretation_m1a_context_has_no_reverse_application_dependency():
-    import abalo_iching.interpretation.m1a_context as module
+def test_interpretation_m1a_modules_have_no_reverse_application_dependency():
+    from abalo_iching.interpretation import (
+        m1a_context,
+        m1a_evidence_catalog,
+        m1a_prompt_builder,
+        m1a_service,
+        m1a_validator,
+    )
 
-    tree = ast.parse(Path(module.__file__).read_text(encoding="utf-8"))
-    imported_modules = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            imported_modules.extend(item.name for item in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module:
-            imported_modules.append(node.module)
-    assert not any(name == "abalo_iching.application" or name.startswith("abalo_iching.application.") for name in imported_modules)
+    for module in (
+        m1a_context,
+        m1a_evidence_catalog,
+        m1a_prompt_builder,
+        m1a_service,
+        m1a_validator,
+    ):
+        tree = ast.parse(Path(module.__file__).read_text(encoding="utf-8"))
+        imported_modules = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported_modules.extend(item.name for item in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                imported_modules.append(node.module)
+        assert not any(
+            name == "abalo_iching.application" or name.startswith("abalo_iching.application.")
+            for name in imported_modules
+        )
 
 
 def test_safe_evidence_interface_preserves_identity_direction_strength_roles_conditions_and_hashes():

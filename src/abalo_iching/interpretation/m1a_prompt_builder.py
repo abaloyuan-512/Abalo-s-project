@@ -244,6 +244,15 @@ class M1APromptBuilder:
     def _validate_intake(intake: M1AIntakeView) -> None:
         if not is_dataclass(intake) or {item.name for item in fields(intake)} != _INTAKE_FIELDS:
             raise M1APromptPayloadError("M1A_INTAKE_NOT_EXACT_NARROW_BOUNDARY")
+        boundary_validator = getattr(intake, "validate_m1a_boundary", None)
+        if not callable(boundary_validator):
+            raise M1APromptPayloadError("M1A_INTAKE_SELF_VALIDATION_UNAVAILABLE")
+        try:
+            validation_result = boundary_validator()
+        except (TypeError, ValueError) as exc:
+            raise M1APromptPayloadError("M1A_INTAKE_SELF_VALIDATION_FAILED") from exc
+        if validation_result is not None:
+            raise M1APromptPayloadError("M1A_INTAKE_SELF_VALIDATION_INVALID_RESULT")
         if intake.is_synthetic is not True:
             raise M1APromptPayloadError("M1A_REAL_INPUT_FORBIDDEN")
         if not all(
