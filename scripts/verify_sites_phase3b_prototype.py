@@ -6,7 +6,9 @@ import http.client
 import json
 import sys
 import threading
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
 
 import jsonschema
 
@@ -21,6 +23,15 @@ from scripts import run_sites_phase3b_local_server as server_module  # noqa: E40
 
 SITE = ROOT / "sites" / "phase3b-prototype"
 SCHEMA = json.loads((ROOT / "contracts/sites_meihua_v1/response.schema.json").read_text(encoding="utf-8"))
+
+
+class ElementCollector(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.elements: list[tuple[str, dict[str, str | None]]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.elements.append((tag, dict(attrs)))
 
 
 def exchange(port: int, method: str, path: str, body: bytes | None = None, headers: dict[str, str] | None = None):
@@ -97,10 +108,21 @@ def main() -> int:
     frontend_sources = "\n".join(path.read_text(encoding="utf-8") for path in [SITE / "index.html", SITE / "assets/app.css", SITE / "assets/app.js"])
     server_source = Path(server_module.__file__).read_text(encoding="utf-8")
     html = (SITE / "index.html").read_text(encoding="utf-8")
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    parser = ElementCollector()
+    parser.feed(html)
     for forbidden in ["http://", "https://", "OPENAI_API_KEY", "api.openai.com", "localStorage", "sessionStorage", "indexedDB", "document.cookie", "innerHTML", "eval(", "new Function"]:
         add(f"forbidden source absent: {forbidden}", forbidden not in frontend_sources)
     add("no inline script", "<script>" not in html)
-    add("release gate displayed", all(text in html for text in ["UNVERIFIED", "当前不收费", "当前不允许", "不属于封闭测试"]))
+    icons = [attrs for tag, attrs in parser.elements if tag == "link" and "icon" in (attrs.get("rel") or "").split()]
+    icon_href = icons[0].get("href") or "" if len(icons) == 1 else ""
+    add("favicon is embedded data svg", len(icons) == 1 and icons[0].get("type") == "image/svg+xml" and icon_href.startswith("data:image/svg+xml,") and "<svg" in unquote(icon_href.split(",", maxsplit=1)[1]))
+    add("favicon adds no http resource", bool(icon_href) and not icon_href.startswith(("/", "http://", "https://")))
+    fields = {attrs["id"]: attrs for tag, attrs in parser.elements if tag in {"textarea", "input"} and attrs.get("id")}
+    field_ids = ["question", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative"]
+    add("form fields start without stale errors", all(fields[field_id].get("aria-invalid") in {None, "false"} and "form-error" not in (fields[field_id].get("aria-describedby") or "").split() for field_id in field_ids))
+    add("form error association lifecycle present", all(marker in js for marker in ["validatedFields", "markFieldInvalid", "clearFieldError", "clearFormError", 'field.setAttribute("aria-describedby"', 'field.removeAttribute("aria-describedby")']))
+    add("release gate displayed", all(text in html for text in ["UNVERIFIED", "当前不收费", "当前不保存", "仅限本地原型"]))
     add("same-origin service call", 'fetch("/api/v1/meihua"' in frontend_sources)
     add("adapter delegates", "process_sites_meihua_request" in server_source)
     add("no adapter algorithm", "cast_meihua" not in server_source)

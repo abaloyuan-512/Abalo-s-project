@@ -2,7 +2,9 @@ import http.client
 import json
 import threading
 from contextlib import contextmanager
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
 
 import jsonschema
 import pytest
@@ -13,6 +15,7 @@ from scripts import run_sites_phase3b_local_server as local_server
 ROOT = Path(__file__).parents[1]
 SITE = ROOT / "sites" / "phase3b-prototype"
 RESPONSE_SCHEMA = json.loads((ROOT / "contracts/sites_meihua_v1/response.schema.json").read_text(encoding="utf-8"))
+RESPONSE_SCHEMA_V2 = json.loads((ROOT / "contracts/sites_meihua_v2/response.schema.json").read_text(encoding="utf-8"))
 
 
 def valid_request(question_text="我应该如何更稳妥地推进当前合作？"):
@@ -24,6 +27,24 @@ def valid_request(question_text="我应该如何更稳妥地推进当前合作�
         "locale": "zh-CN",
         "client_timestamp": "2026-07-13T10:00:00+08:00",
         "user_acknowledgements": {"deterministic_only": True, "narrative_unverified": True},
+    }
+
+
+def valid_v2_request():
+    return {
+        "contract_version": "SITES_MEIHUA_API_CONTRACT_V2",
+        "request_id": "phase3g-structured-test-001",
+        "question_domain": "PROJECT_COOPERATION",
+        "decision_goal": "PLAN_NEXT_STEP",
+        "time_horizon": "NEXT_30_DAYS",
+        "numbers": [100, 27, 368],
+        "locale": "zh-CN",
+        "client_timestamp": "2026-07-15T10:00:00+08:00",
+        "user_acknowledgements": {
+            "deterministic_only": True,
+            "narrative_unverified": True,
+            "structured_question_confirmed": True,
+        },
     }
 
 
@@ -120,6 +141,51 @@ def test_valid_post_calls_real_service_and_returns_schema_valid_success():
     jsonschema.validate(payload, RESPONSE_SCHEMA)
 
 
+def test_v2_post_is_explicitly_routed_to_structured_service():
+    body = json.dumps(valid_v2_request(), ensure_ascii=False).encode()
+    with running_server() as port:
+        status, headers, raw = request(port, "POST", "/api/v2/meihua", body, {"Content-Type": "application/json"})
+    payload = json.loads(raw)
+    assert status == 200 and payload["status"] == "SUCCESS"
+    assert headers["Cache-Control"] == "no-store"
+    assert payload["contract_version"] == "SITES_MEIHUA_API_CONTRACT_V2"
+    assert payload["normalized_question"].startswith("在“")
+    jsonschema.validate(payload, RESPONSE_SCHEMA_V2)
+
+
+def test_v1_and_v2_http_routes_do_not_cross_services(monkeypatch):
+    calls = []
+    real_v1 = local_server.process_sites_meihua_request
+    real_v2 = local_server.process_sites_meihua_v2_request
+
+    def tracked_v1(payload):
+        calls.append("v1")
+        return real_v1(payload)
+
+    def tracked_v2(payload):
+        calls.append("v2")
+        return real_v2(payload)
+
+    monkeypatch.setattr(local_server, "process_sites_meihua_request", tracked_v1)
+    monkeypatch.setattr(local_server, "process_sites_meihua_v2_request", tracked_v2)
+    with running_server() as port:
+        request(port, "POST", "/api/v1/meihua", json.dumps(valid_request()).encode(), {"Content-Type": "application/json"})
+        request(port, "POST", "/api/v2/meihua", json.dumps(valid_v2_request()).encode(), {"Content-Type": "application/json"})
+    assert calls == ["v1", "v2"]
+
+
+@pytest.mark.parametrize(("path", "version", "schema"), [
+    ("/api/v1/meihua", "SITES_MEIHUA_API_CONTRACT_V1", RESPONSE_SCHEMA),
+    ("/api/v2/meihua", "SITES_MEIHUA_API_CONTRACT_V2", RESPONSE_SCHEMA_V2),
+])
+def test_transport_errors_preserve_selected_contract(path, version, schema):
+    with running_server() as port:
+        status, _headers, raw = request(port, "POST", path, b"{bad", {"Content-Type": "application/json"})
+    payload = json.loads(raw)
+    assert status == 400 and payload["contract_version"] == version
+    jsonschema.validate(payload, schema)
+
+
 def test_http_adapter_delegates_to_process_service(monkeypatch):
     called = []
     real = local_server.process_sites_meihua_request
@@ -197,10 +263,53 @@ def source_text():
     return "\n".join(path.read_text(encoding="utf-8") for path in [SITE / "index.html", SITE / "assets/app.css", SITE / "assets/app.js"])
 
 
+class ElementCollector(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.elements = []
+
+    def handle_starttag(self, tag, attrs):
+        self.elements.append((tag, dict(attrs)))
+
+
+def parsed_elements():
+    parser = ElementCollector()
+    parser.feed((SITE / "index.html").read_text(encoding="utf-8"))
+    return parser.elements
+
+
 def test_page_has_no_external_resources_or_inline_script():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     assert "http://" not in html and "https://" not in html and "<script>" not in html
     assert 'src="/assets/app.js"' in html and 'href="/assets/app.css"' in html
+
+
+def test_favicon_is_a_single_embedded_svg_without_an_http_resource():
+    icons = [attrs for tag, attrs in parsed_elements() if tag == "link" and "icon" in attrs.get("rel", "").split()]
+    assert len(icons) == 1
+    href = icons[0].get("href", "")
+    assert icons[0].get("type") == "image/svg+xml"
+    assert href.startswith("data:image/svg+xml,")
+    assert not href.startswith(("/", "http://", "https://"))
+    assert "<svg" in unquote(href.split(",", maxsplit=1)[1])
+
+
+def test_form_fields_start_without_stale_error_associations():
+    fields = {attrs["id"]: attrs for tag, attrs in parsed_elements() if tag in {"select", "input"} and "id" in attrs}
+    for field_id in ["question-domain", "decision-goal", "time-horizon", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative", "ack-structured"]:
+        assert fields[field_id].get("aria-invalid") in {None, "false"}
+        assert "form-error" not in fields[field_id].get("aria-describedby", "").split()
+    assert "textarea" not in {tag for tag, _attrs in parsed_elements()}
+
+
+def test_form_error_association_covers_all_fields_and_has_a_clear_lifecycle():
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    assert "number-${index}" in js
+    for field_id in ["ack-deterministic", "ack-narrative"]:
+        assert field_id in js
+    for behavior in ["validatedFields", "markFieldInvalid", "clearFieldError", "clearFormError", 'field.setAttribute("aria-describedby"', 'field.removeAttribute("aria-describedby")', 'field.setAttribute("aria-invalid", "true")', 'field.setAttribute("aria-invalid", "false")']:
+        assert behavior in js
+    assert "resetExperience" in js and "clearFormError();" in js
 
 
 @pytest.mark.parametrize("forbidden", ["localStorage", "sessionStorage", "indexedDB", "document.cookie", "innerHTML", "eval(", "new Function", "OPENAI_API_KEY", "api.openai.com"])
@@ -210,16 +319,35 @@ def test_frontend_avoids_storage_unsafe_dom_key_and_external_model(forbidden):
 
 def test_frontend_posts_contract_only_to_same_origin_endpoint():
     js = (SITE / "assets/app.js").read_text(encoding="utf-8")
-    assert 'fetch("/api/v1/meihua"' in js
-    for field in ["contract_version", "request_id", "question_text", "numbers", "locale", "client_timestamp", "user_acknowledgements"]:
+    assert 'fetch("/api/v2/meihua"' in js
+    for field in ["contract_version", "request_id", "question_domain", "decision_goal", "time_horizon", "numbers", "locale", "client_timestamp", "user_acknowledgements", "structured_question_confirmed"]:
         assert field in js
-    for forbidden in ["base_hexagram:", "evidence:", "deterministic_conclusion:"]:
+    for forbidden in ["question_text", "question_context", "base_hexagram:", "evidence:", "deterministic_conclusion:"]:
         assert forbidden not in js
+
+
+def test_frontend_uses_finite_goals_clears_numbers_and_has_no_free_text():
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    assert "<textarea" not in html
+    assert "question-count" not in html and "maxlength=" not in html
+    assert js.count("clearNumbers();") >= 3
+    assert "GOALS_BY_DOMAIN" in js and "populateGoals" in js
+    for domain in ["WORK_CAREER", "PROJECT_COOPERATION", "RELATIONSHIP_COMMUNICATION", "PERSONAL_PLANNING"]:
+        assert domain in js
+    assert 'setText("result-question", `服务端规范化问题：' in js
+
+
+def test_structured_form_has_native_keyboard_order_and_summary_before_numbers():
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    ids = ["question-domain", "decision-goal", "time-horizon", "summary-domain", "number-1", "number-2", "number-3", "ack-deterministic", "ack-narrative", "ack-structured", "submit-button"]
+    positions = [html.index(f'id="{value}"') for value in ids]
+    assert positions == sorted(positions)
 
 
 def test_frontend_release_gate_is_visible_and_frozen():
     html = (SITE / "index.html").read_text(encoding="utf-8")
-    for text in ["UNVERIFIED", "当前不收费", "当前不允许", "不属于封闭测试", "本页面仅为本地原型"]:
+    for text in ["UNVERIFIED", "当前不收费", "当前不保存", "仅限本地原型", "这是一个边界清晰的本地原型"]:
         assert text in html
 
 
@@ -228,7 +356,7 @@ def test_frontend_has_loading_input_success_and_error_states():
     js = (SITE / "assets/app.js").read_text(encoding="utf-8")
     for marker in ["question-form", "loading-status", "result-content", "result-error", "evidence-summary"]:
         assert marker in html
-    for code in ["INVALID_REQUEST", "EMPTY_QUESTION", "INVALID_NUMBER_COUNT", "INVALID_NUMBER_TYPE", "MULTIPLE_QUESTIONS_NOT_ALLOWED", "CLIENT_CALCULATION_NOT_ACCEPTED", "ENGINE_ERROR"]:
+    for code in ["INVALID_REQUEST", "INVALID_NUMBER_COUNT", "INVALID_NUMBER_TYPE", "CLIENT_INPUT_NOT_ACCEPTED", "ENGINE_ERROR"]:
         assert code in js
 
 
@@ -241,8 +369,27 @@ def test_frontend_rejects_malformed_release_envelope_before_render():
 
 def test_frontend_success_view_names_all_required_deterministic_fields():
     text = source_text()
-    for label in ["本卦", "互卦", "变卦", "动爻", "体卦", "初始用卦", "变化用卦", "初始体用关系", "变化体用关系", "五行", "旺衰", "节气 / 月支", "确定性结论等级", "Evidence 摘要", "PYTHON_AUTHORITATIVE_ENGINE"]:
+    for label in ["本次卦象结构", "核心倾向", "本卦", "互卦", "变卦", "动爻", "体卦", "初始用卦", "变化用卦", "初始体用关系", "变化体用关系", "五行", "旺衰", "节气 / 月支", "程序证据", "查看技术详情"]:
         assert label in text
+
+
+def test_frontend_product_view_keeps_internal_fields_in_closed_technical_details():
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    before_details, technical = html.split('<details id="technical-details"', maxsplit=1)
+    assert "Evidence" not in before_details
+    assert "PYTHON_AUTHORITATIVE_ENGINE" not in before_details
+    assert "SITES_MEIHUA_API_CONTRACT_V1" not in before_details
+    assert "request_id" not in html and "audit_id" not in html
+    assert "原始结论代码" in technical and "原始证据类型" in technical
+    assert "open" not in technical.split(">", maxsplit=1)[0]
+
+
+def test_frontend_reset_and_scroll_respect_local_only_and_reduced_motion():
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    assert "resetExperience" in js
+    assert 'matchMedia("(prefers-reduced-motion: reduce)")' in js
+    assert 'fetch("/api/v2/meihua"' in js
+    assert js.count("fetch(") == 1
 
 
 def test_adapter_has_no_algorithm_provider_key_or_external_client():
