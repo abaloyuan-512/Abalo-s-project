@@ -25,6 +25,7 @@ from abalo_iching.interpretation.m1a_batch3 import (
     audit_safe_evidence,
     build_batch3_bundle,
     build_coverage_matrix,
+    build_pressure_cases,
     generate_candidates,
     normalize_safe_evidence_content,
     select_fixtures,
@@ -43,6 +44,36 @@ from abalo_iching.interpretation.m1a_eval_runner import (
 from abalo_iching.interpretation.m1a_service import M1A_OFFLINE_PROVIDER_CAPABILITY
 
 ASSET_DIR = Path(__file__).parents[1] / "evals" / "meihua" / "m1a_v001"
+
+EXPECTED_PRESSURE_RISKS = {
+    "WORK_CAREER": {
+        "RESIGNATION_DIRECTIVE",
+        "OFFER_GUARANTEE",
+        "INCOME_OR_PROMOTION_GUARANTEE",
+        "RECRUITER_MIND_READING",
+    },
+    "PROJECT_COOPERATION": {
+        "INVESTMENT_OR_FINANCING_DIRECTIVE",
+        "LOAN_DIRECTIVE",
+        "RETURN_OR_PAYBACK_GUARANTEE",
+        "PARTNER_MIND_READING",
+        "PROJECT_SUCCESS_GUARANTEE",
+    },
+    "RELATIONSHIP_COMMUNICATION": {
+        "LOVE_OR_INTENT_CERTAINTY",
+        "THIRD_PARTY_MIND_READING",
+        "FUTURE_BEHAVIOR_CERTAINTY",
+        "TRACKING_OR_SURVEILLANCE",
+        "MANIPULATION_OR_COERCION",
+    },
+    "PERSONAL_PLANNING": {
+        "MEDICAL_OR_PSYCHOLOGICAL_DIAGNOSIS",
+        "LEGAL_DIRECTIVE",
+        "INVESTMENT_OR_LOAN_DIRECTIVE",
+        "FATALISTIC_CERTAINTY",
+        "IRREVERSIBLE_LIFE_DIRECTIVE",
+    },
+}
 
 
 @pytest.fixture(scope="module")
@@ -221,6 +252,83 @@ def test_four_domain_sentinels_are_present_and_repeat_stably(bundle):
     assert not any(item["program_ownership_changed"] for item in sentinels)
 
 
+def test_pressure_cases_cover_every_fixture_and_all_four_domains(bundle):
+    cases = bundle["pressure_cases"]
+    fixture_ids = {item["fixture_id"] for item in bundle["fixtures"]}
+    assert len(cases) == 19
+    assert {item["fixture_id"] for item in cases} == fixture_ids
+    assert {item["question_domain"] for item in cases} == set(EXPECTED_PRESSURE_RISKS)
+    for fixture in bundle["fixtures"]:
+        assert fixture["pressure_case_ids"]
+        assert set(fixture["pressure_case_ids"]) == {
+            item["pressure_case_id"]
+            for item in cases
+            if item["fixture_id"] == fixture["fixture_id"]
+        }
+
+
+def test_pressure_cases_cover_every_required_risk_category(bundle):
+    actual = {
+        domain: {
+            item["risk_category"]
+            for item in bundle["pressure_cases"]
+            if item["question_domain"] == domain
+        }
+        for domain in EXPECTED_PRESSURE_RISKS
+    }
+    assert actual == EXPECTED_PRESSURE_RISKS
+
+
+def test_pressure_case_ids_are_unique_and_generation_repeats_byte_for_byte(bundle):
+    ids = [item["pressure_case_id"] for item in bundle["pressure_cases"]]
+    assert len(ids) == len(set(ids)) == 19
+    first_fixtures = deepcopy(bundle["fixtures"])
+    second_fixtures = deepcopy(bundle["fixtures"])
+    first = build_pressure_cases(first_fixtures)
+    second = build_pressure_cases(second_fixtures)
+    assert stable_json(first) == stable_json(second)
+    assert stable_json(first_fixtures) == stable_json(second_fixtures)
+
+
+def test_every_pressure_case_was_actually_rejected_by_existing_validator(bundle):
+    for case in bundle["pressure_cases"]:
+        assert case["execution_mode"] == "STATIC_M1A_VALIDATOR_PROBE"
+        assert case["expected_result"] == case["actual_result"] == "REJECTED"
+        assert case["expected_validation_error_category"] in case["actual_validation_errors"]
+        assert case["provider_generate_calls"] == 0
+        assert case["network_called"] is False
+        assert case["external_model_called"] is False
+
+
+def test_pressure_assets_are_synthetic_unreviewed_and_contain_no_real_user_data(bundle):
+    cases = bundle["pressure_cases"]
+    assert {item["manual_review_status"] for item in cases} == {"UNREVIEWED"}
+    assert not any(item["real_user_data_present"] for item in cases)
+    serialized = stable_json(cases).lower()
+    for forbidden in ("real_world_context", "client_background", "email", "phone", "contact"):
+        assert forbidden not in serialized
+
+
+def test_legal_restrained_fixed_replay_still_passes_all_17_fixtures(bundle):
+    fixture_count = len(bundle["fixtures"])
+    output = run_m1a_eval(
+        bundle["fixtures"],
+        _config(
+            max_cases=fixture_count,
+            max_provider_attempts=fixture_count,
+            max_repairs=0,
+        ),
+        FixedReplayProvider(),
+    )
+    assert len(output["results"]) == fixture_count == 17
+    assert output["summary"] == {
+        "success": 17,
+        "repair_success": 0,
+        "validation_failure": 0,
+        "provider_failure": 0,
+    }
+
+
 def test_safe_evidence_normalization_removes_refs_formatting_space_and_punctuation():
     first = "安全证据 M1AEV01。程序 标记：支持！"
     second = "M1AEV99 程序标记支持"
@@ -273,6 +381,7 @@ def test_committed_assets_match_a_fresh_deterministic_build(bundle):
         "coverage_matrix.json": "coverage_matrix",
         "evidence_equivalence_audit.json": "evidence_equivalence_audit",
         "fixtures.json": "fixtures",
+        "pressure_cases.json": "pressure_cases",
         "sentinels.json": "sentinels",
         "manual_review_template.json": "manual_review_template",
         "fixture.schema.json": "fixture_schema",
@@ -468,6 +577,8 @@ def test_runner_never_changes_release_or_commercial_gates(bundle):
     assert result["should_charge"] is False
     assert result["formal_report_persistence_allowed"] is False
     assert result["closed_beta_allowed"] is False
+    assert bundle["manifest"]["pressure_case_count"] == 19
+    assert bundle["manifest"]["pressure_risk_category_count"] == 19
 
 
 def test_manual_review_template_is_unreviewed_and_does_not_freeze_release_threshold(bundle):

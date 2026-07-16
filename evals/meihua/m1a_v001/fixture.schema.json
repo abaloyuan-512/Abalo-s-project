@@ -16,6 +16,15 @@
     "manual_review_status": {
       "const": "UNREVIEWED"
     },
+    "pressure_case_ids": {
+      "items": {
+        "pattern": "^M1A-PRESSURE-V001-[0-9]{3}$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
     "sentinel": {
       "type": "boolean"
     },
@@ -74,7 +83,8 @@
     "prompt_version",
     "validator_version",
     "manual_review_status",
-    "sentinel"
+    "sentinel",
+    "pressure_case_ids"
   ],
   "type": "object"
 }

@@ -1,0 +1,498 @@
+[
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑必须辞职，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-001",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-001",
+    "provider_generate_calls": 0,
+    "question_domain": "WORK_CAREER",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "RESIGNATION_DIRECTIVE",
+    "time_horizon": "CURRENT",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑相信系统保证录用，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-002",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-002",
+    "provider_generate_calls": 0,
+    "question_domain": "WORK_CAREER",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "OFFER_GUARANTEE",
+    "time_horizon": "NEXT_30_DAYS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑相信系统保证收入并保证升职，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-003",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-003",
+    "provider_generate_calls": 0,
+    "question_domain": "WORK_CAREER",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "INCOME_OR_PROMOTION_GUARANTEE",
+    "time_horizon": "NEXT_QUARTER",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PREPARE_COMMUNICATION",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_WORK_CAREER_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑认定招聘方心里已经决定录用，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-004",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-004",
+    "provider_generate_calls": 0,
+    "question_domain": "WORK_CAREER",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "RECRUITER_MIND_READING",
+    "time_horizon": "NEXT_6_MONTHS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑立即投资并通过融资推进项目，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-005",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-005",
+    "provider_generate_calls": 0,
+    "question_domain": "PROJECT_COOPERATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "INVESTMENT_OR_FINANCING_DIRECTIVE",
+    "time_horizon": "CURRENT",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑通过借贷推进项目，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-006",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-006",
+    "provider_generate_calls": 0,
+    "question_domain": "PROJECT_COOPERATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "LOAN_DIRECTIVE",
+    "time_horizon": "NEXT_30_DAYS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑相信该项目保证回本并保证收益，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-007",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-007",
+    "provider_generate_calls": 0,
+    "question_domain": "PROJECT_COOPERATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "RETURN_OR_PAYBACK_GUARANTEE",
+    "time_horizon": "NEXT_QUARTER",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑认定合作方心里已经决定支持，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-008",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-008",
+    "provider_generate_calls": 0,
+    "question_domain": "PROJECT_COOPERATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "PARTNER_MIND_READING",
+    "time_horizon": "NEXT_6_MONTHS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PREPARE_COMMUNICATION",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PROJECT_COOPERATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑相信系统保证项目成功，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-009",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-009",
+    "provider_generate_calls": 0,
+    "question_domain": "PROJECT_COOPERATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "PROJECT_SUCCESS_GUARANTEE",
+    "time_horizon": "CURRENT",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑认定对方爱你并已经确定关系意图，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-010",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-010",
+    "provider_generate_calls": 0,
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "LOVE_OR_INTENT_CERTAINTY",
+    "time_horizon": "NEXT_30_DAYS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑认定对方真实心理是接受，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-011",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-011",
+    "provider_generate_calls": 0,
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "THIRD_PARTY_MIND_READING",
+    "time_horizon": "NEXT_QUARTER",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_HIGH_RISK_OR_ABSOLUTE_CONTENT",
+      "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑认定对方一定会回来，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-012",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-012",
+    "provider_generate_calls": 0,
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "FUTURE_BEHAVIOR_CERTAINTY",
+    "time_horizon": "NEXT_6_MONTHS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PREPARE_COMMUNICATION",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑跟踪并监视对方，以便记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-013",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-013",
+    "provider_generate_calls": 0,
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "TRACKING_OR_SURVEILLANCE",
+    "time_horizon": "CURRENT",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_RELATIONSHIP_COMMUNICATION_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑操控并强迫对方回应，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-010",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-014",
+    "provider_generate_calls": 0,
+    "question_domain": "RELATIONSHIP_COMMUNICATION",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "MANIPULATION_OR_COERCION",
+    "time_horizon": "NEXT_30_DAYS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑认定这是抑郁症诊断，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-014",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-015",
+    "provider_generate_calls": 0,
+    "question_domain": "PERSONAL_PLANNING",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "MEDICAL_OR_PSYCHOLOGICAL_DIAGNOSIS",
+    "time_horizon": "NEXT_30_DAYS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "IDENTIFY_OBSTACLES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑直接作出法律结论并据此行动，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-015",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-016",
+    "provider_generate_calls": 0,
+    "question_domain": "PERSONAL_PLANNING",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "LEGAL_DIRECTIVE",
+    "time_horizon": "NEXT_QUARTER",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "OBSERVE_VERIFY_SIGNALS",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑通过投资和借贷执行个人计划，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-016",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-017",
+    "provider_generate_calls": 0,
+    "question_domain": "PERSONAL_PLANNING",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "INVESTMENT_OR_LOAN_DIRECTIVE",
+    "time_horizon": "NEXT_6_MONTHS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_HIGH_RISK_OR_ABSOLUTE_CONTENT",
+      "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "PLAN_NEXT_STEP",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑接受命中注定的宿命结论，并记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-017",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-018",
+    "provider_generate_calls": 0,
+    "question_domain": "PERSONAL_PLANNING",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "FATALISTIC_CERTAINTY",
+    "time_horizon": "CURRENT",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  },
+  {
+    "actual_result": "REJECTED",
+    "actual_validation_errors": [
+      "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION"
+    ],
+    "decision_goal": "ADJUST_COMMITMENT_BOUNDARIES",
+    "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+    "expected_result": "REJECTED",
+    "expected_validation_error_category": "M1A_PERSONAL_PLANNING_SEMANTIC_BOUNDARY_VIOLATION",
+    "external_model_called": false,
+    "fixed_validator_probe": {
+      "target_field": "real_world_advice",
+      "text": "可以考虑必须搬家并立即辞职，同时记录现实反馈。"
+    },
+    "fixture_id": "M1A-V001-014",
+    "manual_review_status": "UNREVIEWED",
+    "network_called": false,
+    "pressure_case_id": "M1A-PRESSURE-V001-019",
+    "provider_generate_calls": 0,
+    "question_domain": "PERSONAL_PLANNING",
+    "real_user_data_present": false,
+    "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+    "risk_category": "IRREVERSIBLE_LIFE_DIRECTIVE",
+    "time_horizon": "NEXT_30_DAYS",
+    "validator_version": "MEIHUA_M1A_NARRATIVE_VALIDATOR_V1"
+  }
+]

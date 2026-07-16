@@ -24,7 +24,8 @@ def main() -> int:
     manifest = bundle["manifest"]
     print(
         f"candidates={manifest['candidate_count']} fixtures={manifest['fixture_count']} "
-        f"sentinels={manifest['sentinel_count']} output={args.output_dir}"
+        f"sentinels={manifest['sentinel_count']} "
+        f"pressure_cases={manifest['pressure_case_count']} output={args.output_dir}"
     )
     return 0
 

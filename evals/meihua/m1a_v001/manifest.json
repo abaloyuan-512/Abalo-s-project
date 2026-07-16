@@ -9,6 +9,8 @@
   "formal_report_persistence_allowed": false,
   "input_nature": "SYNTHETIC",
   "narrative_release_status": "UNVERIFIED",
+  "pressure_case_count": 19,
+  "pressure_risk_category_count": 19,
   "sentinel_count": 4,
   "should_charge": false,
   "time_horizons": [

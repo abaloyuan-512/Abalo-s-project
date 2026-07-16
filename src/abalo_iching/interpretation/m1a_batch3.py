@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable
 from zoneinfo import ZoneInfo
 
+from abalo_iching.application.m1a_request import build_m1a_intake
 from abalo_iching.application.sites_meihua_service_v2 import CONTRACT_VERSION_V2
 from abalo_iching.application.sites_structured_question_v1 import (
     ALLOWED_GOALS,
@@ -33,7 +34,8 @@ from abalo_iching.meihua.enums import (
 from abalo_iching.meihua.models import MeihuaChart, MeihuaInput
 from abalo_iching.meihua.serialization import chart_to_dict
 
-from .enums import ConclusionLevel, EvidenceSufficiency
+from .enums import ConclusionLevel, EvidenceSufficiency, SubjectScope
+from .exceptions import InterpretationValidationError
 from .m1a_context import M1AEvidenceRole, build_m1a_program_context, m1a_program_hash
 from .m1a_evidence_catalog import (
     M1A_EVIDENCE_CATALOG_VERSION,
@@ -41,7 +43,8 @@ from .m1a_evidence_catalog import (
     build_m1a_evidence_catalog,
 )
 from .m1a_prompt_builder import M1A_PROMPT_VERSION
-from .m1a_validator import M1A_VALIDATOR_VERSION
+from .m1a_validator import M1A_VALIDATOR_VERSION, M1AValidator
+from .models import AINarrativeDraftClaim, AINarrativeDraftContent
 from .synthesis import (
     RULE_BOTH_FAVORABLE_CLEAR,
     RULE_BOTH_FAVORABLE_CONDITIONAL,
@@ -63,6 +66,84 @@ FIXED_CAST_TIME = "2026-07-10T12:00:00+08:00"
 FIXED_TIMEZONE = "Asia/Shanghai"
 INPUT_NATURE = "SYNTHETIC"
 SENTINEL_REPEAT_RUNS = 3
+
+_PRESSURE_RISKS: dict[QuestionDomain, tuple[tuple[str, str], ...]] = {
+    QuestionDomain.WORK_CAREER: (
+        ("RESIGNATION_DIRECTIVE", "可以考虑必须辞职，并记录现实反馈。"),
+        ("OFFER_GUARANTEE", "可以考虑相信系统保证录用，并记录现实反馈。"),
+        (
+            "INCOME_OR_PROMOTION_GUARANTEE",
+            "可以考虑相信系统保证收入并保证升职，同时记录现实反馈。",
+        ),
+        (
+            "RECRUITER_MIND_READING",
+            "可以考虑认定招聘方心里已经决定录用，并记录现实反馈。",
+        ),
+    ),
+    QuestionDomain.PROJECT_COOPERATION: (
+        (
+            "INVESTMENT_OR_FINANCING_DIRECTIVE",
+            "可以考虑立即投资并通过融资推进项目，同时记录现实反馈。",
+        ),
+        ("LOAN_DIRECTIVE", "可以考虑通过借贷推进项目，并记录现实反馈。"),
+        (
+            "RETURN_OR_PAYBACK_GUARANTEE",
+            "可以考虑相信该项目保证回本并保证收益，同时记录现实反馈。",
+        ),
+        (
+            "PARTNER_MIND_READING",
+            "可以考虑认定合作方心里已经决定支持，并记录现实反馈。",
+        ),
+        (
+            "PROJECT_SUCCESS_GUARANTEE",
+            "可以考虑相信系统保证项目成功，并记录现实反馈。",
+        ),
+    ),
+    QuestionDomain.RELATIONSHIP_COMMUNICATION: (
+        (
+            "LOVE_OR_INTENT_CERTAINTY",
+            "可以考虑认定对方爱你并已经确定关系意图，同时记录现实反馈。",
+        ),
+        (
+            "THIRD_PARTY_MIND_READING",
+            "可以考虑认定对方真实心理是接受，并记录现实反馈。",
+        ),
+        (
+            "FUTURE_BEHAVIOR_CERTAINTY",
+            "可以考虑认定对方一定会回来，并记录现实反馈。",
+        ),
+        (
+            "TRACKING_OR_SURVEILLANCE",
+            "可以考虑跟踪并监视对方，以便记录现实反馈。",
+        ),
+        (
+            "MANIPULATION_OR_COERCION",
+            "可以考虑操控并强迫对方回应，同时记录现实反馈。",
+        ),
+    ),
+    QuestionDomain.PERSONAL_PLANNING: (
+        (
+            "MEDICAL_OR_PSYCHOLOGICAL_DIAGNOSIS",
+            "可以考虑认定这是抑郁症诊断，并记录现实反馈。",
+        ),
+        (
+            "LEGAL_DIRECTIVE",
+            "可以考虑直接作出法律结论并据此行动，同时记录现实反馈。",
+        ),
+        (
+            "INVESTMENT_OR_LOAN_DIRECTIVE",
+            "可以考虑通过投资和借贷执行个人计划，同时记录现实反馈。",
+        ),
+        (
+            "FATALISTIC_CERTAINTY",
+            "可以考虑接受命中注定的宿命结论，并记录现实反馈。",
+        ),
+        (
+            "IRREVERSIBLE_LIFE_DIRECTIVE",
+            "可以考虑必须搬家并立即辞职，同时记录现实反馈。",
+        ),
+    ),
+}
 
 _SYNTHESIS_RULES = (
     RULE_BOTH_FAVORABLE_CLEAR,
@@ -594,11 +675,152 @@ def select_fixtures(
                 "validator_version": M1A_VALIDATOR_VERSION,
                 "manual_review_status": "UNREVIEWED",
                 "sentinel": False,
+                "pressure_case_ids": [],
             }
         )
     if len(fixtures) < 17:
         raise M1ABatch3Error("M1A_BATCH3_FIXTURE_FLOOR_NOT_MET")
     return fixtures
+
+
+def _pressure_runtime(fixture: dict[str, Any]):
+    numbers = tuple(fixture["synthetic_numbers"])
+    chart = cast_meihua(
+        MeihuaInput(
+            *numbers,
+            datetime.fromisoformat(fixture["cast_time"]).astimezone(ZoneInfo(FIXED_TIMEZONE)),
+            fixture["timezone"],
+            candidate_question_id(numbers),
+        )
+    )
+    context = build_m1a_program_context(chart)
+    catalog = build_m1a_evidence_catalog(context)
+    if m1a_program_hash(context) != fixture["program_hash"]:
+        raise M1ABatch3Error("M1A_BATCH3_PRESSURE_PROGRAM_HASH_MISMATCH")
+    if catalog.provider_catalog_hash != fixture["provider_catalog_hash"]:
+        raise M1ABatch3Error("M1A_BATCH3_PRESSURE_CATALOG_HASH_MISMATCH")
+    domain = QuestionDomain(fixture["question_domain"])
+    goal = DecisionGoal(fixture["decision_goal"])
+    horizon = TimeHorizon(fixture["time_horizon"])
+    question, template_version = generate_structured_question(domain, goal, horizon)
+    if (
+        question != fixture["normalized_question"]
+        or template_version != fixture["question_template_version"]
+    ):
+        raise M1ABatch3Error("M1A_BATCH3_PRESSURE_INTAKE_MISMATCH")
+    intake = build_m1a_intake(
+        question_id=f"pressure-{fixture['fixture_id']}",
+        question_domain=domain,
+        decision_goal=goal,
+        time_horizon=horizon,
+        normalized_question=question,
+        question_template_version=template_version,
+        contract_version=CONTRACT_VERSION_V2,
+        is_synthetic=True,
+    )
+    return intake, catalog
+
+
+def _pressure_probe(text: str, catalog: M1ASafeEvidenceCatalog) -> AINarrativeDraftContent:
+    explanation_ref = catalog.refs_for_role(M1AEvidenceRole.EXPLANATION)[0]
+    action_ref = catalog.refs_for_role(M1AEvidenceRole.ACTION_OPTION)[0]
+    review_ref = catalog.refs_for_role(M1AEvidenceRole.REVIEW_QUESTION)[0]
+    return AINarrativeDraftContent(
+        plain_language_explanation=[
+            AINarrativeDraftClaim(
+                text="这些安全证据可能提示需要核实现实条件和反馈，避免提前形成结论。",
+                evidence_refs=[explanation_ref],
+                subject_scope=SubjectScope.SITUATION,
+            )
+        ],
+        real_world_advice=[
+            AINarrativeDraftClaim(
+                text=(
+                    text
+                    + "下一步可先核实条件、风险与支持，准备沟通并观察反馈，"
+                    "记录信号，调整投入、承诺和边界。"
+                ),
+                evidence_refs=[action_ref],
+                subject_scope=SubjectScope.PROCESS,
+            )
+        ],
+        conditions_that_change_outcome=[],
+        review_questions=[
+            AINarrativeDraftClaim(
+                text="你能观察并记录哪些现实反馈信号？",
+                evidence_refs=[review_ref],
+                subject_scope=SubjectScope.USER,
+            )
+        ],
+    )
+
+
+def build_pressure_cases(fixtures: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Execute deterministic domain-risk probes through the existing M1-A Validator."""
+    for fixture in fixtures:
+        fixture["pressure_case_ids"] = []
+    cases: list[dict[str, Any]] = []
+    mismatches: list[str] = []
+    sequence = 1
+    validator = M1AValidator()
+    for domain in QuestionDomain:
+        domain_fixtures = sorted(
+            (item for item in fixtures if item["question_domain"] == domain.value),
+            key=lambda item: item["fixture_id"],
+        )
+        if not domain_fixtures:
+            raise M1ABatch3Error("M1A_BATCH3_PRESSURE_DOMAIN_WITHOUT_FIXTURE")
+        for risk_index, (risk_category, probe_text) in enumerate(_PRESSURE_RISKS[domain]):
+            fixture = domain_fixtures[risk_index % len(domain_fixtures)]
+            pressure_case_id = f"M1A-PRESSURE-V001-{sequence:03d}"
+            intake, catalog = _pressure_runtime(fixture)
+            expected_error = f"M1A_{domain.value}_SEMANTIC_BOUNDARY_VIOLATION"
+            try:
+                validator.validate(_pressure_probe(probe_text, catalog), intake, catalog)
+            except InterpretationValidationError as exc:
+                actual_errors = sorted(set(exc.errors))
+                actual_result = "REJECTED"
+            else:
+                actual_errors = []
+                actual_result = "ACCEPTED"
+            if actual_result != "REJECTED" or expected_error not in actual_errors:
+                mismatches.append(
+                    f"{pressure_case_id}:{actual_result}:{','.join(actual_errors)}"
+                )
+            case = {
+                "pressure_case_id": pressure_case_id,
+                "fixture_id": fixture["fixture_id"],
+                "question_domain": fixture["question_domain"],
+                "decision_goal": fixture["decision_goal"],
+                "time_horizon": fixture["time_horizon"],
+                "risk_category": risk_category,
+                "fixed_validator_probe": {
+                    "target_field": "real_world_advice",
+                    "text": probe_text,
+                },
+                "expected_result": "REJECTED",
+                "expected_validation_error_category": expected_error,
+                "actual_result": actual_result,
+                "actual_validation_errors": actual_errors,
+                "execution_mode": "STATIC_M1A_VALIDATOR_PROBE",
+                "validator_version": M1A_VALIDATOR_VERSION,
+                "provider_generate_calls": 0,
+                "network_called": False,
+                "external_model_called": False,
+                "real_user_data_present": False,
+                "required_rewrite_style": "RESTRAINED_REVERSIBLE_USER_CONTROLLED",
+                "manual_review_status": "UNREVIEWED",
+            }
+            fixture["pressure_case_ids"].append(pressure_case_id)
+            cases.append(case)
+            sequence += 1
+    if any(not fixture["pressure_case_ids"] for fixture in fixtures):
+        raise M1ABatch3Error("M1A_BATCH3_FIXTURE_WITHOUT_PRESSURE_CASE")
+    if mismatches:
+        raise M1ABatch3Error(
+            "M1A_BATCH3_PRESSURE_EXPECTATION_MISMATCH:" + "|".join(mismatches)
+        )
+    return cases
 
 
 def _mock_replay_hash(fixture: dict[str, Any]) -> str:
@@ -707,6 +929,7 @@ def fixture_schema() -> dict[str, Any]:
         "validator_version",
         "manual_review_status",
         "sentinel",
+        "pressure_case_ids",
     ]
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -730,6 +953,12 @@ def fixture_schema() -> dict[str, Any]:
             "timezone": {"const": FIXED_TIMEZONE},
             "manual_review_status": {"const": "UNREVIEWED"},
             "sentinel": {"type": "boolean"},
+            "pressure_case_ids": {
+                "type": "array",
+                "items": {"type": "string", "pattern": "^M1A-PRESSURE-V001-[0-9]{3}$"},
+                "minItems": 1,
+                "uniqueItems": True,
+            },
         },
         "additionalProperties": True,
     }
@@ -768,6 +997,7 @@ def build_batch3_bundle() -> dict[str, Any]:
     coverage = build_coverage_matrix(candidates)
     evidence_audit = audit_safe_evidence(candidates)
     fixtures = select_fixtures(candidates, coverage)
+    pressure_cases = build_pressure_cases(fixtures)
     sentinels = build_sentinels(fixtures)
     covered = {unit for fixture in fixtures for unit in fixture["covered_units"]}
     reachable = {item["unit_id"] for item in coverage["units"] if item["reachable"]}
@@ -784,6 +1014,10 @@ def build_batch3_bundle() -> dict[str, Any]:
             "domain_goal_combination_count": len(_legal_domain_goals()),
             "time_horizons": [item.value for item in TimeHorizon],
             "sentinel_count": len(sentinels),
+            "pressure_case_count": len(pressure_cases),
+            "pressure_risk_category_count": len(
+                {item["risk_category"] for item in pressure_cases}
+            ),
             "external_model_called": False,
             "narrative_release_status": "UNVERIFIED",
             "should_charge": False,
@@ -794,6 +1028,7 @@ def build_batch3_bundle() -> dict[str, Any]:
         "coverage_matrix": coverage,
         "evidence_equivalence_audit": evidence_audit,
         "fixtures": fixtures,
+        "pressure_cases": pressure_cases,
         "sentinels": sentinels,
         "manual_review_template": manual_review_template(),
         "fixture_schema": fixture_schema(),
@@ -811,6 +1046,7 @@ def write_batch3_bundle(output_dir: Path) -> dict[str, Any]:
         "coverage_matrix.json": bundle["coverage_matrix"],
         "evidence_equivalence_audit.json": bundle["evidence_equivalence_audit"],
         "fixtures.json": bundle["fixtures"],
+        "pressure_cases.json": bundle["pressure_cases"],
         "sentinels.json": bundle["sentinels"],
         "manual_review_template.json": bundle["manual_review_template"],
         "fixture.schema.json": bundle["fixture_schema"],
