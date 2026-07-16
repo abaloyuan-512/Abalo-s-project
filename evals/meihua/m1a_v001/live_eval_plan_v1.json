@@ -1,0 +1,70 @@
+{
+  "api_type": "RESPONSES_API",
+  "authorization": {
+    "M1_A_FULL_FIXTURE_EVALUATION_AUTHORIZED": false,
+    "M1_A_MODEL_EVALUATION_AUTHORIZED": false,
+    "M1_A_SENTINEL_EVALUATION_AUTHORIZED": false
+  },
+  "automatic_success_thresholds": {
+    "all_selected_cases_require_qualified_assembly": true,
+    "catalog_hash_mismatches": 0,
+    "program_hash_mismatches": 0,
+    "release_gate_changes": 0,
+    "validator_hard_violations": 0
+  },
+  "budgets_usd": {
+    "accounting_mode": "FAIL_CLOSED_RESERVED_BUDGET",
+    "full_fixture": "15.50",
+    "model_price_claimed": false,
+    "sentinel": "4.00",
+    "total_evaluation": "22.00"
+  },
+  "case_counts": {
+    "full_fixture": 17,
+    "sentinel": 4
+  },
+  "conversation": null,
+  "data_policy": "SYNTHETIC_FIXTURES_ONLY",
+  "limits": {
+    "full_fixture_max_requests": 34,
+    "max_repairs_per_fixture": 1,
+    "max_requests_per_fixture": 2,
+    "sentinel_max_requests": 8
+  },
+  "manual_scoring_thresholds": {
+    "all_selected_cases_require_review": true,
+    "anchor_examples_required_before_numeric_release_threshold": true,
+    "default_review_status": "UNREVIEWED",
+    "manual_review_cannot_open_release_gate": true,
+    "numeric_release_threshold_frozen": false
+  },
+  "max_input_tokens_per_request": 20000,
+  "max_output_tokens": 25000,
+  "model_id": "gpt-5.6-terra",
+  "plan_status": "FROZEN",
+  "plan_version": "1.0",
+  "previous_response_id": null,
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "medium",
+    "mode": "standard"
+  },
+  "release": {
+    "NarrativeReleaseStatus": "UNVERIFIED",
+    "closed_beta_allowed": false,
+    "formal_report_persistence_allowed": false,
+    "should_charge": false
+  },
+  "stop_conditions": [
+    "ANY_AUTHORIZATION_GATE_MISSING",
+    "INPUT_TOKEN_LIMIT_EXCEEDED",
+    "REQUEST_OR_REPAIR_LIMIT_EXCEEDED",
+    "STAGE_OR_TOTAL_BUDGET_EXCEEDED",
+    "PROGRAM_OR_CATALOG_HASH_CHANGED",
+    "STRUCTURED_OUTPUT_OR_VALIDATOR_FAILURE_AFTER_ONE_REPAIR",
+    "ANY_RELEASE_GATE_CHANGE",
+    "ANY_REAL_USER_DATA_OR_API_KEY_IN_EXPORT"
+  ],
+  "store": false,
+  "tools": []
+}
