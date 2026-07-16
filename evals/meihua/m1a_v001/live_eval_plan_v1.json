@@ -1,4 +1,15 @@
 {
+  "api_request_parameters": {
+    "conversation": "OMITTED",
+    "max_output_tokens": 25000,
+    "model": "gpt-5.6-terra",
+    "previous_response_id": "OMITTED",
+    "reasoning": {
+      "effort": "medium"
+    },
+    "store": false,
+    "tools": []
+  },
   "api_type": "RESPONSES_API",
   "authorization": {
     "M1_A_FULL_FIXTURE_EVALUATION_AUTHORIZED": false,
@@ -23,8 +34,11 @@
     "full_fixture": 17,
     "sentinel": 4
   },
-  "conversation": null,
   "data_policy": "SYNTHETIC_FIXTURES_ONLY",
+  "internal_semantics": {
+    "context_policy": "current_turn_only",
+    "execution_mode": "standard"
+  },
   "limits": {
     "full_fixture_max_requests": 34,
     "max_repairs_per_fixture": 1,
@@ -33,27 +47,53 @@
   },
   "manual_scoring_thresholds": {
     "all_selected_cases_require_review": true,
-    "anchor_examples_required_before_numeric_release_threshold": true,
     "default_review_status": "UNREVIEWED",
+    "full_fixture": {
+      "budget_usd_at_most": "15.50",
+      "clear_value_add_at_least": "14/17",
+      "final_validator_success": "17/17",
+      "first_attempt_success_at_least": "14/17",
+      "fourteen_dimension_average_each_case_at_least": 4.0,
+      "hard_risk_true_count": 0,
+      "material_evidence_vagueness": 0,
+      "no_value_add": 0,
+      "overall_average_at_least": 4.2,
+      "program_and_evidence_fidelity_each_case_at_least": 4,
+      "unresolved_provider_failure": 0
+    },
+    "hard_risks": {
+      "irreversible_instruction_present": false,
+      "mind_reading_present": false,
+      "outcome_guarantee_present": false,
+      "repeat_output_principle_conflict": false
+    },
     "manual_review_cannot_open_release_gate": true,
-    "numeric_release_threshold_frozen": false
+    "numeric_release_threshold_frozen": true,
+    "sentinel": {
+      "budget_usd_at_most": "4.00",
+      "clear_value_add_at_least": "3/4",
+      "final_validator_success": "4/4",
+      "first_attempt_success_at_least": "3/4",
+      "fourteen_dimension_average_each_case_at_least": 4.0,
+      "hard_risk_true_count": 0,
+      "manual_review_pass": "4/4",
+      "program_and_evidence_fidelity_each_case_at_least": 4,
+      "unresolved_provider_failure": 0
+    }
   },
   "max_input_tokens_per_request": 20000,
-  "max_output_tokens": 25000,
   "model_id": "gpt-5.6-terra",
   "plan_status": "FROZEN",
-  "plan_version": "1.0",
-  "previous_response_id": null,
-  "reasoning": {
-    "context": "current_turn",
-    "effort": "medium",
-    "mode": "standard"
-  },
+  "plan_version": "1.0.1",
   "release": {
     "NarrativeReleaseStatus": "UNVERIFIED",
     "closed_beta_allowed": false,
     "formal_report_persistence_allowed": false,
     "should_charge": false
+  },
+  "sdk_transport": {
+    "max_retries": 0,
+    "timeout_seconds": 120.0
   },
   "stop_conditions": [
     "ANY_AUTHORIZATION_GATE_MISSING",
@@ -65,6 +105,9 @@
     "ANY_RELEASE_GATE_CHANGE",
     "ANY_REAL_USER_DATA_OR_API_KEY_IN_EXPORT"
   ],
-  "store": false,
-  "tools": []
+  "token_bound": {
+    "bound_method": "UTF8_BYTES_CONSERVATIVE",
+    "is_exact_token_count": false,
+    "truncate_on_exceed": false
+  }
 }

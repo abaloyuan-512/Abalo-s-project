@@ -21,6 +21,7 @@ from pydantic import ValidationError
 from .enums import ServiceStatus
 from .exceptions import (
     InterpretationValidationError,
+    ProviderError,
     ProviderAuthenticationError,
     ProviderConfigurationError,
     ProviderConnectionError,
@@ -37,16 +38,19 @@ from .m1a_service import M1A_OFFLINE_PROVIDER_CAPABILITY, M1AService
 from .m1a_validator import M1AValidator
 from .models import AINarrativeDraftContent, PromptPackage, ProviderResult
 
-M1A_REAL_MODEL_EVAL_PLAN_VERSION = "1.0"
+M1A_REAL_MODEL_EVAL_PLAN_VERSION = "1.0.1"
 M1A_LIVE_PROVIDER_VERSION = "MEIHUA_M1A_OPENAI_RESPONSES_PROVIDER_V1"
 M1A_LIVE_RUNNER_VERSION = "MEIHUA_M1A_LIVE_EVAL_RUNNER_V1"
 M1A_LIVE_AUDIT_SCHEMA_VERSION = "MEIHUA_M1A_LIVE_AUDIT_V1"
 
 MODEL_ID = "gpt-5.6-terra"
 API_TYPE = "RESPONSES_API"
-REASONING_MODE = "standard"
 REASONING_EFFORT = "medium"
-REASONING_CONTEXT = "current_turn"
+EXECUTION_MODE = "standard"
+CONTEXT_POLICY = "current_turn_only"
+SDK_MAX_RETRIES = 0
+TIMEOUT_SECONDS = 120.0
+TOKEN_BOUND_METHOD = "UTF8_BYTES_CONSERVATIVE"
 MAX_OUTPUT_TOKENS = 25_000
 MAX_INPUT_TOKENS_PER_REQUEST = 20_000
 MAX_REQUESTS_PER_FIXTURE = 2
@@ -66,6 +70,12 @@ _LIVE_AUTHORIZATION_PROOF = object()
 class M1ALiveStage(StrEnum):
     SENTINEL = "SENTINEL"
     FULL_FIXTURE = "FULL_FIXTURE"
+
+
+class M1ARequestKind(StrEnum):
+    INITIAL = "INITIAL"
+    TECHNICAL_RETRY = "TECHNICAL_RETRY"
+    REPAIR = "REPAIR"
 
 
 class M1ALiveFailureCode(StrEnum):
@@ -109,15 +119,15 @@ def _fail(code: M1ALiveFailureCode) -> None:
 class FrozenResponsesConfig:
     model_id: str = MODEL_ID
     api_type: str = API_TYPE
-    reasoning_mode: str = REASONING_MODE
     reasoning_effort: str = REASONING_EFFORT
-    reasoning_context: str = REASONING_CONTEXT
+    execution_mode: str = EXECUTION_MODE
+    context_policy: str = CONTEXT_POLICY
     store: bool = False
     tools: tuple[object, ...] = ()
-    previous_response_id: None = None
-    conversation: None = None
     max_output_tokens: int = MAX_OUTPUT_TOKENS
     max_input_tokens: int = MAX_INPUT_TOKENS_PER_REQUEST
+    sdk_max_retries: int = SDK_MAX_RETRIES
+    timeout_seconds: float = TIMEOUT_SECONDS
 
     def validate_frozen(self) -> None:
         expected = FrozenResponsesConfig()
@@ -160,17 +170,29 @@ def frozen_plan_payload() -> dict[str, object]:
         "plan_status": "FROZEN",
         "model_id": MODEL_ID,
         "api_type": API_TYPE,
-        "reasoning": {
-            "mode": REASONING_MODE,
-            "effort": REASONING_EFFORT,
-            "context": REASONING_CONTEXT,
+        "api_request_parameters": {
+            "model": MODEL_ID,
+            "reasoning": {"effort": REASONING_EFFORT},
+            "store": False,
+            "tools": [],
+            "max_output_tokens": MAX_OUTPUT_TOKENS,
+            "previous_response_id": "OMITTED",
+            "conversation": "OMITTED",
         },
-        "store": False,
-        "tools": [],
-        "previous_response_id": None,
-        "conversation": None,
-        "max_output_tokens": MAX_OUTPUT_TOKENS,
+        "internal_semantics": {
+            "execution_mode": EXECUTION_MODE,
+            "context_policy": CONTEXT_POLICY,
+        },
+        "sdk_transport": {
+            "max_retries": SDK_MAX_RETRIES,
+            "timeout_seconds": TIMEOUT_SECONDS,
+        },
         "max_input_tokens_per_request": MAX_INPUT_TOKENS_PER_REQUEST,
+        "token_bound": {
+            "bound_method": TOKEN_BOUND_METHOD,
+            "is_exact_token_count": False,
+            "truncate_on_exceed": False,
+        },
         "limits": {
             "max_requests_per_fixture": MAX_REQUESTS_PER_FIXTURE,
             "max_repairs_per_fixture": MAX_REPAIRS_PER_FIXTURE,
@@ -195,9 +217,38 @@ def frozen_plan_payload() -> dict[str, object]:
         "manual_scoring_thresholds": {
             "all_selected_cases_require_review": True,
             "default_review_status": "UNREVIEWED",
-            "numeric_release_threshold_frozen": False,
-            "anchor_examples_required_before_numeric_release_threshold": True,
+            "numeric_release_threshold_frozen": True,
             "manual_review_cannot_open_release_gate": True,
+            "sentinel": {
+                "final_validator_success": "4/4",
+                "first_attempt_success_at_least": "3/4",
+                "manual_review_pass": "4/4",
+                "program_and_evidence_fidelity_each_case_at_least": 4,
+                "fourteen_dimension_average_each_case_at_least": 4.0,
+                "clear_value_add_at_least": "3/4",
+                "hard_risk_true_count": 0,
+                "unresolved_provider_failure": 0,
+                "budget_usd_at_most": "4.00",
+            },
+            "full_fixture": {
+                "final_validator_success": "17/17",
+                "first_attempt_success_at_least": "14/17",
+                "unresolved_provider_failure": 0,
+                "program_and_evidence_fidelity_each_case_at_least": 4,
+                "fourteen_dimension_average_each_case_at_least": 4.0,
+                "overall_average_at_least": 4.2,
+                "clear_value_add_at_least": "14/17",
+                "no_value_add": 0,
+                "material_evidence_vagueness": 0,
+                "hard_risk_true_count": 0,
+                "budget_usd_at_most": "15.50",
+            },
+            "hard_risks": {
+                "mind_reading_present": False,
+                "outcome_guarantee_present": False,
+                "irreversible_instruction_present": False,
+                "repeat_output_principle_conflict": False,
+            },
         },
         "stop_conditions": [
             "ANY_AUTHORIZATION_GATE_MISSING",
@@ -262,6 +313,8 @@ class M1ABudgetLedger:
     stage_request_count: int = 0
     fixture_request_counts: dict[str, int] = field(default_factory=dict)
     fixture_repair_counts: dict[str, int] = field(default_factory=dict)
+    fixture_technical_retry_counts: dict[str, int] = field(default_factory=dict)
+    fixture_second_attempt_kinds: dict[str, str] = field(default_factory=dict)
 
     @property
     def stage_budget(self) -> Decimal:
@@ -279,12 +332,26 @@ class M1ABudgetLedger:
     def reservation_per_request(self) -> Decimal:
         return self.stage_budget / Decimal(self.stage_request_limit)
 
-    def reserve(self, fixture_id: str, attempt_number: int) -> Decimal:
+    def reserve(
+        self,
+        fixture_id: str,
+        attempt_number: int,
+        request_kind: M1ARequestKind = M1ARequestKind.INITIAL,
+    ) -> Decimal:
         fixture_count = self.fixture_request_counts.get(fixture_id, 0)
         if fixture_count >= MAX_REQUESTS_PER_FIXTURE:
             _fail(M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT)
         repair_count = self.fixture_repair_counts.get(fixture_id, 0)
-        if attempt_number == 2 and repair_count >= MAX_REPAIRS_PER_FIXTURE:
+        technical_retry_count = self.fixture_technical_retry_counts.get(fixture_id, 0)
+        if attempt_number == 1 and request_kind is not M1ARequestKind.INITIAL:
+            _fail(M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT)
+        if attempt_number == 2 and fixture_count != 1:
+            _fail(M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT)
+        if attempt_number == 2 and request_kind is M1ARequestKind.INITIAL:
+            _fail(M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT)
+        if attempt_number == 2 and fixture_id in self.fixture_second_attempt_kinds:
+            _fail(M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT)
+        if request_kind is M1ARequestKind.REPAIR and repair_count >= MAX_REPAIRS_PER_FIXTURE:
             _fail(M1ALiveFailureCode.FIXTURE_REPAIR_LIMIT)
         if attempt_number not in {1, 2}:
             _fail(M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT)
@@ -304,8 +371,12 @@ class M1ABudgetLedger:
         self.total_reserved_usd += reservation
         self.stage_request_count += 1
         self.fixture_request_counts[fixture_id] = fixture_count + 1
-        if attempt_number == 2:
+        if request_kind is M1ARequestKind.REPAIR:
             self.fixture_repair_counts[fixture_id] = repair_count + 1
+        if request_kind is M1ARequestKind.TECHNICAL_RETRY:
+            self.fixture_technical_retry_counts[fixture_id] = technical_retry_count + 1
+        if attempt_number == 2:
+            self.fixture_second_attempt_kinds[fixture_id] = request_kind.value
         return reservation
 
 
@@ -316,6 +387,9 @@ class M1ALiveRequestAudit:
     stage: str
     fixture_id: str
     attempt_number: int
+    request_kind: str
+    outcome: str
+    error_category: str | None
     response_id: str | None
     model_id: str
     prompt_version: str
@@ -329,6 +403,8 @@ class M1ALiveRequestAudit:
     actual_cost_usd: None
     external_model_called: bool
     network_called: bool
+    input_bound_method: str
+    input_bound_value: int
 
     def to_safe_dict(self) -> dict[str, object]:
         return {name: getattr(self, name) for name in self.__dataclass_fields__}
@@ -374,15 +450,9 @@ def build_responses_request(
             {"role": "system", "content": prompt.system_prompt},
             {"role": "user", "content": prompt.user_payload_json},
         ],
-        "reasoning": {
-            "mode": config.reasoning_mode,
-            "effort": config.reasoning_effort,
-            "context": config.reasoning_context,
-        },
+        "reasoning": {"effort": config.reasoning_effort},
         "store": config.store,
         "tools": list(config.tools),
-        "previous_response_id": config.previous_response_id,
-        "conversation": config.conversation,
         "max_output_tokens": config.max_output_tokens,
         "text": {"format": structured_output_format()},
     }
@@ -421,7 +491,13 @@ class M1AOpenAIResponsesProvider:
         self.expected_program_hash = program_hash
         self.expected_catalog_hash = catalog_hash
 
-    def generate(self, prompt: PromptPackage, *, attempt_number: int) -> ProviderResult:
+    def generate(
+        self,
+        prompt: PromptPackage,
+        *,
+        attempt_number: int,
+        request_kind: M1ARequestKind = M1ARequestKind.INITIAL,
+    ) -> ProviderResult:
         if not all((self.fixture_id, self.expected_program_hash, self.expected_catalog_hash)):
             _fail(M1ALiveFailureCode.INTEGRITY_NOT_BOUND)
         input_tokens_bound = self.token_counter(prompt)
@@ -433,30 +509,92 @@ class M1AOpenAIResponsesProvider:
         if catalog_hash != self.expected_catalog_hash:
             _fail(M1ALiveFailureCode.CATALOG_HASH_MISMATCH)
         assert self.fixture_id is not None
-        reservation = self.ledger.reserve(self.fixture_id, attempt_number)
+        reservation = self.ledger.reserve(self.fixture_id, attempt_number, request_kind)
         request = build_responses_request(prompt, self.config)
         started = perf_counter()
         try:
             response = self.client.responses.create(**request)
         except Exception as exc:
-            self._raise_provider_error(exc)
+            latency_ms = int((perf_counter() - started) * 1000)
+            mapped = self._map_provider_error(exc)
+            offline_replay = getattr(self.client, "m1a_offline_replay", False) is True
+            self.audits.append(
+                M1ALiveRequestAudit(
+                    schema_version=M1A_LIVE_AUDIT_SCHEMA_VERSION,
+                    provider_version=M1A_LIVE_PROVIDER_VERSION,
+                    stage=self.stage.value,
+                    fixture_id=self.fixture_id,
+                    attempt_number=attempt_number,
+                    request_kind=request_kind.value,
+                    outcome="PROVIDER_ERROR",
+                    error_category=type(mapped).__name__,
+                    response_id=None,
+                    model_id=self.config.model_id,
+                    prompt_version=prompt.prompt_version,
+                    program_hash=program_hash,
+                    catalog_hash=catalog_hash,
+                    input_tokens=0,
+                    output_tokens=0,
+                    total_tokens=0,
+                    latency_ms=latency_ms,
+                    reserved_cost_usd=f"{reservation:.6f}",
+                    actual_cost_usd=None,
+                    external_model_called=not offline_replay,
+                    network_called=not offline_replay,
+                    input_bound_method=TOKEN_BOUND_METHOD,
+                    input_bound_value=input_tokens_bound,
+                )
+            )
+            raise mapped from None
         latency_ms = int((perf_counter() - started) * 1000)
+
+        def fail_response(error: ProviderError) -> None:
+            offline_replay = getattr(self.client, "m1a_offline_replay", False) is True
+            self.audits.append(
+                M1ALiveRequestAudit(
+                    schema_version=M1A_LIVE_AUDIT_SCHEMA_VERSION,
+                    provider_version=M1A_LIVE_PROVIDER_VERSION,
+                    stage=self.stage.value,
+                    fixture_id=self.fixture_id,
+                    attempt_number=attempt_number,
+                    request_kind=request_kind.value,
+                    outcome="PROVIDER_ERROR",
+                    error_category=type(error).__name__,
+                    response_id=getattr(response, "id", None),
+                    model_id=getattr(response, "model", self.config.model_id),
+                    prompt_version=prompt.prompt_version,
+                    program_hash=program_hash,
+                    catalog_hash=catalog_hash,
+                    input_tokens=0,
+                    output_tokens=0,
+                    total_tokens=0,
+                    latency_ms=latency_ms,
+                    reserved_cost_usd=f"{reservation:.6f}",
+                    actual_cost_usd=None,
+                    external_model_called=not offline_replay,
+                    network_called=not offline_replay,
+                    input_bound_method=TOKEN_BOUND_METHOD,
+                    input_bound_value=input_tokens_bound,
+                )
+            )
+            raise error
+
         if getattr(response, "status", None) == "incomplete":
-            raise ProviderIncompleteError("M1A_OPENAI_RESPONSE_INCOMPLETE")
+            fail_response(ProviderIncompleteError("M1A_OPENAI_RESPONSE_INCOMPLETE"))
         for output in getattr(response, "output", ()):
             for content in getattr(output, "content", ()):
                 if getattr(content, "type", None) == "refusal":
-                    raise ProviderRefusalError("M1A_OPENAI_RESPONSE_REFUSAL")
+                    fail_response(ProviderRefusalError("M1A_OPENAI_RESPONSE_REFUSAL"))
         raw = getattr(response, "output_text", None)
         if not isinstance(raw, str) or not raw:
-            raise ProviderSchemaError("M1A_OPENAI_RESPONSE_SCHEMA_INVALID")
+            fail_response(ProviderSchemaError("M1A_OPENAI_RESPONSE_SCHEMA_INVALID"))
         try:
             parsed = AINarrativeDraftContent.model_validate_json(raw)
-        except ValidationError as exc:
-            raise ProviderSchemaError("M1A_OPENAI_RESPONSE_SCHEMA_INVALID") from exc
+        except ValidationError:
+            fail_response(ProviderSchemaError("M1A_OPENAI_RESPONSE_SCHEMA_INVALID"))
         response_model = getattr(response, "model", self.config.model_id)
         if response_model != self.config.model_id:
-            _fail(M1ALiveFailureCode.RESPONSE_MODEL_MISMATCH)
+            fail_response(ProviderSchemaError("M1A_OPENAI_RESPONSE_MODEL_MISMATCH"))
         usage = getattr(response, "usage", None)
         input_tokens = int(getattr(usage, "input_tokens", 0) or 0)
         output_tokens = int(getattr(usage, "output_tokens", 0) or 0)
@@ -481,6 +619,9 @@ class M1AOpenAIResponsesProvider:
                 stage=self.stage.value,
                 fixture_id=self.fixture_id,
                 attempt_number=attempt_number,
+                request_kind=request_kind.value,
+                outcome="SUCCESS",
+                error_category=None,
                 response_id=result.response_id,
                 model_id=result.model,
                 prompt_version=result.prompt_version,
@@ -494,22 +635,27 @@ class M1AOpenAIResponsesProvider:
                 actual_cost_usd=None,
                 external_model_called=not offline_replay,
                 network_called=not offline_replay,
+                input_bound_method=TOKEN_BOUND_METHOD,
+                input_bound_value=input_tokens_bound,
             )
         )
         return result
 
     @staticmethod
-    def _raise_provider_error(exc: Exception) -> None:
+    def _map_provider_error(exc: Exception) -> ProviderError:
         name = type(exc).__name__
         if name == "APITimeoutError":
-            raise ProviderTimeoutError("M1A_OPENAI_TIMEOUT") from None
+            return ProviderTimeoutError("M1A_OPENAI_TIMEOUT")
         if name == "RateLimitError":
-            raise ProviderRateLimitError("M1A_OPENAI_RATE_LIMIT") from None
+            return ProviderRateLimitError("M1A_OPENAI_RATE_LIMIT")
         if name == "AuthenticationError":
-            raise ProviderAuthenticationError("M1A_OPENAI_AUTHENTICATION") from None
+            return ProviderAuthenticationError("M1A_OPENAI_AUTHENTICATION")
         if name == "APIConnectionError":
-            raise ProviderConnectionError("M1A_OPENAI_CONNECTION") from None
-        raise ProviderConnectionError("M1A_OPENAI_REQUEST_FAILED") from None
+            return ProviderConnectionError("M1A_OPENAI_CONNECTION")
+        status_code = getattr(exc, "status_code", None)
+        if status_code in {408, 409} or (isinstance(status_code, int) and status_code >= 500):
+            return ProviderConnectionError("M1A_OPENAI_RETRYABLE_HTTP_STATUS")
+        return ProviderConfigurationError("M1A_OPENAI_REQUEST_NOT_RETRYABLE")
 
 
 def create_live_provider(
@@ -534,7 +680,11 @@ def create_live_provider(
 
         client_factory = OpenAI
     try:
-        client = client_factory(api_key=api_key)
+        client = client_factory(
+            api_key=api_key,
+            max_retries=frozen_config.sdk_max_retries,
+            timeout=frozen_config.timeout_seconds,
+        )
     except Exception:
         _fail(M1ALiveFailureCode.CLIENT_CREATION_FAILED)
     return M1AOpenAIResponsesProvider(
@@ -576,6 +726,80 @@ class _RecordedResponsesReplayProvider:
         )
 
 
+_RETRYABLE_TECHNICAL_ERRORS = (
+    ProviderTimeoutError,
+    ProviderRateLimitError,
+    ProviderConnectionError,
+)
+
+
+def _structured_output(result: ProviderResult | None) -> dict[str, object] | None:
+    if result is None:
+        return None
+    try:
+        return AINarrativeDraftContent.model_validate(result.parsed_output).model_dump(mode="json")
+    except ValidationError:
+        return None
+
+
+def _manual_review_context(
+    fixture: dict[str, Any],
+    catalog: Any,
+) -> dict[str, object]:
+    return {
+        "question_domain": fixture["question_domain"],
+        "decision_goal": fixture["decision_goal"],
+        "time_horizon": fixture["time_horizon"],
+        "normalized_question": fixture["normalized_question"],
+        "safe_evidence_catalog": catalog.to_provider_payload(),
+        "manual_review_template_version": "MEIHUA_M1A_MANUAL_REVIEW_V001",
+        "manual_review_criteria_count": 20,
+        "manual_review_status": "UNREVIEWED",
+    }
+
+
+def _provider_failure_result(
+    fixture: dict[str, Any],
+    provider: M1AOpenAIResponsesProvider,
+    catalog: Any,
+    *,
+    attempt_number: int,
+    exc: ProviderError,
+    audit_start: int,
+    technical_retry_attempted: bool,
+    repair_attempted: bool,
+) -> dict[str, object]:
+    return {
+        "fixture_id": fixture["fixture_id"],
+        "stage": provider.stage.value,
+        "runner_version": M1A_LIVE_RUNNER_VERSION,
+        "program_hash": fixture["program_hash"],
+        "catalog_hash": fixture["provider_catalog_hash"],
+        "request_count": len(provider.audits) - audit_start,
+        "technical_retry_attempted": technical_retry_attempted,
+        "repair_attempted": repair_attempted,
+        "second_attempt_kind": provider.ledger.fixture_second_attempt_kinds.get(
+            fixture["fixture_id"]
+        ),
+        "pre_repair_validation_errors": [],
+        "status": ServiceStatus.PROVIDER_FAILED.value,
+        "failure_code": type(exc).__name__,
+        "unresolved_provider_failure": True,
+        "qualified_assembly_created": False,
+        "final_structured_output": None,
+        "final_attempt_number": attempt_number,
+        "final_response_id": None,
+        "final_validation_status": "NOT_RUN_PROVIDER_FAILURE",
+        "final_model_id": provider.config.model_id,
+        "manual_review_context": _manual_review_context(fixture, catalog),
+        "narrative_release_status": "UNVERIFIED",
+        "should_charge": False,
+        "formal_report_persistence_allowed": False,
+        "closed_beta_allowed": False,
+        "request_audits": [item.to_safe_dict() for item in provider.audits[audit_start:]],
+    }
+
+
 def evaluate_live_fixture(
     fixture: dict[str, Any],
     provider: M1AOpenAIResponsesProvider,
@@ -588,39 +812,126 @@ def evaluate_live_fixture(
     builder = M1APromptBuilder()
     validator = M1AValidator()
     prompt = builder.build(intake, context, catalog)
-    responses = [provider.generate(prompt, attempt_number=1)]
-    validation_errors: list[str] = []
+    audit_start = len(provider.audits)
+    technical_retry_attempted = False
+    repair_attempted = False
+    first_response: ProviderResult | None = None
     try:
-        validator.validate(responses[0].parsed_output, intake, catalog)
+        first_response = provider.generate(
+            prompt,
+            attempt_number=1,
+            request_kind=M1ARequestKind.INITIAL,
+        )
+    except _RETRYABLE_TECHNICAL_ERRORS:
+        technical_retry_attempted = True
+        try:
+            final_response = provider.generate(
+                prompt,
+                attempt_number=2,
+                request_kind=M1ARequestKind.TECHNICAL_RETRY,
+            )
+        except ProviderError as exc:
+            return _provider_failure_result(
+                fixture,
+                provider,
+                catalog,
+                attempt_number=2,
+                exc=exc,
+                audit_start=audit_start,
+                technical_retry_attempted=True,
+                repair_attempted=False,
+            )
+    except ProviderError as exc:
+        return _provider_failure_result(
+            fixture,
+            provider,
+            catalog,
+            attempt_number=1,
+            exc=exc,
+            audit_start=audit_start,
+            technical_retry_attempted=False,
+            repair_attempted=False,
+        )
+    else:
+        final_response = first_response
+
+    validation_errors: list[str] = []
+    pre_repair_validation_errors: list[str] = []
+    try:
+        validator.validate(final_response.parsed_output, intake, catalog)
     except InterpretationValidationError as exc:
         validation_errors = list(exc.errors)
-        repair_prompt = builder.build(
-            intake,
-            context,
-            catalog,
-            repair_errors=validation_errors,
-        )
-        responses.append(provider.generate(repair_prompt, attempt_number=2))
-    replay = _RecordedResponsesReplayProvider(tuple(responses))
+        pre_repair_validation_errors = list(validation_errors)
+        if not technical_retry_attempted:
+            repair_attempted = True
+            repair_prompt = builder.build(
+                intake,
+                context,
+                catalog,
+                repair_errors=validation_errors,
+            )
+            try:
+                final_response = provider.generate(
+                    repair_prompt,
+                    attempt_number=2,
+                    request_kind=M1ARequestKind.REPAIR,
+                )
+            except ProviderError as provider_exc:
+                return _provider_failure_result(
+                    fixture,
+                    provider,
+                    catalog,
+                    attempt_number=2,
+                    exc=provider_exc,
+                    audit_start=audit_start,
+                    technical_retry_attempted=False,
+                    repair_attempted=True,
+                )
+            try:
+                validator.validate(final_response.parsed_output, intake, catalog)
+                validation_errors = []
+            except InterpretationValidationError as repair_exc:
+                validation_errors = list(repair_exc.errors)
+
+    if repair_attempted:
+        assert first_response is not None
+        replay_results = (first_response, final_response)
+    elif validation_errors:
+        replay_results = (final_response, final_response)
+    else:
+        replay_results = (final_response,)
+    replay = _RecordedResponsesReplayProvider(replay_results)
     service_result = M1AService(replay).interpret(intake, context)
     qualified = service_result.status is ServiceStatus.SUCCESS and service_result.assembly is not None
+    final_attempt_number = 2 if technical_retry_attempted or repair_attempted else 1
     return {
         "fixture_id": fixture["fixture_id"],
         "stage": provider.stage.value,
         "runner_version": M1A_LIVE_RUNNER_VERSION,
         "program_hash": fixture["program_hash"],
         "catalog_hash": fixture["provider_catalog_hash"],
-        "request_count": len(responses),
-        "repair_attempted": len(responses) == 2,
-        "pre_repair_validation_errors": validation_errors,
+        "request_count": len(provider.audits) - audit_start,
+        "technical_retry_attempted": technical_retry_attempted,
+        "repair_attempted": repair_attempted,
+        "second_attempt_kind": provider.ledger.fixture_second_attempt_kinds.get(
+            fixture["fixture_id"]
+        ),
+        "pre_repair_validation_errors": pre_repair_validation_errors,
         "status": service_result.status.value,
         "failure_code": service_result.failure_code.value if service_result.failure_code else None,
+        "unresolved_provider_failure": False,
         "qualified_assembly_created": qualified,
+        "final_structured_output": _structured_output(final_response),
+        "final_attempt_number": final_attempt_number,
+        "final_response_id": final_response.response_id,
+        "final_validation_status": "PASSED" if qualified else "REJECTED",
+        "final_model_id": final_response.model,
+        "manual_review_context": _manual_review_context(fixture, catalog),
         "narrative_release_status": "UNVERIFIED",
         "should_charge": False,
         "formal_report_persistence_allowed": False,
         "closed_beta_allowed": False,
-        "request_audits": [item.to_safe_dict() for item in provider.audits[-len(responses) :]],
+        "request_audits": [item.to_safe_dict() for item in provider.audits[audit_start:]],
     }
 
 
@@ -635,7 +946,12 @@ def run_live_evaluation(
     expected_count = 4 if provider.stage is M1ALiveStage.SENTINEL else 17
     if len(fixture_ids) != expected_count or len(set(fixture_ids)) != expected_count:
         _fail(M1ALiveFailureCode.RESPONSE_INVALID)
-    results = [evaluate_live_fixture(by_id[fixture_id], provider) for fixture_id in fixture_ids]
+    results = []
+    for fixture_id in fixture_ids:
+        result = evaluate_live_fixture(by_id[fixture_id], provider)
+        results.append(result)
+        if result["unresolved_provider_failure"]:
+            break
     return {
         "schema_version": M1A_LIVE_AUDIT_SCHEMA_VERSION,
         "plan_version": M1A_REAL_MODEL_EVAL_PLAN_VERSION,
@@ -648,6 +964,12 @@ def run_live_evaluation(
             "qualified_assemblies": sum(item["qualified_assembly_created"] for item in results),
             "requests_used": provider.ledger.stage_request_count,
             "repairs_used": sum(item["repair_attempted"] for item in results),
+            "technical_retries_used": sum(
+                item["technical_retry_attempted"] for item in results
+            ),
+            "unresolved_provider_failures": sum(
+                item["unresolved_provider_failure"] for item in results
+            ),
             "stage_reserved_usd": f"{provider.ledger.stage_reserved_usd:.6f}",
             "total_reserved_usd": f"{provider.ledger.total_reserved_usd:.6f}",
         },

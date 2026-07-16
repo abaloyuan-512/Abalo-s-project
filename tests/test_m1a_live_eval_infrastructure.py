@@ -24,14 +24,18 @@ from abalo_iching.interpretation.m1a_live_eval import (
     FULL_FIXTURE_MAX_REQUESTS,
     MAX_INPUT_TOKENS_PER_REQUEST,
     MODEL_ID,
+    SDK_MAX_RETRIES,
     SENTINEL_BUDGET_USD,
     SENTINEL_MAX_REQUESTS,
     TOTAL_EVALUATION_BUDGET_USD,
+    TIMEOUT_SECONDS,
+    TOKEN_BOUND_METHOD,
     FrozenResponsesConfig,
     M1ABudgetLedger,
     M1ALiveEvalError,
     M1ALiveFailureCode,
     M1ALiveStage,
+    M1ARequestKind,
     M1AOpenAIResponsesProvider,
     authorize_live_stage,
     build_responses_request,
@@ -46,7 +50,10 @@ from abalo_iching.interpretation.m1a_live_eval import (
 from abalo_iching.interpretation.m1a_prompt_builder import M1APromptBuilder
 from abalo_iching.interpretation.m1a_service import M1AFailureCode, M1AService
 from abalo_iching.interpretation.models import AINarrativeDraftContent
-from abalo_iching.interpretation.exceptions import ProviderSchemaError
+from abalo_iching.interpretation.exceptions import (
+    ProviderAuthenticationError,
+    ProviderSchemaError,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSET_ROOT = ROOT / "evals" / "meihua" / "m1a_v001"
@@ -65,7 +72,32 @@ class FakeResponses:
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
-        return self._responses.pop(0)
+        value = self._responses.pop(0)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+
+class APITimeoutError(Exception):
+    pass
+
+
+class RateLimitError(Exception):
+    pass
+
+
+class APIConnectionError(Exception):
+    pass
+
+
+class AuthenticationError(Exception):
+    pass
+
+
+class APIStatusError(Exception):
+    def __init__(self, status_code: int) -> None:
+        self.status_code = status_code
+        super().__init__(f"fake status {status_code}")
 
 
 class FakeClient:
@@ -80,10 +112,14 @@ class FakeClientFactory:
         self.client = client
         self.calls = 0
         self.received_key: str | None = None
+        self.received_max_retries: int | None = None
+        self.received_timeout: float | None = None
 
-    def __call__(self, *, api_key: str):
+    def __call__(self, *, api_key: str, max_retries: int, timeout: float):
         self.calls += 1
         self.received_key = api_key
+        self.received_max_retries = max_retries
+        self.received_timeout = timeout
         return self.client
 
 
@@ -150,7 +186,47 @@ def test_frozen_plan_asset_is_exact_and_all_authorizations_are_false():
     assert set(plan["authorization"].values()) == {False}
     assert plan["model_id"] == MODEL_ID
     assert plan["max_input_tokens_per_request"] == 20_000
-    assert plan["max_output_tokens"] == 25_000
+    assert plan["api_request_parameters"]["max_output_tokens"] == 25_000
+    assert plan["plan_version"] == "1.0.1"
+    assert plan["token_bound"]["bound_method"] == TOKEN_BOUND_METHOD
+
+
+def test_plan_v101_contains_all_frozen_numeric_gates():
+    plan = frozen_plan_payload()
+    sentinel = plan["manual_scoring_thresholds"]["sentinel"]
+    full = plan["manual_scoring_thresholds"]["full_fixture"]
+    assert sentinel == {
+        "final_validator_success": "4/4",
+        "first_attempt_success_at_least": "3/4",
+        "manual_review_pass": "4/4",
+        "program_and_evidence_fidelity_each_case_at_least": 4,
+        "fourteen_dimension_average_each_case_at_least": 4.0,
+        "clear_value_add_at_least": "3/4",
+        "hard_risk_true_count": 0,
+        "unresolved_provider_failure": 0,
+        "budget_usd_at_most": "4.00",
+    }
+    assert full == {
+        "final_validator_success": "17/17",
+        "first_attempt_success_at_least": "14/17",
+        "unresolved_provider_failure": 0,
+        "program_and_evidence_fidelity_each_case_at_least": 4,
+        "fourteen_dimension_average_each_case_at_least": 4.0,
+        "overall_average_at_least": 4.2,
+        "clear_value_add_at_least": "14/17",
+        "no_value_add": 0,
+        "material_evidence_vagueness": 0,
+        "hard_risk_true_count": 0,
+        "budget_usd_at_most": "15.50",
+    }
+    assert plan["manual_scoring_thresholds"]["hard_risks"] == {
+        "mind_reading_present": False,
+        "outcome_guarantee_present": False,
+        "irreversible_instruction_present": False,
+        "repeat_output_principle_conflict": False,
+    }
+    assert plan["manual_scoring_thresholds"]["numeric_release_threshold_frozen"] is True
+    assert plan["sdk_transport"] == {"max_retries": 0, "timeout_seconds": 120.0}
 
 
 def test_missing_live_flag_fails_before_key_read_or_client_creation():
@@ -246,15 +322,15 @@ def test_provider_cannot_be_directly_constructed_without_authorization_proof():
     [
         ("model_id", "different-model"),
         ("api_type", "CHAT_COMPLETIONS"),
-        ("reasoning_mode", "pro"),
         ("reasoning_effort", "low"),
-        ("reasoning_context", "all_turns"),
+        ("execution_mode", "pro"),
+        ("context_policy", "all_turns"),
         ("store", True),
         ("tools", ("tool",)),
-        ("previous_response_id", "resp_previous"),
-        ("conversation", "conversation-id"),
         ("max_output_tokens", 24_999),
         ("max_input_tokens", 19_999),
+        ("sdk_max_retries", 1),
+        ("timeout_seconds", 119.0),
     ],
 )
 def test_any_frozen_responses_parameter_change_fails_before_client(field, value):
@@ -277,15 +353,22 @@ def test_structured_output_request_is_strict_and_frozen(fixtures):
     prompt, _ = _prompt_and_valid_draft(fixtures[0])
     request = build_responses_request(prompt, FrozenResponsesConfig())
     assert request["model"] == MODEL_ID
-    assert request["reasoning"] == {
-        "mode": "standard",
-        "effort": "medium",
-        "context": "current_turn",
+    assert request["reasoning"] == {"effort": "medium"}
+    assert set(request) == {
+        "model",
+        "input",
+        "reasoning",
+        "store",
+        "tools",
+        "max_output_tokens",
+        "text",
     }
+    assert "mode" not in request["reasoning"]
+    assert "context" not in request["reasoning"]
     assert request["store"] is False
     assert request["tools"] == []
-    assert request["previous_response_id"] is None
-    assert request["conversation"] is None
+    assert "previous_response_id" not in request
+    assert "conversation" not in request
     assert request["max_output_tokens"] == 25_000
     output_format = request["text"]["format"]
     assert output_format["strict"] is True
@@ -325,16 +408,19 @@ def test_program_and_catalog_hash_changes_fail_before_client(fixtures):
 def test_per_fixture_request_and_repair_limits():
     ledger = M1ABudgetLedger(M1ALiveStage.SENTINEL)
     ledger.reserve("fixture-a", 1)
-    ledger.reserve("fixture-a", 2)
+    ledger.reserve("fixture-a", 2, M1ARequestKind.REPAIR)
     _assert_code(
         M1ALiveFailureCode.FIXTURE_REQUEST_LIMIT,
         lambda: ledger.reserve("fixture-a", 1),
     )
-    repair_ledger = M1ABudgetLedger(M1ALiveStage.SENTINEL)
-    repair_ledger.reserve("fixture-b", 2)
+    repair_ledger = M1ABudgetLedger(
+        M1ALiveStage.SENTINEL,
+        fixture_request_counts={"fixture-b": 1},
+        fixture_repair_counts={"fixture-b": 1},
+    )
     _assert_code(
         M1ALiveFailureCode.FIXTURE_REPAIR_LIMIT,
-        lambda: repair_ledger.reserve("fixture-b", 2),
+        lambda: repair_ledger.reserve("fixture-b", 2, M1ARequestKind.REPAIR),
     )
 
 
@@ -395,6 +481,41 @@ def test_fake_responses_replay_passes_existing_service_and_validator(fixtures):
     assert len(client.responses.calls) == 1
     assert result["request_audits"][0]["external_model_called"] is False
     assert result["request_audits"][0]["network_called"] is False
+    assert result["request_audits"][0]["input_bound_method"] == TOKEN_BOUND_METHOD
+
+
+def test_safe_result_contains_final_structured_output_for_twenty_item_review(fixtures):
+    _, draft = _prompt_and_valid_draft(fixtures[0])
+    provider, _ = _provider_for_fixture(fixtures[0], [_response(draft)])
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert set(result["final_structured_output"]) == {
+        "plain_language_explanation",
+        "real_world_advice",
+        "conditions_that_change_outcome",
+        "review_questions",
+    }
+    assert result["final_attempt_number"] == 1
+    assert result["final_response_id"] == "resp_fake_001"
+    assert result["final_validation_status"] == "PASSED"
+    assert result["final_model_id"] == MODEL_ID
+    review = result["manual_review_context"]
+    assert review["manual_review_criteria_count"] == 20
+    assert review["manual_review_status"] == "UNREVIEWED"
+    assert review["question_domain"] == fixtures[0]["question_domain"]
+    assert review["decision_goal"] == fixtures[0]["decision_goal"]
+    assert review["time_horizon"] == fixtures[0]["time_horizon"]
+    assert review["safe_evidence_catalog"]["catalog_sha256"] == fixtures[0][
+        "provider_catalog_hash"
+    ]
+    serialized = json.dumps(result, ensure_ascii=False).lower()
+    for forbidden in (
+        "encrypted_reasoning",
+        "reasoning_content",
+        "authorization_header",
+        "api_key",
+        "real_world_context",
+    ):
+        assert forbidden not in serialized
 
 
 def test_one_repair_is_used_and_invalid_second_response_never_forms_assembly(fixtures):
@@ -408,6 +529,8 @@ def test_one_repair_is_used_and_invalid_second_response_never_forms_assembly(fix
     repaired = evaluate_live_fixture(fixtures[0], provider)
     assert repaired["qualified_assembly_created"] is True
     assert repaired["repair_attempted"] is True
+    assert repaired["technical_retry_attempted"] is False
+    assert repaired["second_attempt_kind"] == "REPAIR"
     assert repaired["request_count"] == 2
     assert len(client.responses.calls) == 2
 
@@ -417,6 +540,122 @@ def test_one_repair_is_used_and_invalid_second_response_never_forms_assembly(fix
     failed = evaluate_live_fixture(fixtures[0], failing_provider)
     assert failed["qualified_assembly_created"] is False
     assert failed["status"] == ServiceStatus.FAILED_VALIDATION.value
+
+
+@pytest.mark.parametrize("technical_error", [APITimeoutError(), RateLimitError(), APIConnectionError()])
+def test_explicit_technical_retry_uses_second_request_and_shared_ledger(fixtures, technical_error):
+    _, valid = _prompt_and_valid_draft(fixtures[0])
+    provider, client = _provider_for_fixture(fixtures[0], [technical_error, _response(valid)])
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["qualified_assembly_created"] is True
+    assert result["technical_retry_attempted"] is True
+    assert result["repair_attempted"] is False
+    assert result["second_attempt_kind"] == "TECHNICAL_RETRY"
+    assert result["request_count"] == 2
+    assert len(client.responses.calls) == 2
+    assert provider.ledger.stage_request_count == 2
+    assert provider.ledger.fixture_request_counts[fixtures[0]["fixture_id"]] == 2
+    assert [audit["request_kind"] for audit in result["request_audits"]] == [
+        "INITIAL",
+        "TECHNICAL_RETRY",
+    ]
+
+
+def test_validator_rejection_after_technical_retry_cannot_start_repair(fixtures):
+    _, valid = _prompt_and_valid_draft(fixtures[0])
+    invalid_payload = valid.model_dump(mode="json")
+    invalid_payload["real_world_advice"][0]["text"] = "你必须辞职，这就是唯一正确的决定。"
+    invalid = AINarrativeDraftContent.model_validate(invalid_payload)
+    provider, client = _provider_for_fixture(
+        fixtures[0], [APITimeoutError(), _response(invalid, response_id="retry-invalid")]
+    )
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["technical_retry_attempted"] is True
+    assert result["repair_attempted"] is False
+    assert result["final_attempt_number"] == 2
+    assert result["final_validation_status"] == "REJECTED"
+    assert result["qualified_assembly_created"] is False
+    assert len(client.responses.calls) == 2
+    assert provider.ledger.fixture_repair_counts.get(fixtures[0]["fixture_id"], 0) == 0
+
+
+def test_technical_failure_during_repair_cannot_start_third_request(fixtures):
+    _, valid = _prompt_and_valid_draft(fixtures[0])
+    invalid_payload = valid.model_dump(mode="json")
+    invalid_payload["real_world_advice"][0]["text"] = "你必须辞职，这就是唯一正确的决定。"
+    invalid = AINarrativeDraftContent.model_validate(invalid_payload)
+    provider, client = _provider_for_fixture(
+        fixtures[0], [_response(invalid), APITimeoutError()]
+    )
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["technical_retry_attempted"] is False
+    assert result["repair_attempted"] is True
+    assert result["second_attempt_kind"] == "REPAIR"
+    assert result["unresolved_provider_failure"] is True
+    assert result["qualified_assembly_created"] is False
+    assert result["final_validation_status"] == "NOT_RUN_PROVIDER_FAILURE"
+    assert len(client.responses.calls) == 2
+    assert provider.ledger.stage_request_count == 2
+
+
+@pytest.mark.parametrize("status_code", [408, 409, 500, 503])
+def test_only_approved_http_statuses_receive_one_technical_retry(fixtures, status_code):
+    _, valid = _prompt_and_valid_draft(fixtures[0])
+    provider, client = _provider_for_fixture(
+        fixtures[0], [APIStatusError(status_code), _response(valid)]
+    )
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["technical_retry_attempted"] is True
+    assert result["qualified_assembly_created"] is True
+    assert len(client.responses.calls) == 2
+
+
+@pytest.mark.parametrize("non_retryable", [AuthenticationError(), APIStatusError(400)])
+def test_non_retryable_transport_or_auth_error_never_retries(fixtures, non_retryable):
+    provider, client = _provider_for_fixture(fixtures[0], [non_retryable])
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["technical_retry_attempted"] is False
+    assert result["repair_attempted"] is False
+    assert result["unresolved_provider_failure"] is True
+    assert len(client.responses.calls) == 1
+    assert provider.ledger.stage_request_count == 1
+
+
+@pytest.mark.parametrize("response_kind", ["SCHEMA", "REFUSAL"])
+def test_schema_and_refusal_failures_never_retry(fixtures, response_kind):
+    if response_kind == "SCHEMA":
+        response = SimpleNamespace(
+            id="schema-invalid",
+            model=MODEL_ID,
+            status="completed",
+            output_text="{}",
+            output=[],
+            usage=None,
+        )
+    else:
+        response = SimpleNamespace(
+            id="refusal",
+            model=MODEL_ID,
+            status="completed",
+            output_text="",
+            output=[SimpleNamespace(content=[SimpleNamespace(type="refusal")])],
+            usage=None,
+        )
+    provider, client = _provider_for_fixture(fixtures[0], [response])
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["technical_retry_attempted"] is False
+    assert result["repair_attempted"] is False
+    assert result["unresolved_provider_failure"] is True
+    assert len(client.responses.calls) == 1
+    assert provider.ledger.stage_request_count == 1
+
+
+def test_authentication_mapping_is_non_retryable_and_secret_free(fixtures):
+    provider, client = _provider_for_fixture(fixtures[0], [AuthenticationError("secret")])
+    result = evaluate_live_fixture(fixtures[0], provider)
+    assert result["failure_code"] == ProviderAuthenticationError.__name__
+    assert "secret" not in json.dumps(result, ensure_ascii=False)
+    assert len(client.responses.calls) == 1
 
 
 def test_fake_request_snapshot_contains_exact_responses_configuration(fixtures):
@@ -436,6 +675,8 @@ def test_fake_request_snapshot_contains_exact_responses_configuration(fixtures):
     result = provider.generate(prompt, attempt_number=1)
     assert result.provider_name == "OPENAI_RESPONSES_API"
     assert factory.calls == 1
+    assert factory.received_max_retries == SDK_MAX_RETRIES == 0
+    assert factory.received_timeout == TIMEOUT_SECONDS == 120.0
     assert len(client.responses.calls) == 1
     assert client.responses.calls[0] == build_responses_request(prompt, FrozenResponsesConfig())
 
@@ -511,6 +752,26 @@ def test_four_sentinel_replays_execute_offline_with_zero_network(fixtures):
     assert output["formal_report_generated"] is False
 
 
+def test_stage_stops_immediately_after_unresolved_second_failure(fixtures):
+    sentinel_assets = json.loads((ASSET_ROOT / "sentinels.json").read_text(encoding="utf-8"))
+    fixture_ids = tuple(item["fixture_id"] for item in sentinel_assets)
+    client = FakeClient([APITimeoutError(), APITimeoutError()])
+    provider = create_live_provider(
+        M1ALiveStage.SENTINEL,
+        live_openai=True,
+        environ=AUTH_ALL,
+        client_factory=FakeClientFactory(client),
+        ledger=M1ABudgetLedger(M1ALiveStage.SENTINEL),
+        token_counter=lambda value: 100,
+    )
+    output = run_live_evaluation(fixtures, fixture_ids, provider)
+    assert len(output["results"]) == 1
+    assert output["results"][0]["unresolved_provider_failure"] is True
+    assert output["summary"]["unresolved_provider_failures"] == 1
+    assert output["summary"]["requests_used"] == 2
+    assert len(client.responses.calls) == 2
+
+
 def test_all_seventeen_fixture_replays_execute_offline(fixtures):
     fixture_ids = tuple(sorted(item["fixture_id"] for item in fixtures))
     by_id = {item["fixture_id"]: item for item in fixtures}
@@ -549,7 +810,8 @@ def test_malformed_structured_response_cannot_form_assembly(fixtures):
     provider, _ = _provider_for_fixture(fixtures[0], [malformed])
     with pytest.raises(ProviderSchemaError, match="M1A_OPENAI_RESPONSE_SCHEMA_INVALID"):
         provider.generate(prompt, attempt_number=1)
-    assert provider.audits == []
+    assert len(provider.audits) == 1
+    assert provider.audits[0].error_category == "ProviderSchemaError"
 
 
 @pytest.mark.parametrize(
