@@ -2,6 +2,8 @@
 
 - Source visual truth: `C:/Users/HD/.codex/visualizations/2026/07/17/019f6df8-b3df-78a3-b248-ac27c29b6830/stitch_a/screen.png`
 - Supporting art source: `C:/Users/HD/.codex/visualizations/2026/07/17/019f6df8-b3df-78a3-b248-ac27c29b6830/stitch_b/screen.png`
+- User-selected opening reference: `C:/Users/HD/AppData/Local/Temp/codex-clipboard-5ecc0ef8-ef88-430d-9e9a-3258a760a4b8.png`
+- Button reference: `C:/Users/HD/AppData/Local/Temp/codex-clipboard-8d6450ba-25b2-4446-9b3b-5a651a995a28.png`
 - Implementation screenshot: `D:/效率软件--Github/文件储存夹/Abalo-s-project/sites/hosted-app/.wrangler/sites-v3-screenshot.png`
 - Combined comparison: `D:/效率软件--Github/文件储存夹/Abalo-s-project/sites/hosted-app/.wrangler/design-comparison.png`
 - Implementation viewport: 1200 × 750 desktop landing state.
@@ -36,6 +38,8 @@
 1. Initial hosted capture: visual structure and palette matched, but the title font fell back.
 2. Fix: added a self-hosted Ma Shan Zheng font and redeployed the private site.
 3. Post-fix evidence: deployment and asset presence verified; authenticated mobile and result-state capture remains outstanding.
+4. Current visual revision: the supplied Song-style `og.png` composition is now the opening viewport, the pure-black casting control is replaced by a rice-paper and antique-gold button with a real ink Bagua asset, user-facing “导师” copy is replaced by “智者”, and the boundary heading is protected from orphan-character wrapping.
+5. Current interaction revision: restrained entrance, scroll-reveal, image-hover, and Bagua-hover motion were added with a reduced-motion fallback. The form now labels the private deployment as a visual-acceptance version and explains that the hosted reading is not connected yet.
 
 **Implementation checklist**
 

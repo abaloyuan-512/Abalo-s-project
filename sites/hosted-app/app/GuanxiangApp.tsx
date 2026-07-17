@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 type TextItem = { title: string; text: string };
 type ActionItem = { title: string; action: string; why: string };
@@ -116,7 +117,7 @@ function ResultSection({ eyebrow, title, children, className = "" }: {
   className?: string;
 }) {
   return (
-    <section className={`result-section ${className}`}>
+    <section className={`result-section ${className}`} data-reveal>
       <header>
         <p>{eyebrow}</p>
         <h3>{title}</h3>
@@ -134,13 +135,13 @@ function ResultView({ response, onRestart }: { response: ApiResponse; onRestart:
 
   return (
     <section id="result" className="result-shell" aria-labelledby="result-title">
-      <header className="result-heading">
+      <header className="result-heading" data-reveal>
         <p className="eyebrow">观象 · INSIGHT</p>
         <h2 id="result-title" tabIndex={-1}>{response.normalized_question}</h2>
         <div className="gold-thread" aria-hidden="true" />
       </header>
 
-      <section className="insight-opening" aria-labelledby="insight-opening-title">
+      <section className="insight-opening" aria-labelledby="insight-opening-title" data-reveal>
         <div>
           <p className="eyebrow">核心倾向 · ORIENTATION</p>
           <h3 id="insight-opening-title">{conclusion}</h3>
@@ -154,7 +155,7 @@ function ResultView({ response, onRestart }: { response: ApiResponse; onRestart:
         </div>
       </section>
 
-      <ResultSection eyebrow="导师式导读 · READING" title="先看清这组卦在说什么" className="reading-section">
+      <ResultSection eyebrow="智者式导读 · READING" title="先看清这组卦在说什么" className="reading-section">
         <div className="guide-grid">
           {mentor.reading_guide.map((item, index) => (
             <article className="guide-item" key={item.title}>
@@ -226,6 +227,26 @@ export function GuanxiangApp() {
   const [loading, setLoading] = useState(false);
   const allowedGoals = useMemo(() => GOALS_BY_DOMAIN[domain] ?? [], [domain]);
 
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      elements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -6%" });
+
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, [response]);
+
   function changeDomain(value: string) {
     setDomain(value);
     setGoal("");
@@ -277,7 +298,10 @@ export function GuanxiangApp() {
         document.getElementById("result-title")?.focus({ preventScroll: true });
       }, 0);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "暂时无法连接排盘服务，请稍后再试。");
+      const message = caught instanceof Error ? caught.message : "暂时无法连接排盘服务，请稍后再试。";
+      setError(message.includes("尚未连接")
+        ? "你的填写没有问题。当前私有链接正在进行视觉验收，云端排盘尚未接通；视觉确认后，这里会呈现完整卦象与详细解读。"
+        : message);
     } finally {
       setLoading(false);
     }
@@ -292,23 +316,31 @@ export function GuanxiangApp() {
       </header>
 
       <main id="top">
-        <section className="hero">
-          <div className="hero-copy">
-            <p className="eyebrow">东方智慧 · 温和观照</p>
-            <h1>在变化之中，<br />看见清晰的方向。</h1>
-            <p>以确定性排盘呈现卦象结构，再像一位温和的导师，陪你理解原因、影响与可以落实的下一步。</p>
-            <a className="primary-action" href="#question">开始起卦</a>
+        <section className="hero" data-reveal>
+          <h1 className="sr-only">观象：在变化之中，看见清晰的方向</h1>
+          <div className="hero-frame">
+            <Image src="/og.png" width={1536} height={1024} priority alt="宋代水墨山水意境中的观象：在变化之中，看见清晰的方向。" />
           </div>
-          <blockquote><span>“</span>不替你决定答案，<br />只陪你看清局势。<span>”</span></blockquote>
+          <div className="hero-after">
+            <div className="hero-copy">
+              <p className="eyebrow">东方智慧 · 温和观照</p>
+              <p>以确定性排盘呈现卦象结构，再像一位温和的智者，陪你理解原因、影响与可以落实的下一步。</p>
+            </div>
+            <a className="primary-action" href="#question">
+              <Image src="/bagua-seal.png" width={42} height={42} alt="" aria-hidden="true" />
+              <span>开始起卦</span>
+            </a>
+            <blockquote><span>“</span>不替你决定答案，只陪你看清局势。<span>”</span></blockquote>
+          </div>
         </section>
 
-        <section id="about" className="principle">
+        <section id="about" className="principle" data-reveal>
           <p className="eyebrow">观象之道 · METHOD</p>
           <div><h2>先看结构，<br />再回到现实。</h2><p>卦象不是对未来的承诺。我们把固定规则形成的结构，翻译成可以理解、核实和调整的现实参考：看见此刻的力量，也保留自己的判断。</p></div>
           <ol><li><span>一</span>明确关注的问题</li><li><span>二</span>完成确定性排盘</li><li><span>三</span>理解依据与行动</li></ol>
         </section>
 
-        <section id="question" className="question-shell">
+        <section id="question" className="question-shell" data-reveal>
           <header>
             <p className="eyebrow">起卦问询 · INQUIRY</p>
             <h2>此刻，你想看清什么？</h2>
@@ -316,6 +348,7 @@ export function GuanxiangApp() {
           </header>
 
           <form onSubmit={submit} className="question-form" noValidate>
+            <p className="preview-note"><strong>当前为视觉验收版</strong><span>可以完整填写并体验交互；云端排盘接通后，此处会生成正式解读。</span></p>
             <div className="form-step">
               <span>01</span>
               <div><h3>确定问题边界</h3><p>范围越清楚，结果越容易回到现实中理解。</p></div>
@@ -350,10 +383,10 @@ export function GuanxiangApp() {
 
         {response && <ResultView response={response} onRestart={restart} />}
 
-        <aside className="version-note">
+        <aside className="version-note" data-reveal>
           <p className="eyebrow">当前版本 · BOUNDARY</p>
           <h2>清晰，也有边界。</h2>
-          <p>当前版本提供确定性排盘、规则型导师导读与现实行动建议；不保存你的输入，不收费，也不把卦象包装成必然结论。</p>
+          <p>当前版本提供确定性排盘、规则型智者导读与现实行动建议；不保存你的输入，不收费，也不把卦象包装成必然结论。</p>
         </aside>
       </main>
 
