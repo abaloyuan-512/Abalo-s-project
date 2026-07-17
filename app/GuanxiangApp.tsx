@@ -327,7 +327,9 @@ export function GuanxiangApp() {
               <p>以确定性排盘呈现卦象结构，再像一位温和的智者，陪你理解原因、影响与可以落实的下一步。</p>
             </div>
             <a className="primary-action" href="#question">
-              <Image src="/bagua-seal.png" width={42} height={42} alt="" aria-hidden="true" />
+              {/* Direct static loading avoids the hosted image optimizer for this small decorative asset. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/bagua-seal.png" width="42" height="42" alt="" aria-hidden="true" />
               <span>开始起卦</span>
             </a>
             <blockquote><span>“</span>不替你决定答案，只陪你看清局势。<span>”</span></blockquote>
