@@ -17,10 +17,10 @@ test("server-renders the Guanxiang product", async () => {
   const response = await app.fetch(new Request("http://localhost/", { headers: { accept: "text/html" } }), env, context);
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /<title>观象 · 传统文化决策辅助<\/title>/);
-  assert.match(html, /把纷杂的问题/);
+  assert.match(html, /<title>观象 · 在变化之中，看见清晰的方向<\/title>/);
+  assert.match(html, /在变化之中/);
   assert.match(html, /查看卦象与建议/);
-  assert.match(html, /私有预览/);
+  assert.match(html, /PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
 });
 
