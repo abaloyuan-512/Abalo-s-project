@@ -209,6 +209,57 @@ function addDetail(label, value) {
   byId("detail-list").append(wrapper);
 }
 
+function renderTextItems(targetId, items) {
+  const target = byId(targetId);
+  target.replaceChildren();
+  items.forEach((item) => {
+    const article = document.createElement("article");
+    const title = document.createElement("h4");
+    const text = document.createElement("p");
+    title.textContent = item.title;
+    text.textContent = item.text;
+    article.append(title, text);
+    target.append(article);
+  });
+}
+
+function renderActions(items) {
+  const target = byId("action-plan");
+  target.replaceChildren();
+  items.forEach((item) => {
+    const row = document.createElement("li");
+    const title = document.createElement("h4");
+    const action = document.createElement("p");
+    const why = document.createElement("small");
+    title.textContent = item.title;
+    action.textContent = item.action;
+    why.textContent = `为什么：${item.why}`;
+    row.append(title, action, why);
+    target.append(row);
+  });
+}
+
+function renderStringList(targetId, items) {
+  const target = byId(targetId);
+  target.replaceChildren();
+  items.forEach((item) => {
+    const row = document.createElement("li");
+    row.textContent = item;
+    target.append(row);
+  });
+}
+
+function validMentorReport(report) {
+  return report && report.template_version === "SITES_MENTOR_REPORT_V1"
+    && typeof report.opening === "string"
+    && Array.isArray(report.reading_guide)
+    && Array.isArray(report.reasoning)
+    && Array.isArray(report.action_plan)
+    && Array.isArray(report.cautions)
+    && Array.isArray(report.review_questions)
+    && typeof report.boundary_note === "string";
+}
+
 function hexagram(prefix, item) {
   setText(`${prefix}-symbol`, item.symbol);
   setText(`${prefix}-name`, item.name);
@@ -216,11 +267,12 @@ function hexagram(prefix, item) {
 }
 
 function renderSuccess(response) {
-  if (!response.deterministic_result || typeof response.normalized_question !== "string" || !Array.isArray(response.errors) || response.errors.length !== 0) {
+  if (!response.deterministic_result || !validMentorReport(response.deterministic_result.mentor_report) || typeof response.normalized_question !== "string" || !Array.isArray(response.errors) || response.errors.length !== 0) {
     renderError(null, "响应格式异常");
     return;
   }
   const result = response.deterministic_result;
+  const mentor = result.mentor_report;
   const conclusion = result.deterministic_conclusion.conclusion_level;
   const evidence = result.evidence_summary;
   show(byId("result-placeholder"), false);
@@ -228,6 +280,13 @@ function renderSuccess(response) {
   show(byId("result-content"), true);
   setText("result-question", `服务端规范化问题：“${response.normalized_question}”`);
   setText("conclusion-level", CONCLUSION_LABELS[conclusion] || "证据不足");
+  setText("mentor-opening", mentor.opening);
+  renderTextItems("reading-guide", mentor.reading_guide);
+  renderTextItems("reasoning-list", mentor.reasoning);
+  renderActions(mentor.action_plan);
+  renderStringList("caution-list", mentor.cautions);
+  renderStringList("review-list", mentor.review_questions);
+  setText("mentor-boundary", mentor.boundary_note);
   setText("conclusion-code", conclusion);
   setText("engine-source", response.audit.calculation_source);
   setText("knowledge-mode", evidence.knowledge_mode);

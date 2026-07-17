@@ -23,7 +23,10 @@ from .sites_meihua_service import (
     _valid_client_timestamp,
     validate_and_normalize_request_id,
 )
+from .sites_mentor_report_v1 import build_mentor_report
 from .sites_structured_question_v1 import (
+    DecisionGoal,
+    TimeHorizon,
     generate_structured_question,
     parse_structured_fields,
 )
@@ -207,6 +210,12 @@ def process_sites_meihua_v2_request(
             "month_branch": chart.season_context.month_branch,
         },
         "deterministic_conclusion": synthesis.model_dump(mode="json"),
+        "mentor_report": build_mentor_report(
+            chart,
+            synthesis,
+            DecisionGoal(validated["decision_goal"]),
+            TimeHorizon(validated["time_horizon"]),
+        ),
         "evidence_summary": {
             "count": len(chart.evidence),
             "evidence_types": evidence_types,
