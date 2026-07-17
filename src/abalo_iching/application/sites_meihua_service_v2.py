@@ -6,7 +6,7 @@ import hashlib
 import json
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from abalo_iching.interpretation.knowledge import KnowledgeAccessPolicy, select_knowledge
 from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
@@ -158,6 +158,7 @@ def process_sites_meihua_v2_request(
     request_payload: Any,
     *,
     clock: Callable[[], datetime] | None = None,
+    input_provenance: Literal["SYNTHETIC", "REAL"] = "SYNTHETIC",
 ) -> dict[str, Any]:
     """Validate Contract V2 before making exactly one authoritative cast."""
     generated_at = (clock or _now)()
@@ -244,7 +245,7 @@ def process_sites_meihua_v2_request(
             "generated_at": generated_at.isoformat(),
             "client_timestamp": validated["client_timestamp"],
             "client_timestamp_used_for_calculation": False,
-            "synthetic_or_real_input": "SYNTHETIC",
+            "synthetic_or_real_input": input_provenance,
             "request_hash": request_hash,
             "audit_id": _safe_audit_id(validated["request_id"]),
             "question_template_version": validated["question_template_version"],
