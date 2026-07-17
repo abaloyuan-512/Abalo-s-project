@@ -19,6 +19,8 @@ test("server-renders the Guanxiang product", async () => {
   const html = await response.text();
   assert.match(html, /<title>观象 · 在变化之中，看见清晰的方向<\/title>/);
   assert.match(html, /在变化之中/);
+  assert.match(html, /温和的智者/);
+  assert.match(html, /当前为视觉验收版/);
   assert.match(html, /查看卦象与建议/);
   assert.match(html, /PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
