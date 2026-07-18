@@ -1,41 +1,36 @@
-# 观象 V3 设计验收记录
+# 观象成品设计验收
 
-- Source visual truth: `public/design-references/interpretation-selected-two-column.png`
-- Implementation screenshot: `.artifacts/clarity-two-column-final-1440x1024.png`
-- Combined comparison: `.artifacts/comparison-interpretation-final.png`
-- Viewport: 1440 x 1024
-- Compared state: completed question flow, result overview, selected two-column interpretation, and responsive question entry.
+- 视觉基准：`public/design-references/homepage-selected.png`、`question-form-selected.png`、`interpretation-selected-two-column.png`、`evidence-selected-bamboo-bridge.png`
+- 实现截图：`.artifacts/final-redesign/`
+- 并排对照：`.artifacts/final-redesign/comparison-home.png`、`.artifacts/final-redesign/comparison-result.png`
+- 验收视口：桌面 1280 × 720 CSS px；移动端 390 × 844 CSS px
+- 验收流程：填写具体所问 → 古典自定义选项 → 三数取卦 → 结果总览 → 三数成卦 → 本/互/变卦经典原文 → 动爻/体用/旺衰 → 有利与注意事项
 
-## Full-view comparison
+## 视觉结论
 
-The implementation preserves the selected visual direction: warm uncoated paper, open Song-painting composition, brush display type, restrained cinnabar rules, a two-column decision structure, and a riverboat landscape that does not repeat the previous result background. Dynamic copy is longer than the concept mock, so the title uses a smaller responsive scale while retaining the same hierarchy.
+实现保留了选定参考图的宋画留白、淡墨山水、书法大字、克制朱砂线与卷轴式阅读节奏。所有模块共享一幅纵向长卷底图，从首页、观象之法、提问到结果不再出现拼贴式换页。首页和结论页与选定参考并排比较后，主体比例、留白和信息层级一致；实际动态文案更长，因此使用了响应式字号与更宽松的换行。
 
-## Focused comparison
+## 功能与内容结论
 
-- Typography: local brush font loads for titles; body copy keeps a quieter Song-serif treatment. Long answers wrap without collision or truncation.
-- Layout: question, answer, two-column explanation, next action, and boundary note remain in the same reading order as the selected mock.
-- Imagery: final implementation uses the generated text-free riverboat asset and contains no CSS/SVG substitute art or incorrect Bagua graphic.
-- Interaction: structured selects, radio choices, number inputs, consent, submit, result navigation, and restart are functional. The submitted question is reflected in the result but is explicitly excluded from deterministic evidence.
-- Responsiveness: desktop 1440 x 1024 and mobile 390 x 844 were checked; the three-column hanging slips collapse to a readable single column and the textarea remains usable without internal clipping.
-- Accessibility: semantic labels, keyboard-reachable native controls, visible selected states, reduced-motion handling, and meaningful result headings are present.
+- 提问框初始为空，没有预设问题或灰色占位文字。
+- 下拉菜单、进程、所忧和取数使用统一的宣纸与先天八卦视觉，不使用浏览器默认白色下拉框。
+- 结果首屏明确分成“卦象是”和“结论是”，并回显用户所问。
+- 第一、第二、第三数分别解释为上卦、下卦、动爻；本卦、互卦、变卦展示卦名、卦序、经典原文和底本入口。
+- 动爻、体用关系、旺衰分别说明术语含义、本次取值和对本次判断的影响。
+- 末页分为“当下有利”“尤其注意”“眼下可做的一步”，并附版本化经典赠言。
+- 用户自由文本只用于确认所问与呈现结果，不参与确定性排盘，也不被包装为卦象证据。
 
-## Findings and fixes
+## 浏览器发现与修正
 
-1. P1 — the first desktop hero pass wrapped the headline in the middle of “疑问”. Fixed by lowering the responsive maximum display size.
-2. P1 — the result overview initially allowed a long dynamic answer to dominate four lines. Fixed with a tighter responsive scale.
-3. P1 — the selected two-column result title was too large for real-world answer length. Fixed by reducing the maximum from 82 px to 68 px and re-capturing the final comparison.
-4. P2 — mobile question placeholder introduced an internal textarea scrollbar. Fixed by increasing the mobile textarea minimum height.
-5. P2 — select controls relied on implicit label association only. Fixed by adding explicit accessible names.
+1. P1：结果生成后偶尔停留在表单底部。原因是滚动发生在 React 提交结果写入 DOM 之前。已改为在结果渲染完成后的 effect 中定位到结果首屏。
+2. P1：经典原文底本的长 URL 把三栏卡片撑出页面。已改为“查看底本”短链接，并给卡片补上最小宽度约束；最终横向溢出为 0。
+3. P2：数字输入框聚焦时出现浏览器白色微调按钮。已隐藏系统 spinner，保留宣纸风格输入线。
+4. P2：装饰性先天八卦图被重复朗读。已改为空替代文本并标记为装饰元素。
+5. P2：结果区离屏内容依赖动效类时可能暂时不可见。已改为内容默认可见，进入视口时只叠加轻微上浮动画。
 
-No P0, P1, or P2 findings remain after the final comparison pass.
+## 最终验证
 
-## Comparison history
-
-1. Captured desktop homepage and question form at 1440 x 1024.
-2. Completed a real local V3 request through the authoritative Python engine and captured result/interpretation states.
-3. Compared the selected source and implementation together; adjusted dynamic title scaling.
-4. Rebuilt, repeated the complete flow, and captured the final side-by-side comparison.
-
-## Final result
-
-passed
+- 桌面：完整提问和真实本地 V3 排盘成功；结果自动定位正确；三栏经典卡片宽度正常；无横向溢出。
+- 移动端：390 × 844 下首页、提问和结果均无横向溢出；文字、按钮与卡片保持可读。
+- 浏览器控制台：0 条 error / warning。
+- 状态：passed

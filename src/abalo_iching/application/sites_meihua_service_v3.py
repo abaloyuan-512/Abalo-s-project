@@ -78,7 +78,12 @@ def process_sites_meihua_v3_request(
         "client_timestamp": request_payload.get("client_timestamp"),
         "user_acknowledgements": {"deterministic_only": True, "narrative_unverified": True, "structured_question_confirmed": True},
     }
-    response = process_sites_meihua_v2_request(v2_payload, clock=lambda: generated_at, input_provenance=input_provenance)
+    response = process_sites_meihua_v2_request(
+        v2_payload,
+        clock=lambda: generated_at,
+        input_provenance=input_provenance,
+        include_cultural_reading=True,
+    )
     response["contract_version"] = CONTRACT_VERSION_V3
     response["audit"]["contract_version"] = CONTRACT_VERSION_V3
     response["audit"].pop("question_template_version", None)

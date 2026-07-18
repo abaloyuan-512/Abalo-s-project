@@ -13,6 +13,7 @@ from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
 from abalo_iching.meihua import MeihuaInput, cast_meihua
 from abalo_iching.meihua.exceptions import InputValidationError
 
+from .sites_cultural_reading_v1 import build_cultural_reading
 from .sites_meihua_service import (
     INVALID_REQUEST_ID_FALLBACK,
     _gate,
@@ -159,6 +160,7 @@ def process_sites_meihua_v2_request(
     *,
     clock: Callable[[], datetime] | None = None,
     input_provenance: Literal["SYNTHETIC", "REAL"] = "SYNTHETIC",
+    include_cultural_reading: bool = False,
 ) -> dict[str, Any]:
     """Validate Contract V2 before making exactly one authoritative cast."""
     generated_at = (clock or _now)()
@@ -224,6 +226,8 @@ def process_sites_meihua_v2_request(
             "approved_knowledge_items_used": len(knowledge.knowledge_evidence),
         },
     }
+    if include_cultural_reading:
+        result["cultural_reading"] = build_cultural_reading(chart, synthesis, knowledge)
     return {
         "contract_version": CONTRACT_VERSION_V2,
         "request_id": validated["request_id"],
