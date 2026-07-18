@@ -22,6 +22,9 @@ if str(SRC) not in sys.path:
 from abalo_iching.application.sites_meihua_service_v2 import (  # noqa: E402
     process_sites_meihua_v2_request,
 )
+from abalo_iching.application.sites_meihua_service_v3 import (  # noqa: E402
+    process_sites_meihua_v3_request,
+)
 
 MAX_BODY_BYTES = 16 * 1024
 MIN_KEY_LENGTH = 32
@@ -76,7 +79,8 @@ class HostedApiHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         started = time.perf_counter()
-        if self.path.split("?", 1)[0] != "/api/v2/meihua":
+        path = self.path.split("?", 1)[0]
+        if path not in {"/api/v2/meihua", "/api/v3/meihua"}:
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
         if not self._authorized():
@@ -99,7 +103,8 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_json"})
             return
         try:
-            response = process_sites_meihua_v2_request(payload, input_provenance="REAL")
+            processor = process_sites_meihua_v3_request if path == "/api/v3/meihua" else process_sites_meihua_v2_request
+            response = processor(payload, input_provenance="REAL")
         except Exception:  # pragma: no cover - final network boundary
             LOGGER.exception("hosted_engine_unhandled_error")
             self._send_json(HTTPStatus.INTERNAL_SERVER_ERROR, {"status": "engine_unavailable"})

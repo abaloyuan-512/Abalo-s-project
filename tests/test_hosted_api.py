@@ -28,6 +28,27 @@ def valid_request() -> dict[str, object]:
     }
 
 
+def valid_v3_request() -> dict[str, object]:
+    return {
+        "contract_version": "SITES_MEIHUA_API_CONTRACT_V3",
+        "request_id": "hosted-real-request-v3",
+        "question_text": "这次合作，我还应该继续投入吗？",
+        "question_domain": "PROJECT_COOPERATION",
+        "decision_goal": "PLAN_NEXT_STEP",
+        "time_horizon": "NEXT_30_DAYS",
+        "decision_stage": "ALREADY_ACTING",
+        "key_uncertainty": "OTHER_RESPONSE",
+        "numbers": [7, 8, 9],
+        "locale": "zh-CN",
+        "client_timestamp": "2026-07-18T12:00:00+08:00",
+        "user_acknowledgements": {
+            "deterministic_only": True,
+            "narrative_unverified": True,
+            "question_text_not_evidence": True,
+        },
+    }
+
+
 @contextmanager
 def running_server():
     server = hosted_api.create_server("127.0.0.1", 0, ENGINE_KEY)
@@ -85,3 +106,14 @@ def test_authorized_request_returns_real_provenance_and_mentor_report() -> None:
     assert payload["status"] == "SUCCESS"
     assert payload["audit"]["synthetic_or_real_input"] == "REAL"
     assert payload["deterministic_result"]["mentor_report"]["template_version"] == "SITES_MENTOR_REPORT_V1"
+
+
+def test_authorized_v3_request_returns_concrete_question_and_clarity_report() -> None:
+    with running_server() as port:
+        status, _headers, payload = request(port, "POST", "/api/v3/meihua", key=ENGINE_KEY, payload=valid_v3_request())
+    assert status == 200
+    assert payload["status"] == "SUCCESS"
+    assert payload["user_question"] == "这次合作，我还应该继续投入吗？"
+    assert payload["audit"]["synthetic_or_real_input"] == "REAL"
+    assert payload["audit"]["question_text_used_for_calculation"] is False
+    assert payload["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V2"

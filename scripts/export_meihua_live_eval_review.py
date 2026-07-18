@@ -12,7 +12,7 @@ def write_audit_reports(output_dir:Path):
     hits=[]
     pattern=re.compile(r"sk-[A-Za-z0-9_-]{12,}")
     for p in ROOT.rglob("*"):
-        if not p.is_file() or any(x in p.parts for x in (".git",".venv","__pycache__",".pytest_cache")) or p.suffix in {".xlsx",".zip",".pyc"}: continue
+        if not p.is_file() or any(x in p.parts for x in (".git",".venv","node_modules","dist","__pycache__",".pytest_cache")) or p.suffix in {".xlsx",".zip",".pyc"}: continue
         try: text=p.read_text("utf-8")
         except UnicodeDecodeError: continue
         if pattern.search(text): hits.append(p.relative_to(ROOT).as_posix())
