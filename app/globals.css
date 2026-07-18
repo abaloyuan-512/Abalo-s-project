@@ -147,8 +147,7 @@ select:focus, textarea:focus, input:focus { border-color: var(--cinnabar); box-s
 .site-footer { min-height: 100px; padding: 28px clamp(22px,5vw,76px); display: flex; align-items: center; justify-content: space-between; color: var(--mist); border-top: 1px solid var(--rule); font: 400 11px/1.5 var(--sans); }
 .site-footer b { color: var(--ink); font-family: var(--serif); font-size: 16px; font-weight: 500; letter-spacing: .28em; }
 
-[data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .75s ease, transform .75s ease; }
-[data-reveal].is-visible { opacity: 1; transform: none; }
+[data-reveal] { opacity: 1; transform: none; }
 :focus-visible { outline: 2px solid var(--cinnabar); outline-offset: 4px; }
 
 @keyframes seal-breathe { 0%,100% { transform: rotate(-2deg) scale(1); } 50% { transform: rotate(2deg) scale(1.035); } }
