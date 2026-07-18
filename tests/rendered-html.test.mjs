@@ -17,12 +17,12 @@ test("server-renders the Guanxiang product", async () => {
   const response = await app.fetch(new Request("http://localhost/", { headers: { accept: "text/html" } }), env, context);
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /<title>观象 · 在变化之中，看见清晰的方向<\/title>/);
-  assert.match(html, /在变化之中/);
-  assert.match(html, /温和的智者/);
-  assert.match(html, /当前为视觉验收版/);
-  assert.match(html, /查看卦象与建议/);
-  assert.match(html, /PRIVATE PREVIEW/);
+  assert.match(html, /<title>观象 · 把心里的疑问，问得更清楚一点<\/title>/);
+  assert.match(html, /把心里的疑问/);
+  assert.match(html, /写下真正所问/);
+  assert.match(html, /查看方向与行动/);
+  assert.match(html, /确定性排盘 · 私有体验/);
+  assert.doesNotMatch(html, /当前为视觉验收版|PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
 });
 
@@ -32,6 +32,18 @@ test("API fails safely until the Python engine is configured", async () => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ contract_version: "SITES_MEIHUA_API_CONTRACT_V2" }),
+  }), env, context);
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await response.json(), { error: "排盘服务尚未连接，请稍后再试。" });
+});
+
+test("V3 API fails safely until the Python engine is configured", async () => {
+  const app = await worker();
+  const response = await app.fetch(new Request("http://localhost/api/v3/meihua", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contract_version: "SITES_MEIHUA_API_CONTRACT_V3" }),
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
