@@ -20,7 +20,9 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /<title>观象 · 把心里的疑问，问得更清楚一点<\/title>/);
   assert.match(html, /把心里的疑问/);
   assert.match(html, /写下真正所问/);
-  assert.match(html, /查看方向与行动/);
+  assert.match(html, /观卦/);
+  assert.match(html, /问题原文只用于理解与呈现，不参与排盘/);
+  assert.match(html, /卦象给你变化结构，现实给你判断依据/);
   assert.match(html, /确定性排盘 · 私有体验/);
   assert.doesNotMatch(html, /当前为视觉验收版|PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);

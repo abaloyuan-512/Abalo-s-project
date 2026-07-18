@@ -8,7 +8,7 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any, Literal
 
-from .sites_clarity_report_v2 import build_clarity_report
+from .sites_clarity_report_v3 import build_clarity_report
 from .sites_meihua_service import INVALID_REQUEST_ID_FALLBACK, _safe_audit_id, _valid_client_timestamp, validate_and_normalize_request_id
 from .sites_meihua_service_v2 import process_sites_meihua_v2_request
 from .sites_question_context_v1 import CONTEXT_VERSION, normalize_question_text, parse_question_context
@@ -92,5 +92,7 @@ def process_sites_meihua_v3_request(
     response["user_question"] = question_text
     response["normalized_question"] = question_text
     response["question_context_version"] = CONTEXT_VERSION
-    response["deterministic_result"]["clarity_report"] = build_clarity_report(response["deterministic_result"], stage, uncertainty)
+    response["deterministic_result"]["clarity_report"] = build_clarity_report(
+        response["deterministic_result"], domain, goal, horizon, stage, uncertainty
+    )
     return response

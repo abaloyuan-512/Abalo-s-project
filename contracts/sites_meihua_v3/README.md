@@ -6,7 +6,7 @@ the result page but are never passed into `MeihuaInput`, never alter the chart,
 and never become divination evidence.
 
 The deterministic engine remains identical to V2. V3 adds
-`SITES_CLARITY_REPORT_V2`, a rule-based decision aid that leads with a direct
+`SITES_CLARITY_REPORT_V3`, a rule-based, question-aligned decision aid that leads with a direct
 answer, observable continue/pause signals, and one reversible next action.
 
 AI narrative remains `UNVERIFIED`; charging and formal report persistence stay

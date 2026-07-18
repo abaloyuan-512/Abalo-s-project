@@ -116,4 +116,4 @@ def test_authorized_v3_request_returns_concrete_question_and_clarity_report() ->
     assert payload["user_question"] == "这次合作，我还应该继续投入吗？"
     assert payload["audit"]["synthetic_or_real_input"] == "REAL"
     assert payload["audit"]["question_text_used_for_calculation"] is False
-    assert payload["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V2"
+    assert payload["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V3"

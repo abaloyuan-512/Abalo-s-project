@@ -40,7 +40,7 @@
       "additionalProperties": false,
       "required": ["template_version", "answer", "what_it_means", "priority", "continue_signals", "pause_signals", "next_action", "evidence_path", "boundary_note"],
       "properties": {
-        "template_version": {"const": "SITES_CLARITY_REPORT_V2"},
+        "template_version": {"const": "SITES_CLARITY_REPORT_V3"},
         "answer": {"type": "string", "minLength": 1},
         "what_it_means": {"type": "string", "minLength": 1},
         "priority": {"type": "string", "minLength": 1},

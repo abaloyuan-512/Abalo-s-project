@@ -48,7 +48,7 @@ def test_v3_echoes_question_but_marks_it_non_calculative():
     assert response["status"] == "SUCCESS"
     assert response["user_question"] == "这次合作，我还应该继续投入吗？"
     assert response["audit"]["question_text_used_for_calculation"] is False
-    assert response["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V2"
+    assert response["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V3"
 
 
 def test_changing_question_text_does_not_change_deterministic_chart():
@@ -61,12 +61,32 @@ def test_changing_question_text_does_not_change_deterministic_chart():
 
 def test_clarity_report_leads_with_direction_signals_and_reversible_action():
     report = process()["deterministic_result"]["clarity_report"]
-    assert report["answer"]
+    assert "项目或合作" in report["answer"]
     assert report["what_it_means"]
     assert len(report["continue_signals"]) == 3
     assert len(report["pause_signals"]) == 3
-    assert "实际回复" in report["next_action"]
+    assert "可验收节点" in report["next_action"]
     assert "不参与排盘" in report["boundary_note"]
+
+
+def test_each_domain_uses_its_own_reality_language():
+    cases = [
+        ("WORK_CAREER", "PLAN_NEXT_STEP", "工作或职业", "职责与授权"),
+        ("PROJECT_COOPERATION", "PLAN_NEXT_STEP", "项目或合作", "双方分工"),
+        ("RELATIONSHIP_COMMUNICATION", "PLAN_NEXT_STEP", "关系或沟通", "稳定而主动"),
+        ("PERSONAL_PLANNING", "PLAN_NEXT_STEP", "个人计划", "时间、精力与预算"),
+    ]
+    for domain, goal, answer_keyword, signal_keyword in cases:
+        report = process(request(question_domain=domain, decision_goal=goal))["deterministic_result"]["clarity_report"]
+        assert answer_keyword in report["answer"]
+        assert any(signal_keyword in signal for signal in report["continue_signals"])
+
+
+def test_question_text_still_does_not_enter_clarity_evidence():
+    sentinel = "这件具体的事只用于显示，不得成为卦象证据"
+    report = process(request(question_text=sentinel))["deterministic_result"]["clarity_report"]
+    assert sentinel not in json.dumps(report, ensure_ascii=False)
+    assert "问题原文只用于确认所问和呈现结果" in report["boundary_note"]
 
 
 def test_v3_rejects_invalid_free_text_without_echoing_it():
