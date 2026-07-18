@@ -1,5 +1,8 @@
 const MAX_REQUEST_BYTES = 16 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
+// Render's free instances can need 50 seconds or more to wake after idling.
+// Keep the proxy alive long enough for that first request to complete.
+const UPSTREAM_TIMEOUT_MS = 90_000;
 
 function safeJson(body: unknown, status: number): Response {
   return Response.json(body, {
@@ -58,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
       },
       body,
       cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
     const responseText = await upstream.text();
     if (new TextEncoder().encode(responseText).byteLength > MAX_RESPONSE_BYTES) {
