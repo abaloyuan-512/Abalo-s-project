@@ -15,7 +15,42 @@ type ClarityReport = {
   evidence_path: EvidenceItem[];
   boundary_note: string;
 };
+type NumberPathItem = {
+  input_number: number;
+  role: string;
+  resolved_number: number;
+  result_name: string;
+  result_symbol: string;
+  explanation: string;
+};
+type CanonicalHexagramItem = {
+  role: string;
+  king_wen_number: number;
+  name: string;
+  symbol: string;
+  canonical_text: string;
+  source_name: string;
+  source_reference: string;
+  reading_role: string;
+};
+type CulturalReading = {
+  template_version: string;
+  number_path: NumberPathItem[];
+  hexagrams: CanonicalHexagramItem[];
+  moving_line: {
+    position: number;
+    line_name: string;
+    canonical_text: string;
+    source_name: string;
+    source_reference: string;
+    stage: string;
+  };
+  terms: { title: string; current_value: string; meaning: string; current_effect: string }[];
+  classic_counsel: { quote: string; source: string };
+  knowledge_notice: string | null;
+};
 type ProductResult = {
+  input_numbers: number[];
   base_hexagram: Hexagram;
   mutual_hexagram: Hexagram;
   changed_hexagram: Hexagram;
@@ -24,6 +59,7 @@ type ProductResult = {
   seasonal_strength: { body: string; solar_term: string; month_branch: string };
   deterministic_conclusion: { conclusion_level: string };
   clarity_report: ClarityReport;
+  cultural_reading?: CulturalReading;
 };
 type StructuredIntake = {
   question_domain: string;
@@ -63,96 +99,135 @@ const GOALS_BY_DOMAIN: Record<string, (keyof typeof GOALS)[]> = {
 const HORIZONS = { CURRENT: "当前阶段", NEXT_30_DAYS: "未来三十天", NEXT_QUARTER: "未来一个季度", NEXT_6_MONTHS: "未来六个月" } as const;
 const STAGES = { EXPLORING: "刚开始了解", PREPARING: "准备行动", ALREADY_ACTING: "正在推进", WAITING_FEEDBACK: "等待回应" } as const;
 const UNCERTAINTIES = { CONDITIONS: "还缺哪些条件", OTHER_RESPONSE: "对方是否回应", OWN_COMMITMENT: "自己投入多少", TIMING: "现在是否合适" } as const;
-const RELATIONS: Record<string, string> = { USE_GENERATES_BODY: "用生体", BODY_CONTROLS_USE: "体克用", SAME_ELEMENT: "体用比和", BODY_GENERATES_USE: "体生用", USE_CONTROLS_BODY: "用克体" };
-const STRENGTHS: Record<string, string> = { PROSPEROUS: "旺", SUPPORTED: "相", RESTING: "休", CONFINED: "囚", DEAD: "死" };
-const LINE_NAMES = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
 
 function VerticalBrand() {
   return <div className="vertical-brand" aria-label="观象"><b>观</b><b>象</b><i aria-hidden="true">观</i></div>;
+}
+
+function BaguaMark({ className = "", decorative = true }: { className?: string; decorative?: boolean }) {
+  return <img
+    className={`bagua-mark ${className}`}
+    src="/fuxi-bagua-taiji.png"
+    alt={decorative ? "" : "伏羲先天八卦图"}
+    aria-hidden={decorative ? "true" : undefined}
+  />;
+}
+
+function ChoiceMenu({ label, value, options, disabled = false, onChange }: {
+  label: string;
+  value: string;
+  options: Record<string, string>;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) {
+  const selected = options[value] ?? "请选择";
+  return <div className={`choice-field ${disabled ? "is-disabled" : ""}`}>
+    <span>{label}</span>
+    <details className="choice-menu">
+      <summary aria-label={`${label}：${selected}`} aria-disabled={disabled} onClick={(event) => { if (disabled) event.preventDefault(); }}>
+        <BaguaMark />
+        <b>{selected}</b>
+      </summary>
+      <div role="listbox" aria-label={label}>
+        {Object.entries(options).map(([key, text]) => <button
+          key={key}
+          type="button"
+          role="option"
+          aria-selected={value === key}
+          onClick={(event) => {
+            onChange(key);
+            event.currentTarget.closest("details")?.removeAttribute("open");
+          }}
+        ><BaguaMark />{text}</button>)}
+      </div>
+    </details>
+  </div>;
 }
 
 function OptionList({ name, value, options, onChange }: { name: string; value: string; options: Record<string, string>; onChange: (value: string) => void }) {
   return <div className="option-list" role="radiogroup" aria-label={name}>{Object.entries(options).map(([key, label]) => (
     <label key={key} className={value === key ? "selected" : ""}>
       <input type="radio" name={name} value={key} checked={value === key} onChange={() => onChange(key)} />
-      <span aria-hidden="true" />{label}
+      <BaguaMark />
+      <span>{label}</span>
     </label>
   ))}</div>;
-}
-
-function HexagramNode({ label, value, moving }: { label: string; value: Hexagram; moving?: number }) {
-  return <article className="hexagram-node">
-    <div><p>{label}</p><h4>{value.name}</h4><small>第 {value.king_wen_number} 卦{moving ? ` · ${LINE_NAMES[moving - 1]}动` : ""}</small></div>
-    <strong aria-label={`${value.name}卦象`}>{value.symbol}</strong>
-  </article>;
 }
 
 function ResultView({ response, onRestart }: { response: ApiResponse; onRestart: () => void }) {
   const result = response.deterministic_result;
   if (!result) return null;
   const report = result.clarity_report;
+  const cultural = result.cultural_reading;
   const question = response.user_question ?? "你所问之事";
   return <section id="result" className="result-shell" aria-labelledby="result-title">
-    <section className="result-overview art-panel" data-reveal>
+    <section className="result-overview scroll-section" data-reveal>
       <VerticalBrand />
-      <div className="result-question">所问：{question}</div>
-      <div className="result-answer">
-        <p className="eyebrow">先说方向</p>
-        <h2 id="result-title" tabIndex={-1}>{report.answer}</h2>
+      <p className="result-question">所问：{question}</p>
+      <div className="result-verdict">
+        <p className="eyebrow">卦象是</p>
+        <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>第 {result.base_hexagram.king_wen_number} 卦</span><h2>{result.base_hexagram.name}</h2></div>
+        <p className="eyebrow conclusion-label">结论是</p>
+        <h3 id="result-title" tabIndex={-1}>{report.answer}</h3>
       </div>
       <aside className="result-aside">
-        <section><h3>现实中看什么</h3><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></section>
-        <section><h3>此刻做什么</h3><p>{report.next_action}</p></section>
-        <a href="#clarity">继续往下看</a>
+        <span>此刻最重要</span><b>{report.priority}</b><p>{report.next_action}</p><a href="#reading">细看卦从何来</a>
       </aside>
     </section>
 
-    <section id="clarity" className="clarity-scroll art-panel" data-reveal>
+    <section id="reading" className="reading-scroll scroll-section" data-reveal>
       <VerticalBrand />
-      <p className="clarity-question">你问的是：{question}</p>
-      <h2>{report.answer}</h2>
-      <div className="clarity-columns">
-        <section>
-          <h3>卦象给出的方向</h3>
-          <p>{report.what_it_means}</p>
-          <small>此刻最重要：{report.priority}</small>
-        </section>
-        <section>
-          <h3>现实中要验证的事</h3>
-          <ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul>
-        </section>
+      <header className="section-heading"><p className="eyebrow">数有所指，卦有所成</p><h2>三数如何成卦</h2><p>第一数定上卦，第二数定下卦，第三数定动爻。上下相合成本卦，中爻相参成互卦，动爻变化成变卦。</p></header>
+      {cultural ? <>
+        <div className="number-path">{cultural.number_path.map((item, index) => <article key={item.role}>
+          <span>{["壹", "贰", "叁"][index]}</span><b>{item.input_number}</b><i aria-hidden="true">→</i><strong>{item.role} · {item.result_name}</strong><small>{item.explanation}</small>
+        </article>)}</div>
+        <div className="canonical-grid">{cultural.hexagrams.map((item) => <article key={item.role} className="canonical-card">
+          <header><span>{item.role}</span><strong>{item.symbol}</strong><div><small>第 {item.king_wen_number} 卦</small><h3>{item.name}</h3></div></header>
+          <p className="reading-role">{item.reading_role}</p>
+          <blockquote><b>《易》曰</b>{item.canonical_text}</blockquote>
+          <small className="source">{item.source_name} · <a href={item.source_reference} target="_blank" rel="noreferrer">查看底本</a></small>
+        </article>)}</div>
+        <article className="moving-line-reading">
+          <div><span>本次动爻</span><h3>{cultural.moving_line.line_name}</h3><small>{cultural.moving_line.stage}</small></div>
+          <blockquote>{cultural.moving_line.canonical_text}</blockquote>
+          <p>这条爻辞是本次变化最直接的经典依据；它与本卦、体用和旺衰共同构成判断，不单独等同于现实结论。</p>
+        </article>
+        {cultural.knowledge_notice && <p className="knowledge-notice">校勘说明：{cultural.knowledge_notice}</p>}
+      </> : <p className="compatibility-note">经典原文正在随排盘引擎同步，请稍后重新观卦。</p>}
+      <div className="detailed-conclusion">
+        <span>回到你所问之事</span><h3>{report.what_it_means}</h3>
+        <ol>{report.evidence_path.map((item) => <li key={item.title}><b>{item.title}</b><p>{item.text}</p></li>)}</ol>
       </div>
-      <div className="action-line"><span>你的下一步</span><p>{report.next_action}</p></div>
-      <details className="pause-line"><summary>什么情况下应该先停一停</summary><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></details>
-      <p className="clarity-boundary">现实情况不是卦象证据，而是你做决定时必须核验的事实。</p>
     </section>
 
-    <details className="evidence-scroll art-panel" data-reveal>
-      <summary><span>卦象依据</span><small>展开查看为什么得到这个方向</small></summary>
-      <div className="evidence-inner">
-        <VerticalBrand />
-        <header><h2>卦象依据</h2><p>为什么得到这个方向</p></header>
-        <div className="evidence-route">
-          <HexagramNode label="本卦" value={result.base_hexagram} moving={result.moving_line} />
-          <HexagramNode label="互卦" value={result.mutual_hexagram} />
-          <HexagramNode label="变卦" value={result.changed_hexagram} />
-        </div>
-        <aside className="evidence-facts">
-          <div><span>动爻</span><b>{LINE_NAMES[result.moving_line - 1]}</b></div>
-          <div><span>体用关系</span><b>{RELATIONS[result.body_use.initial_relation] ?? result.body_use.initial_relation}</b></div>
-          <div><span>旺衰</span><b>{STRENGTHS[result.seasonal_strength.body] ?? result.seasonal_strength.body}</b></div>
-        </aside>
-        <ol className="evidence-notes">{report.evidence_path.map((item) => <li key={item.title}><h3>{item.title}</h3><p>{item.text}</p></li>)}</ol>
-        <p className="evidence-boundary">{report.boundary_note}</p>
+    <section className="evidence-scroll scroll-section" data-reveal>
+      <VerticalBrand />
+      <header className="section-heading"><p className="eyebrow">读懂卦象，不只看见符号</p><h2>动爻、体用与旺衰</h2><p>下面分别说明这些词是什么意思，以及它们在本次排盘中如何影响判断。</p></header>
+      <div className="hexagram-route">
+        {[{ label: "本卦", value: result.base_hexagram }, { label: "互卦", value: result.mutual_hexagram }, { label: "变卦", value: result.changed_hexagram }].map(({ label, value }) => <article key={label}><span>{label}</span><strong>{value.symbol}</strong><h3>{value.name}</h3><small>第 {value.king_wen_number} 卦</small></article>)}
       </div>
-    </details>
+      <div className="term-grid">{cultural?.terms.map((term) => <article key={term.title}><span>{term.title}</span><h3>{term.current_value}</h3><p>{term.meaning}</p><strong>本次影响</strong><p>{term.current_effect}</p></article>)}</div>
+      <p className="evidence-boundary">{report.boundary_note}</p>
+    </section>
 
-    <footer className="result-footer"><p>以象观机，以事验证。</p><button type="button" onClick={onRestart}>再问一事</button></footer>
+    <section className="final-guidance scroll-section" data-reveal>
+      <VerticalBrand />
+      <p className="final-question">你问的是：{question}</p>
+      <header className="section-heading"><p className="eyebrow">看清之后，回到当下</p><h2>可借之力，与当慎之处</h2></header>
+      <div className="guidance-columns">
+        <article><span>当下有利</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article>
+        <article><span>尤其注意</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article>
+      </div>
+      <div className="next-action"><span>眼下可做的一步</span><p>{report.next_action}</p></div>
+      {cultural && <blockquote className="classic-counsel"><p>{cultural.classic_counsel.quote}</p><cite>{cultural.classic_counsel.source}</cite></blockquote>}
+      <button type="button" className="restart-button" onClick={onRestart}>再问一事</button>
+    </section>
   </section>;
 }
 
 function CastingLoader() {
-  return <div className="casting" role="status"><div className="ink-ripples" aria-hidden="true"><i /><i /><i /></div><p><b>正在观象</b><span>排定本卦 · 察看变化 · 整理方向</span></p></div>;
+  return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 察看变化 · 整理方向</span></p></div>;
 }
 
 export function GuanxiangApp() {
@@ -172,9 +247,18 @@ export function GuanxiangApp() {
   useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
     if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { elements.forEach((item) => item.classList.add("is-visible")); return; }
-    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: .1, rootMargin: "0px 0px -4%" });
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: .08, rootMargin: "0px 0px -3%" });
     elements.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
+  }, [response]);
+
+  useEffect(() => {
+    if (!response) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("result-title")?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [response]);
 
   function restart() {
@@ -197,7 +281,6 @@ export function GuanxiangApp() {
       const payload = await request.json() as ApiResponse;
       if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能生成结果，请稍后重试。");
       setResponse(payload);
-      window.setTimeout(() => { document.getElementById("result")?.scrollIntoView({ behavior: "smooth" }); document.getElementById("result-title")?.focus({ preventScroll: true }); }, 0);
     } catch (caught) { setError(caught instanceof Error ? caught.message : "暂时无法连接排盘服务，请稍后再试。"); }
     finally { setLoading(false); }
   }
@@ -208,55 +291,57 @@ export function GuanxiangApp() {
       <nav><a href="#method">如何观</a><a href="#inquiry">开始问</a></nav>
       <small>确定性排盘 · 私有体验</small>
     </header>
-    <main id="top">
-      <section className="hero art-panel" data-reveal>
+    <main id="top" className="scroll-canvas">
+      <section className="hero scroll-section" data-reveal>
         <VerticalBrand />
         <p className="hero-motto">心有所问，静观其象。</p>
         <div className="hero-copy">
-          <p className="eyebrow">观乎天文，以察时变 · 观乎人文，以化成天下</p>
-          <h1>把心里的疑问，<br />问得更清楚一点。</h1>
-          <p>不急着预言结局。先把问题说清，再从确定性的卦象结构里，看方向、看变化，也看现实中该验证什么。</p>
-          <a className="seal-button" href="#inquiry">开始问一件具体的事</a>
+          <p className="eyebrow">《周易·系辞上》</p>
+          <h1>寂然不动，<br />感而遂通天下之故。</h1>
+          <p>先让心绪静下来，再把真正想问的事写清楚。观象不替你决定，而是把卦象的结构、变化与现实中该验证的方向，一层层展开。</p>
+          <a className="seal-button" href="#inquiry"><BaguaMark /><span>遇事不决，可问春风</span></a>
         </div>
       </section>
 
-      <section id="method" className="method" data-reveal>
-        <p className="eyebrow">观象之法</p>
-        <h2>不问宿命，<br />只辨此刻的局势。</h2>
-        <div><p>卦象给你变化结构，现实给你判断依据。</p><ol><li><span>一</span>写下真正所问</li><li><span>二</span>依规则完成排盘</li><li><span>三</span>用行动验证方向</li></ol></div>
+      <section id="method" className="method scroll-section" data-reveal>
+        <VerticalBrand />
+        <div className="method-quote"><p className="eyebrow">观象之法</p><h2>在天成象，<br />在地成形，变化见矣。</h2><cite>《周易·系辞上》</cite></div>
+        <div className="method-explainer"><h3>何为观象</h3><p>观象，是由可见之形察其关系，由变化之中辨其趋向。它不是一句含混的预言，而是一条从所问、取数、成卦到现实验证的观察路径。</p>
+          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>取数</b><p>凭当下所感，取三个整数。</p></li><li><span>叁</span><b>成卦</b><p>程序依冻结规则排定本、互、变卦。</p></li><li><span>肆</span><b>验事</b><p>把方向放回现实，以行动和反馈复核。</p></li></ol>
+        </div>
       </section>
 
-      <section id="inquiry" className="inquiry art-panel" data-reveal>
+      <section id="inquiry" className="inquiry scroll-section" data-reveal>
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
           <header>
             <p className="eyebrow">所问</p>
-            <textarea aria-label="你真正想问的问题" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} placeholder="这次合作，我还应该继续投入吗？" />
+            <textarea aria-label="你真正想问的问题" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} />
             <small>{question.trim().length} / 160 · 问题原文只用于理解与呈现，不参与排盘</small>
           </header>
 
           <div className="context-line">
-            <label><span>事情属于</span><select aria-label="事情属于" value={domain} onChange={(event) => { setDomain(event.target.value); setGoal(""); }}><option value="">请选择</option>{Object.entries(DOMAINS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-            <label><span>最想看清</span><select aria-label="最想看清" value={goal} disabled={!domain} onChange={(event) => setGoal(event.target.value)}><option value="">请选择</option>{allowedGoals.map((key) => <option key={key} value={key}>{GOALS[key]}</option>)}</select></label>
-            <label><span>观察范围</span><select aria-label="观察范围" value={horizon} onChange={(event) => setHorizon(event.target.value)}><option value="">请选择</option>{Object.entries(HORIZONS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
+            <ChoiceMenu label="事情属于" value={domain} options={DOMAINS} onChange={(value) => { setDomain(value); setGoal(""); }} />
+            <ChoiceMenu label="最想看清" value={goal} options={Object.fromEntries(allowedGoals.map((key) => [key, GOALS[key]]))} disabled={!domain} onChange={setGoal} />
+            <ChoiceMenu label="观察范围" value={horizon} options={HORIZONS} onChange={setHorizon} />
           </div>
 
           <div className="hanging-slips">
             <fieldset><legend>进程</legend><OptionList name="进程" value={stage} options={STAGES} onChange={setStage} /></fieldset>
             <fieldset><legend>所忧</legend><OptionList name="所忧" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></fieldset>
-            <fieldset className="numbers-slip"><legend>取数</legend>{numbers.map((value, index) => <label key={index}><span>{["一", "二", "三"][index]}</span><input aria-label={`第${index + 1}个数字`} type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} placeholder="—" /></label>)}</fieldset>
+            <fieldset className="numbers-slip"><legend>取数</legend>{numbers.map((value, index) => <label key={index}><span>{["壹", "贰", "叁"][index]}</span><input aria-label={`第${index + 1}个数字`} type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</fieldset>
           </div>
 
           <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：结果是思考参考，不是确定事实；问题原文不参与排盘，重要决定仍以现实反馈为准。</span></label>
           {error && <p className="error" role="alert">{error}</p>}
-          <button className="cast-button" disabled={loading}>{loading ? "正在观象" : "观卦"}</button>
+          <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在观象" : "观卦"}</button>
           {loading && <CastingLoader />}
         </form>
       </section>
 
       {response && <ResultView response={response} onRestart={restart} />}
-      <aside className="version-note">观象当前不收费、不保存你的问题，也不把卦象包装成必然结论。解释来自版本化规则与结构化模板。</aside>
+      <aside className="version-note">观象当前不收费、不保存你的问题，也不把卦象包装成必然结论。解释来自版本化规则、经典原文与结构化模板。</aside>
     </main>
-    <footer className="site-footer"><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span></footer>
+    <footer className="site-footer"><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><a href="https://commons.wikimedia.org/wiki/File:Bagua-x2di.svg">先天八卦图来源</a></footer>
   </>;
 }
