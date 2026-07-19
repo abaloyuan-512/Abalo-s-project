@@ -74,17 +74,33 @@ _PRIORITIES: dict[str, str] = {
 }
 
 _CONTINUE_SIGNALS: dict[QuestionDomain, tuple[str, str, str]] = {
-    QuestionDomain.WORK_CAREER: ("职责与授权说得清楚", "关键资源或支持已经落实", "评价标准稳定且可核验"),
-    QuestionDomain.PROJECT_COOPERATION: ("双方分工明确到人", "承诺的资源已经到位", "阶段节点按约兑现"),
-    QuestionDomain.RELATIONSHIP_COMMUNICATION: ("对方有稳定而主动的回应", "你的边界被理解并尊重", "说法与实际行动保持一致"),
-    QuestionDomain.PERSONAL_PLANNING: ("时间、精力与预算可以承受", "最小行动已经完成", "复盘后目标比之前更清楚"),
+    QuestionDomain.WORK_CAREER: ("你的职责与授权范围，以及需要承担的结果，都已经说清楚。", "完成工作所需的人力、时间、预算或上级支持已经实际到位。", "评价标准在行动前已经明确，并且可以用事实核对。"),
+    QuestionDomain.PROJECT_COOPERATION: ("双方分工已经明确到具体负责人和可验收的交付结果。", "对方承诺的人力、预算、信息或渠道已经实际到位。", "约定的阶段节点能够按时完成，并且结果可以验收。"),
+    QuestionDomain.RELATIONSHIP_COMMUNICATION: ("对方有稳定而主动的回应，而不是只在你推动时出现。", "你表达的需要和边界被听见，也在后续行动中得到尊重。", "双方说过的话能够落实为持续而一致的行动。"),
+    QuestionDomain.PERSONAL_PLANNING: ("现有时间、精力与预算都在你能长期承受的范围内。", "你已经完成一个成本较低、可以回退的第一步，并得到真实反馈。", "复盘后，目标、优先级和下一步比开始时更清楚。"),
 }
 
 _PAUSE_SIGNALS: dict[QuestionDomain, tuple[str, str, str]] = {
-    QuestionDomain.WORK_CAREER: ("责任增加但授权和资源没有增加", "评价标准反复变化", "持续投入却没有明确反馈"),
-    QuestionDomain.PROJECT_COOPERATION: ("责任仍然模糊", "只有你一方持续加码", "阶段节点连续没有兑现"),
-    QuestionDomain.RELATIONSHIP_COMMUNICATION: ("关系长期只靠你维持", "明确边界反复被越过", "承诺始终没有对应行动"),
-    QuestionDomain.PERSONAL_PLANNING: ("关键依赖条件仍不清楚", "实际成本已经越过保留线", "重复投入却没有带回新信息"),
+    QuestionDomain.WORK_CAREER: ("责任不断增加，但对应的权限、人力或时间没有同步增加。", "评价标准在推进过程中反复改变，让你无法判断怎样才算完成。", "你持续投入，却迟迟得不到明确反馈、资源承诺或下一步安排。"),
+    QuestionDomain.PROJECT_COOPERATION: ("谁负责、交付什么、何时完成仍然没有明确约定。", "只有你一方不断增加时间、资金或资源，对方没有对等行动。", "已经约定的节点连续落空，也没有新的可执行补救安排。"),
+    QuestionDomain.RELATIONSHIP_COMMUNICATION: ("这段关系长期只靠你联系、解释或维持，对方很少主动回应。", "你已经说清的边界被反复越过，而且没有看到对方调整。", "对方多次作出承诺，却始终没有相应行动。"),
+    QuestionDomain.PERSONAL_PLANNING: ("计划启动所需的前提还没确认，例如时间、预算、必要资源或他人配合。", "实际投入已经超过你事先设定的时间、精力或预算上限。", "你反复投入相同的努力，却没有获得新的事实或反馈来修正判断。"),
+}
+
+_PLAIN_RELATION_EFFECTS: dict[str, str] = {
+    "USE_GENERATES_BODY": "外部条件正在给你提供支持，但要以已经出现的资源、回应或行动为准。",
+    "BODY_CONTROLS_USE": "你仍有一定主动权，可以调整节奏、投入或边界；这份主动权需要现实能力和资源来兑现。",
+    "SAME_ELEMENT": "你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+    "BODY_GENERATES_USE": "你正在持续向这件事投入，需要确认付出是否得到相称回应，避免长期单方面支撑。",
+    "USE_CONTROLS_BODY": "外部条件对你形成较强约束，宜先找出压力来源，并保护时间、资源和可承受边界。",
+}
+
+_PLAIN_STRENGTH_EFFECTS: dict[str, str] = {
+    "PROSPEROUS": "当前可动用的力量较充足，更有余力承接任务和推动变化；仍需把优势落实成行动。",
+    "SUPPORTED": "当前能得到一定助力，具备承接和调整空间；推进前仍要确认关键资源是否真实到位。",
+    "RESTING": "当前力量较平稳，但余量有限；适合保留调整空间，用新反馈决定是否增加投入。",
+    "CONFINED": "当前可动用的力量受到限制；推进更依赖外部支持、清楚节奏和明确边界。",
+    "DEAD": "当前助力很弱，单靠意愿容易造成消耗；宜先降低不可逆成本，补足资源后再判断。",
 }
 
 _STAGE_PREFIX: dict[DecisionStage, str] = {
@@ -104,7 +120,7 @@ _NEXT_ACTIONS: dict[QuestionDomain, dict[KeyUncertainty, str]] = {
     QuestionDomain.PROJECT_COOPERATION: {
         KeyUncertainty.CONDITIONS: "写下继续合作所需的三项最低条件，先验证成本最低、最关键的一项。",
         KeyUncertainty.OTHER_RESPONSE: "请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。",
-        KeyUncertainty.OWN_COMMITMENT: "列出已经投入的时间、精力与金钱，并先冻结超过保留线的新承诺。",
+        KeyUncertainty.OWN_COMMITMENT: "列出已经投入的时间、精力与金钱，并先暂停超过保留线的新承诺。",
         KeyUncertainty.TIMING: "把下一笔投入拆成可撤回的一小步，完成复盘后再决定是否扩大。",
     },
     QuestionDomain.RELATIONSHIP_COMMUNICATION: {
@@ -141,12 +157,12 @@ def build_clarity_report(
     conclusion = deterministic_result["deterministic_conclusion"]
     level = conclusion["conclusion_level"]
     topic = _TOPICS[domain]
-    mentor = deterministic_result["mentor_report"]
-    reasoning = mentor["reasoning"]
+    body_use = deterministic_result["body_use"]
+    body_strength = deterministic_result["seasonal_strength"]["body"]
     evidence_path = [
-        {"title": "起始关系", "text": reasoning[0]["text"]},
-        {"title": "变化方向", "text": reasoning[1]["text"]},
-        {"title": "承接能力", "text": reasoning[-1]["text"]},
+        {"title": "起始关系", "text": f"事情开始时，{_PLAIN_RELATION_EFFECTS[body_use['initial_relation']]}"},
+        {"title": "变化方向", "text": f"变化发生后，{_PLAIN_RELATION_EFFECTS[body_use['changed_relation']]}"},
+        {"title": "承接能力", "text": _PLAIN_STRENGTH_EFFECTS[body_strength]},
     ]
     return {
         "template_version": CLARITY_REPORT_VERSION,
@@ -157,5 +173,5 @@ def build_clarity_report(
         "pause_signals": list(_PAUSE_SIGNALS[domain]),
         "next_action": f"{_STAGE_PREFIX[stage]}{_NEXT_ACTIONS[domain][uncertainty]}{_HORIZON_SUFFIX[horizon]}",
         "evidence_path": evidence_path,
-        "boundary_note": "卦象依据只来自确定性排盘与版本化规则。结构化处境只用于选择表达与现实核验项；问题原文只用于确认所问和呈现结果，绝不参与排盘，也不被伪装成卦象证据。",
+        "boundary_note": "卦象依据只来自既定的排盘规则。你选择的现实处境只用于组织说明与核验方向；问题原文只用于确认所问和呈现结果，不参与排盘，也不会被当作卦象证据。",
     }

@@ -89,6 +89,24 @@ def test_question_text_still_does_not_enter_clarity_evidence():
     assert "问题原文只用于确认所问和呈现结果" in report["boundary_note"]
 
 
+def test_clarity_evidence_uses_plain_language_instead_of_body_use_jargon():
+    report = process()["deterministic_result"]["clarity_report"]
+    evidence_text = json.dumps(report["evidence_path"], ensure_ascii=False)
+    for jargon in ["体方", "用方", "议题一方", "规则强度"]:
+        assert jargon not in evidence_text
+    assert any(plain_term in evidence_text for plain_term in ["外部条件", "主动权", "同频", "持续投入"])
+
+
+def test_personal_plan_signals_name_the_missing_conditions_and_cost_limits():
+    report = process(request(
+        question_domain="PERSONAL_PLANNING",
+        decision_goal="PLAN_NEXT_STEP",
+    ))["deterministic_result"]["clarity_report"]
+    pause_text = "".join(report["pause_signals"])
+    assert "时间、预算、必要资源或他人配合" in pause_text
+    assert "时间、精力或预算上限" in pause_text
+
+
 def test_v3_rejects_invalid_free_text_without_echoing_it():
     sentinel = "X" * 161
     response = process(request(question_text=sentinel))

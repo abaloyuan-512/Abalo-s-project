@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from abalo_iching.application.sites_cultural_reading_v1 import _literal_judgment_note
 from abalo_iching.application.sites_meihua_service_v2 import process_sites_meihua_v2_request
 
 
@@ -29,7 +30,7 @@ def _response() -> dict[str, object]:
     )
 
 
-def test_number_path_explains_frozen_three_number_roles() -> None:
+def test_number_path_explains_three_number_casting_roles_in_user_language() -> None:
     response = _response()
     reading = response["deterministic_result"]["cultural_reading"]
     assert reading["template_version"] == "SITES_CULTURAL_READING_V1"
@@ -38,17 +39,31 @@ def test_number_path_explains_frozen_three_number_roles() -> None:
         (14, "下卦", "坎"),
         (15, "动爻", "六三"),
     ]
+    assert all("三数起卦法" in item["explanation"] for item in reading["number_path"])
+    assert all("冻结规则" not in item["explanation"] for item in reading["number_path"])
 
 
 def test_canonical_texts_and_plain_language_terms_are_separated() -> None:
     reading = _response()["deterministic_result"]["cultural_reading"]
     assert [item["role"] for item in reading["hexagrams"]] == ["本卦", "互卦", "变卦"]
     assert all(item["canonical_text"] and item["source_reference"] for item in reading["hexagrams"])
+    assert all(item["plain_note"].startswith("字义小注：") for item in reading["hexagrams"])
     assert reading["moving_line"]["canonical_text"]
     assert [item["title"] for item in reading["terms"]] == ["动爻", "体用关系", "旺衰"]
-    assert "具体日期" in reading["terms"][0]["current_effect"]
+    assert "内部临界" in reading["terms"][0]["current_effect"]
+    assert "具体日期" not in reading["terms"][0]["current_effect"]
+    assert "规则阶段" not in reading["terms"][0]["current_effect"]
+    assert "议题一方" not in str(reading["terms"])
+    assert "体方" not in str(reading["terms"])
 
 
 def test_classic_counsel_is_versioned_exact_quote_not_generated_copy() -> None:
     counsel = _response()["deterministic_result"]["cultural_reading"]["classic_counsel"]
     assert counsel == {"quote": "穷则变，变则通，通则久。", "source": "《周易·系辞下》"}
+
+
+def test_literal_note_explains_tong_ren_judgment_without_applying_it_to_the_question() -> None:
+    note = _literal_judgment_note("亨。利涉大川，利君子貞。")
+    assert "亨：通达" in note
+    assert "利涉大川：适合渡过大河" in note
+    assert "利君子貞：有利于君子守正而行" in note
