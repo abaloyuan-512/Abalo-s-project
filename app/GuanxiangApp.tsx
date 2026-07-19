@@ -159,8 +159,8 @@ function VerticalBrand() {
 function BaguaMark({ className = "", decorative = true }: { className?: string; decorative?: boolean }) {
   return <img
     className={`bagua-mark ${className}`}
-    src="/fuxi-bagua-taiji.png"
-    alt={decorative ? "" : "完整八卦与太极图"}
+    src="/fuxi-bagua-taiji.svg"
+    alt={decorative ? "" : "伏羲先天太极八卦图"}
     aria-hidden={decorative ? "true" : undefined}
   />;
 }
@@ -497,7 +497,7 @@ export function GuanxiangApp() {
           <h1>寂然不动，<br />感而遂通天下之故。</h1>
           <p className="hero-value">用三分钟，把一件拿不准的事理清方向，也看清下一步该留意什么。</p>
           <p>观象不替你决定，也不预先写好结果。它把卦象的结构、变化与现实中该观察的条件一层层展开，并让你在后来回来复盘。</p>
-          <a className="seal-button" href="#method"><BaguaMark /><span>遇事不决，可问春风</span><img className="seal-dot" src="/bagua-seal.png" alt="" aria-hidden="true" /></a>
+          <a className="seal-button" href="#method"><BaguaMark className="cta-emblem" /><span>遇事不决，可问春风</span><BaguaMark className="cta-seal" /></a>
         </div>
       </section>
 

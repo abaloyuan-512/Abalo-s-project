@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 13.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 14948)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" x="0px" y="0px"
+	 width="382" height="356" viewBox="0 0 127.333 118.667" enable-background="new 0 0 127.333 118.667">
+<g id="Layer_2">
+	<g id="layer2_1_" inkscape:groupmode="layer" inkscape:label="Yin and Yang Symbol">
+		<g id="gYinAndYang_1_" transform="matrix(-1,0,0,-1,850,850)" inkscape:label="#Yin and Yang">
+			<g id="gYin_1_" transform="matrix(-1,0,0,-1,825,825)" inkscape:label="#Yin">
+				<path id="pathYinBG_1_" stroke="#000000" d="M39.412,6.359c-15.5,0-28.079,12.389-28.079,27.654s12.58,27.654,28.079,27.654
+					c-7.75,0-14.04-6.194-14.04-13.827c0-7.633,6.29-13.827,14.04-13.827c7.75,0,14.038-6.195,14.038-13.827
+					C53.45,12.554,47.162,6.359,39.412,6.359z M39.412,15.864c2.42,0,4.387,1.937,4.387,4.322c0,2.385-1.967,4.321-4.387,4.321
+					c-2.423,0-4.388-1.936-4.388-4.321C35.024,17.801,36.989,15.864,39.412,15.864z"/>
+
+					<path id="pathYinS_1_" sodipodi:type="arc" sodipodi:ry="50" sodipodi:rx="50" sodipodi:cy="200" sodipodi:cx="400" inkscape:label="#Yin Spot" stroke="#000000" d="
+					M35.024,47.84c0-2.387,1.965-4.321,4.388-4.321c2.421,0,4.387,1.935,4.387,4.321c0,2.386-1.966,4.321-4.387,4.321
+					C36.989,52.161,35.024,50.226,35.024,47.84z"/>
+			</g>
+			<g id="gYang_1_" inkscape:label="#Yang">
+				<path id="pathYangBG_1_" fill="#FFFFFF" stroke="#000000" d="M785.588,818.641c-7.75,0-14.038-6.195-14.038-13.827
+					c0-7.632,6.288-13.827,14.038-13.827c7.75,0,14.04-6.194,14.04-13.827c0-7.632-6.29-13.827-14.04-13.827
+					c-15.498,0-28.077,12.389-28.077,27.654S770.09,818.641,785.588,818.641z M785.588,781.481c-2.42,0-4.387-1.936-4.387-4.321
+					c0-2.384,1.967-4.321,4.387-4.321c2.423,0,4.388,1.937,4.388,4.321C789.976,779.546,788.011,781.481,785.588,781.481z"/>
+
+					<path id="pathYangS_1_" sodipodi:type="arc" sodipodi:ry="50" sodipodi:rx="50" sodipodi:cy="200" sodipodi:cx="400" inkscape:label="#Yang Spot" fill="#FFFFFF" stroke="#000000" d="
+					M781.201,804.814c0,2.387,1.966,4.322,4.387,4.322c2.423,0,4.388-1.935,4.388-4.322c0-2.386-1.965-4.321-4.388-4.321
+					C783.167,800.493,781.201,802.428,781.201,804.814z"/>
+			</g>
+		</g>
+	</g>
+	<g id="layer2" inkscape:groupmode="layer" inkscape:label="Yin and Yang Symbol">
+		<g id="gYinAndYang" transform="matrix(-1,0,0,-1,850,850)" inkscape:label="#Yin and Yang">
+			<g id="gYin" transform="matrix(-1,0,0,-1,825,825)" inkscape:label="#Yin">
+				<path id="pathYinBG" d="M39.412,6.359c-15.5,0-28.079,12.389-28.079,27.654s12.58,27.654,28.079,27.654
+					c-7.75,0-14.04-6.194-14.04-13.827c0-7.633,6.29-13.827,14.04-13.827c7.75,0,14.038-6.195,14.038-13.827
+					C53.45,12.554,47.162,6.359,39.412,6.359z M39.412,15.864c2.42,0,4.387,1.937,4.387,4.322c0,2.385-1.967,4.321-4.387,4.321
+					c-2.423,0-4.388-1.936-4.388-4.321C35.024,17.801,36.989,15.864,39.412,15.864z"/>
+
+					<path id="pathYinS" sodipodi:type="arc" sodipodi:ry="50" sodipodi:rx="50" sodipodi:cy="200" sodipodi:cx="400" inkscape:label="#Yin Spot" d="
+					M35.024,47.84c0-2.387,1.965-4.321,4.388-4.321c2.421,0,4.387,1.935,4.387,4.321c0,2.386-1.966,4.321-4.387,4.321
+					C36.989,52.161,35.024,50.226,35.024,47.84z"/>
+			</g>
+			<g id="gYang" inkscape:label="#Yang">
+				<path id="pathYangBG" fill="#FFFFFF" d="M785.588,818.641c-7.75,0-14.038-6.195-14.038-13.827
+					c0-7.632,6.288-13.827,14.038-13.827c7.75,0,14.04-6.194,14.04-13.827c0-7.632-6.29-13.827-14.04-13.827
+					c-15.498,0-28.077,12.389-28.077,27.654S770.09,818.641,785.588,818.641z M785.588,781.481c-2.42,0-4.387-1.936-4.387-4.321
+					c0-2.384,1.967-4.321,4.387-4.321c2.423,0,4.388,1.937,4.388,4.321C789.976,779.546,788.011,781.481,785.588,781.481z"/>
+
+					<path id="pathYangS" sodipodi:type="arc" sodipodi:ry="50" sodipodi:rx="50" sodipodi:cy="200" sodipodi:cx="400" inkscape:label="#Yang Spot" fill="#FFFFFF" d="
+					M781.201,804.814c0,2.387,1.966,4.322,4.387,4.322c2.423,0,4.388-1.935,4.388-4.322c0-2.386-1.965-4.321-4.388-4.321
+					C783.167,800.493,781.201,802.428,781.201,804.814z"/>
+			</g>
+		</g>
+	</g>
+	<rect x="52" y="3.667" width="24.167" height="5.333"/>
+	<rect x="52.063" y="11.917" width="24.166" height="5.333"/>
+	<rect x="51.875" y="20.854" width="24.167" height="5.333"/>
+	<rect x="52.75" y="91.499" width="10.458" height="5.209"/>
+	<rect x="52.791" y="99.749" width="10.458" height="5.209"/>
+	<rect x="66.25" y="99.749" width="10.458" height="5.209"/>
+	<rect x="66.291" y="91.457" width="10.458" height="5.209"/>
+	<rect x="52.791" y="108.748" width="10.458" height="5.209"/>
+	<rect x="66.291" y="108.749" width="10.458" height="5.209"/>
+	<rect x="25.041" y="47.146" width="5.313" height="24"/>
+	<rect x="7.729" y="47.208" width="5.313" height="24"/>
+	<rect x="16.041" y="47.208" width="5.188" height="10.438"/>
+	<rect x="16.041" y="60.708" width="5.188" height="10.438"/>
+	<rect x="106.729" y="47.833" width="5.313" height="24"/>
+	<rect x="98.541" y="47.958" width="5.188" height="10.438"/>
+	<rect x="98.541" y="61.458" width="5.188" height="10.438"/>
+	<rect x="115.791" y="47.958" width="5.188" height="10.438"/>
+	<rect x="115.791" y="61.458" width="5.188" height="10.438"/>
+	<rect x="36.317" y="73.485" transform="matrix(0.7042 -0.71 0.71 0.7042 -49.1653 52.9567)" width="5.312" height="23.999"/>
+	<rect x="25.469" y="81.436" transform="matrix(0.7042 -0.71 0.71 0.7042 -53.222 45.5535)" width="5.187" height="10.437"/>
+	<rect x="35.054" y="90.941" transform="matrix(0.704 -0.7102 0.7102 0.704 -57.1468 55.1954)" width="5.188" height="10.438"/>
+	<rect x="19.492" y="87.438" transform="matrix(0.7043 -0.7099 0.7099 0.7043 -59.2482 43.0795)" width="5.187" height="10.437"/>
+	<rect x="29.077" y="96.944" transform="matrix(0.7043 -0.7099 0.7099 0.7043 -63.1587 52.6893)" width="5.188" height="10.437"/>
+	<rect x="100.632" y="85.241" transform="matrix(0.7159 0.6982 -0.6982 0.7159 97.2382 -44.4741)" width="5.264" height="23.999"/>
+	<rect x="99.488" y="81.177" transform="matrix(0.7158 0.6983 -0.6983 0.7158 89.3372 -46.7152)" width="5.142" height="10.436"/>
+	<rect x="90.061" y="90.837" transform="matrix(0.716 0.6981 -0.6981 0.716 93.3682 -37.386)" width="5.141" height="10.438"/>
+	<rect x="93.491" y="75.301" transform="matrix(0.7157 0.6984 -0.6984 0.7157 83.538 -44.1976)" width="5.141" height="10.437"/>
+	<rect x="84.063" y="84.963" transform="matrix(0.7158 0.6983 -0.6983 0.7158 87.5972 -34.8672)" width="5.141" height="10.438"/>
+	<rect x="100.799" y="9.082" transform="matrix(0.7159 -0.6982 0.6982 0.7159 14.6686 78.2103)" width="5.264" height="23.999"/>
+	<rect x="93.658" y="32.584" transform="matrix(0.7157 -0.6984 0.6984 0.7157 0.9539 77.948)" width="5.141" height="10.437"/>
+	<rect x="84.23" y="22.921" transform="matrix(0.7158 -0.6983 0.6983 0.7158 5.0189 68.6119)" width="5.141" height="10.438"/>
+	<rect x="94.966" y="14.749" transform="matrix(0.7159 -0.6982 0.6982 0.7159 9.0546 75.7475)" width="5.264" height="23.999"/>
+	<rect x="34.629" y="21.887" transform="matrix(0.7047 0.7095 -0.7095 0.7047 35.0433 -16.43)" width="5.264" height="23.999"/>
+	<rect x="16.239" y="21.784" transform="matrix(0.7048 0.7094 -0.7094 0.7048 24.7097 -5.372)" width="5.141" height="10.437"/>
+	<rect x="25.815" y="12.269" transform="matrix(0.7048 0.7094 -0.7094 0.7048 20.7839 -14.9742)" width="5.14" height="10.437"/>
+	<rect x="27.743" y="16.106" transform="matrix(0.7048 0.7094 -0.7094 0.7048 28.9058 -13.2513)" width="5.264" height="23.999"/>
+</g>
+</svg>
