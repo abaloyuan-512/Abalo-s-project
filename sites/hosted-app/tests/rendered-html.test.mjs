@@ -25,12 +25,13 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /href="#method"/);
   assert.match(html, /所谓观象的意思，就是观察身边的现象/);
   assert.match(html, /三数起卦的排盘规则/);
-  assert.match(html, /\/trigrams\/qian\.png/);
+  assert.match(html, /\/fuxi-bagua-taiji\.png/);
   assert.match(html, /你真正想问的问题/);
-  assert.match(html, /问题原文只用于理解与呈现，不参与排盘/);
+  assert.match(html, /请用清晰具体的文字说出你想弄明白的事/);
   assert.match(html, /约三分钟 · 确定性排盘/);
   assert.match(html, /用三分钟，把一件拿不准的事/);
-  assert.match(html, /三个数字.*决定卦象/);
+  assert.match(html, /卦从数起，意随事明/);
+  assert.match(html, /这段关系一直没有进展，我还要继续主动吗/);
   assert.match(html, /写清所问/);
   assert.match(html, /说明现实处境/);
   assert.match(html, /静心取数/);

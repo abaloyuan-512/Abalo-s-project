@@ -49,12 +49,17 @@ def test_canonical_texts_and_plain_language_terms_are_separated() -> None:
     assert all(item["canonical_text"] and item["source_reference"] for item in reading["hexagrams"])
     assert all(item["plain_note"].startswith("字义小注：") for item in reading["hexagrams"])
     assert reading["moving_line"]["canonical_text"]
-    assert [item["title"] for item in reading["terms"]] == ["动爻", "体用关系", "旺衰"]
-    assert "内部临界" in reading["terms"][0]["current_effect"]
+    assert [item["title"] for item in reading["terms"]] == [
+        "动爻（变化发生在哪里）",
+        "体用关系（你与这件事的关系）",
+        "旺衰（眼下有多少余力）",
+    ]
+    assert "内部调整的关口" in reading["terms"][0]["current_effect"]
     assert "具体日期" not in reading["terms"][0]["current_effect"]
     assert "规则阶段" not in reading["terms"][0]["current_effect"]
     assert "议题一方" not in str(reading["terms"])
     assert "体方" not in str(reading["terms"])
+    assert "比和（双方五行相同" in str(reading["terms"])
 
 
 def test_classic_counsel_is_versioned_exact_quote_not_generated_copy() -> None:

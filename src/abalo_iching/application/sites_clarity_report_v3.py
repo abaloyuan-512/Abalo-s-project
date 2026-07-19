@@ -35,11 +35,11 @@ _TOPICS: dict[QuestionDomain, str] = {
 }
 
 _ANSWER_TEMPLATES: dict[str, str] = {
-    "CLEARLY_FAVORABLE": "{topic}可以继续推进，但先用小范围行动验证，不必一次押满。",
-    "CONDITIONALLY_FAVORABLE": "{topic}可以继续，但先补齐关键条件，再决定是否加码。",
-    "MIXED_OR_UNSETTLED": "{topic}暂时不要下最终结论；先缩小投入，用一个可验证动作换取事实。",
-    "CLEARLY_UNFAVORABLE": "{topic}当前更适合收缩投入、设清边界，先处理阻力再决定是否继续。",
-    "INSUFFICIENT_EVIDENCE": "{topic}目前还看不清；先补一项关键事实，再做继续或停止的判断。",
+    "CLEARLY_FAVORABLE": "{topic}目前有继续往前走的空间，但仍要把条件和责任说清楚。",
+    "CONDITIONALLY_FAVORABLE": "{topic}并非不能继续，关键在于所需条件能否真正到位。",
+    "MIXED_OR_UNSETTLED": "{topic}眼下有支持也有阻力，先别急着把整件事一次定死。",
+    "CLEARLY_UNFAVORABLE": "{topic}目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+    "INSUFFICIENT_EVIDENCE": "{topic}现在还缺少足够依据，先弄清最关键的一件事实。",
 }
 
 _LEVEL_MEANINGS: dict[str, str] = {
@@ -58,11 +58,48 @@ _DOMAIN_FOCUS: dict[QuestionDomain, str] = {
 }
 
 _GOAL_MEANINGS: dict[DecisionGoal, str] = {
-    DecisionGoal.IDENTIFY_OBSTACLES: "此刻先识别最关键的阻力，不必急着证明最后结果。",
-    DecisionGoal.PLAN_NEXT_STEP: "最有价值的不是一次决定到底，而是设计一个能带回新信息的下一步。",
-    DecisionGoal.PREPARE_COMMUNICATION: "把沟通变成一个能够得到明确答复、并能观察后续行动的问题。",
-    DecisionGoal.ADJUST_COMMITMENT_BOUNDARIES: "关键不是更用力，而是先写清你愿意给出的投入与不可越过的边界。",
-    DecisionGoal.OBSERVE_VERIFY_SIGNALS: "把判断标准从感受换成可观察、可重复、可核实的行动。",
+    DecisionGoal.IDENTIFY_OBSTACLES: "先找出最卡住的一处，处理它，比同时担心所有问题更有用。",
+    DecisionGoal.PLAN_NEXT_STEP: "这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+    DecisionGoal.PREPARE_COMMUNICATION: "沟通时把问题问具体，也留意对方之后有没有实际行动。",
+    DecisionGoal.ADJUST_COMMITMENT_BOUNDARIES: "先写清自己愿意付出多少、什么情况必须停下来，避免越走越累。",
+    DecisionGoal.OBSERVE_VERIFY_SIGNALS: "少猜一点，多看现实里反复出现的回应和行动。",
+}
+
+# Each base hexagram receives its own plain-language emphasis.  These are
+# presentation notes, not additional casting rules or good/bad judgments.
+_HEXAGRAM_FOCUS: dict[int, str] = {
+    1: "主动担当，也要让力量用在正处", 2: "顺势承接，先认清自己的位置和边界",
+    3: "事情刚起步，先把混乱一件件理顺", 4: "信息还不完整，先问明白、学明白",
+    5: "条件未齐时耐心等待，同时做好准备", 6: "分歧已经出现，先把事实和规则讲清",
+    7: "把人和资源组织好，行动才不会散", 8: "确认彼此是否真心靠近、愿意同行",
+    9: "先做小幅积累，不急着一口气完成", 10: "每一步都要谨慎，尤其要尊重边界",
+    11: "上下能够相通时，把顺势落实为合作", 12: "沟通受阻时先疏通关系，不要硬推",
+    13: "先找到共同目标，再谈分工与投入", 14: "手里资源越多，越要说明责任怎么承担",
+    15: "放低姿态、保持分寸，反而更容易走稳", 16: "有了势头也要先做好准备，别只凭兴奋",
+    17: "顺应变化，但别在跟随中丢掉原则", 18: "先修补积累已久的问题，再开启下一步",
+    19: "机会正在靠近，宜主动接触并观察回应", 20: "先看清全貌和细节，再决定是否出手",
+    21: "面对卡点要明确处理，不能一直绕开", 22: "形式可以帮助表达，但不能盖过实际内容",
+    23: "旧结构正在脱落，先保住最重要的部分", 24: "偏离之后及时回到正轨，宜从小处重新开始",
+    25: "按真实情况行事，不凭侥幸也不过度设想", 26: "先把能力和资源蓄足，再承担更大的事",
+    27: "留意自己在吸收什么，也留意说出什么", 28: "负担已经偏重，先给结构减压",
+    29: "风险可能反复出现，靠稳住步骤穿过去", 30: "把事情照亮看清，也确认自己依靠什么",
+    31: "双方正在互相影响，回应是否真诚很重要", 32: "看一件事能否长久，要看是否经得起重复",
+    33: "暂退不是放弃，而是避开不利位置", 34: "力量正在增强，更需要克制和正确用力",
+    35: "局面有向前的机会，要让成果被看见", 36: "环境不利时先保护自己，不必处处显露",
+    37: "先理清各自角色、责任和相处规则", 38: "看见彼此差异，先求能合作的部分",
+    39: "前路受阻时换一条路，并主动寻求帮助", 40: "先解除最紧的束缚，让局面重新松动",
+    41: "有所减少，是为了保住更重要的部分", 42: "增加投入要让双方都真正受益",
+    43: "该说清时要果断说清，同时避免用力过猛", 44: "面对突然出现的人或机会，先守住边界",
+    45: "人和资源聚在一起后，更需要共同秩序", 46: "稳稳向上，一步一步积累可信成果",
+    47: "资源受限时先保住心力，不与困境硬耗", 48: "回到长期可用的基础，看它是否真正维护好了",
+    49: "改变旧办法之前，先争取理解与信任", 50: "不只换表面做法，更要更新承载事情的结构",
+    51: "突然变化来临时先稳住，再处理后续", 52: "知道什么时候停下来，才能重新看清",
+    53: "事情适合循序渐进，不宜跳过中间步骤", 54: "关系位置尚未安稳，承诺之前先看是否对等",
+    55: "局面正盛时也要为转折和收束做准备", 56: "身处暂时位置，行事宜清醒、简洁、留有余地",
+    57: "用持续而温和的方式进入问题深处", 58: "坦诚交流能够打开局面，但承诺要落到行动",
+    59: "先化开隔阂和僵局，再重新凝聚人心", 60: "设定合适的节制，既不能失控也不能过苛",
+    61: "真诚与信任是核心，也要经得起事实核对", 62: "先把小事做稳，暂不承担过大的动作",
+    63: "事情虽已成形，越到后来越要防止松懈", 64: "事情尚未完成，最后几步更要分清次序",
 }
 
 _PRIORITIES: dict[str, str] = {
@@ -159,19 +196,27 @@ def build_clarity_report(
     topic = _TOPICS[domain]
     body_use = deterministic_result["body_use"]
     body_strength = deterministic_result["seasonal_strength"]["body"]
+    base = deterministic_result["base_hexagram"]
+    changed = deterministic_result["changed_hexagram"]
+    base_focus = _HEXAGRAM_FOCUS[base["king_wen_number"]]
+    changed_focus = _HEXAGRAM_FOCUS[changed["king_wen_number"]]
     evidence_path = [
-        {"title": "起始关系", "text": f"事情开始时，{_PLAIN_RELATION_EFFECTS[body_use['initial_relation']]}"},
-        {"title": "变化方向", "text": f"变化发生后，{_PLAIN_RELATION_EFFECTS[body_use['changed_relation']]}"},
-        {"title": "承接能力", "text": _PLAIN_STRENGTH_EFFECTS[body_strength]},
+        {"title": "一开始怎么看", "text": f"事情刚开始时，{_PLAIN_RELATION_EFFECTS[body_use['initial_relation']]}"},
+        {"title": "事情会怎么变", "text": f"动爻发生变化后，{_PLAIN_RELATION_EFFECTS[body_use['changed_relation']]}"},
+        {"title": "你现在有多少余力", "text": _PLAIN_STRENGTH_EFFECTS[body_strength]},
     ]
     return {
         "template_version": CLARITY_REPORT_VERSION,
-        "answer": _ANSWER_TEMPLATES[level].format(topic=topic),
-        "what_it_means": f"{_LEVEL_MEANINGS[level]}{_DOMAIN_FOCUS[domain]}{_GOAL_MEANINGS[goal]}",
+        "answer": f"{base['name']}把重点放在“{base_focus}”。{_ANSWER_TEMPLATES[level].format(topic=topic)}",
+        "what_it_means": (
+            f"本卦是{base['name']}，先提醒你：{base_focus}。"
+            f"动爻之后变为{changed['name']}，局面的下一层重点转向：{changed_focus}。"
+            f"{_LEVEL_MEANINGS[level]}{_DOMAIN_FOCUS[domain]}{_GOAL_MEANINGS[goal]}"
+        ),
         "priority": _PRIORITIES[level],
         "continue_signals": list(_CONTINUE_SIGNALS[domain]),
         "pause_signals": list(_PAUSE_SIGNALS[domain]),
         "next_action": f"{_STAGE_PREFIX[stage]}{_NEXT_ACTIONS[domain][uncertainty]}{_HORIZON_SUFFIX[horizon]}",
         "evidence_path": evidence_path,
-        "boundary_note": "卦象依据只来自既定的排盘规则。你选择的现实处境只用于组织说明与核验方向；问题原文只用于确认所问和呈现结果，不参与排盘，也不会被当作卦象证据。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
     }

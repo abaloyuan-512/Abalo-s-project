@@ -66,7 +66,7 @@ def test_clarity_report_leads_with_direction_signals_and_reversible_action():
     assert len(report["continue_signals"]) == 3
     assert len(report["pause_signals"]) == 3
     assert "可验收节点" in report["next_action"]
-    assert "不参与排盘" in report["boundary_note"]
+    assert "三个数字排定卦象" in report["boundary_note"]
 
 
 def test_each_domain_uses_its_own_reality_language():
@@ -86,7 +86,7 @@ def test_question_text_still_does_not_enter_clarity_evidence():
     sentinel = "这件具体的事只用于显示，不得成为卦象证据"
     report = process(request(question_text=sentinel))["deterministic_result"]["clarity_report"]
     assert sentinel not in json.dumps(report, ensure_ascii=False)
-    assert "问题原文只用于确认所问和呈现结果" in report["boundary_note"]
+    assert "你写下的问题帮助我们把卦意说到具体事情上" in report["boundary_note"]
 
 
 def test_clarity_evidence_uses_plain_language_instead_of_body_use_jargon():
@@ -95,6 +95,22 @@ def test_clarity_evidence_uses_plain_language_instead_of_body_use_jargon():
     for jargon in ["体方", "用方", "议题一方", "规则强度"]:
         assert jargon not in evidence_text
     assert any(plain_term in evidence_text for plain_term in ["外部条件", "主动权", "同频", "持续投入"])
+
+
+def test_each_base_hexagram_receives_a_distinct_plain_language_emphasis():
+    answers: set[str] = set()
+    names: set[str] = set()
+    for upper_number in range(1, 9):
+        for lower_number in range(1, 9):
+            response = process(request(numbers=[upper_number, lower_number, 1]))
+            result = response["deterministic_result"]
+            answer = result["clarity_report"]["answer"]
+            name = result["base_hexagram"]["name"]
+            assert name in answer
+            answers.add(answer)
+            names.add(name)
+    assert len(names) == 64
+    assert len(answers) == 64
 
 
 def test_personal_plan_signals_name_the_missing_conditions_and_cost_limits():

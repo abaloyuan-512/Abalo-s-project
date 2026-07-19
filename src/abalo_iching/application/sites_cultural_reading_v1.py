@@ -12,14 +12,7 @@ from typing import TypedDict
 from abalo_iching.interpretation.enums import ConclusionLevel
 from abalo_iching.interpretation.knowledge import load_canonical_texts
 from abalo_iching.interpretation.models import KnowledgeSelection, SynthesisResult
-from abalo_iching.meihua.enums import (
-    MOVING_LINE_STAGE_LABELS_ZH,
-    RELATION_LABELS_ZH,
-    SEASONAL_STRENGTH_LABELS_ZH,
-    BodyUseRelation,
-    MovingLineStage,
-    SeasonalStrength,
-)
+from abalo_iching.meihua.enums import BodyUseRelation, MovingLineStage, SeasonalStrength
 from abalo_iching.meihua.models import Hexagram, MeihuaChart
 
 CULTURAL_READING_VERSION = "SITES_CULTURAL_READING_V1"
@@ -94,12 +87,37 @@ _STRENGTH_MEANINGS: dict[SeasonalStrength, str] = {
 }
 
 _STAGE_EFFECTS: dict[MovingLineStage, str] = {
-    MovingLineStage.GERMINATION: "变化刚刚出现，许多条件还没有定形。此时最重要的是辨认最初信号，先用小动作验证，不必急着扩大投入。",
-    MovingLineStage.EARLY_FORMATION: "变化正在形成，方向已有轮廓但仍可调整。宜把规则、角色和第一步说清，避免含混的开始变成后续负担。",
-    MovingLineStage.INTERNAL_THRESHOLD: "变化已经触及内部临界点，原有安排开始难以维持。宜先处理内部矛盾、资源分配和承诺边界，再向外推进。",
-    MovingLineStage.EXTERNAL_TURNING_POINT: "变化已经从内部走向外部，容易出现公开选择、关系转折或行动升级。宜观察真实反馈，并为不同回应预留退路。",
-    MovingLineStage.CORE_DECISION: "这一爻处在全卦较高而居中的关键位置，常对应主导判断、资源调配或重要拍板。本次变化落在这里，说明后续能否推进，很大程度取决于决定是否明确、负责者能否承担后果；宜先把决定权、条件和责任说清，再作承诺。",
-    MovingLineStage.CLOSING_OR_EXCESS: "变化已经来到收束或过度的位置。此时重点不是继续加码，而是判断何时止步、如何交接，以及哪些成果应当保留。",
+    MovingLineStage.GERMINATION: "变化刚露出苗头，许多条件还没有定形。先看清最早出现的信号，再决定要不要增加投入。",
+    MovingLineStage.EARLY_FORMATION: "事情正在成形，方向已经隐约可见，但仍来得及调整。先把角色、说法和第一步讲清楚。",
+    MovingLineStage.INTERNAL_THRESHOLD: "变化发生在事情内部最容易卡住的位置，原来的安排可能已经不够用了。先处理内部分歧、资源分配和承诺边界，再向外推进。",
+    MovingLineStage.EXTERNAL_TURNING_POINT: "变化开始从内部显到外部，可能带来公开选择、关系转折或行动升级。此时要认真看对方和现实给出的回应。",
+    MovingLineStage.CORE_DECISION: "这条爻处在整卦很关键的位置，常与拍板、分配资源和承担责任有关。后面能不能推进，很大程度取决于决定是否清楚、作决定的人能否负责。",
+    MovingLineStage.CLOSING_OR_EXCESS: "事情已经走到收尾或容易做过头的位置。重点不再是继续加码，而是知道何时停、怎样交接、哪些成果值得保留。",
+}
+
+_PLAIN_STAGE_LABELS: dict[MovingLineStage, str] = {
+    MovingLineStage.GERMINATION: "刚有苗头",
+    MovingLineStage.EARLY_FORMATION: "正在成形",
+    MovingLineStage.INTERNAL_THRESHOLD: "内部调整的关口",
+    MovingLineStage.EXTERNAL_TURNING_POINT: "由内转外的关口",
+    MovingLineStage.CORE_DECISION: "关键决定的位置",
+    MovingLineStage.CLOSING_OR_EXCESS: "收尾或容易过度的位置",
+}
+
+_PLAIN_RELATION_LABELS: dict[BodyUseRelation, str] = {
+    BodyUseRelation.USE_GENERATES_BODY: "用生体（外部条件在帮助你）",
+    BodyUseRelation.BODY_CONTROLS_USE: "体克用（你仍有主动调整空间）",
+    BodyUseRelation.SAME_ELEMENT: "比和（双方五行相同，较容易同频）",
+    BodyUseRelation.BODY_GENERATES_USE: "体生用（你正在为这件事付出）",
+    BodyUseRelation.USE_CONTROLS_BODY: "用克体（外部条件对你形成压力）",
+}
+
+_PLAIN_STRENGTH_LABELS: dict[SeasonalStrength, str] = {
+    SeasonalStrength.PROSPEROUS: "旺（眼下力量充足）",
+    SeasonalStrength.SUPPORTED: "相（眼下能得到助力）",
+    SeasonalStrength.RESTING: "休（眼下平稳，但余力有限）",
+    SeasonalStrength.CONFINED: "囚（眼下受到限制）",
+    SeasonalStrength.DEAD: "死（眼下助力很弱）",
 }
 
 _CANONICAL_GLOSSARY: tuple[tuple[str, str], ...] = (
@@ -185,7 +203,7 @@ def build_cultural_reading(
     initial_relation = chart.initial_body_use_relation
     changed_relation = chart.changed_body_use_relation
     body_strength = chart.season_context.body_strength
-    stage = MOVING_LINE_STAGE_LABELS_ZH[chart.moving_line_stage]
+    stage = _PLAIN_STAGE_LABELS[chart.moving_line_stage]
     canonical_line = knowledge.canonical_line
     line_display_name = _line_display_name(chart)
     return {
@@ -217,9 +235,9 @@ def build_cultural_reading(
             },
         ],
         "hexagrams": [
-            _canonical_hexagram("本卦", chart.base_hexagram, "呈现起卦时的主要结构，是整份解读的出发点。"),
-            _canonical_hexagram("互卦", chart.mutual_hexagram, "由本卦中间四爻相参而成，辅助观察事情内部如何展开。"),
-            _canonical_hexagram("变卦", chart.changed_hexagram, "由动爻变化后形成，用来比较结构前后如何改变。"),
+            _canonical_hexagram("本卦", chart.base_hexagram, "由上卦和下卦上下相叠而成，表示这件事眼下最主要的样子。"),
+            _canonical_hexagram("互卦", chart.mutual_hexagram, "从本卦中间四爻重新组合而来，帮助你看事情内部怎样发展。"),
+            _canonical_hexagram("变卦", chart.changed_hexagram, "把动爻由阳变阴或由阴变阳后得到，表示局面发生变化后的方向。"),
         ],
         "moving_line": {
             "position": chart.moving_line,
@@ -231,21 +249,21 @@ def build_cultural_reading(
         },
         "terms": [
             {
-                "title": "动爻",
+                "title": "动爻（变化发生在哪里）",
                 "current_value": f"{line_display_name} · {stage}",
-                "meaning": "动爻是本卦中发生变化的一爻；它决定变卦，也标示当前变化落在事情的哪个阶段。",
-                "current_effect": f"本次动在{line_display_name}，对应{stage}。{_STAGE_EFFECTS[chart.moving_line_stage]}",
+                "meaning": "一卦共有六条爻。动爻就是其中发生变化的那一条；它一变，本卦便随之成为变卦。",
+                "current_effect": f"这次变化落在{line_display_name}，也就是{stage}。{_STAGE_EFFECTS[chart.moving_line_stage]}",
             },
             {
-                "title": "体用关系",
-                "current_value": f"起始{RELATION_LABELS_ZH[initial_relation]} → 变化后{RELATION_LABELS_ZH[changed_relation]}",
-                "meaning": "可以把“体”理解为你和你目前能调用的力量，把“用”理解为所问的事情、对方或外部条件。体用关系用来观察两边是在互相支持、彼此牵制，还是处于相近状态。",
-                "current_effect": f"起始：{_RELATION_EFFECTS[initial_relation]} 变化后：{_RELATION_EFFECTS[changed_relation]}",
+                "title": "体用关系（你与这件事的关系）",
+                "current_value": f"开始时：{_PLAIN_RELATION_LABELS[initial_relation]} → 变化后：{_PLAIN_RELATION_LABELS[changed_relation]}",
+                "meaning": "“体”可以理解为你和你能调动的力量；“用”是所问的事情、对方或外部条件。两者的关系，帮助我们看谁在支持谁、谁在消耗谁。",
+                "current_effect": f"开始时，{_RELATION_EFFECTS[initial_relation]} 变化后，{_RELATION_EFFECTS[changed_relation]}",
             },
             {
-                "title": "旺衰",
-                "current_value": f"体卦{SEASONAL_STRENGTH_LABELS_ZH[body_strength]}",
-                "meaning": "旺衰用来说明你所代表的力量在当前时令中是充足、平稳还是受限。它影响你能不能承受和落实眼前的变化，但不会把原有关系完全颠倒。",
+                "title": "旺衰（眼下有多少余力）",
+                "current_value": f"体卦为{_PLAIN_STRENGTH_LABELS[body_strength]}",
+                "meaning": "旺衰不是给事情判好坏，而是看你眼下有多少余力。余力足，可以多承担一些；余力弱，就更要借助外部支持并守住边界。",
                 "current_effect": _STRENGTH_MEANINGS[body_strength],
             },
         ],
