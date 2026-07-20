@@ -36,6 +36,8 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     status = _load_json("gate1_status.json")
 
     assert status["status"] == "AWAITING_PRODUCT_CALIBRATION"
+    assert status["independent_pre_review"] == "READY_FOR_PRODUCT_CALIBRATION"
+    assert status["pre_reviewed_commit"] == "655ceebefcd34564e23ff8a7b49db8ccb042cccf"
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
     assert status["divination_reviewer_status"] == "UNASSIGNED"
     assert status["model_calls"] == 0

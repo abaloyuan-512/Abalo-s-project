@@ -6,6 +6,7 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 
 - `GATE_0_STATUS = PASS`
 - `GATE_1_STATUS = AWAITING_PRODUCT_CALIBRATION`
+- `INDEPENDENT_PRE_REVIEW = READY_FOR_PRODUCT_CALIBRATION`
 - `LOCKED_TEST_SET_STATUS = NOT_CREATED_OR_EXPOSED`
 - `DIVINATION_REVIEWER_STATUS = UNASSIGNED`
 - 真实模型调用：0
@@ -19,6 +20,8 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 - `blind_review_rubric_v1_draft.md`：后续匿名盲测评分规则草案。
 - `locked_test_governance.md`：锁定测试集的隔离、生成和变更规则。
 - `gate1_status.json`：阶段状态和边界的机器可读记录。
+
+独立预审记录见`docs/handoffs/2026-07-20-guanxiang-gate1-pre-review.md`。
 
 ## Gate 1完成条件
 

@@ -1,6 +1,8 @@
 {
   "gate_id": "GUANXIANG_PERSONALIZATION_GATE1_V001",
   "status": "AWAITING_PRODUCT_CALIBRATION",
+  "independent_pre_review": "READY_FOR_PRODUCT_CALIBRATION",
+  "pre_reviewed_commit": "655ceebefcd34564e23ff8a7b49db8ccb042cccf",
   "authorized_by_user_on": "2026-07-20",
   "gate0": {
     "status": "PASS",
