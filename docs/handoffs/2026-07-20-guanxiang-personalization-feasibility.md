@@ -165,17 +165,20 @@ Gate 0 与 Gate 1 通过后，下一阶段才可以申请开发独立实验路�
 - 4组仅更换自由问题的对照全部得到逐字段相同的`clarity_report`。
 - Gate 0与V3定向测试15项通过；全仓766项测试通过。
 - 尚未运行真实模型，没有产生 API 费用。
-- Gate 0仍等待独立复验，尚未批准进入Gate 1。
+- Gate 0证据提交`7b6c074df423ec36314bf5c1fb67f30507e75ad5`及完整性修复`e72ebf3df686ae7aea1763b28177a67328d9cf1b`已通过独立复验，最终状态为`PASS`。
+- 产品负责人已明确批准进行下一步，Gate 1现已启动，状态为`AWAITING_PRODUCT_CALIBRATION`。
+- Gate 1材料位于`evals/meihua/personalization_gate1_v001/`；真实模型调用、实验代码开发、正式网站修改和Gate 2仍未授权。
 
 ## 剩余事项及顺序
 
-1. 执行Codex将Gate 0证据提交并推送，然后把证据索引发送到独立审查对话复验；产品负责人不承担技术证据核验。
-2. 若Gate 0通过，再单独批准Gate 1。
+1. 产品负责人完成6组匿名A/B/C口味选择；这不是技术验收。
+2. 执行Codex根据选择修订内容规范，但不得改写产品负责人的原始选择。
 3. Gate 1只提交内容规范、产品口味校准方案、校准集治理、锁定测试集治理和盲测Rubric。
-4. 未获批准，不得进入模型实验、真实 API 调用或网站集成。
+4. Gate 1证据继续发送到独立审查对话，产品负责人不承担技术证据核验。
+5. 未获新的明确批准，不得进入模型实验、真实 API 调用、Gate 2或网站集成。
 
 ## 下一任务启动指令
 
 ```text
-完整读取《继续观象.md》、根目录 AGENTS.md、docs/handoffs/2026-07-20-guanxiang-personalization-feasibility.md、evals/meihua/personalization_gate0_v001/audit_report.md 和其中引用的视觉冻结记录。Gate 0候选证据包已生成并等待独立复验；不得把技术验收转交给产品负责人。未经下一阶段明确授权，不得进入Gate 1、模型调用、实验代码开发、正式网站修改或网站集成。
+完整读取《继续观象.md》、根目录 AGENTS.md、docs/handoffs/2026-07-20-guanxiang-personalization-feasibility.md、docs/handoffs/2026-07-20-guanxiang-gate0-independent-review.md及evals/meihua/personalization_gate1_v001/。Gate 0已经独立复验PASS并封板；Gate 1正在等待产品负责人完成匿名内容选择。不得把技术验收转交给产品负责人；未经新的明确授权，不得进入模型调用、Gate 2、实验代码开发、正式网站修改或网站集成。
 ```
