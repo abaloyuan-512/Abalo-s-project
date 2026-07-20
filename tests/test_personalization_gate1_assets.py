@@ -35,7 +35,7 @@ def test_calibration_set_has_six_anonymous_three_variant_cases() -> None:
 def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     status = _load_json("gate1_status.json")
 
-    assert status["status"] == "CALIBRATION_ROUND_2_FUSION_AWAITING_CONFIRMATION"
+    assert status["status"] == "CALIBRATION_ROUND_3_REFINED_VOICE_AWAITING_CONFIRMATION"
     assert status["independent_pre_review"] == "READY_FOR_PRODUCT_CALIBRATION"
     assert status["pre_reviewed_commit"] == "655ceebefcd34564e23ff8a7b49db8ccb042cccf"
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
@@ -46,7 +46,8 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     assert status["next_gate_automatically_authorized"] is False
     assert status["product_calibration"]["round_1"] == "ALL_REJECTED"
     assert status["product_calibration"]["round_2"] == "DIRECTION_SELECTED_B_JUDGMENT_A_VOICE"
-    assert status["product_calibration"]["round_2_fusion_candidate"] == "AWAITING_PRODUCT_RESPONSE"
+    assert status["product_calibration"]["round_2_fusion_candidate"] == "ACCEPTED_AS_70_POINT_BASELINE"
+    assert status["product_calibration"]["round_3_refined_voice"] == "AWAITING_PRODUCT_RESPONSE"
     assert status["product_calibration"]["round_1_rejection_recorded_verbatim"] is True
 
 
@@ -55,6 +56,7 @@ def test_gate1_package_contains_only_declared_governance_assets() -> None:
         "README.md",
         "blind_review_rubric_v1_draft.md",
         "calibration_round1_result.md",
+        "calibration_round2_fusion_feedback.md",
         "calibration_round2_result.md",
         "calibration_cases.json",
         "content_value_spec_v1_draft.md",
@@ -63,6 +65,7 @@ def test_gate1_package_contains_only_declared_governance_assets() -> None:
         "product_calibration_packet.md",
         "product_calibration_round2_fusion_candidate.md",
         "product_calibration_round2_single_case.md",
+        "product_calibration_round3_refined_voice.md",
     }
 
     assert {path.name for path in GATE1_DIR.iterdir()} == expected
