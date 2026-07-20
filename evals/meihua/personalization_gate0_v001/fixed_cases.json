@@ -1,0 +1,76 @@
+{
+  "dataset_version": "GUANXIANG_PERSONALIZATION_GATE0_V001",
+  "dataset_type": "SYNTHETIC_DETERMINISTIC_BASELINE_ONLY",
+  "synthetic_only": true,
+  "fixed_clock": "2026-07-18T10:30:00+08:00",
+  "contract_version": "SITES_MEIHUA_API_CONTRACT_V3",
+  "chart_sensitivity_sweep": {
+    "case_id_prefix": "G0-CHART",
+    "description": "保持现实问题和全部结构化选项不变，穷举64个本卦与6个动爻。",
+    "question_text": "这次合作，我还应该继续投入吗？",
+    "question_domain": "PROJECT_COOPERATION",
+    "decision_goal": "PLAN_NEXT_STEP",
+    "time_horizon": "NEXT_30_DAYS",
+    "decision_stage": "ALREADY_ACTING",
+    "key_uncertainty": "OTHER_RESPONSE",
+    "upper_number_range": [1, 8],
+    "lower_number_range": [1, 8],
+    "moving_number_range": [1, 6]
+  },
+  "representative_cases": [
+    {"case_id": "G0-REP-01", "numbers": [1, 1, 1]},
+    {"case_id": "G0-REP-02", "numbers": [2, 2, 2]},
+    {"case_id": "G0-REP-03", "numbers": [3, 3, 3]},
+    {"case_id": "G0-REP-04", "numbers": [4, 4, 4]},
+    {"case_id": "G0-REP-05", "numbers": [5, 5, 5]},
+    {"case_id": "G0-REP-06", "numbers": [6, 6, 6]},
+    {"case_id": "G0-REP-07", "numbers": [7, 7, 1]},
+    {"case_id": "G0-REP-08", "numbers": [8, 8, 6]}
+  ],
+  "question_text_pairs": [
+    {
+      "pair_id": "G0-TEXT-WORK",
+      "numbers": [1, 8, 5],
+      "question_domain": "WORK_CAREER",
+      "decision_goal": "PLAN_NEXT_STEP",
+      "time_horizon": "NEXT_QUARTER",
+      "decision_stage": "WAITING_FEEDBACK",
+      "key_uncertainty": "OTHER_RESPONSE",
+      "question_a": "我是否应该继续争取这次晋升？",
+      "question_b": "我是否应该接受新的岗位安排？"
+    },
+    {
+      "pair_id": "G0-TEXT-COOPERATION",
+      "numbers": [7, 8, 3],
+      "question_domain": "PROJECT_COOPERATION",
+      "decision_goal": "PLAN_NEXT_STEP",
+      "time_horizon": "NEXT_30_DAYS",
+      "decision_stage": "ALREADY_ACTING",
+      "key_uncertainty": "OTHER_RESPONSE",
+      "question_a": "这次合作，我还应该继续投入吗？",
+      "question_b": "对方多次延期后，我还要继续追加预算吗？"
+    },
+    {
+      "pair_id": "G0-TEXT-RELATIONSHIP",
+      "numbers": [4, 3, 2],
+      "question_domain": "RELATIONSHIP_COMMUNICATION",
+      "decision_goal": "PLAN_NEXT_STEP",
+      "time_horizon": "NEXT_30_DAYS",
+      "decision_stage": "ALREADY_ACTING",
+      "key_uncertainty": "OTHER_RESPONSE",
+      "question_a": "这段关系，我还应该主动联系吗？",
+      "question_b": "我们反复争执后，我还要继续维持吗？"
+    },
+    {
+      "pair_id": "G0-TEXT-PERSONAL",
+      "numbers": [6, 4, 1],
+      "question_domain": "PERSONAL_PLANNING",
+      "decision_goal": "PLAN_NEXT_STEP",
+      "time_horizon": "NEXT_6_MONTHS",
+      "decision_stage": "PREPARING",
+      "key_uncertainty": "OWN_COMMITMENT",
+      "question_a": "我还应该继续准备这次考试吗？",
+      "question_b": "这个副业方向，我还应该继续投入吗？"
+    }
+  ]
+}

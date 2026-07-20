@@ -1,0 +1,1017 @@
+{
+  "cases": [
+    {
+      "base_hexagram": {
+        "king_wen_number": 1,
+        "name": "乾为天",
+        "symbol": "䷀"
+      },
+      "body_use": {
+        "body_trigram": "乾",
+        "changed_relation": "BODY_CONTROLS_USE",
+        "changed_use_trigram": "巽",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "乾"
+      },
+      "case_id": "G0-REP-01",
+      "changed_hexagram": {
+        "king_wen_number": 44,
+        "name": "天风姤",
+        "symbol": "䷫"
+      },
+      "clarity_report": {
+        "answer": "乾为天把重点放在“主动担当，也要让力量用在正处”。这项项目或合作并非不能继续，关键在于所需条件能否真正到位。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，你仍有一定主动权，可以调整节奏、投入或边界；这份主动权需要现实能力和资源来兑现。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前能得到一定助力，具备承接和调整空间；推进前仍要确认关键资源是否真实到位。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先看条件是否兑现",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是乾为天，先提醒你：主动担当，也要让力量用在正处。动爻之后变为天风姤，局面的下一层重点转向：面对突然出现的人或机会，先守住边界。卦象给出的不是无条件肯定，而是“条件出现后可行”。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "CONDITIONALLY_FAVORABLE",
+        "conflicting_evidence_ids": [],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "SUPPORTED",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "SUPPORTED",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "SUPPORTED",
+            "conditions": [
+              "体方需要持续具备控制和执行条件。"
+            ],
+            "direction": "FAVORABLE",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "BODY-CONTROL-CAPACITY-SUFFICIENT"
+            ],
+            "phase": "CHANGED",
+            "relation": "BODY_CONTROLS_USE",
+            "strength": "MEDIUM",
+            "use_strength": "CONFINED",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [
+          "体方需要持续具备控制和执行条件。"
+        ],
+        "supporting_evidence_ids": [
+          "E03"
+        ],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-FAVORABLE-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 1,
+      "numbers": [
+        1,
+        1,
+        1
+      ],
+      "seasonal_strength": {
+        "body": "SUPPORTED",
+        "changed_use": "CONFINED",
+        "initial_use": "SUPPORTED",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 58,
+        "name": "兑为泽",
+        "symbol": "䷹"
+      },
+      "body_use": {
+        "body_trigram": "兑",
+        "changed_relation": "BODY_CONTROLS_USE",
+        "changed_use_trigram": "震",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "兑"
+      },
+      "case_id": "G0-REP-02",
+      "changed_hexagram": {
+        "king_wen_number": 17,
+        "name": "泽雷随",
+        "symbol": "䷐"
+      },
+      "clarity_report": {
+        "answer": "兑为泽把重点放在“坦诚交流能够打开局面，但承诺要落到行动”。这项项目或合作并非不能继续，关键在于所需条件能否真正到位。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，你仍有一定主动权，可以调整节奏、投入或边界；这份主动权需要现实能力和资源来兑现。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前能得到一定助力，具备承接和调整空间；推进前仍要确认关键资源是否真实到位。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先看条件是否兑现",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是兑为泽，先提醒你：坦诚交流能够打开局面，但承诺要落到行动。动爻之后变为泽雷随，局面的下一层重点转向：顺应变化，但别在跟随中丢掉原则。卦象给出的不是无条件肯定，而是“条件出现后可行”。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "CONDITIONALLY_FAVORABLE",
+        "conflicting_evidence_ids": [],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "SUPPORTED",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "SUPPORTED",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "SUPPORTED",
+            "conditions": [
+              "体方需要持续具备控制和执行条件。"
+            ],
+            "direction": "FAVORABLE",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "BODY-CONTROL-CAPACITY-SUFFICIENT"
+            ],
+            "phase": "CHANGED",
+            "relation": "BODY_CONTROLS_USE",
+            "strength": "MEDIUM",
+            "use_strength": "CONFINED",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [
+          "体方需要持续具备控制和执行条件。"
+        ],
+        "supporting_evidence_ids": [
+          "E03"
+        ],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-FAVORABLE-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 2,
+      "numbers": [
+        2,
+        2,
+        2
+      ],
+      "seasonal_strength": {
+        "body": "SUPPORTED",
+        "changed_use": "CONFINED",
+        "initial_use": "SUPPORTED",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 30,
+        "name": "离为火",
+        "symbol": "䷝"
+      },
+      "body_use": {
+        "body_trigram": "离",
+        "changed_relation": "USE_GENERATES_BODY",
+        "changed_use_trigram": "震",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "离"
+      },
+      "case_id": "G0-REP-03",
+      "changed_hexagram": {
+        "king_wen_number": 21,
+        "name": "火雷噬嗑",
+        "symbol": "䷔"
+      },
+      "clarity_report": {
+        "answer": "离为火把重点放在“把事情照亮看清，也确认自己依靠什么”。这项项目或合作并非不能继续，关键在于所需条件能否真正到位。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，外部条件正在给你提供支持，但要以已经出现的资源、回应或行动为准。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前力量较平稳，但余量有限；适合保留调整空间，用新反馈决定是否增加投入。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先看条件是否兑现",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是离为火，先提醒你：把事情照亮看清，也确认自己依靠什么。动爻之后变为火雷噬嗑，局面的下一层重点转向：面对卡点要明确处理，不能一直绕开。卦象给出的不是无条件肯定，而是“条件出现后可行”。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "CONDITIONALLY_FAVORABLE",
+        "conflicting_evidence_ids": [],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "RESTING",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "RESTING",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "RESTING",
+            "conditions": [
+              "用方生助能力弱于体方当前承接能力，利向需要现实条件确认。"
+            ],
+            "direction": "FAVORABLE",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "SEASON-WEAKENS-USE-GENERATES-BODY"
+            ],
+            "phase": "CHANGED",
+            "relation": "USE_GENERATES_BODY",
+            "strength": "MEDIUM",
+            "use_strength": "CONFINED",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [
+          "用方生助能力弱于体方当前承接能力，利向需要现实条件确认。"
+        ],
+        "supporting_evidence_ids": [
+          "E03"
+        ],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-FAVORABLE-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 3,
+      "numbers": [
+        3,
+        3,
+        3
+      ],
+      "seasonal_strength": {
+        "body": "RESTING",
+        "changed_use": "CONFINED",
+        "initial_use": "RESTING",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 51,
+        "name": "震为雷",
+        "symbol": "䷲"
+      },
+      "body_use": {
+        "body_trigram": "震",
+        "changed_relation": "BODY_CONTROLS_USE",
+        "changed_use_trigram": "坤",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "震"
+      },
+      "case_id": "G0-REP-04",
+      "changed_hexagram": {
+        "king_wen_number": 24,
+        "name": "地雷复",
+        "symbol": "䷗"
+      },
+      "clarity_report": {
+        "answer": "震为雷把重点放在“突然变化来临时先稳住，再处理后续”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，你仍有一定主动权，可以调整节奏、投入或边界；这份主动权需要现实能力和资源来兑现。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前可动用的力量受到限制；推进更依赖外部支持、清楚节奏和明确边界。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先换取事实，不急着定性",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是震为雷，先提醒你：突然变化来临时先稳住，再处理后续。动爻之后变为地雷复，局面的下一层重点转向：偏离之后及时回到正轨，宜从小处重新开始。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "MIXED_OR_UNSETTLED",
+        "conflicting_evidence_ids": [
+          "E02",
+          "E03"
+        ],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "CONFINED",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "CONFINED",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "CONFINED",
+            "conditions": [
+              "体方弱于用方，体克用的执行条件不足。"
+            ],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "BODY-CONTROL-CAPACITY-INSUFFICIENT"
+            ],
+            "phase": "CHANGED",
+            "relation": "BODY_CONTROLS_USE",
+            "strength": "WEAK",
+            "use_strength": "PROSPEROUS",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [
+          "体方弱于用方，体克用的执行条件不足。"
+        ],
+        "supporting_evidence_ids": [],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-BOTH-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 4,
+      "numbers": [
+        4,
+        4,
+        4
+      ],
+      "seasonal_strength": {
+        "body": "CONFINED",
+        "changed_use": "PROSPEROUS",
+        "initial_use": "CONFINED",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 57,
+        "name": "巽为风",
+        "symbol": "䷸"
+      },
+      "body_use": {
+        "body_trigram": "巽",
+        "changed_relation": "BODY_CONTROLS_USE",
+        "changed_use_trigram": "艮",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "巽"
+      },
+      "case_id": "G0-REP-05",
+      "changed_hexagram": {
+        "king_wen_number": 18,
+        "name": "山风蛊",
+        "symbol": "䷑"
+      },
+      "clarity_report": {
+        "answer": "巽为风把重点放在“用持续而温和的方式进入问题深处”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，你仍有一定主动权，可以调整节奏、投入或边界；这份主动权需要现实能力和资源来兑现。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前可动用的力量受到限制；推进更依赖外部支持、清楚节奏和明确边界。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先换取事实，不急着定性",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是巽为风，先提醒你：用持续而温和的方式进入问题深处。动爻之后变为山风蛊，局面的下一层重点转向：先修补积累已久的问题，再开启下一步。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "MIXED_OR_UNSETTLED",
+        "conflicting_evidence_ids": [
+          "E02",
+          "E03"
+        ],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "CONFINED",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "CONFINED",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "CONFINED",
+            "conditions": [
+              "体方弱于用方，体克用的执行条件不足。"
+            ],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "BODY-CONTROL-CAPACITY-INSUFFICIENT"
+            ],
+            "phase": "CHANGED",
+            "relation": "BODY_CONTROLS_USE",
+            "strength": "WEAK",
+            "use_strength": "PROSPEROUS",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [
+          "体方弱于用方，体克用的执行条件不足。"
+        ],
+        "supporting_evidence_ids": [],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-BOTH-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 5,
+      "numbers": [
+        5,
+        5,
+        5
+      ],
+      "seasonal_strength": {
+        "body": "CONFINED",
+        "changed_use": "PROSPEROUS",
+        "initial_use": "CONFINED",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 29,
+        "name": "坎为水",
+        "symbol": "䷜"
+      },
+      "body_use": {
+        "body_trigram": "坎",
+        "changed_relation": "BODY_GENERATES_USE",
+        "changed_use_trigram": "巽",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "坎"
+      },
+      "case_id": "G0-REP-06",
+      "changed_hexagram": {
+        "king_wen_number": 59,
+        "name": "风水涣",
+        "symbol": "䷺"
+      },
+      "clarity_report": {
+        "answer": "坎为水把重点放在“风险可能反复出现，靠稳住步骤穿过去”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，你正在持续向这件事投入，需要确认付出是否得到相称回应，避免长期单方面支撑。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前助力很弱，单靠意愿容易造成消耗；宜先降低不可逆成本，补足资源后再判断。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先换取事实，不急着定性",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是坎为水，先提醒你：风险可能反复出现，靠稳住步骤穿过去。动爻之后变为风水涣，局面的下一层重点转向：先化开隔阂和僵局，再重新凝聚人心。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [
+          "E03"
+        ],
+        "conclusion_level": "MIXED_OR_UNSETTLED",
+        "conflicting_evidence_ids": [
+          "E02",
+          "E03"
+        ],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "DEAD",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "DEAD",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "DEAD",
+            "conditions": [],
+            "direction": "UNFAVORABLE",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "BODY-GENERATES-USE-REMAINS-CONSUMPTIVE"
+            ],
+            "phase": "CHANGED",
+            "relation": "BODY_GENERATES_USE",
+            "strength": "MEDIUM",
+            "use_strength": "CONFINED",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [],
+        "supporting_evidence_ids": [],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-UNFAVORABLE-NOT-CLEAR"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 6,
+      "numbers": [
+        6,
+        6,
+        6
+      ],
+      "seasonal_strength": {
+        "body": "DEAD",
+        "changed_use": "CONFINED",
+        "initial_use": "DEAD",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 52,
+        "name": "艮为山",
+        "symbol": "䷳"
+      },
+      "body_use": {
+        "body_trigram": "艮",
+        "changed_relation": "USE_GENERATES_BODY",
+        "changed_use_trigram": "离",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "艮"
+      },
+      "case_id": "G0-REP-07",
+      "changed_hexagram": {
+        "king_wen_number": 22,
+        "name": "山火贲",
+        "symbol": "䷕"
+      },
+      "clarity_report": {
+        "answer": "艮为山把重点放在“知道什么时候停下来，才能重新看清”。这项项目或合作并非不能继续，关键在于所需条件能否真正到位。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，外部条件正在给你提供支持，但要以已经出现的资源、回应或行动为准。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前可动用的力量较充足，更有余力承接任务和推动变化；仍需把优势落实成行动。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先看条件是否兑现",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是艮为山，先提醒你：知道什么时候停下来，才能重新看清。动爻之后变为山火贲，局面的下一层重点转向：形式可以帮助表达，但不能盖过实际内容。卦象给出的不是无条件肯定，而是“条件出现后可行”。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "CONDITIONALLY_FAVORABLE",
+        "conflicting_evidence_ids": [],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "PROSPEROUS",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "PROSPEROUS",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "PROSPEROUS",
+            "conditions": [
+              "用方生助能力弱于体方当前承接能力，利向需要现实条件确认。"
+            ],
+            "direction": "FAVORABLE",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "SEASON-WEAKENS-USE-GENERATES-BODY"
+            ],
+            "phase": "CHANGED",
+            "relation": "USE_GENERATES_BODY",
+            "strength": "MEDIUM",
+            "use_strength": "RESTING",
+            "warnings": []
+          }
+        ],
+        "required_conditions": [
+          "用方生助能力弱于体方当前承接能力，利向需要现实条件确认。"
+        ],
+        "supporting_evidence_ids": [
+          "E03"
+        ],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-FAVORABLE-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 1,
+      "numbers": [
+        7,
+        7,
+        1
+      ],
+      "seasonal_strength": {
+        "body": "PROSPEROUS",
+        "changed_use": "RESTING",
+        "initial_use": "PROSPEROUS",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    },
+    {
+      "base_hexagram": {
+        "king_wen_number": 2,
+        "name": "坤为地",
+        "symbol": "䷁"
+      },
+      "body_use": {
+        "body_trigram": "坤",
+        "changed_relation": "SAME_ELEMENT",
+        "changed_use_trigram": "艮",
+        "initial_relation": "SAME_ELEMENT",
+        "initial_use_trigram": "坤"
+      },
+      "case_id": "G0-REP-08",
+      "changed_hexagram": {
+        "king_wen_number": 23,
+        "name": "山地剥",
+        "symbol": "䷖"
+      },
+      "clarity_report": {
+        "answer": "坤为地把重点放在“顺势承接，先认清自己的位置和边界”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
+        "continue_signals": [
+          "双方分工已经明确到具体负责人和可验收的交付结果。",
+          "对方承诺的人力、预算、信息或渠道已经实际到位。",
+          "约定的阶段节点能够按时完成，并且结果可以验收。"
+        ],
+        "evidence_path": [
+          {
+            "text": "事情刚开始时，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "一开始怎么看"
+          },
+          {
+            "text": "动爻发生变化后，你与这件事目前较为同频，互动可能增加；是否真正有利，仍要看配合质量和实际结果。",
+            "title": "事情会怎么变"
+          },
+          {
+            "text": "当前可动用的力量较充足，更有余力承接任务和推动变化；仍需把优势落实成行动。",
+            "title": "你现在有多少余力"
+          }
+        ],
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "pause_signals": [
+          "谁负责、交付什么、何时完成仍然没有明确约定。",
+          "只有你一方不断增加时间、资金或资源，对方没有对等行动。",
+          "已经约定的节点连续落空，也没有新的可执行补救安排。"
+        ],
+        "priority": "先换取事实，不急着定性",
+        "template_version": "SITES_CLARITY_REPORT_V3",
+        "what_it_means": "本卦是坤为地，先提醒你：顺势承接，先认清自己的位置和边界。动爻之后变为山地剥，局面的下一层重点转向：旧结构正在脱落，先保住最重要的部分。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。"
+      },
+      "deterministic_conclusion": {
+        "blocking_evidence_ids": [],
+        "conclusion_level": "MIXED_OR_UNSETTLED",
+        "conflicting_evidence_ids": [
+          "E02",
+          "E03"
+        ],
+        "evidence_sufficiency": "LIMITED",
+        "relation_assessments": [
+          {
+            "body_strength": "PROSPEROUS",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E02",
+              "E06",
+              "E07"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "INITIAL",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "PROSPEROUS",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          },
+          {
+            "body_strength": "PROSPEROUS",
+            "conditions": [],
+            "direction": "MIXED",
+            "evidence_ids": [
+              "E03",
+              "E06",
+              "E08"
+            ],
+            "modifier_rule_ids": [
+              "SAME-ELEMENT-NEVER-DIRECTIONAL"
+            ],
+            "phase": "CHANGED",
+            "relation": "SAME_ELEMENT",
+            "strength": "MEDIUM",
+            "use_strength": "PROSPEROUS",
+            "warnings": [
+              "比和表示同类互动，不因双方旺衰直接转成有利或不利。"
+            ]
+          }
+        ],
+        "required_conditions": [],
+        "supporting_evidence_ids": [],
+        "synthesis_rule_ids": [
+          "MEIHUA-V2A-BOTH-MIXED"
+        ],
+        "warnings": [
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "比和表示同类互动，不因双方旺衰直接转成有利或不利。",
+          "当前卦或动爻只有经典原文，未使用经过人工批准的领域化解释。"
+        ]
+      },
+      "moving_line": 6,
+      "numbers": [
+        8,
+        8,
+        6
+      ],
+      "seasonal_strength": {
+        "body": "PROSPEROUS",
+        "changed_use": "PROSPEROUS",
+        "initial_use": "PROSPEROUS",
+        "month_branch": "未",
+        "solar_term": "小暑"
+      }
+    }
+  ],
+  "dataset_version": "GUANXIANG_PERSONALIZATION_GATE0_V001",
+  "governance_working_head_commit": "e75594208643232ae35134a70b41be1aeea74229",
+  "product_behavior_baseline_commit": "7e96712c1ffc2c3209063c0efd60c33f8f1916ef",
+  "representative_case_count": 8
+}

@@ -142,6 +142,11 @@ Gate 0 与 Gate 1 通过后，下一阶段才可以申请开发独立实验路�
 - 独立审查任务：只读取匿名输出与冻结 Rubric，检查是否只是换词、是否隐藏失败。
 - 真实测试者：验证连续使用和付费意愿。
 
+当前治理状态：
+
+- `DIVINATION_REVIEWER_STATUS = UNASSIGNED`。Gate 0—3只能把判断签名称为实验性解释假设，不得声称获得术数专业审核。
+- `LOCKED_TEST_SET_STATUS = NOT_CREATED_OR_EXPOSED`。校准集可以进入仓库；锁定测试集不得提前提交给执行者，须在Prompt与方案冻结后由独立任务保管或生成并冻结哈希。
+
 ## 用户原有未提交改动
 
 开始本次同步前，工作区已有以下用户改动：
@@ -153,21 +158,24 @@ Gate 0 与 Gate 1 通过后，下一阶段才可以申请开发独立实验路�
 
 ## 验证状态
 
-- 本次仅修改文档，不修改网站、引擎、接口、Prompt、Validator 或数据模型。
+- 产品负责人已经批准执行 Gate 0。
+- Gate 0候选证据包已生成：`evals/meihua/personalization_gate0_v001/`。
+- 384个不同盘面在固定现实处境下形成384种`what_it_means`，但只有1种`next_action`、1套继续信号和1套暂停信号。
+- 1088个合法结构化上下文形成256种`next_action`；行动差异来自领域、阶段、不确定项和时间范围，不来自卦象、自由问题或决策目标。
+- 4组仅更换自由问题的对照全部得到逐字段相同的`clarity_report`。
+- Gate 0与V3定向测试15项通过；全仓766项测试通过。
 - 尚未运行真实模型，没有产生 API 费用。
-- 尚未开始 Gate 0 / Gate 1 的正式产物建设。
-- 提交前应执行 `git diff --check` 并核对只包含本交接明确列出的四个文档文件。
+- Gate 0仍等待独立复验，尚未批准进入Gate 1。
 
 ## 剩余事项及顺序
 
-1. 完整读取本文件、根目录 `AGENTS.md` 和视觉冻结记录。
-2. 核对分支、Commit、工作区和远端同步状态。
-3. 只执行 Gate 0，提交基线和同质化证据包供产品负责人确认。
-4. Gate 0 获批后执行 Gate 1，提交内容规范、校准集、锁定测试集和盲测 Rubric。
-5. 未获批准，不得进入模型实验、真实 API 调用或网站集成。
+1. 执行Codex将Gate 0证据提交并推送，然后把证据索引发送到独立审查对话复验；产品负责人不承担技术证据核验。
+2. 若Gate 0通过，再单独批准Gate 1。
+3. Gate 1只提交内容规范、产品口味校准方案、校准集治理、锁定测试集治理和盲测Rubric。
+4. 未获批准，不得进入模型实验、真实 API 调用或网站集成。
 
 ## 下一任务启动指令
 
 ```text
-完整读取《继续观象.md》、根目录 AGENTS.md、docs/handoffs/2026-07-20-guanxiang-personalization-feasibility.md 和其中引用的视觉冻结记录。先核对 codex/mvp-runnable-baseline 的最新远端状态。当前只执行个性化解读可行性验证 Gate 0：冻结 v16 基线并形成当前同质化证据包；不得修改正式网站、确定性排盘、V3接口、视觉、Release Gate或现有正式Prompt，不得调用真实API。完成后等待产品负责人验收，不自动进入 Gate 1。
+完整读取《继续观象.md》、根目录 AGENTS.md、docs/handoffs/2026-07-20-guanxiang-personalization-feasibility.md、evals/meihua/personalization_gate0_v001/audit_report.md 和其中引用的视觉冻结记录。Gate 0候选证据包已生成并等待独立复验；不得把技术验收转交给产品负责人。未经下一阶段明确授权，不得进入Gate 1、模型调用、实验代码开发、正式网站修改或网站集成。
 ```
