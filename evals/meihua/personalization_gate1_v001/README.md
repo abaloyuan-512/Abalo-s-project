@@ -5,7 +5,8 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 ## 当前状态
 
 - `GATE_0_STATUS = PASS`
-- `GATE_1_STATUS = CANDIDATE_AWAITING_INDEPENDENT_REVIEW`
+- `GATE_1_STATUS = CONDITIONAL_PASS_THRESHOLDS_AND_REMOTE_PENDING`
+- `INDEPENDENT_FINAL_REVIEW = CONDITIONAL_PASS`
 - `ROUND_1_INDEPENDENT_PRE_REVIEW = READY_FOR_PRODUCT_CALIBRATION`
 - `LOCKED_TEST_SET_STATUS = NOT_CREATED_OR_EXPOSED`
 - `DIVINATION_REVIEWER_STATUS = UNASSIGNED`
@@ -32,17 +33,19 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 - `product_calibration_round5_plain_language_repairs.md`：保留案例一、三判断方向，改为普通人能直接理解的解释与行动。
 - `calibration_round5_result.md`：案例一、三最终通过以及跨姿态迁移完成记录。
 - `gate1_candidate_independent_review_request.md`：提交给独立对话的反方验收材料。
+- `evaluation_thresholds_v1_candidate.md`：独立复核要求补充的可计算评测通过线，等待产品负责人批准。
 
-独立预审记录见`docs/handoffs/2026-07-20-guanxiang-gate1-pre-review.md`。
+独立预审记录见`docs/handoffs/2026-07-20-guanxiang-gate1-pre-review.md`；最终候选复核记录见`docs/handoffs/2026-07-21-guanxiang-gate1-independent-review.md`。
 
 ## Gate 1完成条件
 
 Gate 1不能由执行Codex自行宣布完成。至少需要：
 
 1. 产品负责人完成产品声音与跨姿态迁移校准；已完成。
-2. Codex根据选择修订内容价值规范，但不得改写选择结果。
-3. 产品负责人确认规范、盲测问题和后续通过线。
-4. 独立审查确认校准集没有把答案预先引向同一种保守姿态。
+2. Codex根据选择修订内容价值规范，但不得改写选择结果；已完成。
+3. 产品负责人确认规范、盲测问题和后续通过线；内容方向已确认，通过线待批准。
+4. 独立审查确认校准集没有把答案预先引向同一种保守姿态；内容部分已通过，整体为条件通过。
 5. 锁定测试集仍保持未创建、未暴露；只冻结治理方法和结构蓝图。
+6. 完整候选证据形成远端可见的冻结 Commit，并通过最终一致性复核。
 
 完成Gate 1也不自动授权真实模型调用。Gate 2仍需另行批准。

@@ -1,6 +1,9 @@
 {
   "gate_id": "GUANXIANG_PERSONALIZATION_GATE1_V001",
-  "status": "CANDIDATE_AWAITING_INDEPENDENT_REVIEW",
+  "status": "CONDITIONAL_PASS_THRESHOLDS_AND_REMOTE_PENDING",
+  "independent_final_review": "CONDITIONAL_PASS",
+  "independent_reviewed_commit": "93c7c41691ed557be84f38d68cc434d1a6efaa9f",
+  "independent_review_record": "docs/handoffs/2026-07-21-guanxiang-gate1-independent-review.md",
   "independent_pre_review": "READY_FOR_PRODUCT_CALIBRATION",
   "pre_reviewed_commit": "655ceebefcd34564e23ff8a7b49db8ccb042cccf",
   "authorized_by_user_on": "2026-07-20",
@@ -15,6 +18,11 @@
   "model_calls": 0,
   "api_cost_usd": 0,
   "formal_product_changed": false,
+  "evaluation_thresholds": {
+    "candidate_file": "evaluation_thresholds_v1_candidate.md",
+    "product_owner_approval": "PENDING",
+    "remote_frozen_candidate": "PENDING"
+  },
   "product_calibration": {
     "round_1": "ALL_REJECTED",
     "round_2": "DIRECTION_SELECTED_B_JUDGMENT_A_VOICE",
