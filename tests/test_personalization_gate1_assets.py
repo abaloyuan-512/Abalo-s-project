@@ -35,7 +35,7 @@ def test_calibration_set_has_six_anonymous_three_variant_cases() -> None:
 def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     status = _load_json("gate1_status.json")
 
-    assert status["status"] == "AWAITING_PRODUCT_CALIBRATION"
+    assert status["status"] == "CALIBRATION_ROUND_1_REJECTED"
     assert status["independent_pre_review"] == "READY_FOR_PRODUCT_CALIBRATION"
     assert status["pre_reviewed_commit"] == "655ceebefcd34564e23ff8a7b49db8ccb042cccf"
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
@@ -44,17 +44,22 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     assert status["api_cost_usd"] == 0
     assert status["formal_product_changed"] is False
     assert status["next_gate_automatically_authorized"] is False
+    assert status["product_calibration"]["round_1"] == "ALL_REJECTED"
+    assert status["product_calibration"]["round_2"] == "AWAITING_PRODUCT_RESPONSE"
+    assert status["product_calibration"]["round_1_rejection_recorded_verbatim"] is True
 
 
 def test_gate1_package_contains_only_declared_governance_assets() -> None:
     expected = {
         "README.md",
         "blind_review_rubric_v1_draft.md",
+        "calibration_round1_result.md",
         "calibration_cases.json",
         "content_value_spec_v1_draft.md",
         "gate1_status.json",
         "locked_test_governance.md",
         "product_calibration_packet.md",
+        "product_calibration_round2_single_case.md",
     }
 
     assert {path.name for path in GATE1_DIR.iterdir()} == expected

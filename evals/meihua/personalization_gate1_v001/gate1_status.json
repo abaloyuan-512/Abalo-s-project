@@ -1,6 +1,6 @@
 {
   "gate_id": "GUANXIANG_PERSONALIZATION_GATE1_V001",
-  "status": "AWAITING_PRODUCT_CALIBRATION",
+  "status": "CALIBRATION_ROUND_1_REJECTED",
   "independent_pre_review": "READY_FOR_PRODUCT_CALIBRATION",
   "pre_reviewed_commit": "655ceebefcd34564e23ff8a7b49db8ccb042cccf",
   "authorized_by_user_on": "2026-07-20",
@@ -15,6 +15,11 @@
   "model_calls": 0,
   "api_cost_usd": 0,
   "formal_product_changed": false,
+  "product_calibration": {
+    "round_1": "ALL_REJECTED",
+    "round_2": "AWAITING_PRODUCT_RESPONSE",
+    "round_1_rejection_recorded_verbatim": true
+  },
   "required_product_calibration_cases": 6,
   "required_variants_per_case": 3,
   "next_gate_automatically_authorized": false
