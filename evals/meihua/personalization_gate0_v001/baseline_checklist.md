@@ -41,6 +41,7 @@
 - 384个完整确定性结果具有固定汇总SHA-256。
 - 4组自由问题对照保存完整输入、请求哈希与报告输出。
 - Python版本、固定时钟和时区写入`baseline_manifest.json`。
+- 生成器与`.gitattributes`统一JSON为UTF-8＋LF；Manifest哈希直接对应Git提交中的文件字节。
 - Gate 0与V3定向测试：15 passed。
 - 全仓测试：766 passed。
 - `git diff --check`：通过。

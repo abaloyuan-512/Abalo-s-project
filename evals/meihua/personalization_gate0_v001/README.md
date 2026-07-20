@@ -29,7 +29,7 @@
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate0_baseline.py
 ```
 
-生成器固定服务端时间与全部输入；重复运行应得到相同的四个JSON产物与清单哈希。`audit_summary.json`还保存384个完整确定性结果的汇总哈希。它不读取API Key，也没有任何外部网络路径。
+生成器固定服务端时间与全部输入，并强制使用UTF-8＋LF写入JSON；`.gitattributes`也固定本目录JSON的仓库换行。重复运行应得到相同的四个JSON产物与清单哈希。`audit_summary.json`还保存384个完整确定性结果的汇总哈希。它不读取API Key，也没有任何外部网络路径。
 
 ## 范围边界
 

@@ -52,10 +52,9 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 
 def _write_json(path: Path, payload: object) -> None:
-    path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    with path.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+        stream.write("\n")
 
 
 def _stable_json(value: object) -> str:

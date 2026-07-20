@@ -1,6 +1,7 @@
 {
   "dataset_version": "GUANXIANG_PERSONALIZATION_GATE0_V001",
   "dataset_type": "SYNTHETIC_DETERMINISTIC_BASELINE_ONLY",
+  "line_endings": "LF",
   "synthetic_only": true,
   "fixed_clock": "2026-07-18T10:30:00+08:00",
   "contract_version": "SITES_MEIHUA_API_CONTRACT_V3",

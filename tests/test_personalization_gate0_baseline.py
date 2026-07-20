@@ -1,9 +1,14 @@
+import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
 from scripts.build_personalization_gate0_baseline import EVAL_DIR, build_bundle
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 @pytest.fixture(scope="module")
@@ -80,3 +85,28 @@ def test_checked_in_gate0_artifacts_exist() -> None:
         "baseline_manifest.json",
     ):
         assert (EVAL_DIR / name).is_file()
+
+
+def test_manifest_hashes_match_generated_file_bytes(tmp_path: Path) -> None:
+    build_bundle(tmp_path)
+    manifest = json.loads((tmp_path / "baseline_manifest.json").read_text(encoding="utf-8"))
+    for name, expected_hash in manifest["files"].items():
+        path = EVAL_DIR / name if name == "fixed_cases.json" else tmp_path / name
+        assert _sha256(path) == expected_hash
+
+
+def test_independent_gate0_generations_have_identical_hashes(tmp_path: Path) -> None:
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    build_bundle(first)
+    build_bundle(second)
+    generated_names = (
+        "baseline_outputs.json",
+        "question_text_pair_outputs.json",
+        "audit_summary.json",
+        "baseline_manifest.json",
+    )
+    assert {_sha256(first / name) for name in generated_names} == {
+        _sha256(second / name) for name in generated_names
+    }
+    assert all(_sha256(first / name) == _sha256(second / name) for name in generated_names)
