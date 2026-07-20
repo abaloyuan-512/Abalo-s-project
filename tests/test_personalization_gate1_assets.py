@@ -35,7 +35,7 @@ def test_calibration_set_has_six_anonymous_three_variant_cases() -> None:
 def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     status = _load_json("gate1_status.json")
 
-    assert status["status"] == "CONDITIONAL_PASS_THRESHOLDS_AND_REMOTE_PENDING"
+    assert status["status"] == "CONDITIONAL_PASS_REMOTE_PENDING"
     assert status["independent_final_review"] == "CONDITIONAL_PASS"
     assert status["independent_reviewed_commit"] == "93c7c41691ed557be84f38d68cc434d1a6efaa9f"
     assert status["independent_pre_review"] == "READY_FOR_PRODUCT_CALIBRATION"
@@ -45,7 +45,7 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     assert status["model_calls"] == 0
     assert status["api_cost_usd"] == 0
     assert status["formal_product_changed"] is False
-    assert status["evaluation_thresholds"]["product_owner_approval"] == "PENDING"
+    assert status["evaluation_thresholds"]["product_owner_approval"] == "APPROVED_2026-07-21"
     assert status["evaluation_thresholds"]["remote_frozen_candidate"] == "PENDING"
     assert status["next_gate_automatically_authorized"] is False
     assert status["product_calibration"]["round_1"] == "ALL_REJECTED"
@@ -61,7 +61,7 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
 def test_gate1_package_contains_only_declared_governance_assets() -> None:
     expected = {
         "README.md",
-        "blind_review_rubric_v1_draft.md",
+        "blind_review_rubric_v1.md",
         "calibration_round1_result.md",
         "calibration_round2_fusion_feedback.md",
         "calibration_round2_result.md",
@@ -72,7 +72,7 @@ def test_gate1_package_contains_only_declared_governance_assets() -> None:
         "content_value_spec_v1_candidate.md",
         "gate1_candidate_independent_review_request.md",
         "gate1_status.json",
-        "evaluation_thresholds_v1_candidate.md",
+        "evaluation_thresholds_v1.md",
         "locked_test_governance.md",
         "product_calibration_packet.md",
         "product_calibration_round2_fusion_candidate.md",

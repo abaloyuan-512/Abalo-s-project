@@ -1,6 +1,6 @@
 {
   "gate_id": "GUANXIANG_PERSONALIZATION_GATE1_V001",
-  "status": "CONDITIONAL_PASS_THRESHOLDS_AND_REMOTE_PENDING",
+  "status": "CONDITIONAL_PASS_REMOTE_PENDING",
   "independent_final_review": "CONDITIONAL_PASS",
   "independent_reviewed_commit": "93c7c41691ed557be84f38d68cc434d1a6efaa9f",
   "independent_review_record": "docs/handoffs/2026-07-21-guanxiang-gate1-independent-review.md",
@@ -19,8 +19,9 @@
   "api_cost_usd": 0,
   "formal_product_changed": false,
   "evaluation_thresholds": {
-    "candidate_file": "evaluation_thresholds_v1_candidate.md",
-    "product_owner_approval": "PENDING",
+    "frozen_file": "evaluation_thresholds_v1.md",
+    "product_owner_approval": "APPROVED_2026-07-21",
+    "product_owner_approval_text": "我批准《Gate 1评测通过线V1》作为后续离线实验的冻结标准。",
     "remote_frozen_candidate": "PENDING"
   },
   "product_calibration": {
