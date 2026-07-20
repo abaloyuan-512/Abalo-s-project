@@ -5,7 +5,7 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 ## 当前状态
 
 - `GATE_0_STATUS = PASS`
-- `GATE_1_STATUS = CALIBRATION_ROUND_5_PLAIN_LANGUAGE_REPAIRS_AWAITING_CONFIRMATION`
+- `GATE_1_STATUS = CANDIDATE_AWAITING_INDEPENDENT_REVIEW`
 - `ROUND_1_INDEPENDENT_PRE_REVIEW = READY_FOR_PRODUCT_CALIBRATION`
 - `LOCKED_TEST_SET_STATUS = NOT_CREATED_OR_EXPOSED`
 - `DIVINATION_REVIEWER_STATUS = UNASSIGNED`
@@ -14,7 +14,7 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 
 ## 文件
 
-- `content_value_spec_v1_draft.md`：内容价值规范草案。
+- `content_value_spec_v1_candidate.md`：吸收全部产品校准结果的冻结候选规范，尚非正式发布规范。
 - `calibration_cases.json`：6组产品口味校准案例，每组3个匿名候选答案。
 - `product_calibration_packet.md`：产品负责人使用的非技术选择说明。
 - `blind_review_rubric_v1_draft.md`：后续匿名盲测评分规则草案。
@@ -30,6 +30,8 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 - `product_calibration_round4_transfer_packet.md`：使用三个Gate 0真实盘面验证推进、有限主动与继续立基三种不同姿态。
 - `calibration_round4_result.md`：三案例迁移的逐例评分、部分通过结论与抽象表达问题。
 - `product_calibration_round5_plain_language_repairs.md`：保留案例一、三判断方向，改为普通人能直接理解的解释与行动。
+- `calibration_round5_result.md`：案例一、三最终通过以及跨姿态迁移完成记录。
+- `gate1_candidate_independent_review_request.md`：提交给独立对话的反方验收材料。
 
 独立预审记录见`docs/handoffs/2026-07-20-guanxiang-gate1-pre-review.md`。
 
@@ -37,7 +39,7 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 
 Gate 1不能由执行Codex自行宣布完成。至少需要：
 
-1. 产品负责人完成能够选出方向的产品校准；Round 3单案例已达85分以上，Round 4部分通过，当前等待案例一、三通俗表达修订确认。
+1. 产品负责人完成产品声音与跨姿态迁移校准；已完成。
 2. Codex根据选择修订内容价值规范，但不得改写选择结果。
 3. 产品负责人确认规范、盲测问题和后续通过线。
 4. 独立审查确认校准集没有把答案预先引向同一种保守姿态。
