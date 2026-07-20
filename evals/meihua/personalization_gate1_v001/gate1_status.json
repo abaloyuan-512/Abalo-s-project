@@ -1,6 +1,6 @@
 {
   "gate_id": "GUANXIANG_PERSONALIZATION_GATE1_V001",
-  "status": "CALIBRATION_ROUND_4_TRANSFER_AWAITING_CONFIRMATION",
+  "status": "CALIBRATION_ROUND_5_PLAIN_LANGUAGE_REPAIRS_AWAITING_CONFIRMATION",
   "independent_pre_review": "READY_FOR_PRODUCT_CALIBRATION",
   "pre_reviewed_commit": "655ceebefcd34564e23ff8a7b49db8ccb042cccf",
   "authorized_by_user_on": "2026-07-20",
@@ -20,7 +20,8 @@
     "round_2": "DIRECTION_SELECTED_B_JUDGMENT_A_VOICE",
     "round_2_fusion_candidate": "ACCEPTED_AS_70_POINT_BASELINE",
     "round_3_refined_voice": "ACCEPTED_ABOVE_85_POINTS",
-    "round_4_cross_posture_transfer": "AWAITING_PRODUCT_RESPONSE",
+    "round_4_cross_posture_transfer": "PARTIAL_PASS_CASE_2_ACCEPTED",
+    "round_5_plain_language_repairs": "AWAITING_PRODUCT_RESPONSE",
     "round_1_rejection_recorded_verbatim": true
   },
   "required_product_calibration_cases": 6,

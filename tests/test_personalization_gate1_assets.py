@@ -35,7 +35,7 @@ def test_calibration_set_has_six_anonymous_three_variant_cases() -> None:
 def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     status = _load_json("gate1_status.json")
 
-    assert status["status"] == "CALIBRATION_ROUND_4_TRANSFER_AWAITING_CONFIRMATION"
+    assert status["status"] == "CALIBRATION_ROUND_5_PLAIN_LANGUAGE_REPAIRS_AWAITING_CONFIRMATION"
     assert status["independent_pre_review"] == "READY_FOR_PRODUCT_CALIBRATION"
     assert status["pre_reviewed_commit"] == "655ceebefcd34564e23ff8a7b49db8ccb042cccf"
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
@@ -48,7 +48,8 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     assert status["product_calibration"]["round_2"] == "DIRECTION_SELECTED_B_JUDGMENT_A_VOICE"
     assert status["product_calibration"]["round_2_fusion_candidate"] == "ACCEPTED_AS_70_POINT_BASELINE"
     assert status["product_calibration"]["round_3_refined_voice"] == "ACCEPTED_ABOVE_85_POINTS"
-    assert status["product_calibration"]["round_4_cross_posture_transfer"] == "AWAITING_PRODUCT_RESPONSE"
+    assert status["product_calibration"]["round_4_cross_posture_transfer"] == "PARTIAL_PASS_CASE_2_ACCEPTED"
+    assert status["product_calibration"]["round_5_plain_language_repairs"] == "AWAITING_PRODUCT_RESPONSE"
     assert status["product_calibration"]["round_1_rejection_recorded_verbatim"] is True
 
 
@@ -60,6 +61,7 @@ def test_gate1_package_contains_only_declared_governance_assets() -> None:
         "calibration_round2_fusion_feedback.md",
         "calibration_round2_result.md",
         "calibration_round3_result.md",
+        "calibration_round4_result.md",
         "calibration_cases.json",
         "content_value_spec_v1_draft.md",
         "gate1_status.json",
@@ -69,6 +71,7 @@ def test_gate1_package_contains_only_declared_governance_assets() -> None:
         "product_calibration_round2_single_case.md",
         "product_calibration_round3_refined_voice.md",
         "product_calibration_round4_transfer_packet.md",
+        "product_calibration_round5_plain_language_repairs.md",
     }
 
     assert {path.name for path in GATE1_DIR.iterdir()} == expected
