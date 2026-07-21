@@ -13,6 +13,8 @@ STAGE_C_FAILURE = GATE2_DIR / "stage_c_failure_analysis.md"
 STAGE_C1_PLAN = GATE2_DIR / "stage_c1_offline_hardening_plan.md"
 STAGE_C1_STATUS = GATE2_DIR / "stage_c1_status.json"
 STAGE_C1_RESULT = GATE2_DIR / "stage_c1_retest_result.md"
+STAGE_C2_PLAN = GATE2_DIR / "stage_c2_offline_contract_plan.md"
+STAGE_C2_STATUS = GATE2_DIR / "stage_c2_status.json"
 
 
 def test_gate2_contains_only_the_approved_governance_assets() -> None:
@@ -25,6 +27,8 @@ def test_gate2_contains_only_the_approved_governance_assets() -> None:
         STAGE_C1_PLAN.name,
         STAGE_C1_STATUS.name,
         STAGE_C1_RESULT.name,
+        STAGE_C2_PLAN.name,
+        STAGE_C2_STATUS.name,
     }
 
 
@@ -91,6 +95,26 @@ def test_gate2_stage_c1_status_records_narrow_retest_and_keeps_stage_d_closed() 
     assert status["formal_product_changed"] is False
     assert status["stage_d_authorized"] is False
     assert status["next_stage_automatically_authorized"] is False
+
+
+def test_gate2_stage_c2_status_is_offline_only_and_keeps_live_work_closed() -> None:
+    status = __import__("json").loads(STAGE_C2_STATUS.read_text(encoding="utf-8"))
+
+    assert status["schema_version"] == "gate2_schema_v2"
+    assert status["previous_schema_version_preserved"] == "gate2_schema_v1"
+    assert status["external_model_calls"] == 0
+    assert status["api_cost_usd"] == 0
+    assert status["real_retest_authorized"] is False
+    assert status["offline_background_runner_implemented"] is True
+    assert status["offline_default_openai_network_client_allowed"] is False
+    assert status["offline_sdk_mock_transport_verified"] is True
+    assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
+    assert status["formal_product_changed"] is False
+    assert status["stage_d_authorized"] is False
+    assert status["next_stage_automatically_authorized"] is False
+    assert status["strict_schema_source_trace_union_branches"] == 4
+    assert status["verification_gate2_tests_passed"] == 89
+    assert status["verification_full_repository_tests_passed"] == 862
 
 
 def test_gate2_plan_preserves_three_sources_and_four_arms() -> None:

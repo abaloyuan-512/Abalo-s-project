@@ -77,6 +77,19 @@ tests/test_personalization_gate2_stage_c1_entry.py
 
 该次授权已使用：只创建1次后台响应并轮询同一响应ID。API终态为`completed`，Usage和费用均已取得，但首次原始输出因8条`REALITY_FACT`错误携带非空`reality_refs`而未通过既有Schema，最终按`PROVIDER_FAILED`硬停止。实际费用0.136155美元，自动重试和自动修复均为0。详见`stage_c1_retest_result.md`。
 
+## 阶段 C.2离线结构契约加固
+
+阶段 C.2已获得仅离线实施授权，用于修复 C.1暴露出的机器可见 Schema 缺口：旧 Schema 未把`REALITY_FACT`和`CHART_FACT`的空引用数组要求暴露为 JSON Schema 约束。
+
+- 新增隔离的`gate2_schema_v2`、阶段 C.2 Prompt v4和实验 Validator v3坐标；
+- `source_trace`改用四个带常量标签的联合分支，让事实项空引用和两类解释接榫的引用要求直接出现在 JSON Schema；
+- Prompt 同步明确事实项不得把自己的`RWxx`或`EVxx`重复写入解释引用数组；
+- 新增仅接受注入模拟客户端、固定0美元预算的 C.2后台 Provider/Runner，并通过 Fake 与 SDK `MockTransport`端到端验证；
+- C.1历史 Schema、Prompt、Validator和已消耗的付费入口均不修改；
+- 本阶段外部模型调用0次、费用0美元，真实复测与阶段 D仍未授权。
+
+设计与状态见`stage_c2_offline_contract_plan.md`和`stage_c2_status.json`。
+
 ## 本地验证
 
 ```powershell
@@ -84,6 +97,7 @@ tests/test_personalization_gate2_stage_c1_entry.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1_entry.py
+.\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c2_contract.py
 .\.venv\Scripts\python.exe -m pytest -q
 git diff --check
 ```

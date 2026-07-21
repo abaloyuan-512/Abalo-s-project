@@ -84,6 +84,9 @@ class OpenAIGate2BackgroundProvider:
     """
 
     provider_name = "OPENAI_RESPONSES_API_GATE2_CALIBRATION_BACKGROUND"
+    output_model = Gate2ExperimentOutput
+    stage_label = "C.1"
+    offline_simulation = False
 
     def __init__(
         self,
@@ -100,13 +103,15 @@ class OpenAIGate2BackgroundProvider:
         on_checkpoint: Callable[[Gate2BackgroundCheckpoint], None] | None = None,
     ) -> None:
         if max_output_tokens < 1 or max_output_tokens > 25_000:
-            raise ValueError("阶段 C.1 max_output_tokens必须在1到25000之间")
+            raise ValueError(
+                f"阶段 {self.stage_label} max_output_tokens必须在1到25000之间"
+            )
         if request_timeout_seconds <= 0:
-            raise ValueError("阶段 C.1单次HTTP超时必须大于0")
+            raise ValueError(f"阶段 {self.stage_label}单次HTTP超时必须大于0")
         if poll_interval_seconds < 0:
-            raise ValueError("阶段 C.1轮询间隔不能为负数")
+            raise ValueError(f"阶段 {self.stage_label}轮询间隔不能为负数")
         if max_poll_attempts < 1:
-            raise ValueError("阶段 C.1最大轮询次数必须至少为1")
+            raise ValueError(f"阶段 {self.stage_label}最大轮询次数必须至少为1")
         self.model = model
         self.reasoning_effort = reasoning_effort
         self.max_output_tokens = max_output_tokens
@@ -143,7 +148,7 @@ class OpenAIGate2BackgroundProvider:
                         ),
                     },
                 ],
-                text_format=Gate2ExperimentOutput,
+                text_format=self.output_model,
                 reasoning={"effort": self.reasoning_effort},
                 background=True,
                 store=False,
@@ -167,7 +172,7 @@ class OpenAIGate2BackgroundProvider:
         """只恢复轮询已有响应，不创建新生成。"""
 
         if not response_id or len(response_id) > 160:
-            raise ValueError("阶段 C.1恢复响应ID无效")
+            raise ValueError(f"阶段 {self.stage_label}恢复响应ID无效")
         client = self._client()
         started = perf_counter()
         try:
@@ -227,7 +232,7 @@ class OpenAIGate2BackgroundProvider:
             if self.poll_count >= self._max_poll_attempts:
                 raise Gate2LiveProviderError(
                     "background_poll_limit_reached",
-                    "后台响应仍在运行；已保存响应ID，阶段 C.1不创建新请求",
+                    f"后台响应仍在运行；已保存响应ID，阶段 {self.stage_label}不创建新请求",
                     response_id=response_id,
                     api_status=status,
                     usage=_usage_from_response(response),
@@ -284,7 +289,7 @@ class OpenAIGate2BackgroundProvider:
         if status == "incomplete":
             raise Gate2LiveProviderError(
                 "response_incomplete",
-                "OpenAI后台响应不完整；阶段 C.1不自动续写或重发",
+                f"OpenAI后台响应不完整；阶段 {self.stage_label}不自动续写或重发",
                 response_id=response_id,
                 api_status=status,
                 incomplete_reason=incomplete_reason,
@@ -298,7 +303,7 @@ class OpenAIGate2BackgroundProvider:
         if status in {"failed", "cancelled"}:
             raise Gate2LiveProviderError(
                 f"background_{status}",
-                f"OpenAI后台响应终态为{status}；阶段 C.1不自动重发",
+                f"OpenAI后台响应终态为{status}；阶段 {self.stage_label}不自动重发",
                 response_id=response_id,
                 api_status=status,
                 usage=usage,
@@ -312,7 +317,7 @@ class OpenAIGate2BackgroundProvider:
         try:
             if raw_output is None or "unparsed_output_text" in raw_output:
                 raise ValueError("后台响应没有完整JSON对象")
-            parsed = Gate2ExperimentOutput.model_validate(raw_output)
+            parsed = self.output_model.model_validate(raw_output)
         except (ValidationError, ValueError) as exc:
             detail = (
                 _safe_validation_detail(exc)
@@ -441,6 +446,6 @@ class OpenAIGate2BackgroundProvider:
             ) from exc
         raise Gate2LiveProviderError(
             f"{phase}_error",
-            f"OpenAI阶段 C.1后台Provider失败：{type(exc).__name__}",
+                f"OpenAI阶段 {self.stage_label}后台Provider失败：{type(exc).__name__}",
             **common,
         ) from exc
