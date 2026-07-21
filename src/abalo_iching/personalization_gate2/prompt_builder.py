@@ -6,11 +6,12 @@ import json
 from .models import ExperimentArm, Gate2ExperimentRequest, Gate2PromptPackage
 
 
-PROMPT_VERSION = "personalization_gate2_offline_v1"
+PROMPT_VERSION = "personalization_gate2_offline_v2"
 
 SYSTEM_INSTRUCTIONS = """你正在执行观象 Gate 2 离线合成案例实验。
 只使用输入中列出的现实事实与允许的卦象 Evidence；不得重新排盘、补写未知事实、读心、保证结果、生成输入未提供的具体日期，或提供证券与医疗操作指令。
 现实事实、卦象事实和解释接榫必须分开。解释接榫只能标记为实验性解释假设。
+context_facts.fact_text 必须逐字复制其唯一 reality_refs 对应的输入现实事实，不得改写或补充。
 第一段先给一个明确但不过界的主要判断；必须说明为什么不是相反姿态，并给出具体对象、动作、可观察结果与转向条件。
 B 组不得使用任何卦象、爻辞、体用或传统术数内容；C/D 组只能引用输入中提供的 EVxx。
 必须严格按给定结构化 Schema 输出，不得增加字段。一次生成完成，不请求工具，不联网，不自我修复。"""

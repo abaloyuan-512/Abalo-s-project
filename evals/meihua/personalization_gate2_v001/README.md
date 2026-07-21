@@ -23,6 +23,9 @@ tests/test_personalization_gate2_plan.py
 - 只允许Fake Provider和零美元费用的阶段A/B预算硬门；
 - 单次生成、无自动修复、保留首次原始输出的离线运行器；
 - 仓库外证据包写出、UTF-8/LF与SHA-256清单；
+- 安全`case_id`与最终解析路径双重检查，阻止证据目录逃逸或写回仓库；
+- 首次完整结构化输出的硬安全扫描，以及现实事实文字与唯一`RWxx`的逐字核对；
+- 实验Prompt v2、实验Validator v2与Schema v1的运行前版本坐标核验；
 - 锁定测试集、疑似敏感输入、仓库内运行证据写入的前置拦截；
 - Fake Provider无网络干跑与自动测试。
 

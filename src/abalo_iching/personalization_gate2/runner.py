@@ -21,6 +21,7 @@ from .models import (
     Gate2ProviderResult,
     Gate2Usage,
     Gate2ValidationReport,
+    OUTPUT_SCHEMA_VERSION,
     ValidationFailure,
     gate2_output_schema_sha256,
 )
@@ -69,13 +70,15 @@ class Gate2OfflineRunner:
         evidence_root: Path | None = None,
     ) -> Gate2DryRunResult:
         self._assert_request_allowed(request)
+        self._assert_component_versions(request)
         if request.metadata.arm is ExperimentArm.A:
             return self._run_baseline(request, evidence_root=evidence_root)
         if provider is None:
             raise Gate2ExecutionBlocked("B/C/D 干跑必须显式提供 Fake Provider")
-        if not isinstance(provider, FakeGate2Provider):
+        if type(provider) is not FakeGate2Provider:
             raise Gate2ExecutionBlocked("阶段 A/B 运行器只接受内置 FakeGate2Provider")
 
+        self._assert_zero_budget_configuration()
         self.budget_guard.authorize(
             provider_name=provider.provider_name,
             estimated_cost_usd=Decimal("0"),
@@ -90,7 +93,10 @@ class Gate2OfflineRunner:
             provider_result = provider.generate(prompt)
             if provider_result.provider_name != "FAKE":
                 raise Gate2BudgetError("Fake Provider 返回了非 FAKE 来源标记")
-            self.budget_guard.record_actual_cost(Decimal(str(provider_result.cost_usd)))
+            reported_cost = Decimal(str(provider_result.cost_usd))
+            if reported_cost != Decimal("0"):
+                raise Gate2BudgetError("阶段 A/B 的实际费用必须严格为零美元")
+            self.budget_guard.record_actual_cost(reported_cost)
             parsed_output = Gate2ExperimentOutput.model_validate(provider_result.raw_output)
         except Gate2BudgetError:
             raise
@@ -156,9 +162,9 @@ class Gate2OfflineRunner:
             contract_version=request.metadata.contract_version,
             prompt_version="NOT_APPLICABLE",
             prompt_sha256=None,
-            schema_version=request.metadata.schema_version,
+            schema_version=OUTPUT_SCHEMA_VERSION,
             schema_sha256=gate2_output_schema_sha256(),
-            validator_version=request.metadata.validator_version,
+            validator_version=self.validator.version,
             validator_sha256=gate2_validator_source_sha256(),
             reality_reference_map={
                 item.ref: item.text for item in request.reality.reality_facts()
@@ -207,11 +213,11 @@ class Gate2OfflineRunner:
             synthetic_data_confirmed=True,
             chart_mapping_id=chart_mapping_id,
             contract_version=request.metadata.contract_version,
-            prompt_version=request.metadata.prompt_version,
+            prompt_version=self.prompt_builder.version,
             prompt_sha256=prompt_sha256,
-            schema_version=request.metadata.schema_version,
+            schema_version=OUTPUT_SCHEMA_VERSION,
             schema_sha256=gate2_output_schema_sha256(),
-            validator_version=request.metadata.validator_version,
+            validator_version=self.validator.version,
             validator_sha256=gate2_validator_source_sha256(),
             reality_reference_map={
                 item.ref: item.text for item in request.reality.reality_facts()
@@ -253,3 +259,22 @@ class Gate2OfflineRunner:
         for name, pattern in _SENSITIVE_INPUT_PATTERNS:
             if pattern.search(serialized):
                 raise Gate2ExecutionBlocked(f"合成输入疑似包含受保护信息：{name}")
+
+    def _assert_zero_budget_configuration(self) -> None:
+        if (
+            self.budget_guard.authorized_spend_usd != Decimal("0")
+            or self.budget_guard.live_model_calls_authorized
+            or self.budget_guard.spent_usd != Decimal("0")
+        ):
+            raise Gate2ExecutionBlocked("阶段 A/B 零美元硬门不得被重新配置")
+
+    def _assert_component_versions(self, request: Gate2ExperimentRequest) -> None:
+        if request.metadata.schema_version != OUTPUT_SCHEMA_VERSION:
+            raise Gate2ExecutionBlocked("请求的输出 Schema 版本与运行器不一致")
+        if request.metadata.validator_version != self.validator.version:
+            raise Gate2ExecutionBlocked("请求的实验 Validator 版本与运行器不一致")
+        if (
+            request.metadata.arm is not ExperimentArm.A
+            and request.metadata.prompt_version != self.prompt_builder.version
+        ):
+            raise Gate2ExecutionBlocked("请求的实验 Prompt 版本与运行器不一致")

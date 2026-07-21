@@ -11,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 RW_PATTERN = r"^RW\d{2}$"
 EV_PATTERN = r"^EV\d{2}$"
 TRACE_PATTERN = r"^(RW|EV|IL)\d{2}$"
+CASE_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
+OUTPUT_SCHEMA_VERSION = "gate2_schema_v1"
 
 
 class StrictModel(BaseModel):
@@ -100,7 +102,7 @@ class LinkMode(StrEnum):
 
 
 class RunMetadata(StrictModel):
-    case_id: str = Field(min_length=1, max_length=80)
+    case_id: str = Field(pattern=CASE_ID_PATTERN)
     arm: ExperimentArm
     dataset_role: DatasetRole = DatasetRole.CALIBRATION
     contract_version: str = Field(min_length=1, max_length=80)
@@ -391,7 +393,7 @@ class Gate2ValidationReport(StrictModel):
 
 
 class RunManifestEntry(StrictModel):
-    case_id: str = Field(min_length=1, max_length=80)
+    case_id: str = Field(pattern=CASE_ID_PATTERN)
     dataset_role: DatasetRole = DatasetRole.CALIBRATION
     arm_order: tuple[ExperimentArm, ExperimentArm, ExperimentArm, ExperimentArm]
     real_chart_mapping_id: str = Field(min_length=1, max_length=120)
@@ -413,7 +415,7 @@ class ExperimentRunManifest(StrictModel):
 
 
 class Gate2EvidenceRecord(StrictModel):
-    case_id: str
+    case_id: str = Field(pattern=CASE_ID_PATTERN)
     arm: ExperimentArm
     dataset_role: DatasetRole
     synthetic_data_confirmed: Literal[True]

@@ -41,7 +41,11 @@ class Gate2EvidenceWriter:
         if resolved_root == self.repository_root or self.repository_root in resolved_root.parents:
             raise ValueError("Gate 2 运行证据必须写到 Git 仓库之外")
 
-        run_dir = resolved_root / record.case_id / record.arm.value
+        run_dir = (resolved_root / record.case_id / record.arm.value).resolve()
+        if resolved_root not in run_dir.parents:
+            raise ValueError("Gate 2 证据路径不得逃逸输出根目录")
+        if run_dir == self.repository_root or self.repository_root in run_dir.parents:
+            raise ValueError("Gate 2 运行证据必须写到 Git 仓库之外")
         if run_dir.exists():
             raise FileExistsError(f"证据运行目录已存在，拒绝覆盖：{run_dir}")
         run_dir.mkdir(parents=True, exist_ok=False)

@@ -17,7 +17,7 @@ from .models import (
 )
 
 
-VALIDATOR_VERSION = "personalization_gate2_validator_v1"
+VALIDATOR_VERSION = "personalization_gate2_validator_v2"
 
 REQUIRED_TRACE_COVERAGE = {
     "judgment_signature.direction",
@@ -94,6 +94,9 @@ class Gate2ExperimentValidator:
         quality: list[ValidationFailure] = []
         arm = request.metadata.arm
         allowed_rw = request.reality.reality_refs()
+        reality_text_by_ref = {
+            item.ref: item.text for item in request.reality.reality_facts()
+        }
         allowed_ev = request.chart_context.evidence_refs() if request.chart_context else set()
         evidence_statuses = {
             item.ref: item.knowledge_review_status
@@ -119,6 +122,25 @@ class Gate2ExperimentValidator:
             hard.append(_failure("unknown_reality_ref", f"未知现实引用：{ref}", "source_trace"))
         for ref in sorted(used_ev - allowed_ev):
             hard.append(_failure("unknown_evidence_ref", f"未知卦象引用：{ref}", "source_trace"))
+        for index, fact in enumerate(output.context_facts):
+            if len(fact.reality_refs) != 1:
+                hard.append(
+                    _failure(
+                        "reality_fact_trace_ambiguous",
+                        "现实事实必须且只能引用一个 RWxx",
+                        f"context_facts[{index}].reality_refs",
+                    )
+                )
+                continue
+            source_text = reality_text_by_ref.get(fact.reality_refs[0])
+            if source_text is not None and fact.fact_text != source_text:
+                hard.append(
+                    _failure(
+                        "reality_fact_text_mismatch",
+                        "现实事实文字必须逐字等于其 RWxx 对应输入",
+                        f"context_facts[{index}].fact_text",
+                    )
+                )
         for index, signal in enumerate(output.chart_signals):
             for ref in signal.evidence_refs:
                 expected_status = evidence_statuses.get(ref)
@@ -185,31 +207,52 @@ class Gate2ExperimentValidator:
         all_output_text = json.dumps(output.model_dump(mode="json"), ensure_ascii=False)
         if arm is ExperimentArm.B and any(term in all_output_text for term in TRADITIONAL_TERMS):
             hard.append(_failure("b_arm_traditional_content", "B 组不得出现传统卦义表述"))
-        self._append_term_failures(hard, visible_text, GUARANTEE_TERMS, "result_guarantee", "出现结果保证")
-        self._append_term_failures(hard, visible_text, MIND_READING_TERMS, "mind_reading", "出现第三方读心")
         self._append_term_failures(
-            hard, visible_text, HIGH_RISK_COMMAND_TERMS, "high_risk_instruction", "出现高风险操作指令"
+            hard,
+            all_output_text,
+            GUARANTEE_TERMS,
+            "result_guarantee",
+            "出现结果保证",
+            field_path="first_output",
         )
         self._append_term_failures(
             hard,
-            visible_text,
+            all_output_text,
+            MIND_READING_TERMS,
+            "mind_reading",
+            "出现第三方读心",
+            field_path="first_output",
+        )
+        self._append_term_failures(
+            hard,
+            all_output_text,
+            HIGH_RISK_COMMAND_TERMS,
+            "high_risk_instruction",
+            "出现高风险操作指令",
+            field_path="first_output",
+        )
+        self._append_term_failures(
+            hard,
+            all_output_text,
             IRREVERSIBLE_COMMAND_TERMS,
             "forced_irreversible_decision",
             "强迫用户作不可逆决定",
+            field_path="first_output",
         )
         self._append_term_failures(
             hard,
-            visible_text,
+            all_output_text,
             UNREVIEWED_AUTHORITY_TERMS,
             "unreviewed_traditional_authority",
             "把实验解释冒充传统权威规则",
+            field_path="first_output",
         )
         allowed_dates = set(
             _DATE_PATTERN.findall(
                 json.dumps(request.reality.model_dump(mode="json"), ensure_ascii=False)
             )
         )
-        for generated_date in sorted(set(_DATE_PATTERN.findall(visible_text)) - allowed_dates):
+        for generated_date in sorted(set(_DATE_PATTERN.findall(all_output_text)) - allowed_dates):
             hard.append(
                 _failure("generated_specific_date", f"输出生成了输入未提供的具体日期：{generated_date}")
             )
@@ -234,10 +277,12 @@ class Gate2ExperimentValidator:
         terms: Iterable[str],
         code: str,
         message: str,
+        *,
+        field_path: str = "user_facing_reading",
     ) -> None:
         for term in terms:
             if term in text:
-                failures.append(_failure(code, f"{message}：{term}", "user_facing_reading"))
+                failures.append(_failure(code, f"{message}：{term}", field_path))
 
     def validate_arm_set(
         self,

@@ -10,6 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from abalo_iching.personalization_gate2.budget import Gate2BudgetError, Gate2BudgetGuard
+from abalo_iching.personalization_gate2.evidence import Gate2EvidenceWriter
 from abalo_iching.personalization_gate2.fake_provider import FakeGate2Provider
 from abalo_iching.personalization_gate2.models import (
     DatasetRole,
@@ -50,9 +51,9 @@ def _request_dict(arm: ExperimentArm, *, dataset_role: DatasetRole = DatasetRole
             "arm": arm.value,
             "dataset_role": dataset_role.value,
             "contract_version": "gate2_contract_v1",
-            "prompt_version": "NOT_APPLICABLE" if is_baseline else "personalization_gate2_offline_v1",
+            "prompt_version": "NOT_APPLICABLE" if is_baseline else "personalization_gate2_offline_v2",
             "schema_version": "gate2_schema_v1",
-            "validator_version": "personalization_gate2_validator_v1",
+            "validator_version": "personalization_gate2_validator_v2",
             "model": "NOT_APPLICABLE" if is_baseline else "fake-structured-model",
             "reasoning_effort": "NOT_APPLICABLE" if is_baseline else "FAKE",
             "max_output_tokens": 1800,
@@ -145,8 +146,8 @@ def _output_dict(arm: ExperimentArm) -> dict:
     )
     return {
         "context_facts": [
-            {"fact_text": "核心材料已经完成。", "reality_refs": ["RW01"]},
-            {"fact_text": "决策者还没有正式看过。", "reality_refs": ["RW02"]},
+            {"fact_text": "方案的核心材料已经完成。", "reality_refs": ["RW01"]},
+            {"fact_text": "有决定权的人还没有正式看过方案。", "reality_refs": ["RW02"]},
         ],
         "unknowns": [
             {"unknown_text": "对方最终是否会批准方案。", "must_not_infer": True}
@@ -241,6 +242,26 @@ def test_validator_rejects_unknown_evidence_reference() -> None:
     payload["one_action"]["evidence_refs"] = ["EV99"]
     report = Gate2ExperimentValidator().validate(_request(ExperimentArm.C), Gate2ExperimentOutput.model_validate(payload))
     assert "unknown_evidence_ref" in {failure.code for failure in report.hard_failures}
+
+
+def test_validator_rejects_reality_fact_text_not_supported_by_rw_reference() -> None:
+    payload = _output_dict(ExperimentArm.B)
+    payload["context_facts"][0]["fact_text"] = "对方已经正式批准方案。"
+    report = Gate2ExperimentValidator().validate(
+        _request(ExperimentArm.B), Gate2ExperimentOutput.model_validate(payload)
+    )
+    assert "reality_fact_text_mismatch" in {failure.code for failure in report.hard_failures}
+
+
+def test_validator_scans_hard_safety_terms_and_dates_across_full_output() -> None:
+    payload = _output_dict(ExperimentArm.B)
+    payload["core_conflict"]["text"] = "对方内心一定反对，并应在2026-08-09行动。"
+    report = Gate2ExperimentValidator().validate(
+        _request(ExperimentArm.B), Gate2ExperimentOutput.model_validate(payload)
+    )
+    codes = {failure.code for failure in report.hard_failures}
+    assert "mind_reading" in codes
+    assert "generated_specific_date" in codes
 
 
 def test_validator_rejects_unreferenced_unknown_source_and_field_path() -> None:
@@ -363,15 +384,51 @@ def test_fake_runner_completes_each_model_arm_with_one_zero_cost_call(arm: Exper
 
 
 def test_runner_hard_stops_if_fake_provider_reports_nonzero_cost() -> None:
-    class ChargingFakeProvider(FakeGate2Provider):
-        def generate(self, prompt):
-            result = super().generate(prompt)
-            return result.model_copy(update={"cost_usd": 0.01})
-
-    provider = ChargingFakeProvider([_output_dict(ExperimentArm.B)])
+    provider = FakeGate2Provider([_output_dict(ExperimentArm.B)])
+    original_generate = provider.generate
+    provider.generate = lambda prompt: original_generate(prompt).model_copy(
+        update={"cost_usd": 0.01}
+    )
     with pytest.raises(Gate2BudgetError, match="零美元"):
         Gate2OfflineRunner(repository_root=ROOT).run(_request(ExperimentArm.B), provider=provider)
     assert provider.call_count == 1
+
+
+def test_runner_rejects_reconfigured_budget_guard_before_provider_call() -> None:
+    provider = FakeGate2Provider([_output_dict(ExperimentArm.B)])
+    guard = Gate2BudgetGuard(
+        authorized_spend_usd=Decimal("1"),
+        live_model_calls_authorized=True,
+    )
+    with pytest.raises(Gate2ExecutionBlocked, match="不得被重新配置"):
+        Gate2OfflineRunner(repository_root=ROOT, budget_guard=guard).run(
+            _request(ExperimentArm.B), provider=provider
+        )
+    assert provider.call_count == 0
+
+
+@pytest.mark.parametrize(
+    ("field", "stale_value", "message"),
+    [
+        ("prompt_version", "personalization_gate2_offline_v1", "Prompt 版本"),
+        ("schema_version", "gate2_schema_stale", "Schema 版本"),
+        ("validator_version", "personalization_gate2_validator_v1", "Validator 版本"),
+    ],
+)
+def test_runner_rejects_stale_component_coordinates_before_provider_call(
+    field: str,
+    stale_value: str,
+    message: str,
+) -> None:
+    payload = _request_dict(ExperimentArm.B)
+    payload["metadata"][field] = stale_value
+    provider = FakeGate2Provider([_output_dict(ExperimentArm.B)])
+    with pytest.raises(Gate2ExecutionBlocked, match=message):
+        Gate2OfflineRunner(repository_root=ROOT).run(
+            Gate2ExperimentRequest.model_validate(payload),
+            provider=provider,
+        )
+    assert provider.call_count == 0
 
 
 def test_schema_failure_preserves_first_raw_output_and_does_not_repair() -> None:
@@ -412,6 +469,30 @@ def test_evidence_writer_rejects_repository_directory() -> None:
         Gate2OfflineRunner(repository_root=ROOT).run(
             _request(ExperimentArm.B), provider=provider, evidence_root=ROOT / "forbidden-evidence"
         )
+
+
+def test_case_id_and_evidence_writer_block_absolute_path_escape() -> None:
+    payload = _request_dict(ExperimentArm.B)
+    payload["metadata"]["case_id"] = str(ROOT / "escaped-evidence")
+    with pytest.raises(ValidationError, match="string_pattern_mismatch"):
+        Gate2ExperimentRequest.model_validate(payload)
+
+    with TemporaryDirectory(prefix="gate2-path-test-", dir=ROOT) as temp_dir:
+        sandbox = Path(temp_dir)
+        simulated_repository = sandbox / "simulated-repository"
+        simulated_repository.mkdir()
+        result = Gate2OfflineRunner(repository_root=simulated_repository).run(
+            _request(ExperimentArm.B),
+            provider=FakeGate2Provider([_output_dict(ExperimentArm.B)]),
+        )
+        escaped_record = result.evidence_record.model_copy(
+            update={"case_id": str(simulated_repository / "escaped-evidence")}
+        )
+        with pytest.raises(ValueError, match="不得逃逸|Git 仓库之外"):
+            Gate2EvidenceWriter(repository_root=simulated_repository).write(
+                escaped_record,
+                sandbox / "external-evidence",
+            )
 
 
 def test_run_manifest_freezes_all_four_arms_once() -> None:
