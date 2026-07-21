@@ -372,6 +372,21 @@ class Gate2ProviderResult(StrictModel):
     usage: Gate2Usage = Field(default_factory=Gate2Usage)
     latency_ms: int = Field(default=0, ge=0)
     cost_usd: float = Field(default=0.0, ge=0)
+    api_status: str | None = Field(default=None, max_length=80)
+    incomplete_reason: str | None = Field(default=None, max_length=160)
+    background_mode: bool = False
+    poll_count: int = Field(default=0, ge=0)
+
+
+class Gate2BackgroundCheckpoint(StrictModel):
+    response_id: str = Field(min_length=1, max_length=160)
+    api_status: str = Field(min_length=1, max_length=80)
+    terminal: bool
+    generation_calls: int = Field(ge=0, le=1)
+    poll_count: int = Field(ge=0)
+    usage: Gate2Usage = Field(default_factory=Gate2Usage)
+    cost_usd: float | None = Field(default=None, ge=0)
+    incomplete_reason: str | None = Field(default=None, max_length=160)
 
 
 class ValidationFailure(StrictModel):
@@ -442,6 +457,10 @@ class Gate2EvidenceRecord(StrictModel):
     latency_ms: int = Field(ge=0)
     cost_usd: float | None = Field(default=None, ge=0)
     response_id: str | None
+    api_status: str | None = Field(default=None, max_length=80)
+    incomplete_reason: str | None = Field(default=None, max_length=160)
+    background_mode: bool = False
+    poll_count: int = Field(default=0, ge=0)
     human_review: dict[str, Any] | None = None
     included_in_formal_comparison: Literal[False] = False
 

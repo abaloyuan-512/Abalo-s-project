@@ -238,6 +238,14 @@ class Gate2OfflineRunner:
             latency_ms=provider_result.latency_ms if provider_result else 0,
             cost_usd=provider_result.cost_usd if provider_result else 0.0,
             response_id=provider_result.response_id if provider_result else None,
+            api_status=provider_result.api_status if provider_result else None,
+            incomplete_reason=(
+                provider_result.incomplete_reason if provider_result else None
+            ),
+            background_mode=(
+                provider_result.background_mode if provider_result else False
+            ),
+            poll_count=provider_result.poll_count if provider_result else 0,
         )
 
     def _write_if_requested(

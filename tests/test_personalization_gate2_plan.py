@@ -10,6 +10,8 @@ README = GATE2_DIR / "README.md"
 STATUS = GATE2_DIR / "stage_ab_status.json"
 STAGE_C_STATUS = GATE2_DIR / "stage_c_status.json"
 STAGE_C_FAILURE = GATE2_DIR / "stage_c_failure_analysis.md"
+STAGE_C1_PLAN = GATE2_DIR / "stage_c1_offline_hardening_plan.md"
+STAGE_C1_STATUS = GATE2_DIR / "stage_c1_status.json"
 
 
 def test_gate2_contains_only_the_approved_governance_assets() -> None:
@@ -19,6 +21,8 @@ def test_gate2_contains_only_the_approved_governance_assets() -> None:
         STATUS.name,
         STAGE_C_STATUS.name,
         STAGE_C_FAILURE.name,
+        STAGE_C1_PLAN.name,
+        STAGE_C1_STATUS.name,
     }
 
 
@@ -67,6 +71,21 @@ def test_gate2_stage_c_status_records_narrow_live_authorization() -> None:
     assert status["diagnostic_retry_automatic_model_repair_calls"] == 0
     assert status["diagnostic_retry_authorized_spend_usd"] == 0.35
     assert status["diagnostic_retry_status"] == "PROVIDER_FAILED_TIMEOUT"
+
+
+def test_gate2_stage_c1_status_keeps_paid_retest_and_stage_d_closed() -> None:
+    status = __import__("json").loads(STAGE_C1_STATUS.read_text(encoding="utf-8"))
+
+    assert status["paid_retest_authorized"] is False
+    assert status["external_model_calls"] == 0
+    assert status["api_cost_usd"] == 0
+    assert status["maximum_generation_calls_if_later_authorized"] == 1
+    assert status["polling_creates_additional_generation"] is False
+    assert status["resume_creates_additional_generation"] is False
+    assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
+    assert status["formal_product_changed"] is False
+    assert status["stage_d_authorized"] is False
+    assert status["next_stage_automatically_authorized"] is False
 
 
 def test_gate2_plan_preserves_three_sources_and_four_arms() -> None:

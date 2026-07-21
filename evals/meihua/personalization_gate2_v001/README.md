@@ -12,6 +12,7 @@ src/abalo_iching/personalization_gate2/
 tests/test_personalization_gate2_offline.py
 tests/test_personalization_gate2_plan.py
 tests/test_personalization_gate2_stage_c.py
+tests/test_personalization_gate2_stage_c1.py
 ```
 
 ## 当前已实现
@@ -57,11 +58,27 @@ tests/test_personalization_gate2_stage_c.py
 
 产品负责人随后单独授权了最多1次、费用硬上限0.35美元的诊断重试。该次请求在等待OpenAI API响应时超时，Provider按契约立即停止；没有自动重试、没有模型修复，也没有继续其他案例。两次真实尝试均未取得响应ID和Usage对象，因此本地无法确认准确费用，状态必须记为`UNKNOWN`而不是已确认0美元。详见`stage_c_failure_analysis.md`。
 
+## 阶段 C.1离线稳定性加固
+
+阶段 C.1只准备下一次低成本复测，不代表已授权付费调用：
+
+- 新增隔离的后台Provider与Runner，保持旧阶段 C同步Provider和历史证据不变；
+- 后台POST最多创建1次生成，随后只按同一响应ID执行GET轮询；
+- 每次状态变化写入仓库外不可覆盖检查点，并为每个检查点保存SHA-256；
+- 支持进程恢复后只轮询已有响应ID，不创建新的模型生成；
+- `incomplete`、轮询上限或通信失败均保留响应ID、API状态、Usage、推理Token、费用和不完整原因；
+- 候选参数为`gpt-5.6-sol`、`medium`、`max_output_tokens=10000`；保守预估单次最多0.423050美元；
+- 建议未来单次复测预算硬上限0.45美元，但当前`paid_retest_authorized=false`；
+- 仍只允许公开可见合成案例，不创建、读取或暴露锁定测试集，不进入阶段 D。
+
+具体契约和当前状态见`stage_c1_offline_hardening_plan.md`与`stage_c1_status.json`。
+
 ## 本地验证
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_plan.py tests\test_personalization_gate2_offline.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c.py
+.\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1.py
 .\.venv\Scripts\python.exe -m pytest -q
 git diff --check
 ```

@@ -8,7 +8,7 @@ from pathlib import Path
 from .models import Gate2EvidenceRecord
 
 
-EVIDENCE_PACKAGE_VERSION = "personalization_gate2_evidence_v1"
+EVIDENCE_PACKAGE_VERSION = "personalization_gate2_evidence_v2"
 
 
 def _json_bytes(value: object) -> bytes:

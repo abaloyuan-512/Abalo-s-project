@@ -31,9 +31,32 @@ DEFAULT_MAX_OUTPUT_TOKENS = 6000
 
 
 class Gate2LiveProviderError(RuntimeError):
-    def __init__(self, code: str, message: str) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        response_id: str | None = None,
+        api_status: str | None = None,
+        incomplete_reason: str | None = None,
+        usage: Gate2Usage | None = None,
+        latency_ms: int = 0,
+        cost_usd: float | None = None,
+        background_mode: bool = False,
+        poll_count: int = 0,
+        raw_output: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(message)
         self.code = code
+        self.response_id = response_id
+        self.api_status = api_status
+        self.incomplete_reason = incomplete_reason
+        self.usage = usage or Gate2Usage()
+        self.latency_ms = latency_ms
+        self.cost_usd = cost_usd
+        self.background_mode = background_mode
+        self.poll_count = poll_count
+        self.raw_output = raw_output
 
 
 def _safe_validation_detail(exc: ValidationError) -> str:
