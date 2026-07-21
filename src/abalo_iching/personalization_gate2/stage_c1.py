@@ -13,7 +13,8 @@ from .models import ExperimentArm, Gate2ExperimentRequest
 STAGE_C1_CONFIG_VERSION = "personalization_gate2_stage_c1_candidate_v1"
 PROPOSED_AUTHORIZED_SPEND_USD = Decimal("0.45")
 PROPOSED_MAX_GENERATION_CALLS = 1
-PAID_RETEST_AUTHORIZED = False
+PAID_RETEST_AUTHORIZED = True
+PAID_RETEST_AUTHORIZATION_CONSUMED = True
 
 
 def build_stage_c1_request(

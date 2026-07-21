@@ -35,6 +35,7 @@ from abalo_iching.personalization_gate2.models import (
     Gate2BackgroundCheckpoint,
 )
 from abalo_iching.personalization_gate2.stage_c1 import (
+    PAID_RETEST_AUTHORIZATION_CONSUMED,
     PAID_RETEST_AUTHORIZED,
     PROPOSED_AUTHORIZED_SPEND_USD,
     PROPOSED_MAX_GENERATION_CALLS,
@@ -233,7 +234,8 @@ def test_stage_c1_candidate_is_offline_and_fits_proposed_45_cent_ceiling() -> No
         Gate2CalibrationPromptBuilder().build(request),
         max_output_tokens=provider.max_output_tokens,
     )
-    assert PAID_RETEST_AUTHORIZED is False
+    assert PAID_RETEST_AUTHORIZED is True
+    assert PAID_RETEST_AUTHORIZATION_CONSUMED is True
     assert PROPOSED_MAX_GENERATION_CALLS == 1
     assert PROPOSED_AUTHORIZED_SPEND_USD == Decimal("0.45")
     assert request.metadata.reasoning_effort == STAGE_C1_REASONING_EFFORT == "medium"

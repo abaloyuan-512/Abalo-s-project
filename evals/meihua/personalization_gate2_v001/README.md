@@ -13,6 +13,7 @@ tests/test_personalization_gate2_offline.py
 tests/test_personalization_gate2_plan.py
 tests/test_personalization_gate2_stage_c.py
 tests/test_personalization_gate2_stage_c1.py
+tests/test_personalization_gate2_stage_c1_entry.py
 ```
 
 ## 当前已实现
@@ -60,7 +61,7 @@ tests/test_personalization_gate2_stage_c1.py
 
 ## 阶段 C.1离线稳定性加固
 
-阶段 C.1只准备下一次低成本复测，不代表已授权付费调用：
+阶段 C.1离线加固已完成；产品负责人随后单独授权一次低成本真实复测：
 
 - 新增隔离的后台Provider与Runner，保持旧阶段 C同步Provider和历史证据不变；
 - 后台POST最多创建1次生成，随后只按同一响应ID执行GET轮询；
@@ -68,10 +69,13 @@ tests/test_personalization_gate2_stage_c1.py
 - 支持进程恢复后只轮询已有响应ID，不创建新的模型生成；
 - `incomplete`、轮询上限或通信失败均保留响应ID、API状态、Usage、推理Token、费用和不完整原因；
 - 候选参数为`gpt-5.6-sol`、`medium`、`max_output_tokens=10000`；保守预估单次最多0.423050美元；
-- 建议未来单次复测预算硬上限0.45美元，但当前`paid_retest_authorized=false`；
+- 本次复测最多1次生成调用，新增费用硬上限0.45美元，账户声明余额8.85美元并继续保留至少7美元；
+- 付费入口必须显式确认上述额度、使用全新仓库外目录并检查`OPENAI_API_KEY`存在性；
 - 仍只允许公开可见合成案例，不创建、读取或暴露锁定测试集，不进入阶段 D。
 
 具体契约和当前状态见`stage_c1_offline_hardening_plan.md`与`stage_c1_status.json`。
+
+该次授权已使用：只创建1次后台响应并轮询同一响应ID。API终态为`completed`，Usage和费用均已取得，但首次原始输出因8条`REALITY_FACT`错误携带非空`reality_refs`而未通过既有Schema，最终按`PROVIDER_FAILED`硬停止。实际费用0.136155美元，自动重试和自动修复均为0。详见`stage_c1_retest_result.md`。
 
 ## 本地验证
 
@@ -79,6 +83,7 @@ tests/test_personalization_gate2_stage_c1.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_plan.py tests\test_personalization_gate2_offline.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1.py
+.\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1_entry.py
 .\.venv\Scripts\python.exe -m pytest -q
 git diff --check
 ```
