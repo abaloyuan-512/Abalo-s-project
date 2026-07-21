@@ -1,103 +1,130 @@
-# 观象项目工作电脑续接文档 · 2026-07-21
+# 观象项目跨主机续接文档 · 2026-07-21
 
-> 明天在工作电脑的新 Codex 对话中，上传本文件，并发送文末“启动指令”。新对话不得重新做已经完成的内容校准。
+> 用途：从办公室电脑切换到家里电脑。家里电脑以GitHub远端分支为代码事实来源，不复制办公室未提交工作区，不重新执行今天已经完成的真实OpenAI复测。
 
-## 一、先同步代码
+## 一、GitHub同步坐标
 
-- 仓库：`abaloyuan-512/Abalo-s-project`
-- 权威分支：`codex/mvp-runnable-baseline`
-- Gate 1远端冻结候选：`d49ec19c118a47db28fa2a028757d8bfad35af63`
+- 仓库：`https://github.com/abaloyuan-512/Abalo-s-project.git`
+- 权威工作分支：`codex/mvp-runnable-baseline`
 - 不要从`main`继续。
-- 先 Fetch/Pull 远端该分支，再核对本文件记录的最新 Commit。
-- 视觉、排版、美术风格与 v16 继续冻结。
+- C.1离线加固提交：`7a08b2efbb75ccc36b21a7aa58dea44caf02fe91`
+- C.1真实复测结果提交：`3e48524`
+- 本交接本身会形成更新的后续提交；家里电脑最终HEAD应至少包含上述两个提交。
 
-## 二、必须按顺序读取
+## 二、家里电脑如何同步
+
+### 情况A：家里还没有这个仓库
+
+在准备存放项目的父目录打开PowerShell：
+
+```powershell
+git clone --branch codex/mvp-runnable-baseline --single-branch https://github.com/abaloyuan-512/Abalo-s-project.git
+cd Abalo-s-project
+git status --short
+git log -3 --oneline
+```
+
+`git status --short`应没有输出；最近提交中应能看到`3e48524`和`7a08b2e`。
+
+### 情况B：家里已有这个仓库
+
+先进入项目目录，先检查再同步：
+
+```powershell
+git status --short
+git branch --show-current
+```
+
+如果`git status --short`有任何输出，先停止，不要自动`reset`、`stash`、覆盖或删除；让新的Codex任务判断这些文件是否是家里电脑自己的未提交成果。
+
+如果工作区干净：
+
+```powershell
+git fetch origin
+git switch codex/mvp-runnable-baseline
+git pull --ff-only origin codex/mvp-runnable-baseline
+git status --short
+git log -3 --oneline
+```
+
+如果本地还没有该分支，用：
+
+```powershell
+git switch --track -c codex/mvp-runnable-baseline origin/codex/mvp-runnable-baseline
+```
+
+同步后`git status --short`应为空，提交历史应包含`3e48524`和`7a08b2e`。
+
+## 三、家里新Codex任务必须先读
+
+按顺序完整读取：
 
 1. 根目录`AGENTS.md`
-2. 根目录`继续观象.md`
-3. `docs/handoffs/2026-07-20-guanxiang-personalization-feasibility.md`
-4. `docs/handoffs/2026-07-21-guanxiang-gate1-independent-review.md`
-5. `evals/meihua/personalization_gate1_v001/README.md`
-6. `evals/meihua/personalization_gate1_v001/content_value_spec_v1_candidate.md`
-7. `evals/meihua/personalization_gate1_v001/blind_review_rubric_v1.md`
-8. `evals/meihua/personalization_gate1_v001/evaluation_thresholds_v1.md`
-9. `evals/meihua/personalization_gate1_v001/gate1_status.json`
+2. 本文件`docs/handoffs/2026-07-21-guanxiang-next-workstation-handoff.md`
+3. `evals/meihua/personalization_gate2_v001/README.md`
+4. `evals/meihua/personalization_gate2_v001/stage_c1_offline_hardening_plan.md`
+5. `evals/meihua/personalization_gate2_v001/stage_c1_retest_result.md`
+6. `evals/meihua/personalization_gate2_v001/stage_c1_status.json`
 
-## 三、已经完成，不得重做
+随后核对：项目根目录、当前分支、HEAD、`git status --short`和最近3个提交。不得把“能看到GitHub文件”误报成“已经读取办公室仓库外原始证据”。
 
-- Gate 0已独立复验`PASS`并封板。
-- Gate 1第一轮6组A/B/C全部被产品负责人否决；该失败记录必须保留。
-- 后续校准确定了产品声音：以明确、直截了当的判断为骨架，用自然、平实、有少量传统文化气息的中文表达；不得出现翻译腔、术语硬贴或生造比喻。
-- 工作、关系、考试三个跨姿态案例已经逐项通过。
-- 产品负责人已于2026-07-21明确批准《Gate 1评测通过线V1》。
-- 独立复核已确认内容价值规范、跨姿态迁移、三条证据链、安全边界和Rubric维度通过；此前只剩阈值批准与远端冻结候选。
-- 阈值已经批准，Gate 1冻结候选已经推送到远端；最终一致性复核结论为`PASS`，Gate 1已正式封板。
-- 锁定测试集仍为`NOT_CREATED_OR_EXPOSED`，不得提前创建或让执行者看到。
-- 术数审核者仍为`UNASSIGNED`；实验性判断签名不得冒充传统权威规则。
+## 四、今天已经完成，不得重做
 
-## 四、当前产品结论
+- Gate 0与Gate 1均已通过并封板。
+- Gate 2阶段A/B离线实现、阶段C失败分析和阶段C.1后台稳定性加固已完成。
+- C.1离线加固已提交并推送；后台Provider只创建一次POST，后续只轮询同一response ID，SDK自动重试为0。
+- 产品负责人授权的唯一一次C.1真实复测已经执行，授权已经消耗。
+- 真实复测只使用公开合成案例`G2CAL-001/B`；没有使用真实用户资料或锁定测试集。
+- API终态为`completed`，但首次原始输出未通过既有Schema，最终按`PROVIDER_FAILED`硬停止。
+- 失败原因：8条`REALITY_FACT`错误携带非空`reality_refs`，触发`structured_output_schema_invalid`。
+- 实际用量：4185 input、3841 output，其中reasoning 699，总计8026 Token。
+- 按API Usage计算费用：0.136155美元，低于0.45美元授权硬上限。
+- 自动重试0次、自动模型修复0次、第二次生成0次。
+- 最终验证：Gate 2定向73项通过，全仓846项通过。
+- 阶段D未进入；正式网站、V3、排盘、正式Prompt、正式Validator、Release Gate和解释知识均未修改。
 
-观象当前同质化不是单纯的文风问题，而是：
+## 五、原始证据的主机边界
 
-- 卦象差异只进入解释段，不进入最终行动；
-- 用户自由问题未被语义理解；
-- 正式 Prompt、Validator 和旧评估题共同奖励“小步、观察、可逆”的单一姿态。
-
-未来实验路径必须保持三条边界：
-
-1. 确定性程序只负责排盘与卦象事实，AI不得参与排盘。
-2. 模型只负责理解用户明确提供的现实处境，并完成卦象结构与现实问题的受控接榫。
-3. 现实事实、卦象证据和模型解释必须分别标记，不得互相冒充。
-
-## 五、明天允许推进到哪里
-
-远端冻结Commit `d49ec19c118a47db28fa2a028757d8bfad35af63`已经通过独立审查对话`6a5d9a09-73ec-83ec-b999-3e1ce9df3cfd`的最终一致性复核，结论为`PASS`。
-
-当前只允许起草Gate 2的离线实验内容契约与实施计划候选，提交产品负责人批准。候选文件为`evals/meihua/personalization_gate2_v001/offline_experiment_contract_and_implementation_plan_candidate.md`。
-
-在新的明确批准前，仍然禁止：
-
-- 真实 OpenAI API 或其他模型调用；
-- 充值、配置或发送密钥；
-- 发送真实用户问题；
-- 修改正式网站、V3、正式 Prompt、正式 Validator、排盘引擎或 Release Gate；
-- 创建锁定测试集；
-- 公开测试、收费或网站集成。
-
-Gate 2候选计划应复用现有 Responses API、Structured Outputs、Evidence、Validator和成本记录基础设施；第一轮只考虑一次结构化调用，不提前建设多Agent或三次调用流水线。
-
-## 六、明天首先要提交的内容
-
-新对话先检查：
-
-- 本地分支是否与远端一致；
-- Gate 1最终状态和独立复核记录；
-- 工作区是否只有用户已有的`.artifacts`截图产物；
-- 是否仍为0次真实模型调用、0美元本轮API费用、正式产品零修改。
-
-已完成上述检查并起草一份Gate 2离线实验内容契约与实施计划候选，写清：
-
-- 模型输入字段与禁止输入；
-- 结构化输出字段；
-- 现实、卦象、解释三条来源标记；
-- 实验Validator的硬安全门与产品质量失败如何分开；
-- A/B/C/D对照如何运行；
-- 预算硬上限、停止条件和证据包；
-- 明确不修改的正式系统范围。
-
-不得自动调用模型；等待产品负责人再次批准。不要重新生成Gate 1校准案例。
-
-## 七、2026-07-21远端推送记录
-
-- 命令行首次推送：失败，`github.com:443`连接超时。
-- 命令行最后一次443复查：失败，TCP不可达；按Runbook停止重复连接。
-- GitHub Desktop推送：成功，显示`push complete`。
-- 推送后本地HEAD与`origin/codex/mvp-runnable-baseline`均为`d49ec19c118a47db28fa2a028757d8bfad35af63`。
-- 工作电脑于2026-07-21再次Fetch并快进后，本地HEAD与远端均为`d227fdde8a817f322981ea85ce735ca6661b2aa6`；该提交包含`d49ec19`。
-- 两组未跟踪`.artifacts`截图产物未提交、未删除、未修改。
-
-## 八、给明天新对话的启动指令
+GitHub只保存代码、测试、状态、脱敏结论和失败说明。完整原始证据没有提交到GitHub，仍只在办公室电脑：
 
 ```text
-完整读取《继续观象.md》、本交接、Gate 1最终独立复核记录和Gate 2离线实验内容契约与实施计划候选。Gate 0与Gate 1均已PASS并封板，不得重新做内容校准或修改冻结阈值。当前只允许评审Gate 2候选计划；未经产品负责人新的明确批准，不得实现实验代码、调用真实模型、配置API Key、产生费用、创建锁定测试集，或修改正式网站、V3、排盘、正式Prompt、正式Validator和Release Gate。
+D:\效率软件--Github\文件储存夹\Abalo-s-project-eval-output\gate2_personalization_stage_c1_retest_20260721
+```
+
+该目录包含response ID、首次原始输出、Usage、23个后台检查点及SHA-256。已核验23个检查点哈希全部匹配，最终`run_record.json`与证据包manifest哈希匹配。
+
+家里继续做产品决策和代码审查不需要复制原始证据。若以后需要跨主机搬运原始证据，必须另行决定受控传输方式；不得把该目录直接提交到GitHub，不得通过聊天粘贴API Key或完整敏感内容。
+
+## 六、当前停止边界
+
+新的Codex任务不得自动做以下事情：
+
+- 不得再发第二个OpenAI生成请求；一次性入口已由`PAID_RETEST_AUTHORIZATION_CONSUMED=true`锁死。
+- 不得自动修改实验Prompt、Schema或Validator来“修好”今天的失败。
+- 不得进入阶段D，不得创建、读取或暴露锁定测试集。
+- 不得修改正式网站、V3、确定性排盘、正式Prompt、正式Validator、Release Gate或正式解释知识。
+- 不得把API终态`completed`误写成实验通过；本地Schema验证已经明确失败。
+
+下一步应先由产品负责人判断：是否只做失败原因评审，还是另开一个明确授权的新阶段。没有新的明确授权时，只允许只读分析和计划，不允许产生新的API费用。
+
+## 七、办公室电脑的特殊状态
+
+办公室正式目录：
+
+```text
+D:\效率软件--Github\文件储存夹\Abalo-s-project
+```
+
+该目录当前仍停在旧提交`3314f4b`，并保留了C.1离线实现的14个未提交副本。它们不是家里同步源；GitHub远端分支才是跨主机代码事实来源。
+
+不要在办公室正式目录直接盲目`pull`、`reset --hard`、删除或覆盖。后续若要清理，应新开一个明确的“办公室重复工作区安全收口”任务，先逐文件证明这14个副本已被远端提交完整覆盖，再在用户确认后处理。
+
+办公室当前`gh`命令行未登录，但Git远端凭据可正常push；这不影响家里通过Git同步代码。
+
+## 八、家里新任务启动指令
+
+复制下面整段作为家里Codex新任务的第一条消息：
+
+```text
+这是“观象”项目从办公室电脑到家里电脑的跨主机续接。请先完整读取仓库根AGENTS.md、docs/handoffs/2026-07-21-guanxiang-next-workstation-handoff.md，以及evals/meihua/personalization_gate2_v001/下的README.md、stage_c1_offline_hardening_plan.md、stage_c1_retest_result.md和stage_c1_status.json。先只读核对项目根目录、分支codex/mvp-runnable-baseline、HEAD、git status和最近3个提交，确认HEAD至少包含3e48524和7a08b2e。今天唯一一次真实OpenAI复测已经完成并硬停止，授权已消耗；不得再次生成、不得自动修改Prompt/Schema/Validator、不得进入阶段D或创建锁定测试集。请先汇报同步状态、已继承成果、办公室仓库外证据的不可见边界，以及建议的下一步决策，不要直接实施新阶段。
 ```
