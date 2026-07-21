@@ -128,3 +128,33 @@ D:\效率软件--Github\文件储存夹\Abalo-s-project
 ```text
 这是“观象”项目从办公室电脑到家里电脑的跨主机续接。请先完整读取仓库根AGENTS.md、docs/handoffs/2026-07-21-guanxiang-next-workstation-handoff.md，以及evals/meihua/personalization_gate2_v001/下的README.md、stage_c1_offline_hardening_plan.md、stage_c1_retest_result.md和stage_c1_status.json。先只读核对项目根目录、分支codex/mvp-runnable-baseline、HEAD、git status和最近3个提交，确认HEAD至少包含3e48524和7a08b2e。今天唯一一次真实OpenAI复测已经完成并硬停止，授权已消耗；不得再次生成、不得自动修改Prompt/Schema/Validator、不得进入阶段D或创建锁定测试集。请先汇报同步状态、已继承成果、办公室仓库外证据的不可见边界，以及建议的下一步决策，不要直接实施新阶段。
 ```
+
+## 九、Gate 2阶段 C.2后续结果（覆盖本文件早先的 C.1停止状态）
+
+本节是本文件的最新状态；凡前文与本节冲突，以本节为准。
+
+- C.2已完成`gate2_schema_v2`、Prompt v4、Validator v3、离线网络隔离、真实后台Provider/Runner和付费入口加固；
+- 产品负责人授权的唯一一次 C.2真实复测已经执行并消费；
+- 只使用公开合成案例`G2CAL-001/B`，生成POST恰好1次，随后只轮询同一response ID 16次；
+- OpenAI SDK为2.46.0，模型`gpt-5.6-sol`、`medium`、`max_output_tokens=10000`、`store=false`、`tools=[]`；
+- API终态`completed`，首次原始输出直接通过 Schema v2和实验Validator，最终结果`VALIDATED`；
+- 输入5826 Token、输出3295 Token，其中推理475 Token，总计9121 Token；
+- 实际费用0.127980美元，低于0.50美元授权硬上限；
+- 自动SDK重试0次、自动模型修复0次、第二次生成0次；
+- Gate 2定向109项、全仓882项通过；
+- 锁定测试集未创建、未读取、未暴露；正式产品与阶段 D均未进入；
+- C.2付费授权已经锁死，后续任务不得再次创建任何OpenAI生成请求。
+
+C.2完整原始证据只保存在本机仓库外目录：
+
+```text
+D:\效率工具--GitHub\文件储存夹\Abalo-s-project-eval-output\gate2_personalization_stage_c2_retest_20260721
+```
+
+根证据manifest覆盖39个文件，逐文件SHA-256全部匹配；manifest自身SHA-256为：
+
+```text
+35e5849d7d151a5a77ed435894a48995a128603bf6395ea803cfe52d05c52b81
+```
+
+后续任务必须先读取`stage_c2_live_retest_authorization_proposal.md`、`stage_c2_retest_result.md`和`stage_c2_status.json`，并把`HARD_STOP_REAL_RETEST_VALIDATED`视为当前权威状态。包含本节、C.2实现、测试和结果记录的提交应作为后续远端权威坐标；若同步后的远端分支不包含`stage_c2_retest_result.md`，必须停止并重新核对同步来源，不得据此重复真实调用。

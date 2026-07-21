@@ -5,6 +5,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
 
+import httpx
 from openai import OpenAI
 
 from .background_provider import OpenAIGate2BackgroundProvider
@@ -39,10 +40,19 @@ class OfflineGate2StageC2BackgroundProvider(OpenAIGate2BackgroundProvider):
         super().__init__(client_factory=client_factory, **kwargs)
 
     def _client(self) -> Any:
-        return self._client_factory(
+        client = self._client_factory(
             timeout=self._request_timeout_seconds,
             max_retries=0,
         )
+        if isinstance(client, OpenAI):
+            http_client = getattr(client, "_client", None)
+            transport = getattr(http_client, "_transport", None)
+            if not isinstance(transport, httpx.MockTransport):
+                client.close()
+                raise ValueError(
+                    "阶段 C.2离线Provider只允许使用httpx.MockTransport的OpenAI客户端"
+                )
+        return client
 
     def _known_cost(self, response: Any) -> float:
         return 0.0
@@ -69,6 +79,40 @@ class Gate2StageC2OfflineBackgroundRunner(Gate2BackgroundCalibrationRunner):
                 authorized_spend_usd=Decimal("0"),
                 required_reserve_usd=Decimal("0"),
             ),
+            prompt_builder=Gate2StageC2PromptBuilder(),
+            validator=Gate2StageC2Validator(),
+        )
+
+
+class OpenAIGate2StageC2BackgroundProvider(OpenAIGate2BackgroundProvider):
+    """C.2真实后台Provider；只能由显式授权入口调用。"""
+
+    provider_name = "OPENAI_RESPONSES_API_GATE2_STAGE_C2_BACKGROUND"
+    output_model = Gate2ExperimentOutputV2
+    stage_label = "C.2"
+
+
+class Gate2StageC2BackgroundRunner(Gate2BackgroundCalibrationRunner):
+    """C.2真实后台Runner；预算和授权由外层入口硬门控制。"""
+
+    stage_label = "C.2"
+    provider_type: ClassVar[type[OpenAIGate2BackgroundProvider]] = (
+        OpenAIGate2StageC2BackgroundProvider
+    )
+    output_model = Gate2ExperimentOutputV2
+    schema_version = STAGE_C2_SCHEMA_VERSION
+    schema_sha256_factory = staticmethod(gate2_output_schema_v2_sha256)
+    validator_sha256_factory = staticmethod(gate2_validator_v3_sha256)
+
+    def __init__(
+        self,
+        *,
+        repository_root: Path,
+        budget_guard: Gate2CalibrationBudgetGuard,
+    ) -> None:
+        super().__init__(
+            repository_root=repository_root,
+            budget_guard=budget_guard,
             prompt_builder=Gate2StageC2PromptBuilder(),
             validator=Gate2StageC2Validator(),
         )

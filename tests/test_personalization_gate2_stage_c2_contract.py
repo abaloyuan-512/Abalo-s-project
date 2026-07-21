@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import time
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -13,6 +14,7 @@ from pydantic import TypeAdapter, ValidationError
 from abalo_iching.personalization_gate2.background_provider import (
     OpenAIGate2BackgroundProvider,
 )
+from abalo_iching.personalization_gate2.budget import Gate2CalibrationBudgetGuard
 from abalo_iching.personalization_gate2.calibration_cases import (
     VISIBLE_CALIBRATION_CASES,
 )
@@ -27,17 +29,22 @@ from abalo_iching.personalization_gate2.stage_c2_contract import (
     STAGE_C2_EXTERNAL_MODEL_CALLS,
     STAGE_C2_PROMPT_VERSION,
     STAGE_C2_REAL_RETEST_AUTHORIZED,
+    STAGE_C2_RETEST_MAX_OUTPUT_TOKENS,
+    STAGE_C2_RETEST_REASONING_EFFORT,
     STAGE_C2_SCHEMA_VERSION,
     STAGE_C2_VALIDATOR_VERSION,
     Gate2ExperimentOutputV2,
     Gate2StageC2PromptBuilder,
     SourceTraceV2,
     build_stage_c2_request,
+    build_stage_c2_retest_request,
     gate2_output_schema_v2_sha256,
 )
 from abalo_iching.personalization_gate2.stage_c2_execution import (
     Gate2StageC2OfflineBackgroundRunner,
     OfflineGate2StageC2BackgroundProvider,
+    Gate2StageC2BackgroundRunner,
+    OpenAIGate2StageC2BackgroundProvider,
 )
 
 
@@ -91,8 +98,8 @@ def test_c2_is_offline_only_and_has_new_version_coordinates() -> None:
     assert request.metadata.schema_version == STAGE_C2_SCHEMA_VERSION == "gate2_schema_v2"
     assert request.metadata.prompt_version == STAGE_C2_PROMPT_VERSION
     assert request.metadata.validator_version == STAGE_C2_VALIDATOR_VERSION
-    assert STAGE_C2_EXTERNAL_MODEL_CALLS == 0
-    assert STAGE_C2_REAL_RETEST_AUTHORIZED is False
+    assert STAGE_C2_EXTERNAL_MODEL_CALLS == 1
+    assert STAGE_C2_REAL_RETEST_AUTHORIZED is True
 
 
 def test_c2_schema_exposes_fact_empty_reference_constraints() -> None:
@@ -189,6 +196,17 @@ def test_c2_prompt_repeats_machine_contract_in_plain_language() -> None:
 def test_c2_does_not_claim_a_group_or_real_retest_authority() -> None:
     with pytest.raises(ValueError, match="不重跑A组"):
         build_stage_c2_request(VISIBLE_CALIBRATION_CASES[0], ExperimentArm.A)
+
+
+def test_c2_retest_request_preserves_c1_runtime_coordinates_and_validates() -> None:
+    request = build_stage_c2_retest_request(
+        VISIBLE_CALIBRATION_CASES[0],
+        ExperimentArm.B,
+    )
+
+    assert request.metadata.reasoning_effort == STAGE_C2_RETEST_REASONING_EFFORT
+    assert request.metadata.max_output_tokens == STAGE_C2_RETEST_MAX_OUTPUT_TOKENS
+    assert request.__class__.model_validate(request.model_dump(mode="json")) == request
 
 
 def _valid_b_output(request: Gate2ExperimentRequest) -> dict[str, object]:
@@ -383,6 +401,17 @@ def test_c2_offline_provider_rejects_default_network_client() -> None:
         OfflineGate2StageC2BackgroundProvider(client_factory=OpenAI)
 
 
+def test_c2_offline_provider_rejects_wrapped_openai_network_client() -> None:
+    def client_factory(**kwargs: object) -> OpenAI:
+        return OpenAI(api_key="offline-placeholder", **kwargs)
+
+    provider = OfflineGate2StageC2BackgroundProvider(
+        client_factory=client_factory,
+    )
+    with pytest.raises(ValueError, match="只允许使用httpx.MockTransport"):
+        provider._client()
+
+
 def test_c2_runner_rejects_c1_provider_type(tmp_path: Path) -> None:
     request = build_stage_c2_request(VISIBLE_CALIBRATION_CASES[0], ExperimentArm.B)
     runner = Gate2StageC2OfflineBackgroundRunner(repository_root=tmp_path / "repository")
@@ -397,6 +426,52 @@ def test_c2_runner_rejects_c1_provider_type(tmp_path: Path) -> None:
             provider=provider,
             evidence_root=tmp_path / "external-evidence",
         )
+
+
+def test_c2_live_runner_is_mockable_but_uses_v2_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    request = build_stage_c2_retest_request(
+        VISIBLE_CALIBRATION_CASES[0],
+        ExperimentArm.B,
+    )
+    output = _valid_b_output(request)
+    responses = _FakeResponses(
+        _response("queued"),
+        [_response("completed", output=output)],
+    )
+    monkeypatch.setenv("OPENAI_API_KEY", "offline-placeholder")
+    provider = OpenAIGate2StageC2BackgroundProvider(
+        client_factory=lambda **kwargs: _FakeClient(responses),
+        model=request.metadata.model,
+        reasoning_effort=request.metadata.reasoning_effort,
+        max_output_tokens=request.metadata.max_output_tokens,
+        sleep_fn=lambda _: None,
+    )
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    runner = Gate2StageC2BackgroundRunner(
+        repository_root=repository,
+        budget_guard=Gate2CalibrationBudgetGuard(
+            declared_account_balance_usd=Decimal("7.50"),
+            authorized_spend_usd=Decimal("0.50"),
+            required_reserve_usd=Decimal("7"),
+        ),
+    )
+
+    result = runner.run(
+        request,
+        provider=provider,
+        evidence_root=tmp_path / "external-evidence",
+    )
+
+    assert result.status is DryRunStatus.VALIDATED
+    assert isinstance(result.output, Gate2ExperimentOutputV2)
+    assert responses.parse_calls == 1
+    assert responses.retrieve_calls == 1
+    assert responses.parse_kwargs["text_format"] is Gate2ExperimentOutputV2
+    assert result.evidence_record.schema_version == STAGE_C2_SCHEMA_VERSION
 
 
 def test_c1_provider_still_uses_v1_output_model() -> None:

@@ -17,6 +17,7 @@ from .models import (
     Gate2ExperimentRequest,
     Gate2PromptPackage,
     LinkMode,
+    RunMetadata,
     SourceKind,
     StrictModel,
 )
@@ -26,8 +27,10 @@ from .validators import Gate2ExperimentValidator, gate2_validator_source_sha256
 STAGE_C2_SCHEMA_VERSION = "gate2_schema_v2"
 STAGE_C2_PROMPT_VERSION = "personalization_gate2_calibration_v4"
 STAGE_C2_VALIDATOR_VERSION = "personalization_gate2_validator_v3"
-STAGE_C2_EXTERNAL_MODEL_CALLS = 0
-STAGE_C2_REAL_RETEST_AUTHORIZED = False
+STAGE_C2_EXTERNAL_MODEL_CALLS = 1
+STAGE_C2_REAL_RETEST_AUTHORIZED = True
+STAGE_C2_RETEST_REASONING_EFFORT = "medium"
+STAGE_C2_RETEST_MAX_OUTPUT_TOKENS = 10_000
 
 C2_SOURCE_TRACE_INSTRUCTIONS = """
 阶段 C.2 source_trace 结构约束：
@@ -103,6 +106,14 @@ class Gate2ExperimentOutputV2(Gate2ExperimentOutput):
     source_trace: list[SourceTraceV2] = Field(min_length=1, max_length=80)
 
 
+class Gate2StageC2RunMetadata(RunMetadata):
+    max_output_tokens: int = Field(ge=1, le=25_000)
+
+
+class Gate2StageC2ExperimentRequest(Gate2ExperimentRequest):
+    metadata: Gate2StageC2RunMetadata
+
+
 def gate2_output_schema_v2_sha256() -> str:
     payload = json.dumps(
         Gate2ExperimentOutputV2.model_json_schema(),
@@ -168,3 +179,18 @@ def build_stage_c2_request(
         }
     )
     return request.model_copy(update={"metadata": metadata})
+
+
+def build_stage_c2_retest_request(
+    case: VisibleCalibrationCase,
+    arm: ExperimentArm,
+) -> Gate2StageC2ExperimentRequest:
+    request = build_stage_c2_request(case, arm)
+    payload = request.model_dump(mode="json")
+    payload["metadata"].update(
+        {
+            "reasoning_effort": STAGE_C2_RETEST_REASONING_EFFORT,
+            "max_output_tokens": STAGE_C2_RETEST_MAX_OUTPUT_TOKENS,
+        }
+    )
+    return Gate2StageC2ExperimentRequest.model_validate(payload)

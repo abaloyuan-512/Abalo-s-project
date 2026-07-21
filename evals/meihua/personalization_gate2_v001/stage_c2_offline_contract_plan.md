@@ -37,7 +37,9 @@ C.1首次原始输出中的8条`REALITY_FACT`把自己的`RWxx`写入了`reality
 - 新增只接受注入模拟客户端的 C.2后台 Provider，不提供默认OpenAI网络客户端；
 - 新增固定0美元预算的 C.2后台 Runner，拒绝 C.1 Provider或任何非模拟Provider；
 - 纯 Fake 客户端与真实OpenAI SDK加`MockTransport`两条端到端路径均通过；
-- Gate 2定向89项通过；
-- 全仓862项通过。
+- 独立复核补强了包装工厂返回默认OpenAI网络客户端的离线拒绝测试；
+- 新增绑定 Schema v2、Prompt v4和Validator v3的真实后台Provider/Runner，以及默认未授权的付费入口；
+- 付费入口在授权前先于API Key检查和网络动作硬停止，并离线验证调用次数、预算、余额、全新仓库外目录和已消费锁；
+- Gate 2定向测试与全仓测试通过数以`stage_c2_status.json`为准。
 
 后续若考虑真实复测，必须先完成离线 Schema 导出检查、失败复现测试、Gate 2定向测试和全仓测试，再由产品负责人另行明确授权调用次数与费用上限。

@@ -15,6 +15,11 @@ STAGE_C1_STATUS = GATE2_DIR / "stage_c1_status.json"
 STAGE_C1_RESULT = GATE2_DIR / "stage_c1_retest_result.md"
 STAGE_C2_PLAN = GATE2_DIR / "stage_c2_offline_contract_plan.md"
 STAGE_C2_STATUS = GATE2_DIR / "stage_c2_status.json"
+STAGE_C2_AUTHORIZATION_PROPOSAL = (
+    GATE2_DIR / "stage_c2_live_retest_authorization_proposal.md"
+)
+STAGE_C2_RETEST_CONSTRAINTS = GATE2_DIR / "stage_c2_retest_constraints.txt"
+STAGE_C2_RETEST_RESULT = GATE2_DIR / "stage_c2_retest_result.md"
 
 
 def test_gate2_contains_only_the_approved_governance_assets() -> None:
@@ -29,6 +34,9 @@ def test_gate2_contains_only_the_approved_governance_assets() -> None:
         STAGE_C1_RESULT.name,
         STAGE_C2_PLAN.name,
         STAGE_C2_STATUS.name,
+        STAGE_C2_AUTHORIZATION_PROPOSAL.name,
+        STAGE_C2_RETEST_CONSTRAINTS.name,
+        STAGE_C2_RETEST_RESULT.name,
     }
 
 
@@ -102,19 +110,67 @@ def test_gate2_stage_c2_status_is_offline_only_and_keeps_live_work_closed() -> N
 
     assert status["schema_version"] == "gate2_schema_v2"
     assert status["previous_schema_version_preserved"] == "gate2_schema_v1"
-    assert status["external_model_calls"] == 0
-    assert status["api_cost_usd"] == 0
-    assert status["real_retest_authorized"] is False
+    assert status["external_model_calls"] == 1
+    assert status["api_cost_usd"] == 0.12798
+    assert status["real_retest_authorized"] is True
+    assert status["paid_retest_authorization_consumed"] is True
+    assert status["authorized_declared_balance_usd"] == 8.71
+    assert status["authorized_evidence_directory"].endswith(
+        "gate2_personalization_stage_c2_retest_20260721"
+    )
     assert status["offline_background_runner_implemented"] is True
     assert status["offline_default_openai_network_client_allowed"] is False
+    assert status["offline_wrapped_openai_network_client_allowed"] is False
     assert status["offline_sdk_mock_transport_verified"] is True
+    assert status["live_background_provider_implemented"] is True
+    assert status["live_background_runner_implemented"] is True
+    assert status["paid_entrypoint_implemented"] is True
+    assert status["paid_entrypoint_pre_network_authorization_lock"] is True
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
     assert status["formal_product_changed"] is False
     assert status["stage_d_authorized"] is False
     assert status["next_stage_automatically_authorized"] is False
     assert status["strict_schema_source_trace_union_branches"] == 4
-    assert status["verification_gate2_tests_passed"] == 89
-    assert status["verification_full_repository_tests_passed"] == 862
+    assert status["authorization_proposal_created"] is True
+    assert status["proposed_max_generation_calls"] == 1
+    assert status["proposed_authorized_spend_usd"] == 0.5
+    assert status["proposed_conservative_preflight_usd"] == 0.468769
+    assert status["proposed_openai_sdk_version"] == "2.46.0"
+    assert status["paid_retest_generation_calls"] == 1
+    assert status["paid_retest_poll_count"] == 16
+    assert status["paid_retest_status"] == "VALIDATED"
+    assert status["evidence_manifest_file_count"] == 39
+    assert len(status["evidence_manifest_sha256"]) == 64
+    assert status["verification_gate2_tests_passed"] == 109
+    assert status["verification_full_repository_tests_passed"] == 882
+
+
+def test_gate2_stage_c2_authorization_proposal_is_exact_and_authorized() -> None:
+    text = STAGE_C2_AUTHORIZATION_PROPOSAL.read_text(encoding="utf-8")
+    constraints = STAGE_C2_RETEST_CONSTRAINTS.read_text(encoding="utf-8")
+
+    assert "G2CAL-001/B" in text
+    assert "最大生成POST：1次" in text
+    assert "最大新增费用：0.50美元硬上限" in text
+    assert "保守预检为0.468769美元" in text
+    assert "所有GET只轮询同一ID" in text
+    assert "SDK自动重试：0" in text
+    assert "自动模型修复：0" in text
+    assert "已授权、已消费" in text
+    assert "openai==2.46.0" in constraints
+
+
+def test_gate2_stage_c2_result_records_single_validated_retest() -> None:
+    text = STAGE_C2_RETEST_RESULT.read_text(encoding="utf-8")
+
+    assert "生成POST：1" in text
+    assert "轮询GET：16" in text
+    assert "自动SDK重试：0" in text
+    assert "自动模型修复：0" in text
+    assert "本地结果：`VALIDATED`" in text
+    assert "0.127980美元" in text
+    assert "17个检查点SHA-256全部匹配" in text
+    assert "阶段 D：未进入" in text
 
 
 def test_gate2_plan_preserves_three_sources_and_four_arms() -> None:

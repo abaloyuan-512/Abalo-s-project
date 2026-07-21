@@ -90,6 +90,12 @@ tests/test_personalization_gate2_stage_c1_entry.py
 
 设计与状态见`stage_c2_offline_contract_plan.md`和`stage_c2_status.json`。
 
+独立复核后已补充`stage_c2_live_retest_authorization_proposal.md`与`stage_c2_retest_constraints.txt`。当前本机OpenAI SDK为2.45.0，C.1证据为2.46.0；离线wheel对比显示本链路使用的Responses、结构化解析与Schema转换文件一致，但若真实复测获授权，仍要求在独立环境精确使用2.46.0。C.2 Prompt/Schema按C.1运行参数重新计算的保守预检为0.468769美元，因此建议单次费用硬上限为0.50美元。真实复测目前仍未授权。
+
+C.2真实后台Provider/Runner和`scripts/run_personalization_gate2_stage_c2_retest.py`已完成纯离线验证。产品负责人确认按授权提案推进：声明余额8.71美元、最多1次生成、费用硬上限0.50美元，并使用提案中的全新仓库外证据目录。
+
+唯一一次 C.2真实复测已经完成并消费授权：只创建1次后台生成，轮询同一response ID 16次，API终态`completed`，Schema v2、实验Validator硬安全与产品质量检查均通过，结果为`VALIDATED`。实际费用0.127980美元；输入5826 Token、输出3295 Token，其中推理475 Token，总计9121 Token。自动SDK重试0次、自动模型修复0次。详见`stage_c2_retest_result.md`。
+
 ## 本地验证
 
 ```powershell
@@ -98,6 +104,7 @@ tests/test_personalization_gate2_stage_c1_entry.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1_entry.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c2_contract.py
+.\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c2_entry.py
 .\.venv\Scripts\python.exe -m pytest -q
 git diff --check
 ```
