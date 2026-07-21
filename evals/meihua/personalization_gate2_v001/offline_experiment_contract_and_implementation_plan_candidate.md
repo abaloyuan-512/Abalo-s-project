@@ -170,9 +170,14 @@ switch_conditions[]
   evidence_refs[]            B组为空或仅使用允许的条件Evidence
 
 source_trace[]
+  trace_id                    稳定编号；事实沿用RWxx/EVxx，解释接榫使用ILxx
   source_kind                 REALITY_FACT / CHART_FACT / INTERPRETIVE_LINK
-  source_ref
-  supports_field
+  source_ref                  REALITY_FACT为RWxx；CHART_FACT为EVxx；解释接榫为ILxx
+  supports_fields[]           被该来源支撑的结构化字段路径
+  link_mode                   事实项为NOT_APPLICABLE；解释接榫为REALITY_ONLY或REALITY_AND_CHART
+  reality_refs[]              解释接榫必须非空；事实项为空
+  evidence_refs[]             B组解释接榫为空；C/D组解释接榫必须非空；事实项为空
+  interpretation_hypothesis  解释接榫固定为true；事实项为false
 
 user_facing_reading
   core_judgment
@@ -201,8 +206,11 @@ user_facing_reading
 ### 解释接榫
 
 - 使用`INTERPRETIVE_LINK`标记；
-- 必须同时列出所依赖的现实引用与卦象引用；
+- 每条接榫使用稳定`ILxx`编号，并在`source_trace`中直接记录`reality_refs[]`、`evidence_refs[]`和`supports_fields[]`；
+- B组使用`link_mode=REALITY_ONLY`：必须至少引用一个`RWxx`，`evidence_refs[]`必须为空。这表示模型基于用户明确事实形成的普通分析，不得标记为现实事实或卦象事实；
+- C/D组使用`link_mode=REALITY_AND_CHART`：必须至少引用一个`RWxx`和一个`EVxx`，从而证明该判断同时依赖现实处境与卦象信号；
 - 必须标记为实验性解释假设；
+- `judgment_signature`的各字段和`user_facing_reading`的五个字段都必须至少被一条`source_trace.supports_fields[]`覆盖；不得只给中间字段加引用，却让最终判断和用户可见文字失去来源；
 - 不得冒充确定性排盘结果、传统梅花定律或用户已经确认的现实事实。
 
 ## 6. 实验Validator

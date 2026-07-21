@@ -31,6 +31,20 @@ def test_gate2_plan_preserves_three_sources_and_four_arms() -> None:
 
     for marker in ("REALITY_FACT", "CHART_FACT", "INTERPRETIVE_LINK"):
         assert marker in text
+    for trace_field in (
+        "trace_id",
+        "link_mode",
+        "REALITY_ONLY",
+        "REALITY_AND_CHART",
+        "reality_refs[]",
+        "evidence_refs[]",
+        "supports_fields[]",
+        "interpretation_hypothesis",
+    ):
+        assert trace_field in text
+    assert "B组使用`link_mode=REALITY_ONLY`" in text
+    assert "C/D组使用`link_mode=REALITY_AND_CHART`" in text
+    assert "`user_facing_reading`的五个字段都必须至少被一条`source_trace.supports_fields[]`覆盖" in text
     for arm in ("| A |", "| B |", "| C |", "| D |"):
         assert arm in text
     assert "question_text_used_for_calculation = false" in text
