@@ -31,7 +31,7 @@
 - 工作、关系、考试三个跨姿态案例已经逐项通过。
 - 产品负责人已于2026-07-21明确批准《Gate 1评测通过线V1》。
 - 独立复核已确认内容价值规范、跨姿态迁移、三条证据链、安全边界和Rubric维度通过；此前只剩阈值批准与远端冻结候选。
-- 阈值已经批准，Gate 1冻结候选已经推送到远端；当前只剩一次最终一致性复核，不再补内容、不再改阈值。
+- 阈值已经批准，Gate 1冻结候选已经推送到远端；最终一致性复核结论为`PASS`，Gate 1已正式封板。
 - 锁定测试集仍为`NOT_CREATED_OR_EXPOSED`，不得提前创建或让执行者看到。
 - 术数审核者仍为`UNASSIGNED`；实验性判断签名不得冒充传统权威规则。
 
@@ -51,9 +51,9 @@
 
 ## 五、明天允许推进到哪里
 
-第一步先把远端冻结Commit `d49ec19c118a47db28fa2a028757d8bfad35af63`和产品负责人批准记录提交到独立审查对话`6a5d9a09-73ec-83ec-b999-3e1ce9df3cfd`，只请求最终一致性复核，不重新讨论产品内容。若最终结论为`PASS`，将结论写入状态与交接文件并推送。
+远端冻结Commit `d49ec19c118a47db28fa2a028757d8bfad35af63`已经通过独立审查对话`6a5d9a09-73ec-83ec-b999-3e1ce9df3cfd`的最终一致性复核，结论为`PASS`。
 
-Gate 1最终`PASS`后，下一步只允许起草 Gate 2 的离线实验内容契约与实施计划，提交产品负责人批准。
+当前只允许起草Gate 2的离线实验内容契约与实施计划候选，提交产品负责人批准。候选文件为`evals/meihua/personalization_gate2_v001/offline_experiment_contract_and_implementation_plan_candidate.md`。
 
 在新的明确批准前，仍然禁止：
 
@@ -75,7 +75,7 @@ Gate 2候选计划应复用现有 Responses API、Structured Outputs、Evidence�
 - 工作区是否只有用户已有的`.artifacts`截图产物；
 - 是否仍为0次真实模型调用、0美元本轮API费用、正式产品零修改。
 
-确认后，只提交一份 Gate 2 离线实验内容契约与实施计划候选，至少写清：
+已完成上述检查并起草一份Gate 2离线实验内容契约与实施计划候选，写清：
 
 - 模型输入字段与禁止输入；
 - 结构化输出字段；
@@ -85,9 +85,7 @@ Gate 2候选计划应复用现有 Responses API、Structured Outputs、Evidence�
 - 预算硬上限、停止条件和证据包；
 - 明确不修改的正式系统范围。
 
-不得自动调用模型；等待产品负责人再次批准。
-
-如果Gate 1最终一致性复核尚未完成，则先完成复核和状态固化，再起草上述Gate 2计划；不要重新生成校准案例。
+不得自动调用模型；等待产品负责人再次批准。不要重新生成Gate 1校准案例。
 
 ## 七、2026-07-21远端推送记录
 
@@ -95,10 +93,11 @@ Gate 2候选计划应复用现有 Responses API、Structured Outputs、Evidence�
 - 命令行最后一次443复查：失败，TCP不可达；按Runbook停止重复连接。
 - GitHub Desktop推送：成功，显示`push complete`。
 - 推送后本地HEAD与`origin/codex/mvp-runnable-baseline`均为`d49ec19c118a47db28fa2a028757d8bfad35af63`。
+- 工作电脑于2026-07-21再次Fetch并快进后，本地HEAD与远端均为`d227fdde8a817f322981ea85ce735ca6661b2aa6`；该提交包含`d49ec19`。
 - 两组未跟踪`.artifacts`截图产物未提交、未删除、未修改。
 
 ## 八、给明天新对话的启动指令
 
 ```text
-完整读取我上传的《观象项目工作电脑续接文档 · 2026-07-21》，然后按其中顺序读取仓库文件。先同步并核对远端分支codex/mvp-runnable-baseline，确认至少包含Gate 1冻结候选d49ec19，不要从main开始。Gate 0已经PASS，Gate 1内容校准与评测通过线已经完成，不得重新做A/B/C口味校准。先把远端冻结候选和批准记录发送到既定独立审查对话，完成Gate 1最终一致性复核并固化结果；若结论为PASS，只起草Gate 2离线实验内容契约与实施计划候选，不得调用真实模型、产生API费用、创建锁定测试集或修改正式网站、V3、排盘、正式Prompt、正式Validator和Release Gate。完成后提交证据与计划，由我批准是否进入下一步。
+完整读取《继续观象.md》、本交接、Gate 1最终独立复核记录和Gate 2离线实验内容契约与实施计划候选。Gate 0与Gate 1均已PASS并封板，不得重新做内容校准或修改冻结阈值。当前只允许评审Gate 2候选计划；未经产品负责人新的明确批准，不得实现实验代码、调用真实模型、配置API Key、产生费用、创建锁定测试集，或修改正式网站、V3、排盘、正式Prompt、正式Validator和Release Gate。
 ```

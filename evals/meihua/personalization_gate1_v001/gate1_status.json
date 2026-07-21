@@ -1,8 +1,10 @@
 {
   "gate_id": "GUANXIANG_PERSONALIZATION_GATE1_V001",
-  "status": "REMOTE_FROZEN_AWAITING_FINAL_REVIEW",
-  "independent_final_review": "CONDITIONAL_PASS",
-  "independent_reviewed_commit": "93c7c41691ed557be84f38d68cc434d1a6efaa9f",
+  "status": "PASS",
+  "independent_final_review": "PASS",
+  "independent_reviewed_commit": "d49ec19c118a47db28fa2a028757d8bfad35af63",
+  "independent_final_review_on": "2026-07-21",
+  "independent_final_review_context_head": "d227fdde8a817f322981ea85ce735ca6661b2aa6",
   "independent_review_record": "docs/handoffs/2026-07-21-guanxiang-gate1-independent-review.md",
   "independent_pre_review": "READY_FOR_PRODUCT_CALIBRATION",
   "pre_reviewed_commit": "655ceebefcd34564e23ff8a7b49db8ccb042cccf",
@@ -37,5 +39,6 @@
   },
   "required_product_calibration_cases": 6,
   "required_variants_per_case": 3,
+  "next_allowed_action": "DRAFT_GATE2_OFFLINE_EXPERIMENT_CONTRACT_AND_IMPLEMENTATION_PLAN_CANDIDATE_ONLY",
   "next_gate_automatically_authorized": false
 }

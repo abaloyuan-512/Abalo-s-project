@@ -7,7 +7,7 @@
 - 提交时本地候选 Commit：`93c7c41691ed557be84f38d68cc434d1a6efaa9f`
 - 复核方式：独立对话读取冻结候选材料，不参与候选内容开发。
 
-## 独立结论
+## 首次独立结论
 
 ```text
 GATE_1 = CONDITIONAL_PASS
@@ -35,6 +35,28 @@ GATE_1 = CONDITIONAL_PASS
 2. 由产品负责人明确批准该通过线。
 3. 将完整 Gate 1 候选证据推送到远端。
 4. 以远端 Commit 重新提交独立一致性复核。
+
+## 最终一致性复核
+
+- 最终复核日期：2026-07-21
+- 远端冻结候选：`d49ec19c118a47db28fa2a028757d8bfad35af63`
+- 复核时权威分支 HEAD：`d227fdde8a817f322981ea85ce735ca6661b2aa6`
+- 产品负责人阈值批准原文：`我批准《Gate 1评测通过线V1》作为后续离线实验的冻结标准。`
+
+```text
+GATE_1 = PASS
+```
+
+最终复核确认：
+
+- 上次`CONDITIONAL_PASS`提出的评测阈值批准和远端冻结候选两项条件均已满足；
+- `content_value_spec_v1_candidate.md`、`blind_review_rubric_v1.md`、`evaluation_thresholds_v1.md`和`gate1_status.json`一致；
+- 锁定测试集仍为`NOT_CREATED_OR_EXPOSED`；
+- 术数审核者仍为`UNASSIGNED`；
+- 真实模型调用仍为0，API费用仍为0美元，正式产品未修改；
+- 冻结候选之后没有新增内容校准，也没有修改已批准阈值。
+
+Gate 1可正式封板。下一步只允许起草Gate 2离线实验内容契约与实施计划候选，不自动授权Gate 2实施。
 
 ## 权限边界
 

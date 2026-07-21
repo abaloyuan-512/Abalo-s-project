@@ -5,8 +5,8 @@ Gate 1只负责冻结“什么样的解读有价值、怎样判断它真的有�
 ## 当前状态
 
 - `GATE_0_STATUS = PASS`
-- `GATE_1_STATUS = REMOTE_FROZEN_AWAITING_FINAL_REVIEW`
-- `INDEPENDENT_FINAL_REVIEW = CONDITIONAL_PASS`
+- `GATE_1_STATUS = PASS`
+- `INDEPENDENT_FINAL_REVIEW = PASS`
 - `ROUND_1_INDEPENDENT_PRE_REVIEW = READY_FOR_PRODUCT_CALIBRATION`
 - `LOCKED_TEST_SET_STATUS = NOT_CREATED_OR_EXPOSED`
 - `DIVINATION_REVIEWER_STATUS = UNASSIGNED`
@@ -44,9 +44,9 @@ Gate 1不能由执行Codex自行宣布完成。至少需要：
 1. 产品负责人完成产品声音与跨姿态迁移校准；已完成。
 2. Codex根据选择修订内容价值规范，但不得改写选择结果；已完成。
 3. 产品负责人确认规范、盲测问题和后续通过线；已完成。
-4. 独立审查确认校准集没有把答案预先引向同一种保守姿态；内容部分已通过，整体为条件通过。
+4. 独立审查确认校准集没有把答案预先引向同一种保守姿态；已通过。
 5. 锁定测试集仍保持未创建、未暴露；只冻结治理方法和结构蓝图。
 6. 完整候选证据形成远端可见的冻结 Commit；已完成，Commit为`d49ec19c118a47db28fa2a028757d8bfad35af63`。
-7. 独立对话对远端冻结候选完成最终一致性复核；待完成。
+7. 独立对话对远端冻结候选完成最终一致性复核；已完成，结论为`PASS`。
 
-完成Gate 1也不自动授权真实模型调用。Gate 2仍需另行批准。
+Gate 1已正式封板。当前只允许起草Gate 2离线实验内容契约与实施计划候选；真实模型调用、API Key配置、费用、锁定测试集创建、正式产品修改和Gate 2实施仍需另行批准。

@@ -35,9 +35,11 @@ def test_calibration_set_has_six_anonymous_three_variant_cases() -> None:
 def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     status = _load_json("gate1_status.json")
 
-    assert status["status"] == "REMOTE_FROZEN_AWAITING_FINAL_REVIEW"
-    assert status["independent_final_review"] == "CONDITIONAL_PASS"
-    assert status["independent_reviewed_commit"] == "93c7c41691ed557be84f38d68cc434d1a6efaa9f"
+    assert status["status"] == "PASS"
+    assert status["independent_final_review"] == "PASS"
+    assert status["independent_reviewed_commit"] == "d49ec19c118a47db28fa2a028757d8bfad35af63"
+    assert status["independent_final_review_on"] == "2026-07-21"
+    assert status["independent_final_review_context_head"] == "d227fdde8a817f322981ea85ce735ca6661b2aa6"
     assert status["independent_pre_review"] == "READY_FOR_PRODUCT_CALIBRATION"
     assert status["pre_reviewed_commit"] == "655ceebefcd34564e23ff8a7b49db8ccb042cccf"
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
@@ -48,6 +50,7 @@ def test_gate1_status_keeps_locked_set_and_models_closed() -> None:
     assert status["evaluation_thresholds"]["product_owner_approval"] == "APPROVED_2026-07-21"
     assert status["evaluation_thresholds"]["remote_frozen_candidate"] == "PUSHED"
     assert status["evaluation_thresholds"]["remote_frozen_commit"] == "d49ec19c118a47db28fa2a028757d8bfad35af63"
+    assert status["next_allowed_action"] == "DRAFT_GATE2_OFFLINE_EXPERIMENT_CONTRACT_AND_IMPLEMENTATION_PLAN_CANDIDATE_ONLY"
     assert status["next_gate_automatically_authorized"] is False
     assert status["product_calibration"]["round_1"] == "ALL_REJECTED"
     assert status["product_calibration"]["round_2"] == "DIRECTION_SELECTED_B_JUDGMENT_A_VOICE"
