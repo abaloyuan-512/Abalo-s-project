@@ -1,6 +1,6 @@
-# Gate 2 阶段 A/B 离线实验实现
+# Gate 2 阶段 A/B 离线实现与阶段 C 可见校准
 
-本目录记录观象个性化解读 Gate 2 的阶段 A/B 状态与治理边界。实现代码位于：
+本目录记录观象个性化解读 Gate 2 的阶段 A/B 状态、阶段 C 授权与治理边界。实现代码位于：
 
 ```text
 src/abalo_iching/personalization_gate2/
@@ -11,6 +11,7 @@ src/abalo_iching/personalization_gate2/
 ```text
 tests/test_personalization_gate2_offline.py
 tests/test_personalization_gate2_plan.py
+tests/test_personalization_gate2_stage_c.py
 ```
 
 ## 当前已实现
@@ -38,12 +39,31 @@ tests/test_personalization_gate2_plan.py
 - 没有修改正式网站、视觉、V3、确定性排盘、正式Prompt、正式Validator、Release Gate或解释知识审核状态；
 - 没有把实验输出装配进正式产品。
 
+以上“未做”描述对应阶段 A/B 历史快照。产品负责人已于 `2026-07-21` 另行授权阶段 C；当前授权与运行状态以 `stage_c_status.json` 为准，`stage_ab_status.json` 不回写为阶段 C 状态。
+
+## 阶段 C 独立边界
+
+- 只使用代码中可见的两组合成校准案例，不创建、读取或暴露锁定测试集；
+- A/B/C/D顺序预先冻结；B/C/D每个结果只生成一次，首次失败原样保留，不自动修复或重试；
+- 使用隔离的 `OpenAIGate2Provider`、阶段 C Prompt v3和独立预算守门，不修改正式 Provider或正式 Prompt；
+- 模型固定为`gpt-5.6-sol`、`xhigh`、`store=false`、`tools=[]`；
+- 产品负责人声明账户余额9美元，至少保留7美元，本轮可用费用硬上限为2美元；
+- 真实运行证据、响应ID、输出与成本明细只写入Git仓库外的新目录；
+- 阶段 C不会自动进入阶段 D、网站集成或Release Gate。
+
+## 阶段 C 当前结果
+
+首次真实运行在`G2CAL-001/B`的OpenAI SDK/Pydantic结构验证路径失败并硬停止：只发生1次生成尝试，剩余5次没有运行，没有自动重试或修复。
+
+产品负责人随后单独授权了最多1次、费用硬上限0.35美元的诊断重试。该次请求在等待OpenAI API响应时超时，Provider按契约立即停止；没有自动重试、没有模型修复，也没有继续其他案例。两次真实尝试均未取得响应ID和Usage对象，因此本地无法确认准确费用，状态必须记为`UNKNOWN`而不是已确认0美元。详见`stage_c_failure_analysis.md`。
+
 ## 本地验证
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_plan.py tests\test_personalization_gate2_offline.py
+.\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c.py
 .\.venv\Scripts\python.exe -m pytest -q
 git diff --check
 ```
 
-阶段 A/B 完成不自动授权真实模型校准调用。下一阶段只能在产品负责人重新明确批准后启动。
+阶段 C当前仍停在失败分析状态，不自动进入阶段 D。锁定集与正式离线比较仍需产品负责人再次明确批准，并由独立保管方执行。

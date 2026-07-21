@@ -8,13 +8,17 @@ GATE2_DIR = ROOT / "evals" / "meihua" / "personalization_gate2_v001"
 PLAN = GATE2_DIR / "offline_experiment_contract_and_implementation_plan_candidate.md"
 README = GATE2_DIR / "README.md"
 STATUS = GATE2_DIR / "stage_ab_status.json"
+STAGE_C_STATUS = GATE2_DIR / "stage_c_status.json"
+STAGE_C_FAILURE = GATE2_DIR / "stage_c_failure_analysis.md"
 
 
-def test_gate2_contains_only_the_approved_stage_ab_governance_assets() -> None:
+def test_gate2_contains_only_the_approved_governance_assets() -> None:
     assert {path.name for path in GATE2_DIR.iterdir()} == {
         PLAN.name,
         README.name,
         STATUS.name,
+        STAGE_C_STATUS.name,
+        STAGE_C_FAILURE.name,
     }
 
 
@@ -42,6 +46,27 @@ def test_gate2_stage_ab_status_keeps_external_and_formal_boundaries_closed() -> 
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
     assert status["formal_product_changed"] is False
     assert status["next_stage_automatically_authorized"] is False
+
+
+def test_gate2_stage_c_status_records_narrow_live_authorization() -> None:
+    status = __import__("json").loads(STAGE_C_STATUS.read_text(encoding="utf-8"))
+
+    assert status["stage_c_authorized"] is True
+    assert status["stage_d_authorized"] is False
+    assert status["authorized_spend_usd"] == 2
+    assert status["required_reserve_usd"] == 7
+    assert status["max_generation_calls"] == 6
+    assert status["synthetic_data_only"] is True
+    assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
+    assert status["formal_product_changed"] is False
+    assert status["next_stage_automatically_authorized"] is False
+    assert status["external_model_calls"] == 2
+    assert status["api_cost_usd"] is None
+    assert status["diagnostic_retry_max_generation_calls"] == 1
+    assert status["diagnostic_retry_external_model_calls"] == 1
+    assert status["diagnostic_retry_automatic_model_repair_calls"] == 0
+    assert status["diagnostic_retry_authorized_spend_usd"] == 0.35
+    assert status["diagnostic_retry_status"] == "PROVIDER_FAILED_TIMEOUT"
 
 
 def test_gate2_plan_preserves_three_sources_and_four_arms() -> None:

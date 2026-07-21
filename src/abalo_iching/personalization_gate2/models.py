@@ -358,6 +358,7 @@ class Gate2PromptPackage(StrictModel):
 class Gate2Usage(StrictModel):
     input_tokens: int = Field(default=0, ge=0)
     cached_input_tokens: int = Field(default=0, ge=0)
+    cache_write_tokens: int = Field(default=0, ge=0)
     output_tokens: int = Field(default=0, ge=0)
     reasoning_tokens: int = Field(default=0, ge=0)
     total_tokens: int = Field(default=0, ge=0)
@@ -439,7 +440,7 @@ class Gate2EvidenceRecord(StrictModel):
     validation: Gate2ValidationReport
     usage: Gate2Usage
     latency_ms: int = Field(ge=0)
-    cost_usd: float = Field(ge=0)
+    cost_usd: float | None = Field(default=None, ge=0)
     response_id: str | None
     human_review: dict[str, Any] | None = None
     included_in_formal_comparison: Literal[False] = False
@@ -450,6 +451,7 @@ class DryRunStatus(StrEnum):
     VALIDATED = "VALIDATED"
     FAILED_VALIDATION = "FAILED_VALIDATION"
     SCHEMA_FAILED = "SCHEMA_FAILED"
+    PROVIDER_FAILED = "PROVIDER_FAILED"
 
 
 class Gate2DryRunResult(StrictModel):
