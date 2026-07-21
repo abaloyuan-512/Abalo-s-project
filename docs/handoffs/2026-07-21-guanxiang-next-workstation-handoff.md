@@ -158,3 +158,30 @@ D:\效率工具--GitHub\文件储存夹\Abalo-s-project-eval-output\gate2_person
 ```
 
 后续任务必须先读取`stage_c2_live_retest_authorization_proposal.md`、`stage_c2_retest_result.md`和`stage_c2_status.json`，并把`HARD_STOP_REAL_RETEST_VALIDATED`视为当前权威状态。包含本节、C.2实现、测试和结果记录的提交应作为后续远端权威坐标；若同步后的远端分支不包含`stage_c2_retest_result.md`，必须停止并重新核对同步来源，不得据此重复真实调用。
+
+## 十、Gate 2阶段 C.3离线准备（不构成真实调用授权）
+
+在 C.2真实复测通过后完成独立顺序审查：C.2只覆盖公开合成案例`G2CAL-001/B`，尚未真实验证同一 Schema v2、Prompt v4和Validator v3下的 C组真实卦象输入与D组冻结错配卦象输入。因此不能从 C.2直接进入锁定测试集或阶段 D。
+
+当前已完成的纯离线准备：
+
+- C、D两组分别通过Fake客户端后台端到端验证；
+- B、C、D三组分别通过真实OpenAI SDK加`httpx.MockTransport`的端到端验证；
+- 独立C.3付费入口默认未授权，且授权与逐项确认均先于API Key存在性检查；
+- 离线编排已验证固定先C后D，C失败时不会运行D；
+- C组强制真实非错配卦象，D组强制预先冻结的错配卦象；
+- C/D解释接榫强制为`REALITY_AND_CHART`，且必须同时引用现实与卦象事实；
+- Gate 2定向133项、全仓906项通过；
+- 本轮真实外部模型调用0次、费用0美元；C.2已消费入口继续锁死；
+- 锁定测试集未创建、未读取、未暴露；阶段 D与正式产品均未进入。
+
+下一真实候选步骤被收窄为 C.3：只补齐`G2CAL-001/C`和`G2CAL-001/D`，固定先C后D，最多2次POST，总费用硬上限建议1.00美元，任一失败立即停止。当前状态仍是`OFFLINE_READY_AWAITING_EXPLICIT_AUTHORIZATION`，不得因“继续推进”等一般性指令推导出付费授权。
+
+后续任务必须先读：
+
+```text
+evals/meihua/personalization_gate2_v001/stage_c3_visible_chart_arms_authorization_proposal.md
+evals/meihua/personalization_gate2_v001/stage_c3_status.json
+```
+
+未经产品负责人按提案条款明确确认，不得创建 C.3真实生成请求；无论是否授权 C.3，阶段 D、锁定测试集和正式产品集成都继续需要新的独立批准。

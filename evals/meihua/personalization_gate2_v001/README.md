@@ -96,6 +96,12 @@ C.2真实后台Provider/Runner和`scripts/run_personalization_gate2_stage_c2_ret
 
 唯一一次 C.2真实复测已经完成并消费授权：只创建1次后台生成，轮询同一response ID 16次，API终态`completed`，Schema v2、实验Validator硬安全与产品质量检查均通过，结果为`VALIDATED`。实际费用0.127980美元；输入5826 Token、输出3295 Token，其中推理475 Token，总计9121 Token。自动SDK重试0次、自动模型修复0次。详见`stage_c2_retest_result.md`。
 
+## 阶段 C.3可见卦象组补齐候选
+
+独立复核确认：C.2真实复测只覆盖`G2CAL-001/B`，尚未真实验证同一冻结契约下携带真实卦象的 C组和携带预先冻结错配卦象的 D组。因此不能从 C.2通过直接进入阶段 D或锁定测试集。
+
+当前已完成纯离线准备：C、D两组分别通过 Fake客户端与真实OpenAI SDK加`httpx.MockTransport`的后台端到端验证；独立C.3入口默认未授权，并已验证授权与逐项确认先于API Key存在性检查、固定先C后D以及C失败时不运行D。Schema v2、Prompt v4、Validator v3均未修改。建议的最小真实下一步只补齐`G2CAL-001/C`与`G2CAL-001/D`，最多2次生成、总费用硬上限1.00美元、失败硬停止。该真实运行尚未授权，详见`stage_c3_visible_chart_arms_authorization_proposal.md`和`stage_c3_status.json`。
+
 ## 本地验证
 
 ```powershell
@@ -105,8 +111,9 @@ C.2真实后台Provider/Runner和`scripts/run_personalization_gate2_stage_c2_ret
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c1_entry.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c2_contract.py
 .\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c2_entry.py
+.\.venv\Scripts\python.exe -m pytest -q tests\test_personalization_gate2_stage_c3_entry.py
 .\.venv\Scripts\python.exe -m pytest -q
 git diff --check
 ```
 
-阶段 C当前仍停在失败分析状态，不自动进入阶段 D。锁定集与正式离线比较仍需产品负责人再次明确批准，并由独立保管方执行。
+当前权威状态为：C.2单次真实复测已经`VALIDATED`并硬停止；C.3仅完成离线准备、等待明确授权；阶段 D仍未授权。锁定集与正式离线比较仍须在可见 B/C/D链路完成并通过独立评审后，由产品负责人另行批准，并由独立保管方执行。

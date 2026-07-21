@@ -20,6 +20,10 @@ STAGE_C2_AUTHORIZATION_PROPOSAL = (
 )
 STAGE_C2_RETEST_CONSTRAINTS = GATE2_DIR / "stage_c2_retest_constraints.txt"
 STAGE_C2_RETEST_RESULT = GATE2_DIR / "stage_c2_retest_result.md"
+STAGE_C3_AUTHORIZATION_PROPOSAL = (
+    GATE2_DIR / "stage_c3_visible_chart_arms_authorization_proposal.md"
+)
+STAGE_C3_STATUS = GATE2_DIR / "stage_c3_status.json"
 
 
 def test_gate2_contains_only_the_approved_governance_assets() -> None:
@@ -37,6 +41,8 @@ def test_gate2_contains_only_the_approved_governance_assets() -> None:
         STAGE_C2_AUTHORIZATION_PROPOSAL.name,
         STAGE_C2_RETEST_CONSTRAINTS.name,
         STAGE_C2_RETEST_RESULT.name,
+        STAGE_C3_AUTHORIZATION_PROPOSAL.name,
+        STAGE_C3_STATUS.name,
     }
 
 
@@ -171,6 +177,48 @@ def test_gate2_stage_c2_result_records_single_validated_retest() -> None:
     assert "0.127980美元" in text
     assert "17个检查点SHA-256全部匹配" in text
     assert "阶段 D：未进入" in text
+
+
+def test_gate2_stage_c3_status_keeps_real_calls_and_stage_d_closed() -> None:
+    status = __import__("json").loads(STAGE_C3_STATUS.read_text(encoding="utf-8"))
+
+    assert status["stage_c3_status"] == "OFFLINE_READY_AWAITING_EXPLICIT_AUTHORIZATION"
+    assert status["external_model_calls"] == 0
+    assert status["api_cost_usd"] == 0
+    assert status["real_visible_chart_arm_run_authorized"] is False
+    assert status["candidate_case_id"] == "G2CAL-001"
+    assert status["candidate_arms"] == ["C", "D"]
+    assert status["candidate_max_generation_calls"] == 2
+    assert status["candidate_total_spend_hard_limit_usd"] == 1.0
+    assert status["proposed_total_conservative_preflight_usd"] == 0.95062
+    assert status["offline_chart_arm_fake_e2e_verified"] is True
+    assert status["offline_chart_arm_sdk_mock_transport_verified"] is True
+    assert status["paid_entrypoint_implemented"] is True
+    assert status["paid_entrypoint_authorized"] is False
+    assert status["paid_entrypoint_pre_network_authorization_lock"] is True
+    assert status["paid_entrypoint_pre_network_confirmation_lock"] is True
+    assert status["paid_entrypoint_sequential_hard_stop_verified"] is True
+    assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
+    assert status["formal_product_changed"] is False
+    assert status["stage_d_authorized"] is False
+    assert status["next_stage_automatically_authorized"] is False
+    assert status["verification_gate2_tests_passed"] == 133
+    assert status["verification_full_repository_tests_passed"] == 906
+
+
+def test_gate2_stage_c3_proposal_is_minimal_and_requires_new_authorization() -> None:
+    text = STAGE_C3_AUTHORIZATION_PROPOSAL.read_text(encoding="utf-8")
+
+    assert "G2CAL-001/C" in text
+    assert "G2CAL-001/D" in text
+    assert "最大生成POST：2次" in text
+    assert "总费用硬上限为1.00美元" in text
+    assert "C组任何失败都不得运行D组" in text
+    assert "SDK自动重试：0" in text
+    assert "自动模型修复：0" in text
+    assert "本文件只形成提案，不授权或执行任何真实请求" in text
+    assert "不得创建或读取锁定测试集" in text
+    assert "不得进入阶段D" in text
 
 
 def test_gate2_plan_preserves_three_sources_and_four_arms() -> None:

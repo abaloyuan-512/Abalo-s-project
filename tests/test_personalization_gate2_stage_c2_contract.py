@@ -302,6 +302,128 @@ def _valid_b_output(request: Gate2ExperimentRequest) -> dict[str, object]:
     }
 
 
+def _valid_chart_output(request: Gate2ExperimentRequest) -> dict[str, object]:
+    assert request.metadata.arm in (ExperimentArm.C, ExperimentArm.D)
+    assert request.chart_context is not None
+    facts = request.reality.reality_facts()[:2]
+    chart_fact = request.chart_context.evidence[0]
+    reality_refs = [item.ref for item in facts]
+    evidence_refs = [chart_fact.ref]
+    source_trace = [
+        {
+            "trace_id": item.ref,
+            "source_kind": "REALITY_FACT",
+            "source_ref": item.ref,
+            "supports_fields": [f"context_facts[{index}]"],
+            "link_mode": "NOT_APPLICABLE",
+            "reality_refs": [],
+            "evidence_refs": [],
+            "interpretation_hypothesis": False,
+        }
+        for index, item in enumerate(facts)
+    ]
+    source_trace.extend(
+        [
+            {
+                "trace_id": chart_fact.ref,
+                "source_kind": "CHART_FACT",
+                "source_ref": chart_fact.ref,
+                "supports_fields": ["chart_signals[0]"],
+                "link_mode": "NOT_APPLICABLE",
+                "reality_refs": [],
+                "evidence_refs": [],
+                "interpretation_hypothesis": False,
+            },
+            {
+                "trace_id": "IL01",
+                "source_kind": "INTERPRETIVE_LINK",
+                "source_ref": "IL01",
+                "supports_fields": [
+                    "judgment_signature.direction",
+                    "judgment_signature.method",
+                    "judgment_signature.agency",
+                    "judgment_signature.main_conflict",
+                    "judgment_signature.action_intensity",
+                    "user_facing_reading.core_judgment",
+                    "user_facing_reading.explanation",
+                    "user_facing_reading.reality_application",
+                    "user_facing_reading.action",
+                    "user_facing_reading.switch_condition",
+                ],
+                "link_mode": "REALITY_AND_CHART",
+                "reality_refs": reality_refs,
+                "evidence_refs": evidence_refs,
+                "interpretation_hypothesis": True,
+            },
+        ]
+    )
+    is_real_chart = request.metadata.arm is ExperimentArm.C
+    return {
+        "context_facts": [
+            {"fact_text": item.text, "reality_refs": [item.ref]}
+            for item in facts
+        ],
+        "unknowns": [
+            {"unknown_text": item.text, "must_not_infer": True}
+            for item in request.reality.unknowns
+        ],
+        "chart_signals": [
+            {
+                "signal_text": chart_fact.text,
+                "evidence_refs": evidence_refs,
+                "knowledge_review_status": chart_fact.knowledge_review_status.value,
+            }
+        ],
+        "core_conflict": {
+            "text": "当前关键是把现实条件与程序提供的卦象信号一起核对。",
+            "reality_refs": reality_refs,
+            "evidence_refs": evidence_refs,
+            "interpretation_hypothesis": True,
+        },
+        "judgment_signature": {
+            "direction": "推进" if is_real_chart else "等待",
+            "method": "公开" if is_real_chart else "澄清",
+            "agency": "双方共同" if is_real_chart else "尚不明确",
+            "main_conflict": "时机" if is_real_chart else "回应",
+            "action_intensity": "中" if is_real_chart else "轻",
+        },
+        "opposite_posture_and_reason": {
+            "opposite_posture": "忽略现实条件或卦象信号直接定论",
+            "reason": "解释假设必须同时由现实引用和卦象引用支撑。",
+            "reality_refs": reality_refs,
+            "evidence_refs": evidence_refs,
+        },
+        "one_action": {
+            "action_text": "围绕现有方案请求一次可核对的明确回应。",
+            "target_or_person": "有决定权的人",
+            "observable_result": "对方给出下一步、补充条件或拒绝理由。",
+            "reality_refs": reality_refs,
+            "evidence_refs": evidence_refs,
+        },
+        "switch_conditions": [
+            {
+                "condition_text": "若出现明确补充条件，就按条件重新判断。",
+                "reality_refs": reality_refs,
+                "evidence_refs": evidence_refs,
+            }
+        ],
+        "source_trace": source_trace,
+        "user_facing_reading": {
+            "core_judgment": "先把现有判断转成一次可核对的沟通。",
+            "explanation": "这是一条同时引用现实事实和程序卦象事实的实验解释。",
+            "reality_application": "重点确认有决定权者是否给出明确回应。",
+            "action": "提交现有方案并询问下一步。",
+            "switch_condition": "若对方提出明确条件，就据此调整。",
+        },
+    }
+
+
+def _valid_output(request: Gate2ExperimentRequest) -> dict[str, object]:
+    if request.metadata.arm is ExperimentArm.B:
+        return _valid_b_output(request)
+    return _valid_chart_output(request)
+
+
 def _response(
     status: str,
     *,
@@ -396,6 +518,43 @@ def test_c2_offline_background_runner_validates_v2_end_to_end(
     assert runner.budget_guard.spent_usd == 0
 
 
+@pytest.mark.parametrize("arm", [ExperimentArm.C, ExperimentArm.D])
+def test_c2_offline_background_runner_validates_chart_arms_end_to_end(
+    tmp_path: Path,
+    arm: ExperimentArm,
+) -> None:
+    request = build_stage_c2_request(VISIBLE_CALIBRATION_CASES[0], arm)
+    output = _valid_chart_output(request)
+    responses = _FakeResponses(
+        _response("queued"),
+        [_response("completed", output=output)],
+    )
+    provider = _offline_provider(responses, request)
+    repository = tmp_path / "repository"
+    repository.mkdir()
+
+    result = Gate2StageC2OfflineBackgroundRunner(
+        repository_root=repository
+    ).run(
+        request,
+        provider=provider,
+        evidence_root=tmp_path / "external-evidence",
+    )
+
+    assert result.status is DryRunStatus.VALIDATED
+    assert isinstance(result.output, Gate2ExperimentOutputV2)
+    assert request.chart_context is not None
+    assert request.chart_context.is_mismatched_control is (arm is ExperimentArm.D)
+    assert all(
+        trace.link_mode.value == "REALITY_AND_CHART"
+        for trace in result.output.source_trace
+        if trace.source_kind.value == "INTERPRETIVE_LINK"
+    )
+    assert responses.parse_calls == 1
+    assert responses.retrieve_calls == 1
+    assert result.evidence_record.cost_usd == 0
+
+
 def test_c2_offline_provider_rejects_default_network_client() -> None:
     with pytest.raises(ValueError, match="禁止使用默认OpenAI网络客户端"):
         OfflineGate2StageC2BackgroundProvider(client_factory=OpenAI)
@@ -479,11 +638,16 @@ def test_c1_provider_still_uses_v1_output_model() -> None:
     assert OpenAIGate2BackgroundProvider.stage_label == "C.1"
 
 
-def test_c2_real_sdk_mock_transport_sends_v2_schema(
+@pytest.mark.parametrize(
+    "arm",
+    [ExperimentArm.B, ExperimentArm.C, ExperimentArm.D],
+)
+def test_c2_real_sdk_mock_transport_sends_v2_schema_for_every_model_arm(
     tmp_path: Path,
+    arm: ExperimentArm,
 ) -> None:
-    request = build_stage_c2_request(VISIBLE_CALIBRATION_CASES[0], ExperimentArm.B)
-    output = _valid_b_output(request)
+    request = build_stage_c2_request(VISIBLE_CALIBRATION_CASES[0], arm)
+    output = _valid_output(request)
     seen_schema_branches: list[int] = []
 
     def response_body(status: str) -> dict[str, object]:
