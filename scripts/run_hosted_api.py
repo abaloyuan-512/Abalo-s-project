@@ -25,8 +25,12 @@ from abalo_iching.application.sites_meihua_service_v2 import (  # noqa: E402
 from abalo_iching.application.sites_meihua_service_v3 import (  # noqa: E402
     process_sites_meihua_v3_request,
 )
+from abalo_iching.application.sites_owner_preview_v1 import (  # noqa: E402
+    process_sites_owner_preview_v1_request,
+)
 
 MAX_BODY_BYTES = 16 * 1024
+OWNER_PREVIEW_MAX_BODY_BYTES = 32 * 1024
 MIN_KEY_LENGTH = 32
 LOGGER = logging.getLogger("abalo.hosted_api")
 
@@ -80,7 +84,11 @@ class HostedApiHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         started = time.perf_counter()
         path = self.path.split("?", 1)[0]
-        if path not in {"/api/v2/meihua", "/api/v3/meihua"}:
+        if path not in {
+            "/api/v2/meihua",
+            "/api/v3/meihua",
+            "/api/preview/v1/meihua",
+        }:
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
         if not self._authorized():
@@ -94,7 +102,12 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             content_length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
             content_length = -1
-        if content_length < 0 or content_length > MAX_BODY_BYTES:
+        max_body_bytes = (
+            OWNER_PREVIEW_MAX_BODY_BYTES
+            if path == "/api/preview/v1/meihua"
+            else MAX_BODY_BYTES
+        )
+        if content_length < 0 or content_length > max_body_bytes:
             self._send_json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"status": "request_too_large"})
             return
         try:
@@ -103,7 +116,12 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_json"})
             return
         try:
-            processor = process_sites_meihua_v3_request if path == "/api/v3/meihua" else process_sites_meihua_v2_request
+            if path == "/api/preview/v1/meihua":
+                processor = process_sites_owner_preview_v1_request
+            elif path == "/api/v3/meihua":
+                processor = process_sites_meihua_v3_request
+            else:
+                processor = process_sites_meihua_v2_request
             response = processor(payload, input_provenance="REAL")
         except Exception:  # pragma: no cover - final network boundary
             LOGGER.exception("hosted_engine_unhandled_error")

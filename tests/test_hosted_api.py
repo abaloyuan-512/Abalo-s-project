@@ -49,6 +49,33 @@ def valid_v3_request() -> dict[str, object]:
     }
 
 
+def valid_owner_preview_request() -> dict[str, object]:
+    return {
+        "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+        "request_id": "hosted-owner-preview-v1",
+        "question_text": "这次合作已经反复推迟，我还应该继续投入吗？",
+        "question_domain": "PROJECT_COOPERATION",
+        "decision_goal": "PLAN_NEXT_STEP",
+        "time_horizon": "NEXT_30_DAYS",
+        "decision_stage": "ALREADY_ACTING",
+        "key_uncertainty": "OTHER_RESPONSE",
+        "confirmed_facts": ["双方已经沟通过两次。"],
+        "unknowns": ["不知道最终负责人是否已经看过方案。"],
+        "options": [],
+        "actions_already_taken": [],
+        "observable_responses": [],
+        "numbers": [7, 8, 9],
+        "locale": "zh-CN",
+        "client_timestamp": "2026-07-22T12:00:00+08:00",
+        "user_acknowledgements": {
+            "owner_preview_only": True,
+            "live_model_cost_acknowledged": True,
+            "no_formal_persistence": True,
+            "user_statements_not_verified_facts": True,
+        },
+    }
+
+
 @contextmanager
 def running_server():
     server = hosted_api.create_server("127.0.0.1", 0, ENGINE_KEY)
@@ -117,3 +144,26 @@ def test_authorized_v3_request_returns_concrete_question_and_clarity_report() ->
     assert payload["audit"]["synthetic_or_real_input"] == "REAL"
     assert payload["audit"]["question_text_used_for_calculation"] is False
     assert payload["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V3"
+
+
+def test_owner_preview_route_is_authenticated_and_disabled_by_default(monkeypatch) -> None:
+    monkeypatch.delenv("ABALO_OWNER_PREVIEW_ENABLED", raising=False)
+    with running_server() as port:
+        unauthorized, _headers, _payload = request(
+            port,
+            "POST",
+            "/api/preview/v1/meihua",
+            payload=valid_owner_preview_request(),
+        )
+        status, headers, payload = request(
+            port,
+            "POST",
+            "/api/preview/v1/meihua",
+            key=ENGINE_KEY,
+            payload=valid_owner_preview_request(),
+        )
+    assert unauthorized == 401
+    assert status == 200
+    assert headers["Cache-Control"] == "no-store"
+    assert payload["status"] == "PREVIEW_DISABLED"
+    assert payload["personalized_reading"] is None

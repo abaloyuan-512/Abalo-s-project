@@ -49,6 +49,17 @@ test("renders public method, privacy and usage pages", async () => {
   }
 });
 
+test("server-renders the isolated owner preview page", async () => {
+  const app = await worker();
+  const response = await app.fetch(new Request("http://localhost/preview", { headers: { accept: "text/html" } }), env, context);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /新版解读 · 所有者私有体验/);
+  assert.match(html, /不替代现有 v16/);
+  assert.match(html, /已经确认的现实事实/);
+  assert.match(html, /目前不能假设的未知项/);
+});
+
 test("journal rejects requests without a private device key", async () => {
   const app = await worker();
   const response = await app.fetch(new Request("http://localhost/api/journal"), env, context);
@@ -78,4 +89,16 @@ test("V3 API fails safely until the Python engine is configured", async () => {
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.deepEqual(await response.json(), { error: "排盘服务尚未连接，请稍后再试。" });
+});
+
+test("owner preview API fails safely until the Python engine is configured", async () => {
+  const app = await worker();
+  const response = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1" }),
+  }), env, context);
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await response.json(), { error: "新版解读私有体验尚未连接。" });
 });
