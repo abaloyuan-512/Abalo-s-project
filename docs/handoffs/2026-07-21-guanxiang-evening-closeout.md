@@ -20,6 +20,7 @@ git rev-parse origin/codex/mvp-runnable-baseline
 git status --short --branch
 git log -4 --oneline --decorate
 ```
+
 本地HEAD与`origin/codex/mvp-runnable-baseline`必须完全一致，历史中必须包含`e03cf7e`与`3cf1e38`。
 
 ## 二、工作电脑必须使用新的干净克隆
@@ -155,4 +156,14 @@ D:\效率工具--GitHub\文件储存夹\Abalo-s-project-eval-output\gate2_person
 
 ```text
 继续推进“观象”项目。请在新的干净克隆中工作，权威分支为codex/mvp-runnable-baseline。开始前完整读取根AGENTS.md、docs/handoffs/2026-07-21-guanxiang-evening-closeout.md、docs/handoffs/2026-07-21-guanxiang-next-workstation-handoff.md，以及evals/meihua/personalization_gate2_v001/下的README.md、stage_c2_retest_result.md、stage_c2_status.json、stage_c3_visible_chart_arms_authorization_proposal.md和stage_c3_status.json。先只读核对根目录、分支、HEAD、origin跟踪引用、git status和最近提交，确认历史包含e03cf7e与3cf1e38。C.2真实授权已消费并硬停止；C.3只完成离线准备，真实C/D调用未授权。不得读取或输出API Key，不得创建或读取锁定测试集，不得进入阶段D，不得修改正式网站、V3、确定性排盘、正式Prompt、正式Validator、Release Gate或正式解释知识。先汇报同步和继承结论；没有产品负责人包含实际余额的明确授权时，不得产生API费用。
+```
+
+## 九、2026-07-22阶段 C.3后续结果
+
+本节覆盖本文第七、八节中“C.3等待授权”的旧状态。产品负责人已明确授权并完成唯一一次 C.3真实运行：`G2CAL-001/C`与`G2CAL-001/D`均各1次POST、均`VALIDATED`，总费用0.395065美元，工程状态为`READY_FOR_BLIND_REVIEW`。授权已消费，阶段 D与锁定测试集仍未授权。
+
+最新收口入口为：
+
+```text
+docs/handoffs/2026-07-22-guanxiang-stage-c3-closeout.md
 ```

@@ -31,12 +31,12 @@ def _validate(output_root: Path, **updates: object) -> Path:
     return stage_c3.validate_paid_preflight(output_root=output_root, **values)
 
 
-def test_c3_paid_entry_is_default_closed() -> None:
-    assert stage_c3.PAID_VISIBLE_CHART_ARMS_AUTHORIZED is False
-    assert stage_c3.PAID_VISIBLE_CHART_ARMS_AUTHORIZATION_CONSUMED is False
+def test_c3_paid_entry_records_explicit_authorization() -> None:
+    assert stage_c3.PAID_VISIBLE_CHART_ARMS_AUTHORIZED is True
+    assert stage_c3.PAID_VISIBLE_CHART_ARMS_AUTHORIZATION_CONSUMED is True
 
 
-def test_c3_main_stops_before_api_key_presence_check(
+def test_c3_consumed_main_stops_before_api_key_presence_check(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -54,7 +54,7 @@ def test_c3_main_stops_before_api_key_presence_check(
             str(tmp_path / "new-stage-c3-evidence"),
         ],
     )
-    with pytest.raises(SystemExit, match="NOT_AUTHORIZED"):
+    with pytest.raises(SystemExit, match="AUTHORIZATION_ALREADY_CONSUMED"):
         stage_c3.main()
 
 
@@ -67,6 +67,11 @@ def test_c3_explicit_confirmation_stops_before_api_key_presence_check(
             raise AssertionError(f"environment inspected before confirmation: {key}")
 
     monkeypatch.setattr(stage_c3, "PAID_VISIBLE_CHART_ARMS_AUTHORIZED", True)
+    monkeypatch.setattr(
+        stage_c3,
+        "PAID_VISIBLE_CHART_ARMS_AUTHORIZATION_CONSUMED",
+        False,
+    )
     monkeypatch.setattr(stage_c3.os, "environ", _ExplodingEnvironment())
     monkeypatch.setattr(
         sys,

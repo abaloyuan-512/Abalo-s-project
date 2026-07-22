@@ -24,6 +24,7 @@ STAGE_C3_AUTHORIZATION_PROPOSAL = (
     GATE2_DIR / "stage_c3_visible_chart_arms_authorization_proposal.md"
 )
 STAGE_C3_STATUS = GATE2_DIR / "stage_c3_status.json"
+STAGE_C3_RESULT = GATE2_DIR / "stage_c3_visible_chart_arms_result.md"
 
 
 def test_gate2_contains_only_the_approved_governance_assets() -> None:
@@ -43,6 +44,7 @@ def test_gate2_contains_only_the_approved_governance_assets() -> None:
         STAGE_C2_RETEST_RESULT.name,
         STAGE_C3_AUTHORIZATION_PROPOSAL.name,
         STAGE_C3_STATUS.name,
+        STAGE_C3_RESULT.name,
     }
 
 
@@ -179,13 +181,15 @@ def test_gate2_stage_c2_result_records_single_validated_retest() -> None:
     assert "阶段 D：未进入" in text
 
 
-def test_gate2_stage_c3_status_keeps_real_calls_and_stage_d_closed() -> None:
+def test_gate2_stage_c3_status_records_consumed_run_and_keeps_stage_d_closed() -> None:
     status = __import__("json").loads(STAGE_C3_STATUS.read_text(encoding="utf-8"))
 
-    assert status["stage_c3_status"] == "OFFLINE_READY_AWAITING_EXPLICIT_AUTHORIZATION"
-    assert status["external_model_calls"] == 0
-    assert status["api_cost_usd"] == 0
-    assert status["real_visible_chart_arm_run_authorized"] is False
+    assert status["stage_c3_status"] == "HARD_STOP_REAL_RUN_CONSUMED_READY_FOR_BLIND_REVIEW"
+    assert status["external_model_calls"] == 2
+    assert status["api_cost_usd"] == 0.395065
+    assert status["authorization_consumed"] is True
+    assert status["real_visible_chart_arm_run_authorized"] is True
+    assert status["authorized_declared_balance_usd"] == 8.57
     assert status["candidate_case_id"] == "G2CAL-001"
     assert status["candidate_arms"] == ["C", "D"]
     assert status["candidate_max_generation_calls"] == 2
@@ -194,16 +198,39 @@ def test_gate2_stage_c3_status_keeps_real_calls_and_stage_d_closed() -> None:
     assert status["offline_chart_arm_fake_e2e_verified"] is True
     assert status["offline_chart_arm_sdk_mock_transport_verified"] is True
     assert status["paid_entrypoint_implemented"] is True
-    assert status["paid_entrypoint_authorized"] is False
+    assert status["paid_entrypoint_authorized"] is True
+    assert status["paid_entrypoint_authorization_consumed"] is True
     assert status["paid_entrypoint_pre_network_authorization_lock"] is True
     assert status["paid_entrypoint_pre_network_confirmation_lock"] is True
     assert status["paid_entrypoint_sequential_hard_stop_verified"] is True
+    assert status["c_arm_status"] == "VALIDATED"
+    assert status["d_arm_status"] == "VALIDATED"
+    assert status["c_arm_generation_calls"] == 1
+    assert status["d_arm_generation_calls"] == 1
+    assert status["automatic_sdk_retries"] == 0
+    assert status["automatic_model_repair_calls"] == 0
+    assert status["evidence_manifest_file_count"] == 88
+    assert status["evidence_manifest_verified"] is True
     assert status["locked_test_set_status"] == "NOT_CREATED_OR_EXPOSED"
     assert status["formal_product_changed"] is False
     assert status["stage_d_authorized"] is False
     assert status["next_stage_automatically_authorized"] is False
-    assert status["verification_gate2_tests_passed"] == 133
-    assert status["verification_full_repository_tests_passed"] == 906
+    assert status["pre_run_verification_gate2_tests_passed"] == 133
+    assert status["pre_run_verification_full_repository_tests_passed"] == 906
+    assert status["verification_gate2_tests_passed"] == 134
+    assert status["verification_full_repository_tests_passed"] == 907
+
+
+def test_gate2_stage_c3_result_records_two_validated_arms() -> None:
+    text = STAGE_C3_RESULT.read_text(encoding="utf-8")
+
+    assert "`READY_FOR_BLIND_REVIEW`" in text
+    assert "| C | 1 | 19 | `completed` | `VALIDATED`" in text
+    assert "| D | 1 | 19 | `completed` | `VALIDATED`" in text
+    assert "0.395065美元" in text
+    assert "88个文件SHA-256全部重新计算并匹配" in text
+    assert "锁定测试集未创建、未读取、未暴露" in text
+    assert "阶段 D未进入且未授权" in text
 
 
 def test_gate2_stage_c3_proposal_is_minimal_and_requires_new_authorization() -> None:
