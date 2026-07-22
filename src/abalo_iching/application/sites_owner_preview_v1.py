@@ -38,11 +38,26 @@ from .sites_meihua_service_v3 import (
 
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
-OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v1"
+OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v2"
 OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v1"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
+
+OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS = """
+所有 judgment_signature 五个字段与 user_facing_reading 五个字段，都必须至少出现在一条 INTERPRETIVE_LINK 的 supports_fields 中：
+- judgment_signature.direction
+- judgment_signature.method
+- judgment_signature.agency
+- judgment_signature.main_conflict
+- judgment_signature.action_intensity
+- user_facing_reading.core_judgment
+- user_facing_reading.explanation
+- user_facing_reading.reality_application
+- user_facing_reading.action
+- user_facing_reading.switch_condition
+不得只覆盖承载这些内容的中间结构字段。
+""".strip()
 
 _DOMAIN_LABELS = {
     "WORK_CAREER": "工作或职业",
@@ -243,7 +258,11 @@ def _prompt(
         "allowed_evidence_refs": sorted(chart_context.evidence_refs()),
         "output_schema": Gate2ExperimentOutputV2.model_json_schema(),
     }
-    instructions = f"{OWNER_PREVIEW_SYSTEM_INSTRUCTIONS}\n\n{C2_SOURCE_TRACE_INSTRUCTIONS}"
+    instructions = (
+        f"{OWNER_PREVIEW_SYSTEM_INSTRUCTIONS}\n\n"
+        f"{C2_SOURCE_TRACE_INSTRUCTIONS}\n\n"
+        f"{OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS}"
+    )
     digest = hashlib.sha256(
         f"{instructions}\n{_canonical_json(payload)}".encode("utf-8")
     ).hexdigest()
@@ -272,18 +291,27 @@ def _validate_output(
     )
 
 
-def _error(request_id: str, status: str, message: str) -> dict[str, Any]:
+def _error(
+    request_id: str,
+    status: str,
+    message: str,
+    *,
+    preview_meta_extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    preview_meta = {
+        "owner_preview_only": True,
+        "should_charge": False,
+        "formal_persistence_allowed": False,
+    }
+    if preview_meta_extra:
+        preview_meta.update(preview_meta_extra)
     return {
         "contract_version": OWNER_PREVIEW_CONTRACT_VERSION,
         "request_id": request_id,
         "status": status,
         "deterministic_result": None,
         "personalized_reading": None,
-        "preview_meta": {
-            "owner_preview_only": True,
-            "should_charge": False,
-            "formal_persistence_allowed": False,
-        },
+        "preview_meta": preview_meta,
         "error": message,
     }
 
@@ -374,7 +402,23 @@ def process_sites_owner_preview_v1_request(
     except Exception:
         return _error(payload.request_id, "PREVIEW_FAILED", "本次新版解读未通过安全检查，未展示也不会自动重试。")
     if hard_failures or quality_failures:
-        return _error(payload.request_id, "PREVIEW_FAILED", "本次新版解读未通过安全或质量检查，未展示也不会自动重试。")
+        return _error(
+            payload.request_id,
+            "PREVIEW_FAILED",
+            "本次新版解读未通过安全或质量检查，未展示也不会自动重试。",
+            preview_meta_extra={
+                "stored": False,
+                "automatic_sdk_retries": 0,
+                "automatic_model_repair_calls": 0,
+                "model": OWNER_PREVIEW_MODEL,
+                "reasoning_effort": OWNER_PREVIEW_REASONING_EFFORT,
+                "prompt_version": OWNER_PREVIEW_PROMPT_VERSION,
+                "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
+                "actual_api_cost_usd": provider_result.cost_usd,
+                "preflight_estimated_cost_usd": float(preflight),
+                "hard_cost_limit_enabled": False,
+            },
+        )
     return {
         "contract_version": OWNER_PREVIEW_CONTRACT_VERSION,
         "request_id": payload.request_id,

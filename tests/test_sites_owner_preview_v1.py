@@ -138,6 +138,20 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
     assert "synthetic_only" not in str(captured[0].input_payload)
+    assert captured[0].prompt_version == "guanxiang_owner_preview_v2"
+    for field in (
+        "judgment_signature.direction",
+        "judgment_signature.method",
+        "judgment_signature.agency",
+        "judgment_signature.main_conflict",
+        "judgment_signature.action_intensity",
+        "user_facing_reading.core_judgment",
+        "user_facing_reading.explanation",
+        "user_facing_reading.reality_application",
+        "user_facing_reading.action",
+        "user_facing_reading.switch_condition",
+    ):
+        assert field in captured[0].system_instructions
 
 
 def test_owner_preview_records_high_actual_cost_without_hard_block():
@@ -205,4 +219,6 @@ def test_owner_preview_hard_stops_invalid_model_output_without_retry():
     )
     assert response["status"] == "PREVIEW_FAILED"
     assert response["personalized_reading"] is None
+    assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
     assert calls == 1
