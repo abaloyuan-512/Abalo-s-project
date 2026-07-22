@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import argparse
 import hmac
+import hashlib
 import json
 import logging
 import os
+import re
 import sys
+import threading
 import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -31,6 +34,10 @@ from abalo_iching.application.sites_owner_preview_v1 import (  # noqa: E402
 
 MAX_BODY_BYTES = 16 * 1024
 OWNER_PREVIEW_MAX_BODY_BYTES = 32 * 1024
+OWNER_PREVIEW_JOB_PREFIX = "/api/preview/v1/meihua/jobs/"
+OWNER_PREVIEW_JOB_PATH = "/api/preview/v1/meihua/jobs"
+OWNER_PREVIEW_JOB_TTL_SECONDS = 30 * 60
+OWNER_PREVIEW_REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 MIN_KEY_LENGTH = 32
 LOGGER = logging.getLogger("abalo.hosted_api")
 
@@ -44,6 +51,8 @@ def validate_engine_key(value: str | None) -> str:
 
 class HostedApiServer(ThreadingHTTPServer):
     engine_key: str
+    owner_preview_jobs: dict[str, dict[str, Any]]
+    owner_preview_jobs_lock: threading.Lock
 
 
 class HostedApiHandler(BaseHTTPRequestHandler):
@@ -76,10 +85,80 @@ class HostedApiHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         path = self.path.split("?", 1)[0]
-        if path != "/healthz":
+        if path == "/healthz":
+            self._send_json(HTTPStatus.OK, {"status": "ok", "service": "abalo-authoritative-engine"})
+            return
+        if not path.startswith(OWNER_PREVIEW_JOB_PREFIX):
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
-        self._send_json(HTTPStatus.OK, {"status": "ok", "service": "abalo-authoritative-engine"})
+        if not self._authorized():
+            self._send_json(HTTPStatus.UNAUTHORIZED, {"status": "unauthorized"})
+            return
+        request_id = path.removeprefix(OWNER_PREVIEW_JOB_PREFIX)
+        if not OWNER_PREVIEW_REQUEST_ID_PATTERN.fullmatch(request_id):
+            self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
+            return
+        with self.hosted_server.owner_preview_jobs_lock:
+            self._cleanup_owner_preview_jobs_locked()
+            job = self.hosted_server.owner_preview_jobs.get(request_id)
+            if job is None:
+                self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
+                return
+            response = job.get("response")
+            status = str(job["status"])
+        if response is None:
+            self._send_json(
+                HTTPStatus.ACCEPTED,
+                {
+                    "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+                    "request_id": request_id,
+                    "status": status,
+                },
+            )
+            return
+        self._send_json(HTTPStatus.OK, response)
+
+    def _cleanup_owner_preview_jobs_locked(self) -> None:
+        cutoff = time.monotonic() - OWNER_PREVIEW_JOB_TTL_SECONDS
+        expired = [
+            request_id
+            for request_id, job in self.hosted_server.owner_preview_jobs.items()
+            if float(job["updated_at"]) < cutoff
+        ]
+        for request_id in expired:
+            del self.hosted_server.owner_preview_jobs[request_id]
+
+    def _run_owner_preview_job(self, request_id: str, payload: dict[str, Any]) -> None:
+        started = time.perf_counter()
+        try:
+            response = process_sites_owner_preview_v1_request(payload, input_provenance="REAL")
+        except Exception:  # pragma: no cover - final background boundary
+            LOGGER.exception("owner_preview_job_unhandled_error request_id=%s", request_id)
+            response = {
+                "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+                "request_id": request_id,
+                "status": "PREVIEW_FAILED",
+                "deterministic_result": None,
+                "personalized_reading": None,
+                "preview_meta": {
+                    "owner_preview_only": True,
+                    "should_charge": False,
+                    "formal_persistence_allowed": False,
+                },
+                "error": "新版解读服务暂时不可用，请稍后再试。",
+            }
+        with self.hosted_server.owner_preview_jobs_lock:
+            job = self.hosted_server.owner_preview_jobs.get(request_id)
+            if job is not None:
+                job["status"] = str(response.get("status", "PREVIEW_FAILED"))
+                job["response"] = response
+                job["updated_at"] = time.monotonic()
+        LOGGER.info(
+            "owner_preview_job status=%s request_id=%s latency_ms=%d",
+            response.get("status", "UNKNOWN"),
+            request_id,
+            round((time.perf_counter() - started) * 1000),
+        )
 
     def do_POST(self) -> None:  # noqa: N802
         started = time.perf_counter()
@@ -88,6 +167,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             "/api/v2/meihua",
             "/api/v3/meihua",
             "/api/preview/v1/meihua",
+            OWNER_PREVIEW_JOB_PATH,
         }:
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
@@ -104,7 +184,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             content_length = -1
         max_body_bytes = (
             OWNER_PREVIEW_MAX_BODY_BYTES
-            if path == "/api/preview/v1/meihua"
+            if path in {"/api/preview/v1/meihua", OWNER_PREVIEW_JOB_PATH}
             else MAX_BODY_BYTES
         )
         if content_length < 0 or content_length > max_body_bytes:
@@ -116,6 +196,51 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_json"})
             return
         try:
+            if path == OWNER_PREVIEW_JOB_PATH:
+                if not isinstance(payload, dict):
+                    self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_request"})
+                    return
+                request_id = str(payload.get("request_id", ""))
+                if not OWNER_PREVIEW_REQUEST_ID_PATTERN.fullmatch(request_id):
+                    self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_request"})
+                    return
+                digest = hashlib.sha256(
+                    json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                ).hexdigest()
+                with self.hosted_server.owner_preview_jobs_lock:
+                    self._cleanup_owner_preview_jobs_locked()
+                    job = self.hosted_server.owner_preview_jobs.get(request_id)
+                    if job is not None and job["digest"] != digest:
+                        self._send_json(HTTPStatus.CONFLICT, {"status": "request_id_conflict"})
+                        return
+                    if job is None:
+                        job = {
+                            "digest": digest,
+                            "status": "RUNNING",
+                            "response": None,
+                            "updated_at": time.monotonic(),
+                        }
+                        self.hosted_server.owner_preview_jobs[request_id] = job
+                        threading.Thread(
+                            target=self._run_owner_preview_job,
+                            args=(request_id, payload),
+                            daemon=True,
+                            name=f"owner-preview-{request_id[:24]}",
+                        ).start()
+                    response = job.get("response")
+                    status = str(job["status"])
+                if response is not None:
+                    self._send_json(HTTPStatus.OK, response)
+                else:
+                    self._send_json(
+                        HTTPStatus.ACCEPTED,
+                        {
+                            "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+                            "request_id": request_id,
+                            "status": status,
+                        },
+                    )
+                return
             if path == "/api/preview/v1/meihua":
                 processor = process_sites_owner_preview_v1_request
             elif path == "/api/v3/meihua":
@@ -141,6 +266,8 @@ def create_server(host: str, port: int, engine_key: str) -> HostedApiServer:
         raise ValueError("invalid hosted API address")
     server = HostedApiServer((host, port), HostedApiHandler)
     server.engine_key = validate_engine_key(engine_key)
+    server.owner_preview_jobs = {}
+    server.owner_preview_jobs_lock = threading.Lock()
     return server
 
 

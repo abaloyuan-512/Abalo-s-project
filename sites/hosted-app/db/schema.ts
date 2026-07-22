@@ -37,3 +37,12 @@ export const ownerPreviewBudget = sqliteTable("owner_preview_budget", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const ownerPreviewRequests = sqliteTable("owner_preview_requests", {
+  requestId: text("request_id").primaryKey(),
+  resultStatus: text("result_status"),
+  finalized: integer("finalized", { mode: "boolean" }).notNull().default(false),
+  actualMicroUsd: integer("actual_micro_usd").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

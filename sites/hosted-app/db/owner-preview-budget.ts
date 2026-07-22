@@ -15,6 +15,7 @@ type BudgetRow = {
 
 export type OwnerPreviewBudgetSnapshot = {
   allowed: boolean;
+  isNewRequest?: boolean;
   status: string;
   reservedCalls: number;
   reservedMicroUsd: number;
@@ -31,6 +32,14 @@ async function ensureBudgetRow(db: D1Database): Promise<void> {
       reserved_micro_usd integer DEFAULT 0 NOT NULL,
       actual_micro_usd integer DEFAULT 0 NOT NULL,
       last_result_status text,
+      created_at text NOT NULL,
+      updated_at text NOT NULL
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS owner_preview_requests (
+      request_id text PRIMARY KEY NOT NULL,
+      result_status text,
+      finalized integer DEFAULT 0 NOT NULL,
+      actual_micro_usd integer DEFAULT 0 NOT NULL,
       created_at text NOT NULL,
       updated_at text NOT NULL
     )`),
@@ -69,10 +78,29 @@ export async function getOwnerPreviewBudgetSnapshot(): Promise<OwnerPreviewBudge
   return snapshot(await readBudgetRow(db), false);
 }
 
-export async function reserveOwnerPreviewAttempt(): Promise<OwnerPreviewBudgetSnapshot> {
+function normalizedRequestId(requestId: string): string {
+  const value = requestId.trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(value)) {
+    throw new Error("Invalid owner preview request id.");
+  }
+  return value;
+}
+
+export async function reserveOwnerPreviewAttempt(requestId: string): Promise<OwnerPreviewBudgetSnapshot> {
   const db = getRawDb();
   await ensureBudgetRow(db);
   const now = new Date().toISOString();
+  const inserted = await db.prepare(`INSERT OR IGNORE INTO owner_preview_requests (
+    request_id, result_status, finalized, actual_micro_usd, created_at, updated_at
+  ) VALUES (?, NULL, 0, 0, ?, ?)`).bind(
+    normalizedRequestId(requestId),
+    now,
+    now,
+  ).run();
+  const isNewRequest = Number(inserted.meta?.changes ?? 0) === 1;
+  if (!isNewRequest) {
+    return { ...snapshot(await readBudgetRow(db), false), isNewRequest: false };
+  }
   const result = await db.prepare(`UPDATE owner_preview_budget
     SET reserved_calls = reserved_calls + 1,
         status = 'METERING',
@@ -82,10 +110,11 @@ export async function reserveOwnerPreviewAttempt(): Promise<OwnerPreviewBudgetSn
     OWNER_PREVIEW_WINDOW_ID,
   ).run();
   const row = await readBudgetRow(db);
-  return snapshot(row, Number(result.meta?.changes ?? 0) === 1);
+  return { ...snapshot(row, Number(result.meta?.changes ?? 0) === 1), isNewRequest: true };
 }
 
 export async function recordOwnerPreviewResult(
+  requestId: string,
   resultStatus: string,
   actualCostUsd: number | null,
 ): Promise<OwnerPreviewBudgetSnapshot> {
@@ -95,6 +124,20 @@ export async function recordOwnerPreviewResult(
     typeof actualCostUsd === "number" && Number.isFinite(actualCostUsd) && actualCostUsd >= 0
       ? Math.round(actualCostUsd * 1_000_000)
       : 0;
+  const finalized = await db.prepare(`UPDATE owner_preview_requests
+    SET result_status = ?,
+        finalized = 1,
+        actual_micro_usd = ?,
+        updated_at = ?
+    WHERE request_id = ? AND finalized = 0`).bind(
+    normalizedStatus,
+    actualMicroUsd,
+    new Date().toISOString(),
+    normalizedRequestId(requestId),
+  ).run();
+  if (Number(finalized.meta?.changes ?? 0) !== 1) {
+    return snapshot(await readBudgetRow(db), false);
+  }
   const result = await db.prepare(`UPDATE owner_preview_budget
     SET actual_micro_usd = actual_micro_usd + ?,
         last_result_status = ?,

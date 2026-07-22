@@ -179,6 +179,30 @@ def test_owner_preview_records_high_actual_cost_without_hard_block():
     assert response["preview_meta"]["hard_cost_limit_enabled"] is False
 
 
+def test_owner_preview_allows_prohibited_phrase_only_inside_verbatim_unknown():
+    def generator(prompt):
+        return Gate2ProviderResult(
+            response_id="test-verbatim-unknown-response-id",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=valid_output(prompt),
+            usage=Gate2Usage(input_tokens=1000, output_tokens=1000, total_tokens=2000),
+            cost_usd=0.035,
+            api_status="completed",
+            background_mode=True,
+            poll_count=1,
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(unknowns=["不知道这次合作是否一定会继续。"]),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "SUCCESS"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v2"
+
+
 def test_owner_preview_rejects_missing_unknowns_before_generation():
     called = False
 

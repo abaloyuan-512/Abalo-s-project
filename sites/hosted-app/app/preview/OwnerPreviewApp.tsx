@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import styles from "./preview.module.css";
 
@@ -26,6 +26,9 @@ const GOALS_BY_DOMAIN: Record<string, (keyof typeof GOALS)[]> = {
 const HORIZONS = { CURRENT: "当前阶段", NEXT_30_DAYS: "未来 30 天", NEXT_QUARTER: "未来一个季度", NEXT_6_MONTHS: "未来 6 个月" };
 const STAGES = { EXPLORING: "正在了解", PREPARING: "正在准备", ALREADY_ACTING: "已经行动", WAITING_FEEDBACK: "正在等待回应" };
 const UNCERTAINTIES = { CONDITIONS: "现实条件是否具备", OTHER_RESPONSE: "对方会如何回应", OWN_COMMITMENT: "自己是否值得继续投入", TIMING: "时机是否合适" };
+const ACTIVE_REQUEST_KEY = "guanxiang-owner-preview-active-request";
+const POLL_INTERVAL_MS = 2_500;
+const MAX_POLL_ATTEMPTS = 144;
 
 type Reading = { core_judgment: string; explanation: string; reality_application: string; action: string; switch_condition: string };
 type PreviewResponse = {
@@ -38,6 +41,10 @@ type PreviewResponse = {
 
 function lines(value: string): string[] {
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+}
+
+function sleep(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 function SelectField({ label, value, options, onChange, disabled = false }: { label: string; value: string; options: Record<string, string>; onChange: (value: string) => void; disabled?: boolean }) {
@@ -60,7 +67,56 @@ export function OwnerPreviewApp() {
   const [result, setResult] = useState<PreviewResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState("");
   const allowedGoals = useMemo(() => Object.fromEntries((GOALS_BY_DOMAIN[domain] ?? []).map((key) => [key, GOALS[key]])), [domain]);
+
+  function finish(requestId: string, payload: PreviewResponse): void {
+    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    if (payload.status !== "SUCCESS" || !payload.personalized_reading) {
+      throw new Error(payload.error || "本次新版解读没有通过检查，也不会自动重试。");
+    }
+    setResult(payload);
+    setProgress("");
+    window.setTimeout(() => document.getElementById("preview-result")?.scrollIntoView({ behavior: "smooth" }), 0);
+    void requestId;
+  }
+
+  async function poll(requestId: string, cancelled: () => boolean = () => false): Promise<void> {
+    setProgress("模型正在生成新版解读，页面会自动取得结果。你可以留在本页等待。");
+    for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
+      if (cancelled()) return;
+      if (attempt > 0) await sleep(POLL_INTERVAL_MS);
+      try {
+        const response = await fetch(`/api/preview/v1/meihua?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" });
+        if (response.status === 202 || response.status === 503) continue;
+        const payload = await response.json() as PreviewResponse;
+        if (response.status === 404) {
+          sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+          throw new Error("生成任务尚未建立，请重新填写后再次点击生成；未找到任务不会产生模型费用。");
+        }
+        if (!response.ok) throw new Error(payload.error || "查询生成结果时出现异常。");
+        finish(requestId, payload);
+        return;
+      } catch (caught) {
+        if (caught instanceof Error && caught.message.includes("尚未建立")) throw caught;
+      }
+    }
+    throw new Error("生成时间超过六分钟。任务编号已保留，刷新页面后会继续查询，不会重复调用模型。");
+  }
+
+  useEffect(() => {
+    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
+    if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    void poll(activeRequestId, () => cancelled)
+      .catch((caught) => { if (!cancelled) setError(caught instanceof Error ? caught.message : "查询生成结果时出现异常。"); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  // The active request is intentionally resumed only once when this page mounts.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -70,15 +126,13 @@ export function OwnerPreviewApp() {
       setError("请完整填写问题、现实事实、未知项、处境选择和三个数字，并确认私有体验边界。");
       return;
     }
-    setLoading(true);
+    setLoading(true); setProgress("正在提交生成任务……");
     try {
-      const response = await fetch("/api/preview/v1/meihua", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        cache: "no-store",
-        body: JSON.stringify({
+      const requestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY) || `owner-${crypto.randomUUID()}`;
+      sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
+      const body = JSON.stringify({
           contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
-          request_id: `owner-${crypto.randomUUID()}`,
+          request_id: requestId,
           question_text: question.trim(),
           question_domain: domain,
           decision_goal: goal,
@@ -94,14 +148,35 @@ export function OwnerPreviewApp() {
           locale: "zh-CN",
           client_timestamp: new Date().toISOString(),
           user_acknowledgements: { owner_preview_only: true, live_model_cost_acknowledged: true, no_formal_persistence: true, user_statements_not_verified_facts: true },
-        }),
       });
-      const payload = await response.json() as PreviewResponse;
-      if (!response.ok || payload.status !== "SUCCESS" || !payload.personalized_reading) throw new Error(payload.error || "本次新版解读没有通过检查，也不会自动重试。");
-      setResult(payload);
+      let accepted = false;
+      for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
+        try {
+          const response = await fetch("/api/preview/v1/meihua", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+            body,
+          });
+          const payload = await response.json() as PreviewResponse;
+          if (response.status === 202) {
+            accepted = true;
+            break;
+          }
+          if (response.ok) {
+            finish(requestId, payload);
+            return;
+          }
+          if (response.status !== 503) throw new Error(payload.error || "生成任务提交失败。");
+        } catch (caught) {
+          if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) throw caught;
+        }
+        await sleep(1_500);
+      }
+      await poll(requestId);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "新版解读暂时无法连接。");
-    } finally { setLoading(false); }
+      setError(caught instanceof Error ? caught.message : "新版解读暂时无法连接，请再次尝试。");
+    } finally { setLoading(false); setProgress(""); }
   }
 
   const reading = result?.personalized_reading;
@@ -116,9 +191,10 @@ export function OwnerPreviewApp() {
       <section><h2>一 · 所问与处境</h2><label><span>你真正想问的问题</span><textarea value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} placeholder="例如：这次合作已经反复推迟，我还应该继续投入吗？" /></label><div className={styles.grid}><SelectField label="事情属于" value={domain} options={DOMAINS} onChange={(value) => { setDomain(value); setGoal(""); }} /><SelectField label="最想看清" value={goal} options={allowedGoals} disabled={!domain} onChange={setGoal} /><SelectField label="观察范围" value={horizon} options={HORIZONS} onChange={setHorizon} /><SelectField label="事情阶段" value={stage} options={STAGES} onChange={setStage} /><SelectField label="关键未知" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></div></section>
       <section><h2>二 · 事实与未知</h2><p className={styles.help}>每行写一件事。只写你已经确认的内容，不写猜测，也不要填写姓名、电话、住址等敏感信息。</p><label><span>已经确认的现实事实</span><textarea value={facts} onChange={(event) => setFacts(event.target.value)} placeholder={"已经沟通过两次，对方都没有明确截止时间\n本周需要决定是否继续预留资源"} /></label><label><span>目前不能假设的未知项</span><textarea value={unknowns} onChange={(event) => setUnknowns(event.target.value)} placeholder={"不知道最终负责人是否已经看过方案\n不知道下个月是否仍有预算"} /></label><div className={styles.two}><label><span>已经采取的行动（可留空）</span><textarea value={actions} onChange={(event) => setActions(event.target.value)} /></label><label><span>已经出现的回应（可留空）</span><textarea value={responses} onChange={(event) => setResponses(event.target.value)} /></label></div></section>
       <section><h2>三 · 静心取数</h2><div className={styles.numbers}>{numbers.map((value, index) => <label key={index}><span>{["上卦", "下卦", "动爻"][index]}</span><input type="number" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</div></section>
-      <label className={styles.ack}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：这是所有者私有校准版；真实模型调用会产生 API 费用，系统逐次记录实际成本但不设置次数或金额硬上限；结果不保存、不自动重试，也不是正式上线结论。</span></label>
+      <label className={styles.ack}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：这是所有者私有校准版；真实模型调用会产生 API 费用，系统逐次记录实际成本但不设置次数或金额硬上限；结果不保存，网络重试会沿用同一请求编号、不会重复调用模型，也不是正式上线结论。</span></label>
+      {progress && <p className={styles.help} role="status">{progress}</p>}
       {error && <p className={styles.error} role="alert">{error}</p>}
-      <button className={styles.submit} disabled={loading}>{loading ? "正在整理事实与卦象，请稍候" : "生成新版解读"}</button>
+      <button className={styles.submit} disabled={loading}>{loading ? "正在生成，页面会自动取得结果" : "生成新版解读"}</button>
     </form>
     {reading && <section className={styles.result} id="preview-result"><p>私有体验结果</p><h2>{reading.core_judgment}</h2><article><h3>为什么这样判断</h3><p>{reading.explanation}</p></article><article><h3>落到你的现实</h3><p>{reading.reality_application}</p></article><article><h3>下一步</h3><p>{reading.action}</p></article><article><h3>何时需要转向</h3><p>{reading.switch_condition}</p></article><small>本次 API 费用：${Number(result?.preview_meta?.actual_api_cost_usd ?? 0).toFixed(6)} · 累计 {Number(result?.preview_meta?.total_attempts ?? 0)} 次 / ${Number(result?.preview_meta?.actual_total_usd ?? 0).toFixed(6)} · 不计入产品收费 · 未保存</small></section>}
     <footer><Link href="/">返回现有观象</Link><span>私有校准 · 非正式发布</span></footer>

@@ -39,7 +39,7 @@ from .sites_meihua_service_v3 import (
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
 OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v2"
-OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v1"
+OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v2"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
@@ -285,8 +285,26 @@ def _validate_output(
         chart_context=chart_context,
     )
     report = Gate2StageC2Validator().validate(request_view, output)  # type: ignore[arg-type]
+    authored_payload = output.model_dump(mode="json")
+    authored_payload.pop("context_facts", None)
+    authored_payload.pop("unknowns", None)
+    authored_text = _canonical_json(authored_payload)
+    copied_text_safety_codes = {
+        "result_guarantee",
+        "mind_reading",
+        "high_risk_instruction",
+        "forced_irreversible_decision",
+        "unreviewed_traditional_authority",
+    }
+    hard_failures = []
+    for item in report.hard_failures:
+        if item.code in copied_text_safety_codes:
+            matched_text = item.message.rsplit("：", 1)[-1].strip()
+            if matched_text and matched_text not in authored_text:
+                continue
+        hard_failures.append(item.code)
     return (
-        [item.code for item in report.hard_failures],
+        hard_failures,
         [item.code for item in report.quality_failures],
     )
 

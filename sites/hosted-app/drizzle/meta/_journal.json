@@ -15,6 +15,13 @@
       "when": 1784706791831,
       "tag": "0001_daffy_molecule_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784735950416,
+      "tag": "0002_aberrant_paper_doll",
+      "breakpoints": true
     }
   ]
 }

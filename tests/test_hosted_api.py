@@ -1,6 +1,7 @@
 import http.client
 import json
 import threading
+import time
 from contextlib import contextmanager
 
 import pytest
@@ -167,3 +168,61 @@ def test_owner_preview_route_is_authenticated_and_disabled_by_default(monkeypatc
     assert headers["Cache-Control"] == "no-store"
     assert payload["status"] == "PREVIEW_DISABLED"
     assert payload["personalized_reading"] is None
+
+
+def test_owner_preview_job_is_async_authenticated_and_idempotent(monkeypatch) -> None:
+    calls = 0
+    release = threading.Event()
+
+    def processor(payload, **_kwargs):
+        nonlocal calls
+        calls += 1
+        release.wait(timeout=2)
+        return {
+            "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+            "request_id": payload["request_id"],
+            "status": "SUCCESS",
+            "deterministic_result": {},
+            "personalized_reading": {"core_judgment": "测试成功"},
+            "preview_meta": {"actual_api_cost_usd": 0.01},
+            "error": None,
+        }
+
+    monkeypatch.setattr(hosted_api, "process_sites_owner_preview_v1_request", processor)
+    payload = valid_owner_preview_request()
+    with running_server() as port:
+        unauthorized, _headers, _payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", payload=payload
+        )
+        first, _headers, first_payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", key=ENGINE_KEY, payload=payload
+        )
+        duplicate, _headers, duplicate_payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", key=ENGINE_KEY, payload=payload
+        )
+        conflict_payload = {**payload, "question_text": "这是另一个长度足够的问题。"}
+        conflict, _headers, _payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", key=ENGINE_KEY, payload=conflict_payload
+        )
+        release.set()
+        terminal = None
+        for _ in range(50):
+            terminal, _headers, terminal_payload = request(
+                port,
+                "GET",
+                f"/api/preview/v1/meihua/jobs/{payload['request_id']}",
+                key=ENGINE_KEY,
+            )
+            if terminal == 200:
+                break
+            time.sleep(0.01)
+
+    assert unauthorized == 401
+    assert first == 202
+    assert duplicate == 202
+    assert first_payload["status"] == "RUNNING"
+    assert duplicate_payload["request_id"] == payload["request_id"]
+    assert conflict == 409
+    assert calls == 1
+    assert terminal == 200
+    assert terminal_payload["status"] == "SUCCESS"
