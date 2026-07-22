@@ -40,9 +40,8 @@ export async function GET(request: Request): Promise<Response> {
     const budget = await getOwnerPreviewBudgetSnapshot();
     return safeJson({
       status: budget.status,
-      max_attempts: 2,
-      remaining_attempts: budget.remainingCalls,
-      reserved_total_usd: budget.reservedMicroUsd / 1_000_000,
+      hard_limit_enabled: false,
+      total_attempts: budget.reservedCalls,
       actual_total_usd: budget.actualMicroUsd / 1_000_000,
     }, 200);
   } catch {
@@ -73,21 +72,10 @@ export async function POST(request: Request): Promise<Response> {
   const url = upstreamUrl();
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
   if (!url || !engineKey) return safeJson({ error: "新版解读私有体验尚未连接。" }, 503);
-  let budget;
   try {
-    budget = await reserveOwnerPreviewAttempt();
+    await reserveOwnerPreviewAttempt();
   } catch {
     return safeJson({ error: "私有体验次数守门暂时不可用，未发起模型请求。" }, 503);
-  }
-  if (!budget.allowed) {
-    return safeJson({
-      status: "BUDGET_EXHAUSTED",
-      error: "两次私有体验额度已经用尽，未发起模型请求。",
-      preview_meta: {
-        remaining_attempts: budget.remainingCalls,
-        reserved_total_usd: budget.reservedMicroUsd / 1_000_000,
-      },
-    }, 429);
   }
   try {
     const upstream = await fetch(url, {
@@ -111,13 +99,14 @@ export async function POST(request: Request): Promise<Response> {
     const actualCost = typeof payload.preview_meta?.actual_api_cost_usd === "number"
       ? payload.preview_meta.actual_api_cost_usd
       : null;
-    await recordOwnerPreviewResult(typeof payload.status === "string" ? payload.status : "UNKNOWN", actualCost);
+    const usage = await recordOwnerPreviewResult(typeof payload.status === "string" ? payload.status : "UNKNOWN", actualCost);
     return safeJson({
       ...payload,
       preview_meta: {
         ...payload.preview_meta,
-        remaining_attempts: budget.remainingCalls,
-        reserved_total_usd: budget.reservedMicroUsd / 1_000_000,
+        hard_limit_enabled: false,
+        total_attempts: usage.reservedCalls,
+        actual_total_usd: usage.actualMicroUsd / 1_000_000,
       },
     }, upstream.ok ? 200 : 502);
   } catch {

@@ -7,7 +7,6 @@ import json
 import os
 from collections.abc import Callable
 from datetime import datetime
-from decimal import Decimal
 from types import SimpleNamespace
 from typing import Any, Literal
 
@@ -44,7 +43,6 @@ OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v1"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
-OWNER_PREVIEW_COST_LIMIT_USD = Decimal("0.50")
 
 _DOMAIN_LABELS = {
     "WORK_CAREER": "工作或职业",
@@ -365,8 +363,6 @@ def process_sites_owner_preview_v1_request(
         prompt,
         max_output_tokens=OWNER_PREVIEW_MAX_OUTPUT_TOKENS,
     )
-    if preflight > OWNER_PREVIEW_COST_LIMIT_USD:
-        return _error(payload.request_id, "BUDGET_BLOCKED", "本次输入超过私有体验版单次费用上限，未发起模型请求。")
     if generator is None:
         if os.getenv("ABALO_OWNER_PREVIEW_ENABLED", "").strip().lower() != "true":
             return _error(payload.request_id, "PREVIEW_DISABLED", "新版解读私有体验尚未启用。")
@@ -379,9 +375,6 @@ def process_sites_owner_preview_v1_request(
         return _error(payload.request_id, "PREVIEW_FAILED", "本次新版解读未通过安全检查，未展示也不会自动重试。")
     if hard_failures or quality_failures:
         return _error(payload.request_id, "PREVIEW_FAILED", "本次新版解读未通过安全或质量检查，未展示也不会自动重试。")
-    if Decimal(str(provider_result.cost_usd)) > OWNER_PREVIEW_COST_LIMIT_USD:
-        return _error(payload.request_id, "BUDGET_FAILED", "本次模型费用记录异常，结果已停止展示。")
-
     return {
         "contract_version": OWNER_PREVIEW_CONTRACT_VERSION,
         "request_id": payload.request_id,
@@ -400,7 +393,8 @@ def process_sites_owner_preview_v1_request(
             "prompt_version": OWNER_PREVIEW_PROMPT_VERSION,
             "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
             "actual_api_cost_usd": provider_result.cost_usd,
-            "preflight_cost_limit_usd": float(OWNER_PREVIEW_COST_LIMIT_USD),
+            "preflight_estimated_cost_usd": float(preflight),
+            "hard_cost_limit_enabled": False,
         },
         "error": None,
     }

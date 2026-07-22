@@ -1,9 +1,6 @@
 import { getRawDb } from ".";
 
-export const OWNER_PREVIEW_WINDOW_ID = "owner-preview-v1-initial-two-calls";
-export const OWNER_PREVIEW_MAX_CALLS = 2;
-export const OWNER_PREVIEW_RESERVATION_MICRO_USD = 500_000;
-export const OWNER_PREVIEW_TOTAL_MICRO_USD = 1_000_000;
+export const OWNER_PREVIEW_WINDOW_ID = "owner-preview-v2-unlimited-metering";
 
 type BudgetRow = {
   window_id: string;
@@ -20,7 +17,6 @@ export type OwnerPreviewBudgetSnapshot = {
   allowed: boolean;
   status: string;
   reservedCalls: number;
-  remainingCalls: number;
   reservedMicroUsd: number;
   actualMicroUsd: number;
 };
@@ -41,7 +37,7 @@ async function ensureBudgetRow(db: D1Database): Promise<void> {
     db.prepare(`INSERT OR IGNORE INTO owner_preview_budget (
       window_id, status, reserved_calls, reserved_micro_usd,
       actual_micro_usd, last_result_status, created_at, updated_at
-    ) VALUES (?, 'OPEN', 0, 0, 0, NULL, ?, ?)`).bind(
+    ) VALUES (?, 'METERING', 0, 0, 0, NULL, ?, ?)`).bind(
       OWNER_PREVIEW_WINDOW_ID,
       now,
       now,
@@ -54,7 +50,6 @@ function snapshot(row: BudgetRow, allowed: boolean): OwnerPreviewBudgetSnapshot 
     allowed,
     status: row.status,
     reservedCalls: row.reserved_calls,
-    remainingCalls: Math.max(0, OWNER_PREVIEW_MAX_CALLS - row.reserved_calls),
     reservedMicroUsd: row.reserved_micro_usd,
     actualMicroUsd: row.actual_micro_usd,
   };
@@ -80,23 +75,11 @@ export async function reserveOwnerPreviewAttempt(): Promise<OwnerPreviewBudgetSn
   const now = new Date().toISOString();
   const result = await db.prepare(`UPDATE owner_preview_budget
     SET reserved_calls = reserved_calls + 1,
-        reserved_micro_usd = reserved_micro_usd + ?,
-        status = CASE
-          WHEN reserved_calls + 1 >= ? THEN 'EXHAUSTED'
-          ELSE status
-        END,
+        status = 'METERING',
         updated_at = ?
-    WHERE window_id = ?
-      AND status = 'OPEN'
-      AND reserved_calls < ?
-      AND reserved_micro_usd + ? <= ?`).bind(
-    OWNER_PREVIEW_RESERVATION_MICRO_USD,
-    OWNER_PREVIEW_MAX_CALLS,
+    WHERE window_id = ?`).bind(
     now,
     OWNER_PREVIEW_WINDOW_ID,
-    OWNER_PREVIEW_MAX_CALLS,
-    OWNER_PREVIEW_RESERVATION_MICRO_USD,
-    OWNER_PREVIEW_TOTAL_MICRO_USD,
   ).run();
   const row = await readBudgetRow(db);
   return snapshot(row, Number(result.meta?.changes ?? 0) === 1);
@@ -105,7 +88,7 @@ export async function reserveOwnerPreviewAttempt(): Promise<OwnerPreviewBudgetSn
 export async function recordOwnerPreviewResult(
   resultStatus: string,
   actualCostUsd: number | null,
-): Promise<void> {
+): Promise<OwnerPreviewBudgetSnapshot> {
   const db = getRawDb();
   const normalizedStatus = resultStatus.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "_").slice(0, 64) || "UNKNOWN";
   const actualMicroUsd =
@@ -125,4 +108,5 @@ export async function recordOwnerPreviewResult(
   if (Number(result.meta?.changes ?? 0) !== 1) {
     throw new Error("Owner preview budget result was not persisted.");
   }
+  return snapshot(await readBudgetRow(db), true);
 }

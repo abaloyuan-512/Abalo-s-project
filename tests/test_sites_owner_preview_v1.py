@@ -131,11 +131,38 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert len(captured) == 1
     assert response["personalized_reading"]["core_judgment"].startswith("先不要追加投入")
     assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
+    assert response["preview_meta"]["preflight_estimated_cost_usd"] > 0
     assert response["preview_meta"]["stored"] is False
     assert response["deterministic_result"]["base_hexagram"]["name"]
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
     assert "synthetic_only" not in str(captured[0].input_payload)
+
+
+def test_owner_preview_records_high_actual_cost_without_hard_block():
+    def generator(prompt):
+        return Gate2ProviderResult(
+            response_id="test-high-cost-response-id",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=valid_output(prompt),
+            usage=Gate2Usage(input_tokens=1000, output_tokens=1000, total_tokens=2000),
+            cost_usd=1.25,
+            api_status="completed",
+            background_mode=True,
+            poll_count=1,
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "SUCCESS"
+    assert response["preview_meta"]["actual_api_cost_usd"] == 1.25
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
 
 
 def test_owner_preview_rejects_missing_unknowns_before_generation():
