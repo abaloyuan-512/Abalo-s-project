@@ -100,5 +100,166 @@ test("owner preview API fails safely until the Python engine is configured", asy
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
-  assert.deepEqual(await response.json(), { error: "新版解读私有体验尚未连接。" });
+  assert.deepEqual(await response.json(), { error: "新版解读私有体验尚未开放。" });
+});
+
+function createBudgetDb() {
+  let row = null;
+  return {
+    get row() { return row; },
+    prepare(sql) {
+      let values = [];
+      return {
+        bind(...next) { values = next; return this; },
+        async run() {
+          if (sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_budget")) return { meta: { changes: 0 } };
+          if (sql.includes("INSERT OR IGNORE INTO owner_preview_budget")) {
+            if (!row) row = { window_id: values[0], status: "OPEN", reserved_calls: 0, reserved_micro_usd: 0, actual_micro_usd: 0, last_result_status: null, created_at: values[1], updated_at: values[2] };
+            return { meta: { changes: 1 } };
+          }
+          if (sql.includes("SET reserved_calls = reserved_calls + 1")) {
+            const [reservation, maxCalls, updatedAt, windowId, allowedCalls, secondReservation, total] = values;
+            if (row && row.window_id === windowId && row.status === "OPEN" && row.reserved_calls < allowedCalls && row.reserved_micro_usd + secondReservation <= total) {
+              row.reserved_calls += 1;
+              row.reserved_micro_usd += reservation;
+              row.status = row.reserved_calls >= maxCalls ? "EXHAUSTED" : row.status;
+              row.updated_at = updatedAt;
+              return { meta: { changes: 1 } };
+            }
+            return { meta: { changes: 0 } };
+          }
+          if (sql.includes("SET actual_micro_usd = actual_micro_usd +")) {
+            if (!row || row.window_id !== values[3]) return { meta: { changes: 0 } };
+            row.actual_micro_usd += values[0];
+            row.last_result_status = values[1];
+            row.updated_at = values[2];
+            return { meta: { changes: 1 } };
+          }
+          throw new Error(`Unexpected SQL: ${sql}`);
+        },
+        async first() { return row ? { ...row } : null; },
+      };
+    },
+    async batch(statements) { return Promise.all(statements.map((statement) => statement.run())); },
+  };
+}
+
+test("owner preview budget status starts at two remaining attempts without an upstream call", async () => {
+  const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
+  process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
+  try {
+    const app = await worker();
+    const db = createBudgetDb();
+    const response = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+      headers: { "oai-authenticated-user-email": "owner@example.com" },
+    }), { ...env, DB: db }, context);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      status: "OPEN",
+      max_attempts: 2,
+      remaining_attempts: 2,
+      reserved_total_usd: 0,
+      actual_total_usd: 0,
+    });
+    assert.equal(db.row.reserved_calls, 0);
+  } finally {
+    if (previousOwner === undefined) delete process.env.ABALO_PREVIEW_OWNER_EMAIL; else process.env.ABALO_PREVIEW_OWNER_EMAIL = previousOwner;
+  }
+});
+
+test("owner preview permanently reserves two attempts before upstream calls", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
+  const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = "true";
+  process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
+  let upstreamCalls = 0;
+  globalThis.fetch = async () => {
+    upstreamCalls += 1;
+    return Response.json({
+      contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      status: "SUCCESS",
+      personalized_reading: { core_judgment: "test" },
+      preview_meta: { actual_api_cost_usd: upstreamCalls === 1 ? 0.02 : 0.03 },
+    });
+  };
+  try {
+    const app = await worker();
+    const db = createBudgetDb();
+    const request = () => new Request("http://localhost/api/preview/v1/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1" }),
+    });
+    const first = await app.fetch(request(), { ...env, DB: db }, context);
+    const second = await app.fetch(request(), { ...env, DB: db }, context);
+    const third = await app.fetch(request(), { ...env, DB: db }, context);
+    assert.equal(first.status, 200);
+    assert.equal(second.status, 200);
+    assert.equal(third.status, 429);
+    assert.equal(upstreamCalls, 2);
+    assert.equal(db.row.reserved_calls, 2);
+    assert.equal(db.row.reserved_micro_usd, 1_000_000);
+    assert.equal(db.row.actual_micro_usd, 50_000);
+    assert.equal(db.row.status, "EXHAUSTED");
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
+    if (previousOwner === undefined) delete process.env.ABALO_PREVIEW_OWNER_EMAIL; else process.env.ABALO_PREVIEW_OWNER_EMAIL = previousOwner;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
+});
+
+test("owner preview upstream failure consumes its attempt without retry", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
+  const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = "true";
+  process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
+  let upstreamCalls = 0;
+  globalThis.fetch = async () => {
+    upstreamCalls += 1;
+    if (upstreamCalls === 1) throw new Error("synthetic upstream failure");
+    return Response.json({
+      contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      status: "SUCCESS",
+      personalized_reading: { core_judgment: "test" },
+      preview_meta: { actual_api_cost_usd: 0.01 },
+    });
+  };
+  try {
+    const app = await worker();
+    const db = createBudgetDb();
+    const request = () => new Request("http://localhost/api/preview/v1/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1" }),
+    });
+    const failed = await app.fetch(request(), { ...env, DB: db }, context);
+    const succeeded = await app.fetch(request(), { ...env, DB: db }, context);
+    const exhausted = await app.fetch(request(), { ...env, DB: db }, context);
+    assert.equal(failed.status, 503);
+    assert.equal(succeeded.status, 200);
+    assert.equal(exhausted.status, 429);
+    assert.equal(upstreamCalls, 2);
+    assert.equal(db.row.reserved_calls, 2);
+    assert.equal(db.row.reserved_micro_usd, 1_000_000);
+    assert.equal(db.row.actual_micro_usd, 10_000);
+    assert.equal(db.row.status, "EXHAUSTED");
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
+    if (previousOwner === undefined) delete process.env.ABALO_PREVIEW_OWNER_EMAIL; else process.env.ABALO_PREVIEW_OWNER_EMAIL = previousOwner;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
 });

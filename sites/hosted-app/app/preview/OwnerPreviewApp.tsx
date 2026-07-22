@@ -32,7 +32,7 @@ type PreviewResponse = {
   error?: string | null;
   deterministic_result?: { base_hexagram?: { name?: string }; mutual_hexagram?: { name?: string }; changed_hexagram?: { name?: string }; moving_line?: number } | null;
   personalized_reading?: Reading | null;
-  preview_meta?: { actual_api_cost_usd?: number };
+  preview_meta?: { actual_api_cost_usd?: number; remaining_attempts?: number; reserved_total_usd?: number };
 };
 
 function lines(value: string): string[] {
@@ -115,11 +115,11 @@ export function OwnerPreviewApp() {
       <section><h2>一 · 所问与处境</h2><label><span>你真正想问的问题</span><textarea value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} placeholder="例如：这次合作已经反复推迟，我还应该继续投入吗？" /></label><div className={styles.grid}><SelectField label="事情属于" value={domain} options={DOMAINS} onChange={(value) => { setDomain(value); setGoal(""); }} /><SelectField label="最想看清" value={goal} options={allowedGoals} disabled={!domain} onChange={setGoal} /><SelectField label="观察范围" value={horizon} options={HORIZONS} onChange={setHorizon} /><SelectField label="事情阶段" value={stage} options={STAGES} onChange={setStage} /><SelectField label="关键未知" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></div></section>
       <section><h2>二 · 事实与未知</h2><p className={styles.help}>每行写一件事。只写你已经确认的内容，不写猜测，也不要填写姓名、电话、住址等敏感信息。</p><label><span>已经确认的现实事实</span><textarea value={facts} onChange={(event) => setFacts(event.target.value)} placeholder={"已经沟通过两次，对方都没有明确截止时间\n本周需要决定是否继续预留资源"} /></label><label><span>目前不能假设的未知项</span><textarea value={unknowns} onChange={(event) => setUnknowns(event.target.value)} placeholder={"不知道最终负责人是否已经看过方案\n不知道下个月是否仍有预算"} /></label><div className={styles.two}><label><span>已经采取的行动（可留空）</span><textarea value={actions} onChange={(event) => setActions(event.target.value)} /></label><label><span>已经出现的回应（可留空）</span><textarea value={responses} onChange={(event) => setResponses(event.target.value)} /></label></div></section>
       <section><h2>三 · 静心取数</h2><div className={styles.numbers}>{numbers.map((value, index) => <label key={index}><span>{["上卦", "下卦", "动爻"][index]}</span><input type="number" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</div></section>
-      <label className={styles.ack}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：这是所有者私有校准版；每次生成会产生 OpenAI API 费用，单次代码上限 0.50 美元；结果不保存、不自动重试，也不是正式上线结论。</span></label>
+      <label className={styles.ack}><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：这是所有者私有校准版；最多两次，每次提交会永久消耗一次额度并预留 0.50 美元，失败或超时也不返还；结果不保存、不自动重试，也不是正式上线结论。</span></label>
       {error && <p className={styles.error} role="alert">{error}</p>}
       <button className={styles.submit} disabled={loading}>{loading ? "正在整理事实与卦象，请稍候" : "生成新版解读"}</button>
     </form>
-    {reading && <section className={styles.result} id="preview-result"><p>私有体验结果</p><h2>{reading.core_judgment}</h2><article><h3>为什么这样判断</h3><p>{reading.explanation}</p></article><article><h3>落到你的现实</h3><p>{reading.reality_application}</p></article><article><h3>下一步</h3><p>{reading.action}</p></article><article><h3>何时需要转向</h3><p>{reading.switch_condition}</p></article><small>本次 API 费用：${Number(result?.preview_meta?.actual_api_cost_usd ?? 0).toFixed(6)} · 不计入产品收费 · 未保存</small></section>}
+    {reading && <section className={styles.result} id="preview-result"><p>私有体验结果</p><h2>{reading.core_judgment}</h2><article><h3>为什么这样判断</h3><p>{reading.explanation}</p></article><article><h3>落到你的现实</h3><p>{reading.reality_application}</p></article><article><h3>下一步</h3><p>{reading.action}</p></article><article><h3>何时需要转向</h3><p>{reading.switch_condition}</p></article><small>本次 API 费用：${Number(result?.preview_meta?.actual_api_cost_usd ?? 0).toFixed(6)} · 剩余 {Number(result?.preview_meta?.remaining_attempts ?? 0)} 次 · 不计入产品收费 · 未保存</small></section>}
     <footer><a href="/">返回现有观象</a><span>私有校准 · 非正式发布</span></footer>
   </main>;
 }

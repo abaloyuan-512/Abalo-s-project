@@ -1,4 +1,4 @@
-import { index, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const observations = sqliteTable("observations", {
   id: text("id").primaryKey(),
@@ -25,4 +25,15 @@ export const feedback = sqliteTable("feedback", {
   content: text("content").notNull(),
   contact: text("contact"),
   page: text("page").notNull(),
+});
+
+export const ownerPreviewBudget = sqliteTable("owner_preview_budget", {
+  windowId: text("window_id").primaryKey(),
+  status: text("status").notNull().default("OPEN"),
+  reservedCalls: integer("reserved_calls").notNull().default(0),
+  reservedMicroUsd: integer("reserved_micro_usd").notNull().default(0),
+  actualMicroUsd: integer("actual_micro_usd").notNull().default(0),
+  lastResultStatus: text("last_result_status"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
 });

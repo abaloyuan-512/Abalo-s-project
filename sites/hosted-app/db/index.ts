@@ -50,3 +50,8 @@ export function getDb() {
 
   return drizzle(runtimeDb, { schema });
 }
+
+export function getRawDb(): D1Database {
+  if (!runtimeDb) throw new Error("Cloudflare D1 binding `DB` is unavailable.");
+  return runtimeDb;
+}
