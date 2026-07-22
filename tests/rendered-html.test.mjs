@@ -114,15 +114,14 @@ function createBudgetDb() {
         async run() {
           if (sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_budget")) return { meta: { changes: 0 } };
           if (sql.includes("INSERT OR IGNORE INTO owner_preview_budget")) {
-            if (!row) row = { window_id: values[0], status: "OPEN", reserved_calls: 0, reserved_micro_usd: 0, actual_micro_usd: 0, last_result_status: null, created_at: values[1], updated_at: values[2] };
+            if (!row) row = { window_id: values[0], status: "METERING", reserved_calls: 0, reserved_micro_usd: 0, actual_micro_usd: 0, last_result_status: null, created_at: values[1], updated_at: values[2] };
             return { meta: { changes: 1 } };
           }
           if (sql.includes("SET reserved_calls = reserved_calls + 1")) {
-            const [reservation, maxCalls, updatedAt, windowId, allowedCalls, secondReservation, total] = values;
-            if (row && row.window_id === windowId && row.status === "OPEN" && row.reserved_calls < allowedCalls && row.reserved_micro_usd + secondReservation <= total) {
+            const [updatedAt, windowId] = values;
+            if (row && row.window_id === windowId) {
               row.reserved_calls += 1;
-              row.reserved_micro_usd += reservation;
-              row.status = row.reserved_calls >= maxCalls ? "EXHAUSTED" : row.status;
+              row.status = "METERING";
               row.updated_at = updatedAt;
               return { meta: { changes: 1 } };
             }
@@ -144,7 +143,7 @@ function createBudgetDb() {
   };
 }
 
-test("owner preview budget status starts at two remaining attempts without an upstream call", async () => {
+test("owner preview usage status starts in non-blocking metering mode without an upstream call", async () => {
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
   process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
   try {
@@ -155,10 +154,9 @@ test("owner preview budget status starts at two remaining attempts without an up
     }), { ...env, DB: db }, context);
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
-      status: "OPEN",
-      max_attempts: 2,
-      remaining_attempts: 2,
-      reserved_total_usd: 0,
+      status: "METERING",
+      hard_limit_enabled: false,
+      total_attempts: 0,
       actual_total_usd: 0,
     });
     assert.equal(db.row.reserved_calls, 0);
@@ -167,7 +165,7 @@ test("owner preview budget status starts at two remaining attempts without an up
   }
 });
 
-test("owner preview permanently reserves two attempts before upstream calls", async () => {
+test("owner preview meters repeated attempts without blocking on count or reserved spend", async () => {
   const previousFetch = globalThis.fetch;
   const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
@@ -200,12 +198,12 @@ test("owner preview permanently reserves two attempts before upstream calls", as
     const third = await app.fetch(request(), { ...env, DB: db }, context);
     assert.equal(first.status, 200);
     assert.equal(second.status, 200);
-    assert.equal(third.status, 429);
-    assert.equal(upstreamCalls, 2);
-    assert.equal(db.row.reserved_calls, 2);
-    assert.equal(db.row.reserved_micro_usd, 1_000_000);
-    assert.equal(db.row.actual_micro_usd, 50_000);
-    assert.equal(db.row.status, "EXHAUSTED");
+    assert.equal(third.status, 200);
+    assert.equal(upstreamCalls, 3);
+    assert.equal(db.row.reserved_calls, 3);
+    assert.equal(db.row.reserved_micro_usd, 0);
+    assert.equal(db.row.actual_micro_usd, 80_000);
+    assert.equal(db.row.status, "METERING");
   } finally {
     globalThis.fetch = previousFetch;
     if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
@@ -215,7 +213,7 @@ test("owner preview permanently reserves two attempts before upstream calls", as
   }
 });
 
-test("owner preview upstream failure consumes its attempt without retry", async () => {
+test("owner preview upstream failure is metered without automatic retry or future blocking", async () => {
   const previousFetch = globalThis.fetch;
   const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
@@ -246,15 +244,15 @@ test("owner preview upstream failure consumes its attempt without retry", async 
     });
     const failed = await app.fetch(request(), { ...env, DB: db }, context);
     const succeeded = await app.fetch(request(), { ...env, DB: db }, context);
-    const exhausted = await app.fetch(request(), { ...env, DB: db }, context);
+    const third = await app.fetch(request(), { ...env, DB: db }, context);
     assert.equal(failed.status, 503);
     assert.equal(succeeded.status, 200);
-    assert.equal(exhausted.status, 429);
-    assert.equal(upstreamCalls, 2);
-    assert.equal(db.row.reserved_calls, 2);
-    assert.equal(db.row.reserved_micro_usd, 1_000_000);
-    assert.equal(db.row.actual_micro_usd, 10_000);
-    assert.equal(db.row.status, "EXHAUSTED");
+    assert.equal(third.status, 200);
+    assert.equal(upstreamCalls, 3);
+    assert.equal(db.row.reserved_calls, 3);
+    assert.equal(db.row.reserved_micro_usd, 0);
+    assert.equal(db.row.actual_micro_usd, 20_000);
+    assert.equal(db.row.status, "METERING");
   } finally {
     globalThis.fetch = previousFetch;
     if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
