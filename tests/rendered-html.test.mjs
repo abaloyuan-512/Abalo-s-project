@@ -105,6 +105,7 @@ test("owner preview API fails safely until the Python engine is configured", asy
 
 function createBudgetDb() {
   let row = null;
+  const requests = new Map();
   return {
     get row() { return row; },
     prepare(sql) {
@@ -112,9 +113,15 @@ function createBudgetDb() {
       return {
         bind(...next) { values = next; return this; },
         async run() {
-          if (sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_budget")) return { meta: { changes: 0 } };
+          if (sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_budget") || sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_requests")) return { meta: { changes: 0 } };
           if (sql.includes("INSERT OR IGNORE INTO owner_preview_budget")) {
             if (!row) row = { window_id: values[0], status: "METERING", reserved_calls: 0, reserved_micro_usd: 0, actual_micro_usd: 0, last_result_status: null, created_at: values[1], updated_at: values[2] };
+            return { meta: { changes: 1 } };
+          }
+          if (sql.includes("INSERT OR IGNORE INTO owner_preview_requests")) {
+            const [requestId, createdAt, updatedAt] = values;
+            if (requests.has(requestId)) return { meta: { changes: 0 } };
+            requests.set(requestId, { request_id: requestId, result_status: null, finalized: 0, actual_micro_usd: 0, created_at: createdAt, updated_at: updatedAt });
             return { meta: { changes: 1 } };
           }
           if (sql.includes("SET reserved_calls = reserved_calls + 1")) {
@@ -132,6 +139,16 @@ function createBudgetDb() {
             row.actual_micro_usd += values[0];
             row.last_result_status = values[1];
             row.updated_at = values[2];
+            return { meta: { changes: 1 } };
+          }
+          if (sql.includes("UPDATE owner_preview_requests")) {
+            const [resultStatus, actualMicroUsd, updatedAt, requestId] = values;
+            const request = requests.get(requestId);
+            if (!request || request.finalized) return { meta: { changes: 0 } };
+            request.result_status = resultStatus;
+            request.actual_micro_usd = actualMicroUsd;
+            request.updated_at = updatedAt;
+            request.finalized = 1;
             return { meta: { changes: 1 } };
           }
           throw new Error(`Unexpected SQL: ${sql}`);
@@ -176,10 +193,12 @@ test("owner preview meters repeated attempts without blocking on count or reserv
   process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
   process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
   let upstreamCalls = 0;
-  globalThis.fetch = async () => {
+  globalThis.fetch = async (_url, init) => {
     upstreamCalls += 1;
+    const requestId = JSON.parse(init.body).request_id;
     return Response.json({
       contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      request_id: requestId,
       status: "SUCCESS",
       personalized_reading: { core_judgment: "test" },
       preview_meta: { actual_api_cost_usd: upstreamCalls === 1 ? 0.02 : 0.03 },
@@ -188,10 +207,11 @@ test("owner preview meters repeated attempts without blocking on count or reserv
   try {
     const app = await worker();
     const db = createBudgetDb();
+    let requestNumber = 0;
     const request = () => new Request("http://localhost/api/preview/v1/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1" }),
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: `owner-test-${++requestNumber}` }),
     });
     const first = await app.fetch(request(), { ...env, DB: db }, context);
     const second = await app.fetch(request(), { ...env, DB: db }, context);
@@ -224,11 +244,13 @@ test("owner preview upstream failure is metered without automatic retry or futur
   process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
   process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
   let upstreamCalls = 0;
-  globalThis.fetch = async () => {
+  globalThis.fetch = async (_url, init) => {
     upstreamCalls += 1;
     if (upstreamCalls === 1) throw new Error("synthetic upstream failure");
+    const requestId = JSON.parse(init.body).request_id;
     return Response.json({
       contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      request_id: requestId,
       status: "SUCCESS",
       personalized_reading: { core_judgment: "test" },
       preview_meta: { actual_api_cost_usd: 0.01 },
@@ -237,10 +259,11 @@ test("owner preview upstream failure is metered without automatic retry or futur
   try {
     const app = await worker();
     const db = createBudgetDb();
+    let requestNumber = 0;
     const request = () => new Request("http://localhost/api/preview/v1/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1" }),
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: `owner-failure-${++requestNumber}` }),
     });
     const failed = await app.fetch(request(), { ...env, DB: db }, context);
     const succeeded = await app.fetch(request(), { ...env, DB: db }, context);
@@ -253,6 +276,63 @@ test("owner preview upstream failure is metered without automatic retry or futur
     assert.equal(db.row.reserved_micro_usd, 0);
     assert.equal(db.row.actual_micro_usd, 20_000);
     assert.equal(db.row.status, "METERING");
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
+    if (previousOwner === undefined) delete process.env.ABALO_PREVIEW_OWNER_EMAIL; else process.env.ABALO_PREVIEW_OWNER_EMAIL = previousOwner;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
+});
+
+test("owner preview polls an accepted job and meters its terminal result only once", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
+  const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = "true";
+  process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
+  const requestId = "owner-poll-test";
+  let upstreamCalls = 0;
+  globalThis.fetch = async (_url, init) => {
+    upstreamCalls += 1;
+    if (init?.method === "POST") {
+      return Response.json({
+        contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+        request_id: requestId,
+        status: "RUNNING",
+      }, { status: 202 });
+    }
+    return Response.json({
+      contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      request_id: requestId,
+      status: "SUCCESS",
+      personalized_reading: { core_judgment: "test" },
+      preview_meta: { actual_api_cost_usd: 0.02 },
+    });
+  };
+  try {
+    const app = await worker();
+    const db = createBudgetDb();
+    const started = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: requestId }),
+    }), { ...env, DB: db }, context);
+    const poll = () => app.fetch(new Request(`http://localhost/api/preview/v1/meihua?request_id=${requestId}`, {
+      headers: { "oai-authenticated-user-email": "owner@example.com" },
+    }), { ...env, DB: db }, context);
+    const completed = await poll();
+    const repeated = await poll();
+    assert.equal(started.status, 202);
+    assert.equal(completed.status, 200);
+    assert.equal(repeated.status, 200);
+    assert.equal(upstreamCalls, 3);
+    assert.equal(db.row.reserved_calls, 1);
+    assert.equal(db.row.actual_micro_usd, 20_000);
   } finally {
     globalThis.fetch = previousFetch;
     if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
