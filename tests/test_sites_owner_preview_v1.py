@@ -130,6 +130,8 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     )
     assert response["status"] == "SUCCESS"
     assert len(captured) == 1
+    assert response["user_question"] == request()["question_text"]
+    assert response["structured_intake"]["question_domain"] == "PROJECT_COOPERATION"
     assert response["personalized_reading"]["core_judgment"].startswith("先不要追加投入")
     assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
     assert response["preview_meta"]["hard_cost_limit_enabled"] is True

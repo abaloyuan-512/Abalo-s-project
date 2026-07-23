@@ -1,4 +1,4 @@
-"""Owner-only personalized reading preview; isolated from the formal V3 release path."""
+"""Personalized reading service used by the private formal Guanxiang site."""
 
 from __future__ import annotations
 
@@ -145,7 +145,7 @@ class OwnerPreviewRealityContext(StrictModel):
         return {item.ref for item in self.reality_facts()}
 
 
-OWNER_PREVIEW_SYSTEM_INSTRUCTIONS = """你正在生成观象的所有者私有体验版解读，不是正式发布内容。
+OWNER_PREVIEW_SYSTEM_INSTRUCTIONS = """你正在生成观象正式站点的个性化解读；当前站点仍处于所有者私有生产阶段。
 只使用输入中列出的用户陈述与程序提供的卦象 Evidence；用户陈述尚未经外部核验，不得把未知信息补写成事实。
 不得重新排盘、读心、保证结果、生成输入未提供的具体日期，或提供证券与医疗操作指令。
 现实陈述、卦象事实和解释接榫必须分开。解释接榫只能标记为实验性解释假设。
@@ -520,6 +520,8 @@ def process_sites_owner_preview_v1_request(
         "contract_version": OWNER_PREVIEW_CONTRACT_VERSION,
         "request_id": payload.request_id,
         "status": "SUCCESS",
+        "user_question": deterministic["user_question"],
+        "structured_intake": deterministic["structured_intake"],
         "deterministic_result": deterministic["deterministic_result"],
         "personalized_reading": output.user_facing_reading.model_dump(mode="json"),
         "preview_meta": {

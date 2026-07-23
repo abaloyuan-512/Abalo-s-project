@@ -1,6 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  PersonalizedPollError,
+  pollPersonalizedTask,
+} from "./personalized-reading-poll";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -50,6 +54,13 @@ type CulturalReading = {
   classic_counsel: { quote: string; source: string };
   knowledge_notice: string | null;
 };
+type PersonalizedReading = {
+  core_judgment: string;
+  explanation: string;
+  reality_application: string;
+  action: string;
+  switch_condition: string;
+};
 type ProductResult = {
   input_numbers: number[];
   base_hexagram: Hexagram;
@@ -61,6 +72,7 @@ type ProductResult = {
   deterministic_conclusion: { conclusion_level: string };
   clarity_report: ClarityReport;
   cultural_reading?: CulturalReading;
+  personalized_reading?: PersonalizedReading;
 };
 type StructuredIntake = {
   question_domain: string;
@@ -74,6 +86,7 @@ type ApiResponse = {
   user_question?: string;
   structured_intake?: StructuredIntake;
   deterministic_result?: ProductResult | null;
+  personalized_reading?: PersonalizedReading | null;
   error?: string;
   errors?: { message?: string }[];
 };
@@ -128,6 +141,15 @@ const QUESTION_EXAMPLES = [
 ] as const;
 
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
+const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
+
+function nonemptyLines(value: string): string[] {
+  return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+}
+
+function sleep(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+}
 
 function observationKey(): string {
   const existing = window.localStorage.getItem(JOURNAL_KEY);
@@ -261,12 +283,16 @@ function JournalSection({ records, loading, message, hasUnsavedResult, onOpen, o
 
 function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
   const result = response.deterministic_result;
+  const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
+  const [action, setAction] = useState(`我准备这样做：${initialAction}`);
+  const [reviewOn, setReviewOn] = useState(defaultReviewDate());
   if (!result) return null;
   const report = result.clarity_report;
   const cultural = result.cultural_reading;
+  const personalized = response.personalized_reading ?? result.personalized_reading;
   const question = response.user_question ?? "你所问之事";
-  const [action, setAction] = useState(`我准备这样做：${report.next_action}`);
-  const [reviewOn, setReviewOn] = useState(defaultReviewDate());
+  const primaryJudgment = personalized?.core_judgment ?? report.answer;
+  const primaryAction = personalized?.action ?? report.next_action;
   const quickSignals = [report.continue_signals[0], report.continue_signals[1], report.pause_signals[0]].filter(Boolean);
   const upperPath = cultural?.number_path[0];
   const lowerPath = cultural?.number_path[1];
@@ -284,12 +310,23 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         <p className="eyebrow">现在先看</p>
         <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>第 {result.base_hexagram.king_wen_number} 卦</span><h2>{result.base_hexagram.name}</h2></div>
         <p className="eyebrow conclusion-label">核心判断</p>
-        <h3 id="result-title" tabIndex={-1}>{report.answer}</h3>
+        <h3 id="result-title" tabIndex={-1}>{primaryJudgment}</h3>
       </div>
       <aside className="result-aside">
-        <span>眼下可做的一步</span><b>{report.priority}</b><p>{report.next_action}</p><a href="#result-signals">再看三个观察信号</a>
+        <span>眼下可做的一步</span><b>{report.priority}</b><p>{primaryAction}</p><a href="#personalized-reading">看完整现实解读</a>
       </aside>
     </section>
+
+    {personalized && <section id="personalized-reading" className="personalized-reading scroll-section" data-reveal>
+      <VerticalBrand />
+      <header className="section-heading"><p className="eyebrow">把卦象放回你的现实</p><h2>这件事，眼下真正要看什么</h2><p>以下解读只使用你明确写下的事实、未知项与程序排出的卦象；它不会把猜测补成事实，也不会替你做决定。</p></header>
+      <div className="personalized-reading-grid">
+        <article><span>为什么这样判断</span><p>{personalized.explanation}</p></article>
+        <article><span>落到你的现实</span><p>{personalized.reality_application}</p></article>
+        <article><span>下一步</span><p>{personalized.action}</p></article>
+        <article><span>何时需要转向</span><p>{personalized.switch_condition}</p></article>
+      </div>
+    </section>}
 
     <section id="result-signals" className="quick-reading scroll-section" data-reveal>
       <VerticalBrand />
@@ -328,7 +365,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <p className="final-question">你问的是：{question}</p>
       <header className="section-heading"><p className="eyebrow">看清之后，回到当下</p><h2>可借之力，与当慎之处</h2></header>
       <div className="guidance-columns"><article><span>当下有利</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article><article><span>尤其注意</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article></div>
-      <div className="next-action"><span>眼下可做的一步</span><p>{report.next_action}</p></div>
+      <div className="next-action"><span>眼下可做的一步</span><p>{primaryAction}</p>{personalized && <small>若出现以下情况，应停下来重新判断：{personalized.switch_condition}</small>}</div>
       <section id="save-current-reading" className="save-current-reading"><p className="eyebrow">解读至此</p><h3>把这次所见留到以后再看</h3><p>到这里，这次卦象的解读就完成了。希望它已经帮你理清方向，也让你更清楚下一步准备怎么做。如果你想在事情有了进展后回来复盘，可以在下面写下准备采取的行动，并选择一个回看日期。</p><div className="save-observation">
         <label><span>我准备采取的行动</span><textarea aria-describedby="action-help" placeholder="请用自己的话写下：我接下来准备做什么、先观察什么，什么情况出现时会调整。" value={action} maxLength={500} onChange={(event) => setAction(event.target.value)} /></label>
         <label><span>我准备回来复盘的日期</span><input type="date" value={reviewOn} onChange={(event) => setReviewOn(event.target.value)} /></label>
@@ -342,7 +379,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
 }
 
 function CastingLoader() {
-  return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 察看变化 · 整理方向</span></p></div>;
+  return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 分清事实与未知 · 生成现实解读</span></p></div>;
 }
 
 export function GuanxiangApp() {
@@ -352,10 +389,15 @@ export function GuanxiangApp() {
   const [horizon, setHorizon] = useState("");
   const [stage, setStage] = useState("");
   const [uncertainty, setUncertainty] = useState("");
+  const [facts, setFacts] = useState("");
+  const [unknowns, setUnknowns] = useState("");
+  const [actions, setActions] = useState("");
+  const [observableResponses, setObservableResponses] = useState("");
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [acknowledged, setAcknowledged] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState<JournalRecord[]>([]);
   const [journalLoading, setJournalLoading] = useState(true);
@@ -364,11 +406,57 @@ export function GuanxiangApp() {
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
   const allowedGoals = useMemo(() => GOALS_BY_DOMAIN[domain] ?? [], [domain]);
 
-  function useQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
+  function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
     setQuestion(example.text);
     setDomain(example.domain);
     setGoal("");
   }
+
+  function finishPersonalizedRequest(payload: ApiResponse): void {
+    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.deterministic_result?.clarity_report) {
+      throw new Error(payload.error || "本次解读没有通过检查，也不会自动重新生成。");
+    }
+    setResponse(payload);
+    setProgress("");
+  }
+
+  async function pollPersonalizedRequest(requestId: string, cancelled: () => boolean = () => false): Promise<void> {
+    setProgress("正在结合卦象与现实信息生成解读。页面会自动取得同一任务的结果，不会重复生成。");
+    try {
+      const payload = await pollPersonalizedTask(requestId, {
+        fetchResult: () => fetch(`/api/v4/meihua?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" }),
+        sleep,
+        cancelled,
+      });
+      if (payload) finishPersonalizedRequest(payload as ApiResponse);
+    } catch (caught) {
+      if (caught instanceof PersonalizedPollError && caught.terminal) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+      throw caught;
+    }
+  }
+
+  function personalizedErrorMessage(caught: unknown, requestId?: string): string {
+    const message = caught instanceof Error ? caught.message : "查询生成结果时出现异常。";
+    const taskId = caught instanceof PersonalizedPollError ? caught.requestId : requestId;
+    return taskId ? `${message}（任务编号：${taskId}）` : message;
+  }
+
+  useEffect(() => {
+    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
+    if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
+    let cancelled = false;
+    const resumeTimer = window.setTimeout(() => {
+      setLoading(true);
+      setError("");
+      void pollPersonalizedRequest(activeRequestId, () => cancelled)
+        .catch((caught) => { if (!cancelled) setError(personalizedErrorMessage(caught, activeRequestId)); })
+        .finally(() => { if (!cancelled) { setLoading(false); setProgress(""); } });
+    }, 0);
+    return () => { cancelled = true; window.clearTimeout(resumeTimer); };
+  // An unfinished request is intentionally resumed only once when the formal page mounts.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -410,6 +498,7 @@ export function GuanxiangApp() {
 
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty("");
+    setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
     setNumbers(["", "", ""]); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
@@ -421,7 +510,9 @@ export function GuanxiangApp() {
     try {
       const request = await fetch("/api/journal", { method: "POST", headers: journalHeaders(), body: JSON.stringify({
         id, question: response.user_question ?? question.trim(), structured_intake: response.structured_intake ?? { question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty },
-        numbers: response.deterministic_result.input_numbers, result: response.deterministic_result, action_text: actionText, review_on: reviewOn,
+        numbers: response.deterministic_result.input_numbers,
+        result: { ...response.deterministic_result, ...(response.personalized_reading ? { personalized_reading: response.personalized_reading } : {}) },
+        action_text: actionText, review_on: reviewOn,
       }) });
       const payload = await request.json() as { record?: JournalRecord; error?: string };
       if (!request.ok || !payload.record) throw new Error(payload.error || "这次观象暂时没有保存成功。");
@@ -453,7 +544,7 @@ export function GuanxiangApp() {
 
   function openObservation(record: JournalRecord) {
     setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setNumbers(record.numbers.map(String)); setAcknowledged(true); setSavedRecordId(record.id);
-    setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result });
+    setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
     window.setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -465,28 +556,64 @@ export function GuanxiangApp() {
 
   async function submit(event: FormEvent) {
     event.preventDefault(); setError(""); setResponse(null); setSavedRecordId(null);
-    const parsed = numbers.map(Number);
-    if (question.trim().length < 6 || question.trim().length > 160 || !domain || !goal || !horizon || !stage || !uncertainty || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
-      setError("请写下具体问题，并完整选择当前处境、填写三个 1–999 的整数，再确认使用边界。"); return;
+    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
+    if (activeRequestId && /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) {
+      setLoading(true);
+      try { await pollPersonalizedRequest(activeRequestId); }
+      catch (caught) { setError(personalizedErrorMessage(caught, activeRequestId)); }
+      finally { setLoading(false); setProgress(""); }
+      return;
     }
-    setLoading(true);
+    if (activeRequestId) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+
+    const factLines = nonemptyLines(facts);
+    const unknownLines = nonemptyLines(unknowns);
+    const actionLines = nonemptyLines(actions);
+    const responseLines = nonemptyLines(observableResponses);
+    const parsed = numbers.map(Number);
+    const textLists = [factLines, unknownLines, actionLines, responseLines];
+    if (question.trim().length < 6 || question.trim().length > 160 || !domain || !goal || !horizon || !stage || !uncertainty || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
+      setError("请完整填写问题、处境、至少一条已确认事实和一条未知项，再填写三个 1–999 的整数并确认使用边界。每项一行，事实最多 8 行，其他各最多 6 行。"); return;
+    }
+    setLoading(true); setProgress("正在提交本次观象任务……");
+    const requestId = `sites-${crypto.randomUUID()}`;
     try {
-      const request = await fetch("/api/v3/meihua", {
-        method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
-        body: JSON.stringify({ contract_version: "SITES_MEIHUA_API_CONTRACT_V3", request_id: `sites-${crypto.randomUUID()}`, question_text: question.trim(), question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(), user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true } }),
+      sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
+      const body = JSON.stringify({
+        contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId,
+        question_text: question.trim(), question_domain: domain, decision_goal: goal,
+        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+        confirmed_facts: factLines, unknowns: unknownLines, options: [],
+        actions_already_taken: actionLines, observable_responses: responseLines,
+        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+        user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
       });
-      const payload = await request.json() as ApiResponse;
-      if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能生成结果，请稍后重试。");
-      setResponse(payload);
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "暂时无法连接排盘服务，请稍后再试。"); }
-    finally { setLoading(false); }
+      let accepted = false;
+      for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
+        try {
+          const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+          const payload = await request.json() as ApiResponse;
+          if (request.status === 202) { accepted = true; break; }
+          if (request.ok) { finishPersonalizedRequest(payload); return; }
+          if (request.status !== 503) {
+            sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+            throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能生成结果。");
+          }
+        } catch (caught) {
+          if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) throw caught;
+        }
+        await sleep(1_500);
+      }
+      await pollPersonalizedRequest(requestId);
+    } catch (caught) { setError(personalizedErrorMessage(caught, requestId)); }
+    finally { setLoading(false); setProgress(""); }
   }
 
   return <>
     <header className="site-header">
       <a className="wordmark" href="#top">观象</a>
       <nav><a href="#method">如何观</a><a href="#inquiry">开始问</a><a href="#journal">观事簿</a></nav>
-      <small>约三分钟 · 确定性排盘</small>
+      <small>确定性排盘 · 个性化解读</small>
     </header>
     <main id="top" className="scroll-canvas">
       <section className="hero scroll-section" data-reveal>
@@ -505,7 +632,7 @@ export function GuanxiangApp() {
         <VerticalBrand />
         <div className="method-quote"><p className="eyebrow">观象之法</p><h2>在天成象，<br />在地成形，变化见矣。</h2><cite>《周易·系辞上》</cite></div>
         <div className="method-explainer"><p>所谓观象的意思，就是观察身边的现象，由可见之形察其关系，由变化之中辨其趋向。它不是一句含混的预言，而是一条从所问、取数、成卦到现实验证的观察路径。</p>
-          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>取数</b><p>凭当下所感，取三个整数。</p></li><li><span>叁</span><b>成卦</b><p>程序按照三数起卦的排盘规则，排定本卦、互卦与变卦。</p></li><li><span>肆</span><b>验事</b><p>把方向放回现实，以行动和反馈复核。</p></li></ol>
+          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>辨实</b><p>分清已确认的事实与仍未知的部分。</p></li><li><span>叁</span><b>成卦</b><p>程序按三数起卦规则排定本卦、互卦与变卦，再结合现实处境生成解读。</p></li><li><span>肆</span><b>验事</b><p>把方向放回现实，以行动和反馈复核。</p></li></ol>
           <div className="input-roles"><h3>卦从数起，意随事明</h3><p><b>三个数字</b>用来起卦；你写下的<b>问题和现实处境</b>，帮助我们从卦象中找到与眼前这件事有关的重点，并整理出可以采取的应对方法。</p><a href="/about">查看完整方法与规则版本</a></div>
           <a className="method-cta" href="#inquiry">已明其法，开始正问</a>
         </div>
@@ -518,7 +645,7 @@ export function GuanxiangApp() {
 
           <section className="inquiry-step"><div className="step-heading"><span>壹</span><div><h3>写清所问</h3><p>尽量写清对象、当前选择和现实范围。</p></div></div>
             <label className="question-label"><span>你真正想问的问题 *</span><textarea aria-label="你真正想问的问题" placeholder="例如：这次合作，我还应该继续投入吗？" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} /><small>{question.trim().length} / 160 · 请用清晰具体的文字说出你想弄明白的事，这会帮助我们把抽象的卦意落到现实处境中。</small></label>
-            <div className="question-examples"><header><span>不知怎样开口，可以从这些问题开始</span><small>点击任意一句，会自动填入上方</small></header><div>{QUESTION_EXAMPLES.map((example) => <button type="button" key={example.text} onClick={() => useQuestionExample(example)}><span>{example.topic}</span><b>{example.text}</b></button>)}</div></div>
+            <div className="question-examples"><header><span>不知怎样开口，可以从这些问题开始</span><small>点击任意一句，会自动填入上方</small></header><div>{QUESTION_EXAMPLES.map((example) => <button type="button" key={example.text} onClick={() => applyQuestionExample(example)}><span>{example.topic}</span><b>{example.text}</b></button>)}</div></div>
           </section>
 
           <section className="inquiry-step"><div className="step-heading"><span>贰</span><div><h3>说明现实处境</h3><p>告诉我们事情属于哪一类、走到哪一步、你最在意什么。这样解读时，卦象中的方向才能落到你真正关心的地方。</p></div></div>
@@ -526,14 +653,25 @@ export function GuanxiangApp() {
             <div className="hanging-slips context-slips"><fieldset><legend>事情走到哪一步 *</legend><OptionList name="进程" value={stage} options={STAGES} onChange={setStage} /></fieldset><fieldset><legend>最需要确认的变量 *</legend><OptionList name="所忧" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></fieldset></div>
           </section>
 
-          <section className="inquiry-step number-step"><div className="step-heading"><span>叁</span><div><h3>静心取数</h3><p>三个数字没有吉凶，也没有选对选错。凭当下所感，各写一个 1—999 的整数。</p></div></div>
+          <section className="inquiry-step"><div className="step-heading"><span>叁</span><div><h3>分清事实与未知</h3><p>只写你已经确认的现实信息，并把尚不确定的部分明确留作未知。这样解读不会把猜测当成事实。</p></div></div>
+            <p className="reality-context-note">每行写一件事，不要填写姓名、电话、住址、账号、证件号码等敏感信息。已确认事实与未知项各至少一行；行动和回应可以留空。</p>
+            <div className="reality-context-grid">
+              <label><span>已经确认的现实事实 *</span><textarea aria-label="已经确认的现实事实" value={facts} maxLength={3200} onChange={(event) => setFacts(event.target.value)} placeholder={"例如：已经沟通过两次，对方都没有明确截止时间\n本周需要决定是否继续预留资源"} /><small>最多 8 行，每行不超过 400 字。</small></label>
+              <label><span>目前不能假设的未知项 *</span><textarea aria-label="目前不能假设的未知项" value={unknowns} maxLength={2400} onChange={(event) => setUnknowns(event.target.value)} placeholder={"例如：不知道最终负责人是否已经看过方案\n不知道下个月是否仍有预算"} /><small>最多 6 行；不知道的事就留在这里。</small></label>
+              <label><span>已经采取的行动</span><textarea aria-label="已经采取的行动" value={actions} maxLength={2400} onChange={(event) => setActions(event.target.value)} placeholder="例如：上周发过一封确认时间表的邮件" /><small>可留空，最多 6 行。</small></label>
+              <label><span>已经出现的回应</span><textarea aria-label="已经出现的回应" value={observableResponses} maxLength={2400} onChange={(event) => setObservableResponses(event.target.value)} placeholder="例如：对方只回复了收到，尚未确认下一步" /><small>可留空，最多 6 行。</small></label>
+            </div>
+          </section>
+
+          <section className="inquiry-step number-step"><div className="step-heading"><span>肆</span><div><h3>静心取数</h3><p>三个数字没有吉凶，也没有选对选错。凭当下所感，各写一个 1—999 的整数。</p></div></div>
             <fieldset className="numbers-slip"><legend className="sr-only">取三个整数</legend>{numbers.map((value, index) => <label key={index}><span>{["壹 · 上卦", "贰 · 下卦", "叁 · 动爻"][index]}</span><input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</fieldset>
             <p className="number-note">第一数定上卦，第二数定下卦，第三数定动爻。程序随后依规则排定本卦、互卦与变卦。</p>
           </section>
 
-          <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，文字帮助解读落到具体事情；重要决定仍要结合现实中的回应、资源与行动。</span></label>
+          <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象；它不替代医疗、法律、财务等专业意见。生成失败不会自动重新生成；只有我主动保存时，结果才会进入观事簿。</span></label>
+          {progress && <p className="generation-progress" role="status">{progress}</p>}
           {error && <p className="error" role="alert">{error}</p>}
-          <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在观象" : "观卦"}</button>
+          <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在生成解读" : "观卦"}</button>
           {loading && <CastingLoader />}
         </form>
       </section>
