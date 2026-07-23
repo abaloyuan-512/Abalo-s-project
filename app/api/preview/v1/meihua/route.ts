@@ -6,7 +6,10 @@ import {
 
 const MAX_REQUEST_BYTES = 32 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
-const UPSTREAM_TIMEOUT_MS = 15_000;
+const POLL_UPSTREAM_TIMEOUT_MS = 15_000;
+// Render's free instance can need 50+ seconds to wake. The initial POST must
+// stay open long enough for the job to be created; later GET polls stay short.
+const SUBMIT_UPSTREAM_TIMEOUT_MS = 90_000;
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 
 type PreviewPayload = {
@@ -111,7 +114,7 @@ export async function GET(request: Request): Promise<Response> {
     const upstream = await fetch(url, {
       headers: { "X-Abalo-Engine-Key": engineKey },
       cache: "no-store",
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      signal: AbortSignal.timeout(POLL_UPSTREAM_TIMEOUT_MS),
     });
     if (upstream.status === 404) return safeJson({ error: "生成任务尚未建立。" }, 404);
     const payload = await readUpstream(upstream);
@@ -162,7 +165,7 @@ export async function POST(request: Request): Promise<Response> {
       headers: { "Content-Type": "application/json", "X-Abalo-Engine-Key": engineKey },
       body,
       cache: "no-store",
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      signal: AbortSignal.timeout(SUBMIT_UPSTREAM_TIMEOUT_MS),
     });
     if (upstream.status === 409) {
       await recordOwnerPreviewResult(requestId, "REQUEST_ID_CONFLICT", 0);
