@@ -49,15 +49,16 @@ test("renders public method, privacy and usage pages", async () => {
   }
 });
 
-test("server-renders the isolated owner preview page", async () => {
+test("server-renders the controlled first-user beta page", async () => {
   const app = await worker();
   const response = await app.fetch(new Request("http://localhost/preview", { headers: { accept: "text/html" } }), env, context);
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /新版解读 · 所有者私有体验/);
-  assert.match(html, /不替代现有 v16/);
+  assert.match(html, /新版解读 · 受控 Beta/);
+  assert.match(html, /首位用户体验 · 受控开放/);
   assert.match(html, /已经确认的现实事实/);
   assert.match(html, /目前不能假设的未知项/);
+  assert.doesNotMatch(html, /所有者私有校准|私有体验结果|本次 API 费用/);
 });
 
 test("journal rejects requests without a private device key", async () => {
@@ -100,7 +101,7 @@ test("owner preview API fails safely until the Python engine is configured", asy
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
-  assert.deepEqual(await response.json(), { error: "新版解读私有体验尚未开放。" });
+  assert.deepEqual(await response.json(), { error: "新版解读体验尚未开放。" });
 });
 
 function createBudgetDb() {
@@ -125,8 +126,8 @@ function createBudgetDb() {
             return { meta: { changes: 1 } };
           }
           if (sql.includes("SET reserved_calls = reserved_calls + 1")) {
-            const [updatedAt, windowId] = values;
-            if (row && row.window_id === windowId) {
+            const [updatedAt, windowId, requestLimit] = values;
+            if (row && row.window_id === windowId && row.reserved_calls < requestLimit) {
               row.reserved_calls += 1;
               row.status = "METERING";
               row.updated_at = updatedAt;
@@ -141,6 +142,15 @@ function createBudgetDb() {
             row.updated_at = values[2];
             return { meta: { changes: 1 } };
           }
+          if (sql.includes("SET result_status = 'RATE_LIMITED'")) {
+            const [updatedAt, requestId] = values;
+            const request = requests.get(requestId);
+            if (!request || request.finalized) return { meta: { changes: 0 } };
+            request.result_status = "RATE_LIMITED";
+            request.updated_at = updatedAt;
+            request.finalized = 1;
+            return { meta: { changes: 1 } };
+          }
           if (sql.includes("UPDATE owner_preview_requests")) {
             const [resultStatus, actualMicroUsd, updatedAt, requestId] = values;
             const request = requests.get(requestId);
@@ -153,7 +163,13 @@ function createBudgetDb() {
           }
           throw new Error(`Unexpected SQL: ${sql}`);
         },
-        async first() { return row ? { ...row } : null; },
+        async first() {
+          if (sql.includes("FROM owner_preview_requests")) {
+            const request = requests.get(values[0]);
+            return request ? { result_status: request.result_status, finalized: request.finalized } : null;
+          }
+          return row ? { ...row } : null;
+        },
       };
     },
     async batch(statements) { return Promise.all(statements.map((statement) => statement.run())); },
@@ -172,9 +188,11 @@ test("owner preview usage status starts in non-blocking metering mode without an
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
       status: "METERING",
-      hard_limit_enabled: false,
+      hard_limit_enabled: true,
       total_attempts: 0,
       actual_total_usd: 0,
+      request_limit: 12,
+      remaining_calls: 12,
     });
     assert.equal(db.row.reserved_calls, 0);
   } finally {
@@ -337,6 +355,53 @@ test("owner preview polls an accepted job and meters its terminal result only on
     globalThis.fetch = previousFetch;
     if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
     if (previousOwner === undefined) delete process.env.ABALO_PREVIEW_OWNER_EMAIL; else process.env.ABALO_PREVIEW_OWNER_EMAIL = previousOwner;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
+});
+
+test("owner preview enforces the total beta cap and never regenerates a finalized request", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
+  const previousLimit = process.env.ABALO_PREVIEW_MAX_REQUESTS;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = "true";
+  process.env.ABALO_PREVIEW_MAX_REQUESTS = "1";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
+  let upstreamCalls = 0;
+  globalThis.fetch = async (_url, init) => {
+    upstreamCalls += 1;
+    const requestId = JSON.parse(init.body).request_id;
+    return Response.json({
+      contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      request_id: requestId,
+      status: "SUCCESS",
+      personalized_reading: { core_judgment: "test" },
+      preview_meta: { actual_api_cost_usd: 0.01 },
+    });
+  };
+  try {
+    const app = await worker();
+    const db = createBudgetDb();
+    const makeRequest = (requestId) => new Request("http://localhost/api/preview/v1/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "beta-user@example.com" },
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: requestId }),
+    });
+    const first = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
+    const finalizedDuplicate = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
+    const overLimit = await app.fetch(makeRequest("beta-cap-second"), { ...env, DB: db }, context);
+    assert.equal(first.status, 200);
+    assert.equal(finalizedDuplicate.status, 409);
+    assert.equal(overLimit.status, 429);
+    assert.equal(upstreamCalls, 1);
+    assert.equal(db.row.reserved_calls, 1);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
+    if (previousLimit === undefined) delete process.env.ABALO_PREVIEW_MAX_REQUESTS; else process.env.ABALO_PREVIEW_MAX_REQUESTS = previousLimit;
     if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
     if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
   }

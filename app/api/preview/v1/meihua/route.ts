@@ -37,10 +37,9 @@ function upstreamUrl(path: string): URL | null {
   }
 }
 
-function isOwner(request: Request): boolean {
-  const expectedOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL?.trim().toLowerCase();
-  const authenticatedOwner = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
-  return Boolean(expectedOwner && authenticatedOwner && authenticatedOwner === expectedOwner);
+function isAuthenticatedPreviewUser(request: Request): boolean {
+  const authenticatedEmail = request.headers.get("oai-authenticated-user-email")?.trim();
+  return Boolean(authenticatedEmail && authenticatedEmail.length <= 320);
 }
 
 function previewEnabled(): boolean {
@@ -76,34 +75,38 @@ async function terminalResponse(requestId: string, payload: PreviewPayload): Pro
     ...payload,
     preview_meta: {
       ...payload.preview_meta,
-      hard_limit_enabled: false,
+      hard_limit_enabled: true,
       total_attempts: usage.reservedCalls,
       actual_total_usd: usage.actualMicroUsd / 1_000_000,
+      request_limit: usage.requestLimit,
+      remaining_calls: usage.remainingCalls,
     },
   }, 200);
 }
 
 export async function GET(request: Request): Promise<Response> {
-  if (!isOwner(request)) return safeJson({ error: "此入口仅向所有者开放。" }, 403);
+  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录获准体验的账号。" }, 403);
   const requestId = new URL(request.url).searchParams.get("request_id")?.trim();
   if (!requestId) {
     try {
       const budget = await getOwnerPreviewBudgetSnapshot();
       return safeJson({
         status: budget.status,
-        hard_limit_enabled: false,
+        hard_limit_enabled: true,
         total_attempts: budget.reservedCalls,
         actual_total_usd: budget.actualMicroUsd / 1_000_000,
+        request_limit: budget.requestLimit,
+        remaining_calls: budget.remainingCalls,
       }, 200);
     } catch {
-      return safeJson({ error: "私有体验次数守门暂时不可用。" }, 503);
+      return safeJson({ error: "体验次数守门暂时不可用。" }, 503);
     }
   }
   if (!REQUEST_ID_PATTERN.test(requestId)) return safeJson({ error: "请求编号无效。" }, 400);
-  if (!previewEnabled()) return safeJson({ error: "新版解读私有体验尚未开放。" }, 503);
+  if (!previewEnabled()) return safeJson({ error: "新版解读体验尚未开放。" }, 503);
   const url = upstreamUrl(`/api/preview/v1/meihua/jobs/${encodeURIComponent(requestId)}`);
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
-  if (!url || !engineKey) return safeJson({ error: "新版解读私有体验尚未连接。" }, 503);
+  if (!url || !engineKey) return safeJson({ error: "新版解读体验尚未连接。" }, 503);
   try {
     const upstream = await fetch(url, {
       headers: { "X-Abalo-Engine-Key": engineKey },
@@ -133,18 +136,25 @@ export async function POST(request: Request): Promise<Response> {
   if (requestPayload.contract_version !== "SITES_OWNER_PREVIEW_CONTRACT_V1") {
     return safeJson({ error: "请求版本不受支持。" }, 400);
   }
-  if (!previewEnabled()) return safeJson({ error: "新版解读私有体验尚未开放。" }, 503);
+  if (!previewEnabled()) return safeJson({ error: "新版解读体验尚未开放。" }, 503);
   const requestId = typeof requestPayload.request_id === "string" ? requestPayload.request_id.trim() : "";
   if (!REQUEST_ID_PATTERN.test(requestId)) return safeJson({ error: "请求编号无效。" }, 400);
-  if (!isOwner(request)) return safeJson({ error: "此入口仅向所有者开放。" }, 403);
+  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录获准体验的账号。" }, 403);
 
   const url = upstreamUrl("/api/preview/v1/meihua/jobs");
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
-  if (!url || !engineKey) return safeJson({ error: "新版解读私有体验尚未连接。" }, 503);
+  if (!url || !engineKey) return safeJson({ error: "新版解读体验尚未连接。" }, 503);
+  let reservation: Awaited<ReturnType<typeof reserveOwnerPreviewAttempt>>;
   try {
-    await reserveOwnerPreviewAttempt(requestId);
+    reservation = await reserveOwnerPreviewAttempt(requestId);
   } catch {
-    return safeJson({ error: "私有体验次数守门暂时不可用，未发起模型请求。" }, 503);
+    return safeJson({ error: "体验次数守门暂时不可用，未发起模型请求。" }, 503);
+  }
+  if (!reservation.allowed) {
+    if (reservation.requestState === "FINALIZED") {
+      return safeJson({ error: "这个任务已经结束。为避免重复生成，请返回页面发起一个新任务。" }, 409);
+    }
+    return safeJson({ error: "本轮受控体验名额已用完，未发起模型请求。" }, 429);
   }
   try {
     const upstream = await fetch(url, {
@@ -154,9 +164,16 @@ export async function POST(request: Request): Promise<Response> {
       cache: "no-store",
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
-    if (upstream.status === 409) return safeJson({ error: "请求编号与已有任务冲突。" }, 409);
+    if (upstream.status === 409) {
+      await recordOwnerPreviewResult(requestId, "REQUEST_ID_CONFLICT", 0);
+      return safeJson({ error: "请求编号与已有任务冲突。" }, 409);
+    }
     const payload = await readUpstream(upstream);
     if (!payload || payload.request_id !== requestId) return safeJson({ error: "新版解读响应异常。" }, 502);
+    if (upstream.status === 429) {
+      await recordOwnerPreviewResult(requestId, "PREVIEW_BUSY", 0);
+      return safeJson({ error: String(payload.error || "当前已有解读正在生成，请稍后再试。") }, 429);
+    }
     if (upstream.status === 202) return safeJson(payload, 202);
     if (!upstream.ok) return safeJson({ error: "新版解读响应异常。" }, 502);
     return await terminalResponse(requestId, payload);
