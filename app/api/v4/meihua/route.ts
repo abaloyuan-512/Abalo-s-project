@@ -85,7 +85,7 @@ async function terminalResponse(requestId: string, payload: PersonalizedPayload)
     ...publicPayload(payload),
     preview_meta: {
       ...payload.preview_meta,
-      hard_limit_enabled: true,
+      hard_limit_enabled: false,
       total_attempts: usage.reservedCalls,
       actual_total_usd: usage.actualMicroUsd / 1_000_000,
       request_limit: usage.requestLimit,
@@ -102,7 +102,7 @@ export async function GET(request: Request): Promise<Response> {
       const budget = await getOwnerPreviewBudgetSnapshot();
       return safeJson({
         status: budget.status,
-        hard_limit_enabled: true,
+        hard_limit_enabled: false,
         total_attempts: budget.reservedCalls,
         actual_total_usd: budget.actualMicroUsd / 1_000_000,
         request_limit: budget.requestLimit,
@@ -164,7 +164,7 @@ export async function POST(request: Request): Promise<Response> {
     if (reservation.requestState === "FINALIZED") {
       return safeJson({ error: "这个任务已经结束。为避免重复生成，请返回页面发起一个新任务。" }, 409);
     }
-    return safeJson({ error: "本轮受控体验名额已用完，未发起模型请求。" }, 429);
+    return safeJson({ error: "使用记录暂时不可用，未发起模型请求。" }, 503);
   }
   try {
     const upstream = await fetch(url, {
