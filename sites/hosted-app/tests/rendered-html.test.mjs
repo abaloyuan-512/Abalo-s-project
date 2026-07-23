@@ -251,6 +251,46 @@ test("owner preview meters repeated attempts without blocking on count or reserv
   }
 });
 
+test("owner preview submission allows enough time for a sleeping Render service to wake", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousTimeout = AbortSignal.timeout;
+  const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = "true";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
+  let requestedTimeout = null;
+  AbortSignal.timeout = (milliseconds) => {
+    requestedTimeout = milliseconds;
+    return previousTimeout(1_000);
+  };
+  globalThis.fetch = async (_url, init) => {
+    const requestId = JSON.parse(init.body).request_id;
+    return Response.json({
+      contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      request_id: requestId,
+      status: "RUNNING",
+    }, { status: 202 });
+  };
+  try {
+    const app = await worker();
+    const response = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: "cold-start-test" }),
+    }), { ...env, DB: createBudgetDb() }, context);
+    assert.equal(response.status, 202);
+    assert.equal(requestedTimeout, 90_000);
+  } finally {
+    globalThis.fetch = previousFetch;
+    AbortSignal.timeout = previousTimeout;
+    if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
+});
+
 test("owner preview upstream failure is metered without automatic retry or future blocking", async () => {
   const previousFetch = globalThis.fetch;
   const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
