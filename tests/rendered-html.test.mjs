@@ -123,8 +123,8 @@ function createBudgetDb() {
             return { meta: { changes: 1 } };
           }
           if (sql.includes("SET reserved_calls = reserved_calls + 1")) {
-            const [updatedAt, windowId, requestLimit] = values;
-            if (row && row.window_id === windowId && row.reserved_calls < requestLimit) {
+            const [updatedAt, windowId] = values;
+            if (row && row.window_id === windowId) {
               row.reserved_calls += 1;
               row.status = "METERING";
               row.updated_at = updatedAt;
@@ -137,15 +137,6 @@ function createBudgetDb() {
             row.actual_micro_usd += values[0];
             row.last_result_status = values[1];
             row.updated_at = values[2];
-            return { meta: { changes: 1 } };
-          }
-          if (sql.includes("SET result_status = 'RATE_LIMITED'")) {
-            const [updatedAt, requestId] = values;
-            const request = requests.get(requestId);
-            if (!request || request.finalized) return { meta: { changes: 0 } };
-            request.result_status = "RATE_LIMITED";
-            request.updated_at = updatedAt;
-            request.finalized = 1;
             return { meta: { changes: 1 } };
           }
           if (sql.includes("UPDATE owner_preview_requests")) {
@@ -185,11 +176,11 @@ test("personalized reading usage status starts without an upstream call", async 
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
       status: "METERING",
-      hard_limit_enabled: true,
+      hard_limit_enabled: false,
       total_attempts: 0,
       actual_total_usd: 0,
-      request_limit: 12,
-      remaining_calls: 12,
+      request_limit: null,
+      remaining_calls: null,
     });
     assert.equal(db.row.reserved_calls, 0);
   } finally {
@@ -400,7 +391,7 @@ test("owner preview polls an accepted job and meters its terminal result only on
   }
 });
 
-test("owner preview enforces the total beta cap and never regenerates a finalized request", async () => {
+test("owner preview ignores the retired total cap and never regenerates a finalized request", async () => {
   const previousFetch = globalThis.fetch;
   const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
   const previousLimit = process.env.ABALO_PREVIEW_MAX_REQUESTS;
@@ -432,13 +423,13 @@ test("owner preview enforces the total beta cap and never regenerates a finalize
     });
     const first = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
     const finalizedDuplicate = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
-    const overLimit = await app.fetch(makeRequest("beta-cap-second"), { ...env, DB: db }, context);
+    const second = await app.fetch(makeRequest("beta-cap-second"), { ...env, DB: db }, context);
     assert.equal(first.status, 200);
     assert.equal((await first.json()).contract_version, "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1");
     assert.equal(finalizedDuplicate.status, 409);
-    assert.equal(overLimit.status, 429);
-    assert.equal(upstreamCalls, 1);
-    assert.equal(db.row.reserved_calls, 1);
+    assert.equal(second.status, 200);
+    assert.equal(upstreamCalls, 2);
+    assert.equal(db.row.reserved_calls, 2);
   } finally {
     globalThis.fetch = previousFetch;
     if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
