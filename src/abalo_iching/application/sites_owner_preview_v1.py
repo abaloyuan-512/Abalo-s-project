@@ -41,8 +41,8 @@ from .sites_meihua_service_v3 import (
 
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
-OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v3"
-OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v2"
+OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v4"
+OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v3"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
@@ -62,7 +62,16 @@ OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS = """
 - user_facing_reading.action
 - user_facing_reading.switch_condition
 不得只覆盖承载这些内容的中间结构字段。
+对于列表整体的来源覆盖，supports_fields 允许使用以下三个精确集合路径：context_facts、chart_signals、switch_conditions；
+也可以继续使用 context_facts[0].fact_text、chart_signals[0].signal_text、switch_conditions[0].condition_text 这类带序号路径。
+除这三个集合路径外，不得省略列表序号或使用未声明的字段路径。
 """.strip()
+
+_OWNER_PREVIEW_AGGREGATE_SUPPORT_FIELDS = {
+    "context_facts",
+    "chart_signals",
+    "switch_conditions",
+}
 
 _DOMAIN_LABELS = {
     "WORK_CAREER": "工作或职业",
@@ -304,6 +313,10 @@ def _validate_output(
     }
     hard_failures = []
     for item in report.hard_failures:
+        if item.code == "unknown_supported_field":
+            matched_field = item.message.rsplit("：", 1)[-1].strip()
+            if matched_field in _OWNER_PREVIEW_AGGREGATE_SUPPORT_FIELDS:
+                continue
         if item.code in copied_text_safety_codes:
             matched_text = item.message.rsplit("：", 1)[-1].strip()
             if matched_text and matched_text not in authored_text:

@@ -142,7 +142,7 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
     assert "synthetic_only" not in str(captured[0].input_payload)
-    assert captured[0].prompt_version == "guanxiang_owner_preview_v3"
+    assert captured[0].prompt_version == "guanxiang_owner_preview_v4"
     assert "最小可逆、低成本验证、收集反馈、保留调整空间" in captured[0].system_instructions
     for field in (
         "judgment_signature.direction",
@@ -205,7 +205,61 @@ def test_owner_preview_allows_prohibited_phrase_only_inside_verbatim_unknown():
     )
 
     assert response["status"] == "SUCCESS"
-    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v2"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v3"
+
+
+def test_owner_preview_accepts_exact_aggregate_source_trace_paths_from_live_output():
+    def generator(prompt):
+        output = valid_output(prompt)
+        output["source_trace"][0]["supports_fields"] = ["context_facts"]
+        output["source_trace"][1]["supports_fields"] = ["chart_signals"]
+        output["source_trace"][2]["supports_fields"] = [
+            "switch_conditions"
+            if field == "switch_conditions[0].condition_text"
+            else field
+            for field in output["source_trace"][2]["supports_fields"]
+        ]
+        return Gate2ProviderResult(
+            response_id="test-aggregate-trace-response-id",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=output,
+            cost_usd=0.035,
+            api_status="completed",
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "SUCCESS"
+    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v4"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v3"
+
+
+def test_owner_preview_still_rejects_unknown_aggregate_source_trace_path():
+    def generator(prompt):
+        output = valid_output(prompt)
+        output["source_trace"][0]["supports_fields"] = ["context_factz"]
+        return Gate2ProviderResult(
+            response_id="test-invalid-aggregate-trace-response-id",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=output,
+            cost_usd=0.035,
+            api_status="completed",
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "PREVIEW_FAILED"
+    assert response["preview_meta"]["hard_failure_codes"] == ["unknown_supported_field"]
 
 
 def test_owner_preview_rejects_missing_unknowns_before_generation():
