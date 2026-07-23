@@ -46,6 +46,7 @@ OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v3"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
+OWNER_PREVIEW_MAX_POLL_ATTEMPTS = 180
 OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD = Decimal("0.50")
 LOGGER = logging.getLogger("abalo.owner_preview")
 
@@ -399,7 +400,7 @@ def _live_generator(prompt: Gate2PromptPackage) -> Gate2ProviderResult:
         model=OWNER_PREVIEW_MODEL,
         reasoning_effort=OWNER_PREVIEW_REASONING_EFFORT,
         max_output_tokens=OWNER_PREVIEW_MAX_OUTPUT_TOKENS,
-        max_poll_attempts=40,
+        max_poll_attempts=OWNER_PREVIEW_MAX_POLL_ATTEMPTS,
     )
     return provider.generate(prompt)
 

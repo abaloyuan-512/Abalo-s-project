@@ -5,7 +5,12 @@ from zoneinfo import ZoneInfo
 
 from abalo_iching.application.sites_owner_preview_v1 import (
     OWNER_PREVIEW_CONTRACT_VERSION,
+    OWNER_PREVIEW_MAX_POLL_ATTEMPTS,
+    _live_generator,
     process_sites_owner_preview_v1_request,
+)
+from abalo_iching.personalization_gate2.background_provider import (
+    OpenAIGate2BackgroundProvider,
 )
 from abalo_iching.personalization_gate2.models import (
     Gate2ProviderResult,
@@ -96,6 +101,26 @@ def valid_output(prompt):
             "switch_condition": "若得到明确资源与时间承诺，可以继续；若仍只有口头认可而无安排，应停止追加投入。",
         },
     }
+
+
+def test_live_generator_waits_for_same_response_for_up_to_six_minutes(monkeypatch):
+    captured = {}
+    sentinel = object()
+
+    def fake_init(self, **kwargs):
+        captured.update(kwargs)
+
+    def fake_generate(self, prompt):
+        captured["prompt"] = prompt
+        return sentinel
+
+    monkeypatch.setattr(OpenAIGate2BackgroundProvider, "__init__", fake_init)
+    monkeypatch.setattr(OpenAIGate2BackgroundProvider, "generate", fake_generate)
+
+    prompt = object()
+    assert _live_generator(prompt) is sentinel
+    assert captured["prompt"] is prompt
+    assert captured["max_poll_attempts"] == OWNER_PREVIEW_MAX_POLL_ATTEMPTS == 180
 
 
 def test_owner_preview_is_disabled_by_default_without_calling_openai(monkeypatch):
