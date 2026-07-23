@@ -1,9 +1,0 @@
-{
-  "contract_version": "SITES_MEIHUA_API_CONTRACT_V1",
-  "request_id": "phase3a-synthetic-demo-001",
-  "question_text": "我应该如何更稳妥地推进当前合作？",
-  "numbers": [100, 27, 368],
-  "locale": "zh-CN",
-  "client_timestamp": "2026-07-13T10:00:00+08:00",
-  "user_acknowledgements": {"deterministic_only": true, "narrative_unverified": true}
-}
