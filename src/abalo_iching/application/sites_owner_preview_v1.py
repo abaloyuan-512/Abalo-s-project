@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 from collections.abc import Callable
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from types import SimpleNamespace
 from typing import Any, Literal
 
@@ -24,6 +26,7 @@ from abalo_iching.personalization_gate2.models import (
     StrictModel,
     UnknownItem,
 )
+from abalo_iching.personalization_gate2.live_provider import Gate2LiveProviderError
 from abalo_iching.personalization_gate2.pricing import Gate2TokenPricing
 from abalo_iching.personalization_gate2.stage_c2_contract import (
     C2_SOURCE_TRACE_INSTRUCTIONS,
@@ -38,11 +41,13 @@ from .sites_meihua_service_v3 import (
 
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
-OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v2"
+OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v3"
 OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v2"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
+OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD = Decimal("0.50")
+LOGGER = logging.getLogger("abalo.owner_preview")
 
 OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS = """
 所有 judgment_signature 五个字段与 user_facing_reading 五个字段，都必须至少出现在一条 INTERPRETIVE_LINK 的 supports_fields 中：
@@ -148,6 +153,7 @@ context_facts.fact_text 必须逐字复制其唯一 reality_refs 对应的输入
 第一段先给一个明确但不过界的主要判断；说明为什么不是相反姿态，并给出具体对象、动作、可观察结果与转向条件。
 只能引用输入中提供的 EVxx；所有解释接榫必须同时引用现实陈述与卦象事实。
 中文应自然、平实、具体，有少量传统文化气息；避免翻译腔、抽象 AI 句法和万能咨询套话。
+user_facing_reading 中不得出现以下会触发质量拦截的原词：最小可逆、低成本验证、收集反馈、保留调整空间、外部支点、进入明处、承接能力、结构性反馈。请直接写具体的人、动作、条件与可观察结果。
 必须严格按给定结构化 Schema 输出，不得增加字段。一次生成完成，不请求工具，不联网，不自我修复。"""
 
 
@@ -334,6 +340,38 @@ def _error(
     }
 
 
+def _provider_failure_meta(exc: Exception) -> dict[str, Any]:
+    if not isinstance(exc, Gate2LiveProviderError):
+        return {
+            "failure_stage": "PROVIDER_OR_SCHEMA",
+            "failure_codes": [type(exc).__name__],
+        }
+    meta: dict[str, Any] = {
+        "failure_stage": "PROVIDER_OR_SCHEMA",
+        "failure_codes": [exc.code],
+        "provider_api_status": exc.api_status or "unknown",
+        "provider_poll_count": exc.poll_count,
+    }
+    if exc.incomplete_reason:
+        meta["provider_incomplete_reason"] = exc.incomplete_reason[:120]
+    if exc.cost_usd is not None:
+        meta["actual_api_cost_usd"] = exc.cost_usd
+    return meta
+
+
+def _max_preflight_cost_usd() -> Decimal:
+    raw = os.getenv("ABALO_OWNER_PREVIEW_MAX_PREFLIGHT_USD", "").strip()
+    if not raw:
+        return OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD
+    try:
+        value = Decimal(raw)
+    except InvalidOperation:
+        return OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD
+    if value <= 0 or value > Decimal("5"):
+        return OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD
+    return value
+
+
 def _live_generator(prompt: Gate2PromptPackage) -> Gate2ProviderResult:
     from abalo_iching.personalization_gate2.background_provider import (
         OpenAIGate2BackgroundProvider,
@@ -409,6 +447,18 @@ def process_sites_owner_preview_v1_request(
         prompt,
         max_output_tokens=OWNER_PREVIEW_MAX_OUTPUT_TOKENS,
     )
+    max_preflight_cost_usd = _max_preflight_cost_usd()
+    if preflight > max_preflight_cost_usd:
+        return _error(
+            payload.request_id,
+            "PREVIEW_BUDGET_BLOCKED",
+            "本次生成的保守费用预估超过体验上限，未发起模型请求。",
+            preview_meta_extra={
+                "preflight_estimated_cost_usd": float(preflight),
+                "max_preflight_cost_usd": float(max_preflight_cost_usd),
+                "hard_cost_limit_enabled": True,
+            },
+        )
     if generator is None:
         if os.getenv("ABALO_OWNER_PREVIEW_ENABLED", "").strip().lower() != "true":
             return _error(payload.request_id, "PREVIEW_DISABLED", "新版解读私有体验尚未启用。")
@@ -417,9 +467,33 @@ def process_sites_owner_preview_v1_request(
         provider_result = generator(prompt)
         output = Gate2ExperimentOutputV2.model_validate(provider_result.raw_output)
         hard_failures, quality_failures = _validate_output(reality, chart_context, output)
-    except Exception:
-        return _error(payload.request_id, "PREVIEW_FAILED", "本次新版解读未通过安全检查，未展示也不会自动重试。")
+    except Exception as exc:
+        failure_meta = _provider_failure_meta(exc)
+        LOGGER.warning(
+            "owner_preview_generation_failed request_id=%s failure_stage=%s failure_codes=%s api_status=%s cost_usd=%s",
+            payload.request_id,
+            failure_meta["failure_stage"],
+            ",".join(failure_meta["failure_codes"]),
+            failure_meta.get("provider_api_status", "unavailable"),
+            failure_meta.get("actual_api_cost_usd", "unknown"),
+        )
+        return _error(
+            payload.request_id,
+            "PREVIEW_FAILED",
+            "本次新版解读未能完成结构或安全检查，未展示也不会自动重试。",
+            preview_meta_extra=failure_meta,
+        )
     if hard_failures or quality_failures:
+        hard_failure_codes = sorted(set(hard_failures))
+        quality_failure_codes = sorted(set(quality_failures))
+        LOGGER.warning(
+            "owner_preview_validation_failed request_id=%s hard_failure_codes=%s quality_failure_codes=%s api_status=%s cost_usd=%s",
+            payload.request_id,
+            ",".join(hard_failure_codes) or "none",
+            ",".join(quality_failure_codes) or "none",
+            provider_result.api_status or "unknown",
+            provider_result.cost_usd,
+        )
         return _error(
             payload.request_id,
             "PREVIEW_FAILED",
@@ -432,9 +506,14 @@ def process_sites_owner_preview_v1_request(
                 "reasoning_effort": OWNER_PREVIEW_REASONING_EFFORT,
                 "prompt_version": OWNER_PREVIEW_PROMPT_VERSION,
                 "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
+                "failure_stage": "OUTPUT_VALIDATION",
+                "failure_codes": hard_failure_codes + quality_failure_codes,
+                "hard_failure_codes": hard_failure_codes,
+                "quality_failure_codes": quality_failure_codes,
                 "actual_api_cost_usd": provider_result.cost_usd,
                 "preflight_estimated_cost_usd": float(preflight),
-                "hard_cost_limit_enabled": False,
+                "max_preflight_cost_usd": float(max_preflight_cost_usd),
+                "hard_cost_limit_enabled": True,
             },
         )
     return {
@@ -456,7 +535,8 @@ def process_sites_owner_preview_v1_request(
             "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
             "actual_api_cost_usd": provider_result.cost_usd,
             "preflight_estimated_cost_usd": float(preflight),
-            "hard_cost_limit_enabled": False,
+            "max_preflight_cost_usd": float(max_preflight_cost_usd),
+            "hard_cost_limit_enabled": True,
         },
         "error": None,
     }

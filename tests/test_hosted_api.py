@@ -226,3 +226,45 @@ def test_owner_preview_job_is_async_authenticated_and_idempotent(monkeypatch) ->
     assert calls == 1
     assert terminal == 200
     assert terminal_payload["status"] == "SUCCESS"
+
+
+def test_owner_preview_job_rejects_excess_concurrency_without_generation(monkeypatch) -> None:
+    calls = 0
+    release = threading.Event()
+
+    def processor(payload, **_kwargs):
+        nonlocal calls
+        calls += 1
+        release.wait(timeout=2)
+        return {
+            "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+            "request_id": payload["request_id"],
+            "status": "SUCCESS",
+            "deterministic_result": {},
+            "personalized_reading": {"core_judgment": "测试成功"},
+            "preview_meta": {"actual_api_cost_usd": 0.01},
+            "error": None,
+        }
+
+    monkeypatch.setattr(hosted_api, "process_sites_owner_preview_v1_request", processor)
+    requests = [
+        {**valid_owner_preview_request(), "request_id": f"hosted-beta-concurrency-{index}"}
+        for index in range(3)
+    ]
+    with running_server() as port:
+        first, _headers, _payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", key=ENGINE_KEY, payload=requests[0]
+        )
+        second, _headers, _payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", key=ENGINE_KEY, payload=requests[1]
+        )
+        third, _headers, third_payload = request(
+            port, "POST", "/api/preview/v1/meihua/jobs", key=ENGINE_KEY, payload=requests[2]
+        )
+        release.set()
+
+    assert first == 202
+    assert second == 202
+    assert third == 429
+    assert third_payload["status"] == "PREVIEW_BUSY"
+    assert calls == 2

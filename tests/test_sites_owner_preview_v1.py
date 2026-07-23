@@ -11,6 +11,7 @@ from abalo_iching.personalization_gate2.models import (
     Gate2ProviderResult,
     Gate2Usage,
 )
+from abalo_iching.personalization_gate2.live_provider import Gate2LiveProviderError
 
 
 FIXED_NOW = datetime(2026, 7, 22, 14, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
@@ -131,14 +132,16 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert len(captured) == 1
     assert response["personalized_reading"]["core_judgment"].startswith("先不要追加投入")
     assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
+    assert response["preview_meta"]["max_preflight_cost_usd"] == 0.5
     assert response["preview_meta"]["preflight_estimated_cost_usd"] > 0
     assert response["preview_meta"]["stored"] is False
     assert response["deterministic_result"]["base_hexagram"]["name"]
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
     assert "synthetic_only" not in str(captured[0].input_payload)
-    assert captured[0].prompt_version == "guanxiang_owner_preview_v2"
+    assert captured[0].prompt_version == "guanxiang_owner_preview_v3"
+    assert "最小可逆、低成本验证、收集反馈、保留调整空间" in captured[0].system_instructions
     for field in (
         "judgment_signature.direction",
         "judgment_signature.method",
@@ -176,7 +179,7 @@ def test_owner_preview_records_high_actual_cost_without_hard_block():
 
     assert response["status"] == "SUCCESS"
     assert response["preview_meta"]["actual_api_cost_usd"] == 1.25
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
 
 
 def test_owner_preview_allows_prohibited_phrase_only_inside_verbatim_unknown():
@@ -244,5 +247,59 @@ def test_owner_preview_hard_stops_invalid_model_output_without_retry():
     assert response["status"] == "PREVIEW_FAILED"
     assert response["personalized_reading"] is None
     assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
+    assert response["preview_meta"]["failure_stage"] == "OUTPUT_VALIDATION"
+    assert "forced_irreversible_decision" in response["preview_meta"]["hard_failure_codes"]
     assert calls == 1
+
+
+def test_owner_preview_blocks_before_generation_when_preflight_exceeds_limit(monkeypatch):
+    called = False
+
+    def generator(_prompt):
+        nonlocal called
+        called = True
+        raise AssertionError("must not generate")
+
+    monkeypatch.setenv("ABALO_OWNER_PREVIEW_MAX_PREFLIGHT_USD", "0.01")
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "PREVIEW_BUDGET_BLOCKED"
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
+    assert response["preview_meta"]["max_preflight_cost_usd"] == 0.01
+    assert response["preview_meta"]["preflight_estimated_cost_usd"] > 0.01
+    assert called is False
+
+
+def test_owner_preview_records_safe_provider_diagnostics_without_sensitive_payload(caplog):
+    def generator(_prompt):
+        raise Gate2LiveProviderError(
+            "structured_output_schema_invalid",
+            "synthetic schema failure",
+            response_id="resp-sensitive-raw-id",
+            api_status="completed",
+            cost_usd=0.123,
+            poll_count=7,
+            raw_output={"secret": "raw model output"},
+        )
+
+    with caplog.at_level("WARNING", logger="abalo.owner_preview"):
+        response = process_sites_owner_preview_v1_request(
+            request(question_text="这是绝不能进入日志的用户问题。"),
+            generator=generator,
+            clock=lambda: FIXED_NOW,
+        )
+
+    assert response["status"] == "PREVIEW_FAILED"
+    assert response["preview_meta"]["failure_codes"] == ["structured_output_schema_invalid"]
+    assert response["preview_meta"]["provider_api_status"] == "completed"
+    assert response["preview_meta"]["provider_poll_count"] == 7
+    assert response["preview_meta"]["actual_api_cost_usd"] == 0.123
+    assert "structured_output_schema_invalid" in caplog.text
+    assert "resp-sensitive-raw-id" not in caplog.text
+    assert "绝不能进入日志" not in caplog.text
+    assert "raw model output" not in caplog.text

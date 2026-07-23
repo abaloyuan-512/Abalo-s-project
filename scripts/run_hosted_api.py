@@ -37,6 +37,7 @@ OWNER_PREVIEW_MAX_BODY_BYTES = 32 * 1024
 OWNER_PREVIEW_JOB_PREFIX = "/api/preview/v1/meihua/jobs/"
 OWNER_PREVIEW_JOB_PATH = "/api/preview/v1/meihua/jobs"
 OWNER_PREVIEW_JOB_TTL_SECONDS = 30 * 60
+OWNER_PREVIEW_MAX_ACTIVE_JOBS = 2
 OWNER_PREVIEW_REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 MIN_KEY_LENGTH = 32
 LOGGER = logging.getLogger("abalo.hosted_api")
@@ -214,6 +215,22 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                         self._send_json(HTTPStatus.CONFLICT, {"status": "request_id_conflict"})
                         return
                     if job is None:
+                        active_jobs = sum(
+                            1
+                            for existing_job in self.hosted_server.owner_preview_jobs.values()
+                            if existing_job.get("response") is None
+                        )
+                        if active_jobs >= OWNER_PREVIEW_MAX_ACTIVE_JOBS:
+                            self._send_json(
+                                HTTPStatus.TOO_MANY_REQUESTS,
+                                {
+                                    "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
+                                    "request_id": request_id,
+                                    "status": "PREVIEW_BUSY",
+                                    "error": "当前已有解读正在生成，请稍后再试。",
+                                },
+                            )
+                            return
                         job = {
                             "digest": digest,
                             "status": "RUNNING",

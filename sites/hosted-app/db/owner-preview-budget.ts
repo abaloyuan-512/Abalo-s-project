@@ -1,6 +1,7 @@
 import { getRawDb } from ".";
 
-export const OWNER_PREVIEW_WINDOW_ID = "owner-preview-v2-unlimited-metering";
+export const OWNER_PREVIEW_WINDOW_ID = "first-user-beta-v1";
+export const DEFAULT_BETA_REQUEST_LIMIT = 12;
 
 type BudgetRow = {
   window_id: string;
@@ -16,11 +17,27 @@ type BudgetRow = {
 export type OwnerPreviewBudgetSnapshot = {
   allowed: boolean;
   isNewRequest?: boolean;
+  requestState?: "NEW" | "IN_FLIGHT" | "FINALIZED" | "RATE_LIMITED";
   status: string;
   reservedCalls: number;
   reservedMicroUsd: number;
   actualMicroUsd: number;
+  requestLimit: number;
+  remainingCalls: number;
 };
+
+type RequestRow = {
+  result_status: string | null;
+  finalized: number;
+};
+
+function requestLimit(): number {
+  const configured = Number(process.env.ABALO_PREVIEW_MAX_REQUESTS ?? DEFAULT_BETA_REQUEST_LIMIT);
+  if (!Number.isInteger(configured) || configured < 1 || configured > 100) {
+    return DEFAULT_BETA_REQUEST_LIMIT;
+  }
+  return configured;
+}
 
 async function ensureBudgetRow(db: D1Database): Promise<void> {
   const now = new Date().toISOString();
@@ -55,12 +72,15 @@ async function ensureBudgetRow(db: D1Database): Promise<void> {
 }
 
 function snapshot(row: BudgetRow, allowed: boolean): OwnerPreviewBudgetSnapshot {
+  const limit = requestLimit();
   return {
     allowed,
-    status: row.status,
+    status: row.reserved_calls >= limit ? "LIMIT_REACHED" : row.status,
     reservedCalls: row.reserved_calls,
     reservedMicroUsd: row.reserved_micro_usd,
     actualMicroUsd: row.actual_micro_usd,
+    requestLimit: limit,
+    remainingCalls: Math.max(0, limit - row.reserved_calls),
   };
 }
 
@@ -75,7 +95,14 @@ async function readBudgetRow(db: D1Database): Promise<BudgetRow> {
 export async function getOwnerPreviewBudgetSnapshot(): Promise<OwnerPreviewBudgetSnapshot> {
   const db = getRawDb();
   await ensureBudgetRow(db);
-  return snapshot(await readBudgetRow(db), false);
+  const row = await readBudgetRow(db);
+  return snapshot(row, row.reserved_calls < requestLimit());
+}
+
+async function readRequestRow(db: D1Database, requestId: string): Promise<RequestRow | null> {
+  return db.prepare(
+    "SELECT result_status, finalized FROM owner_preview_requests WHERE request_id = ?",
+  ).bind(requestId).first<RequestRow>();
 }
 
 function normalizedRequestId(requestId: string): string {
@@ -99,18 +126,38 @@ export async function reserveOwnerPreviewAttempt(requestId: string): Promise<Own
   ).run();
   const isNewRequest = Number(inserted.meta?.changes ?? 0) === 1;
   if (!isNewRequest) {
-    return { ...snapshot(await readBudgetRow(db), false), isNewRequest: false };
+    const existing = await readRequestRow(db, normalizedRequestId(requestId));
+    const finalized = Number(existing?.finalized ?? 0) === 1;
+    return {
+      ...snapshot(await readBudgetRow(db), !finalized),
+      isNewRequest: false,
+      requestState: finalized ? "FINALIZED" : "IN_FLIGHT",
+    };
   }
   const result = await db.prepare(`UPDATE owner_preview_budget
     SET reserved_calls = reserved_calls + 1,
         status = 'METERING',
         updated_at = ?
-    WHERE window_id = ?`).bind(
+    WHERE window_id = ? AND reserved_calls < ?`).bind(
     now,
     OWNER_PREVIEW_WINDOW_ID,
+    requestLimit(),
   ).run();
   const row = await readBudgetRow(db);
-  return { ...snapshot(row, Number(result.meta?.changes ?? 0) === 1), isNewRequest: true };
+  const allowed = Number(result.meta?.changes ?? 0) === 1;
+  if (!allowed) {
+    await db.prepare(`UPDATE owner_preview_requests
+      SET result_status = 'RATE_LIMITED', finalized = 1, updated_at = ?
+      WHERE request_id = ? AND finalized = 0`).bind(
+      now,
+      normalizedRequestId(requestId),
+    ).run();
+  }
+  return {
+    ...snapshot(row, allowed),
+    isNewRequest: true,
+    requestState: allowed ? "NEW" : "RATE_LIMITED",
+  };
 }
 
 export async function recordOwnerPreviewResult(
