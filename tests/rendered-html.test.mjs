@@ -24,16 +24,19 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /遇事不决，可问春风/);
   assert.match(html, /href="#method"/);
   assert.match(html, /所谓观象的意思，就是观察身边的现象/);
-  assert.match(html, /三数起卦的排盘规则/);
+  assert.match(html, /三数起卦规则/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
   assert.match(html, /你真正想问的问题/);
   assert.match(html, /请用清晰具体的文字说出你想弄明白的事/);
-  assert.match(html, /约三分钟 · 确定性排盘/);
+  assert.match(html, /确定性排盘 · 个性化解读/);
   assert.match(html, /用三分钟，把一件拿不准的事/);
   assert.match(html, /卦从数起，意随事明/);
   assert.match(html, /这段关系一直没有进展，我还要继续主动吗/);
   assert.match(html, /写清所问/);
   assert.match(html, /说明现实处境/);
+  assert.match(html, /分清事实与未知/);
+  assert.match(html, /已经确认的现实事实/);
+  assert.match(html, /目前不能假设的未知项/);
   assert.match(html, /静心取数/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
@@ -42,23 +45,17 @@ test("server-renders the Guanxiang product", async () => {
 
 test("renders public method, privacy and usage pages", async () => {
   const app = await worker();
-  for (const [path, expected] of [["/about", /MEIHUA_RULE_SPEC_V1/], ["/privacy", /只有当你主动点击/], ["/guide", /一次观象大约需要三分钟/]]) {
+  for (const [path, expected] of [["/about", /MEIHUA_RULE_SPEC_V1/], ["/privacy", /只有当你主动点击/], ["/guide", /一次观象通常需要一至三分钟/]]) {
     const response = await app.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), env, context);
     assert.equal(response.status, 200);
     assert.match(await response.text(), expected);
   }
 });
 
-test("server-renders the controlled first-user beta page", async () => {
+test("does not ship a separate preview product page", async () => {
   const app = await worker();
   const response = await app.fetch(new Request("http://localhost/preview", { headers: { accept: "text/html" } }), env, context);
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.match(html, /新版解读 · 受控 Beta/);
-  assert.match(html, /首位用户体验 · 受控开放/);
-  assert.match(html, /已经确认的现实事实/);
-  assert.match(html, /目前不能假设的未知项/);
-  assert.doesNotMatch(html, /所有者私有校准|私有体验结果|本次 API 费用/);
+  assert.equal(response.status, 404);
 });
 
 test("journal rejects requests without a private device key", async () => {
@@ -92,16 +89,16 @@ test("V3 API fails safely until the Python engine is configured", async () => {
   assert.deepEqual(await response.json(), { error: "排盘服务尚未连接，请稍后再试。" });
 });
 
-test("owner preview API fails safely until the Python engine is configured", async () => {
+test("formal personalized API fails safely until the Python engine is configured", async () => {
   const app = await worker();
-  const response = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+  const response = await app.fetch(new Request("http://localhost/api/v4/meihua", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1" }),
+    body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1" }),
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
-  assert.deepEqual(await response.json(), { error: "新版解读体验尚未开放。" });
+  assert.deepEqual(await response.json(), { error: "个性化解读服务尚未开放。" });
 });
 
 function createBudgetDb() {
@@ -176,13 +173,13 @@ function createBudgetDb() {
   };
 }
 
-test("owner preview usage status starts in non-blocking metering mode without an upstream call", async () => {
+test("personalized reading usage status starts without an upstream call", async () => {
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
   process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
   try {
     const app = await worker();
     const db = createBudgetDb();
-    const response = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+    const response = await app.fetch(new Request("http://localhost/api/v4/meihua", {
       headers: { "oai-authenticated-user-email": "owner@example.com" },
     }), { ...env, DB: db }, context);
     assert.equal(response.status, 200);
@@ -226,10 +223,10 @@ test("owner preview meters repeated attempts without blocking on count or reserv
     const app = await worker();
     const db = createBudgetDb();
     let requestNumber = 0;
-    const request = () => new Request("http://localhost/api/preview/v1/meihua", {
+    const request = () => new Request("http://localhost/api/v4/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: `owner-test-${++requestNumber}` }),
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: `owner-test-${++requestNumber}` }),
     });
     const first = await app.fetch(request(), { ...env, DB: db }, context);
     const second = await app.fetch(request(), { ...env, DB: db }, context);
@@ -266,7 +263,10 @@ test("owner preview submission allows enough time for a sleeping Render service 
     return previousTimeout(1_000);
   };
   globalThis.fetch = async (_url, init) => {
-    const requestId = JSON.parse(init.body).request_id;
+    const upstreamBody = JSON.parse(init.body);
+    assert.equal(upstreamBody.contract_version, "SITES_OWNER_PREVIEW_CONTRACT_V1");
+    assert.equal(upstreamBody.user_acknowledgements.no_formal_persistence, true);
+    const requestId = upstreamBody.request_id;
     return Response.json({
       contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
       request_id: requestId,
@@ -275,10 +275,10 @@ test("owner preview submission allows enough time for a sleeping Render service 
   };
   try {
     const app = await worker();
-    const response = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+    const response = await app.fetch(new Request("http://localhost/api/v4/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: "cold-start-test" }),
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: "cold-start-test" }),
     }), { ...env, DB: createBudgetDb() }, context);
     assert.equal(response.status, 202);
     assert.equal(requestedTimeout, 90_000);
@@ -318,10 +318,10 @@ test("owner preview upstream failure is metered without automatic retry or futur
     const app = await worker();
     const db = createBudgetDb();
     let requestNumber = 0;
-    const request = () => new Request("http://localhost/api/preview/v1/meihua", {
+    const request = () => new Request("http://localhost/api/v4/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: `owner-failure-${++requestNumber}` }),
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: `owner-failure-${++requestNumber}` }),
     });
     const failed = await app.fetch(request(), { ...env, DB: db }, context);
     const succeeded = await app.fetch(request(), { ...env, DB: db }, context);
@@ -375,12 +375,12 @@ test("owner preview polls an accepted job and meters its terminal result only on
   try {
     const app = await worker();
     const db = createBudgetDb();
-    const started = await app.fetch(new Request("http://localhost/api/preview/v1/meihua", {
+    const started = await app.fetch(new Request("http://localhost/api/v4/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: requestId }),
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId }),
     }), { ...env, DB: db }, context);
-    const poll = () => app.fetch(new Request(`http://localhost/api/preview/v1/meihua?request_id=${requestId}`, {
+    const poll = () => app.fetch(new Request(`http://localhost/api/v4/meihua?request_id=${requestId}`, {
       headers: { "oai-authenticated-user-email": "owner@example.com" },
     }), { ...env, DB: db }, context);
     const completed = await poll();
@@ -425,15 +425,16 @@ test("owner preview enforces the total beta cap and never regenerates a finalize
   try {
     const app = await worker();
     const db = createBudgetDb();
-    const makeRequest = (requestId) => new Request("http://localhost/api/preview/v1/meihua", {
+    const makeRequest = (requestId) => new Request("http://localhost/api/v4/meihua", {
       method: "POST",
       headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "beta-user@example.com" },
-      body: JSON.stringify({ contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1", request_id: requestId }),
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId }),
     });
     const first = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
     const finalizedDuplicate = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
     const overLimit = await app.fetch(makeRequest("beta-cap-second"), { ...env, DB: db }, context);
     assert.equal(first.status, 200);
+    assert.equal((await first.json()).contract_version, "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1");
     assert.equal(finalizedDuplicate.status, 409);
     assert.equal(overLimit.status, 429);
     assert.equal(upstreamCalls, 1);

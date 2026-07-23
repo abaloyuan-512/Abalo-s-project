@@ -2,7 +2,7 @@ import {
   getOwnerPreviewBudgetSnapshot,
   recordOwnerPreviewResult,
   reserveOwnerPreviewAttempt,
-} from "../../../../../db/owner-preview-budget";
+} from "../../../../db/owner-preview-budget";
 
 const MAX_REQUEST_BYTES = 32 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -12,7 +12,10 @@ const POLL_UPSTREAM_TIMEOUT_MS = 15_000;
 const SUBMIT_UPSTREAM_TIMEOUT_MS = 90_000;
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 
-type PreviewPayload = {
+const PUBLIC_CONTRACT_VERSION = "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1";
+const UPSTREAM_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1";
+
+type PersonalizedPayload = {
   contract_version?: unknown;
   request_id?: unknown;
   status?: unknown;
@@ -49,13 +52,13 @@ function previewEnabled(): boolean {
   return process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED?.trim().toLowerCase() === "true";
 }
 
-async function readUpstream(upstream: Response): Promise<PreviewPayload | null> {
+async function readUpstream(upstream: Response): Promise<PersonalizedPayload | null> {
   const responseText = await upstream.text();
   if (new TextEncoder().encode(responseText).byteLength > MAX_RESPONSE_BYTES) return null;
   try {
-    const payload = JSON.parse(responseText) as PreviewPayload;
+    const payload = JSON.parse(responseText) as PersonalizedPayload;
     if (
-      payload.contract_version !== "SITES_OWNER_PREVIEW_CONTRACT_V1" ||
+      payload.contract_version !== UPSTREAM_CONTRACT_VERSION ||
       typeof payload.request_id !== "string" ||
       typeof payload.status !== "string"
     ) return null;
@@ -65,7 +68,11 @@ async function readUpstream(upstream: Response): Promise<PreviewPayload | null> 
   }
 }
 
-async function terminalResponse(requestId: string, payload: PreviewPayload): Promise<Response> {
+function publicPayload(payload: PersonalizedPayload): PersonalizedPayload {
+  return { ...payload, contract_version: PUBLIC_CONTRACT_VERSION };
+}
+
+async function terminalResponse(requestId: string, payload: PersonalizedPayload): Promise<Response> {
   const actualCost = typeof payload.preview_meta?.actual_api_cost_usd === "number"
     ? payload.preview_meta.actual_api_cost_usd
     : null;
@@ -75,7 +82,7 @@ async function terminalResponse(requestId: string, payload: PreviewPayload): Pro
     actualCost,
   );
   return safeJson({
-    ...payload,
+    ...publicPayload(payload),
     preview_meta: {
       ...payload.preview_meta,
       hard_limit_enabled: true,
@@ -88,7 +95,7 @@ async function terminalResponse(requestId: string, payload: PreviewPayload): Pro
 }
 
 export async function GET(request: Request): Promise<Response> {
-  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录获准体验的账号。" }, 403);
+  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录当前站点。" }, 403);
   const requestId = new URL(request.url).searchParams.get("request_id")?.trim();
   if (!requestId) {
     try {
@@ -106,10 +113,10 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
   if (!REQUEST_ID_PATTERN.test(requestId)) return safeJson({ error: "请求编号无效。" }, 400);
-  if (!previewEnabled()) return safeJson({ error: "新版解读体验尚未开放。" }, 503);
+  if (!previewEnabled()) return safeJson({ error: "个性化解读服务尚未开放。" }, 503);
   const url = upstreamUrl(`/api/preview/v1/meihua/jobs/${encodeURIComponent(requestId)}`);
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
-  if (!url || !engineKey) return safeJson({ error: "新版解读体验尚未连接。" }, 503);
+  if (!url || !engineKey) return safeJson({ error: "个性化解读服务尚未连接。" }, 503);
   try {
     const upstream = await fetch(url, {
       headers: { "X-Abalo-Engine-Key": engineKey },
@@ -118,9 +125,9 @@ export async function GET(request: Request): Promise<Response> {
     });
     if (upstream.status === 404) return safeJson({ error: "生成任务尚未建立。" }, 404);
     const payload = await readUpstream(upstream);
-    if (!payload || payload.request_id !== requestId) return safeJson({ error: "新版解读响应异常。" }, 502);
-    if (upstream.status === 202) return safeJson(payload, 202);
-    if (!upstream.ok) return safeJson({ error: "新版解读响应异常。" }, 502);
+    if (!payload || payload.request_id !== requestId) return safeJson({ error: "个性化解读响应异常。" }, 502);
+    if (upstream.status === 202) return safeJson(publicPayload(payload), 202);
+    if (!upstream.ok) return safeJson({ error: "个性化解读响应异常。" }, 502);
     return await terminalResponse(requestId, payload);
   } catch {
     return safeJson({ error: "生成仍在继续，页面会自动再次查询。" }, 503);
@@ -134,19 +141,19 @@ export async function POST(request: Request): Promise<Response> {
   if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BYTES) return safeJson({ error: "请求内容过大。" }, 413);
   const body = await request.text();
   if (new TextEncoder().encode(body).byteLength > MAX_REQUEST_BYTES) return safeJson({ error: "请求内容过大。" }, 413);
-  let requestPayload: PreviewPayload;
-  try { requestPayload = JSON.parse(body) as PreviewPayload; } catch { return safeJson({ error: "请求内容不是有效 JSON。" }, 400); }
-  if (requestPayload.contract_version !== "SITES_OWNER_PREVIEW_CONTRACT_V1") {
+  let requestPayload: PersonalizedPayload;
+  try { requestPayload = JSON.parse(body) as PersonalizedPayload; } catch { return safeJson({ error: "请求内容不是有效 JSON。" }, 400); }
+  if (requestPayload.contract_version !== PUBLIC_CONTRACT_VERSION) {
     return safeJson({ error: "请求版本不受支持。" }, 400);
   }
-  if (!previewEnabled()) return safeJson({ error: "新版解读体验尚未开放。" }, 503);
+  if (!previewEnabled()) return safeJson({ error: "个性化解读服务尚未开放。" }, 503);
   const requestId = typeof requestPayload.request_id === "string" ? requestPayload.request_id.trim() : "";
   if (!REQUEST_ID_PATTERN.test(requestId)) return safeJson({ error: "请求编号无效。" }, 400);
-  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录获准体验的账号。" }, 403);
+  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录当前站点。" }, 403);
 
   const url = upstreamUrl("/api/preview/v1/meihua/jobs");
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
-  if (!url || !engineKey) return safeJson({ error: "新版解读体验尚未连接。" }, 503);
+  if (!url || !engineKey) return safeJson({ error: "个性化解读服务尚未连接。" }, 503);
   let reservation: Awaited<ReturnType<typeof reserveOwnerPreviewAttempt>>;
   try {
     reservation = await reserveOwnerPreviewAttempt(requestId);
@@ -163,7 +170,16 @@ export async function POST(request: Request): Promise<Response> {
     const upstream = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Abalo-Engine-Key": engineKey },
-      body,
+      body: JSON.stringify({
+        ...requestPayload,
+        contract_version: UPSTREAM_CONTRACT_VERSION,
+        user_acknowledgements: {
+          owner_preview_only: true,
+          live_model_cost_acknowledged: true,
+          no_formal_persistence: true,
+          user_statements_not_verified_facts: true,
+        },
+      }),
       cache: "no-store",
       signal: AbortSignal.timeout(SUBMIT_UPSTREAM_TIMEOUT_MS),
     });
@@ -172,13 +188,13 @@ export async function POST(request: Request): Promise<Response> {
       return safeJson({ error: "请求编号与已有任务冲突。" }, 409);
     }
     const payload = await readUpstream(upstream);
-    if (!payload || payload.request_id !== requestId) return safeJson({ error: "新版解读响应异常。" }, 502);
+    if (!payload || payload.request_id !== requestId) return safeJson({ error: "个性化解读响应异常。" }, 502);
     if (upstream.status === 429) {
       await recordOwnerPreviewResult(requestId, "PREVIEW_BUSY", 0);
       return safeJson({ error: String(payload.error || "当前已有解读正在生成，请稍后再试。") }, 429);
     }
-    if (upstream.status === 202) return safeJson(payload, 202);
-    if (!upstream.ok) return safeJson({ error: "新版解读响应异常。" }, 502);
+    if (upstream.status === 202) return safeJson(publicPayload(payload), 202);
+    if (!upstream.ok) return safeJson({ error: "个性化解读响应异常。" }, 502);
     return await terminalResponse(requestId, payload);
   } catch {
     return safeJson({ error: "任务提交暂时未确认，页面会使用同一编号重试。" }, 503);
