@@ -5,6 +5,7 @@ import {
   PersonalizedPollError,
   pollPersonalizedTask,
 } from "./personalized-reading-poll";
+import { resultSectionVisibility } from "./result-presentation.mjs";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -60,6 +61,7 @@ type PersonalizedReading = {
   reality_application: string;
   action: string;
   switch_condition: string;
+  question_responses?: { question_text: string; answer_text: string }[];
 };
 type ProductResult = {
   input_numbers: number[];
@@ -80,6 +82,7 @@ type StructuredIntake = {
   time_horizon: string;
   decision_stage: string;
   key_uncertainty: string;
+  decision_risk_profile?: string;
 };
 type ApiResponse = {
   status?: string;
@@ -128,6 +131,7 @@ const GOALS_BY_DOMAIN: Record<string, (keyof typeof GOALS)[]> = {
 const HORIZONS = { CURRENT: "当前阶段", NEXT_30_DAYS: "未来三十天", NEXT_QUARTER: "未来一个季度", NEXT_6_MONTHS: "未来六个月" } as const;
 const STAGES = { EXPLORING: "刚开始了解", PREPARING: "准备行动", ALREADY_ACTING: "正在推进", WAITING_FEEDBACK: "等待回应" } as const;
 const UNCERTAINTIES = { CONDITIONS: "还缺哪些条件", OTHER_RESPONSE: "对方是否回应", OWN_COMMITMENT: "自己投入多少", TIMING: "现在是否合适" } as const;
+const RISK_PROFILES = { STANDARD: "一般，可分阶段调整", HIGH_IRREVERSIBLE: "高不可逆，不能试错后撤回" } as const;
 
 const QUESTION_EXAMPLES = [
   { topic: "工作", domain: "WORK_CAREER", text: "这份工作已经让我很疲惫，我还应该继续留下吗？" },
@@ -290,6 +294,8 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
   const report = result.clarity_report;
   const cultural = result.cultural_reading;
   const personalized = response.personalized_reading ?? result.personalized_reading;
+  const sectionVisibility = resultSectionVisibility(Boolean(personalized));
+  const questionResponses = personalized?.question_responses ?? [];
   const question = response.user_question ?? "你所问之事";
   const primaryJudgment = personalized?.core_judgment ?? report.answer;
   const primaryAction = personalized?.action ?? report.next_action;
@@ -321,6 +327,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <VerticalBrand />
       <header className="section-heading"><p className="eyebrow">把卦象放回你的现实</p><h2>这件事，眼下真正要看什么</h2><p>以下解读只使用你明确写下的事实、未知项与程序排出的卦象；它不会把猜测补成事实，也不会替你做决定。</p></header>
       <div className="personalized-reading-grid">
+        {questionResponses.length > 1 && <article className="question-responses"><span>逐项回答</span><ul>{questionResponses.map((item) => <li key={item.question_text}><b>{item.question_text}</b><p>{item.answer_text}</p></li>)}</ul></article>}
         <article><span>为什么这样判断</span><p>{personalized.explanation}</p></article>
         <article><span>落到你的现实</span><p>{personalized.reality_application}</p></article>
         <article><span>下一步</span><p>{personalized.action}</p></article>
@@ -328,20 +335,20 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       </div>
     </section>}
 
-    <section id="result-signals" className="quick-reading scroll-section" data-reveal>
+    {sectionVisibility.showGenericSignals && <section id="result-signals" className="quick-reading scroll-section" data-reveal>
       <VerticalBrand />
       <header className="section-heading"><p className="eyebrow">先带走最有用的部分</p><h2>先做一件事，再看三个迹象</h2><p>不用急着把整份解读都记住。先确定眼前准备做的事，再留意下面三个迹象；它们出现或没有出现，会帮助你判断接下来该继续、调整，还是停一停。</p></header>
       <div className="quick-signal-list">{quickSignals.map((signal, index) => <article key={signal}><span>{["壹", "贰", "叁"][index]}</span><p>{signal}</p></article>)}</div>
       <nav className="result-jump"><a href="#why-reading">为什么这样判断</a><a href="#deep-reading">深入了解排盘</a><a href="#save-current-reading">读完后保存这次观象</a></nav>
-    </section>
+    </section>}
 
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">第二层 · 为什么</p><h2>从卦象回到所问之事</h2><p>这一层说明判断依据。若你只需要行动方向，可以先跳过，等现实出现新证据后再回来对照。</p></header>
-      <div className="detailed-conclusion">
+      <header className="section-heading"><p className="eyebrow">第二层 · 为什么</p><h2>{personalized ? "核对卦象依据" : "从卦象回到所问之事"}</h2><p>{personalized ? "下面保留本卦、互卦与变卦的规范材料，供你核对上方判断用了哪些变化线索。" : "这一层说明判断依据。若你只需要行动方向，可以先跳过，等现实出现新证据后再回来对照。"}</p></header>
+      {sectionVisibility.showGenericWhy && <div className="detailed-conclusion">
         <span>回到你所问之事</span><h3>{report.what_it_means}</h3>
         <ol>{report.evidence_path.map((item) => <li key={item.title}><b>{item.title}</b><p>{item.text}</p></li>)}</ol>
-      </div>
+      </div>}
       {cultural ? <div className="canonical-grid">{cultural.hexagrams.map((item) => <article key={item.role} className="canonical-card">
         <header><span>{item.role}</span><strong>{item.symbol}</strong><div><small>第 {item.king_wen_number} 卦</small><h3>{item.name}</h3></div></header>
         <p className="reading-role">{item.reading_role}</p>
@@ -364,7 +371,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <VerticalBrand />
       <p className="final-question">你问的是：{question}</p>
       <header className="section-heading"><p className="eyebrow">看清之后，回到当下</p><h2>可借之力，与当慎之处</h2></header>
-      <div className="guidance-columns"><article><span>当下有利</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article><article><span>尤其注意</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article></div>
+      {sectionVisibility.showGenericGuidance && <div className="guidance-columns"><article><span>当下有利</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article><article><span>尤其注意</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article></div>}
       <div className="next-action"><span>眼下可做的一步</span><p>{primaryAction}</p>{personalized && <small>若出现以下情况，应停下来重新判断：{personalized.switch_condition}</small>}</div>
       <section id="save-current-reading" className="save-current-reading"><p className="eyebrow">解读至此</p><h3>把这次所见留到以后再看</h3><p>到这里，这次卦象的解读就完成了。希望它已经帮你理清方向，也让你更清楚下一步准备怎么做。如果你想在事情有了进展后回来复盘，可以在下面写下准备采取的行动，并选择一个回看日期。</p><div className="save-observation">
         <label><span>我准备采取的行动</span><textarea aria-describedby="action-help" placeholder="请用自己的话写下：我接下来准备做什么、先观察什么，什么情况出现时会调整。" value={action} maxLength={500} onChange={(event) => setAction(event.target.value)} /></label>
@@ -389,6 +396,7 @@ export function GuanxiangApp() {
   const [horizon, setHorizon] = useState("");
   const [stage, setStage] = useState("");
   const [uncertainty, setUncertainty] = useState("");
+  const [riskProfile, setRiskProfile] = useState("STANDARD");
   const [facts, setFacts] = useState("");
   const [unknowns, setUnknowns] = useState("");
   const [actions, setActions] = useState("");
@@ -497,7 +505,7 @@ export function GuanxiangApp() {
   }
 
   function clearQuestion() {
-    setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty("");
+    setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
     setNumbers(["", "", ""]); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
@@ -509,7 +517,7 @@ export function GuanxiangApp() {
     const id = crypto.randomUUID();
     try {
       const request = await fetch("/api/journal", { method: "POST", headers: journalHeaders(), body: JSON.stringify({
-        id, question: response.user_question ?? question.trim(), structured_intake: response.structured_intake ?? { question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty },
+        id, question: response.user_question ?? question.trim(), structured_intake: response.structured_intake ?? { question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile },
         numbers: response.deterministic_result.input_numbers,
         result: { ...response.deterministic_result, ...(response.personalized_reading ? { personalized_reading: response.personalized_reading } : {}) },
         action_text: actionText, review_on: reviewOn,
@@ -543,7 +551,7 @@ export function GuanxiangApp() {
   }
 
   function openObservation(record: JournalRecord) {
-    setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setNumbers(record.numbers.map(String)); setAcknowledged(true); setSavedRecordId(record.id);
+    setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setAcknowledged(true); setSavedRecordId(record.id);
     setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
     window.setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
@@ -572,7 +580,7 @@ export function GuanxiangApp() {
     const responseLines = nonemptyLines(observableResponses);
     const parsed = numbers.map(Number);
     const textLists = [factLines, unknownLines, actionLines, responseLines];
-    if (question.trim().length < 6 || question.trim().length > 160 || !domain || !goal || !horizon || !stage || !uncertainty || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
+    if (question.trim().length < 6 || question.trim().length > 160 || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
       setError("请完整填写问题、处境、至少一条已确认事实和一条未知项，再填写三个 1–999 的整数并确认使用边界。每项一行，事实最多 8 行，其他各最多 6 行。"); return;
     }
     setLoading(true); setProgress("正在提交本次观象任务……");
@@ -582,7 +590,7 @@ export function GuanxiangApp() {
       const body = JSON.stringify({
         contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId,
         question_text: question.trim(), question_domain: domain, decision_goal: goal,
-        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile,
         confirmed_facts: factLines, unknowns: unknownLines, options: [],
         actions_already_taken: actionLines, observable_responses: responseLines,
         numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
@@ -650,7 +658,7 @@ export function GuanxiangApp() {
 
           <section className="inquiry-step"><div className="step-heading"><span>贰</span><div><h3>说明现实处境</h3><p>告诉我们事情属于哪一类、走到哪一步、你最在意什么。这样解读时，卦象中的方向才能落到你真正关心的地方。</p></div></div>
             <div className="context-line"><ChoiceMenu label="事情属于 *" value={domain} options={DOMAINS} onChange={(value) => { setDomain(value); setGoal(""); }} /><ChoiceMenu label="这次最想看清 *" value={goal} options={Object.fromEntries(allowedGoals.map((key) => [key, GOALS[key]]))} disabled={!domain} onChange={setGoal} /><ChoiceMenu label="观察范围 *" value={horizon} options={HORIZONS} onChange={setHorizon} /></div>
-            <div className="hanging-slips context-slips"><fieldset><legend>事情走到哪一步 *</legend><OptionList name="进程" value={stage} options={STAGES} onChange={setStage} /></fieldset><fieldset><legend>最需要确认的变量 *</legend><OptionList name="所忧" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></fieldset></div>
+            <div className="hanging-slips context-slips"><fieldset><legend>事情走到哪一步 *</legend><OptionList name="进程" value={stage} options={STAGES} onChange={setStage} /></fieldset><fieldset><legend>最需要确认的变量 *</legend><OptionList name="所忧" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></fieldset><fieldset><legend>决定能否撤回 *</legend><OptionList name="风险" value={riskProfile} options={RISK_PROFILES} onChange={setRiskProfile} /></fieldset></div>
           </section>
 
           <section className="inquiry-step"><div className="step-heading"><span>叁</span><div><h3>分清事实与未知</h3><p>只写你已经确认的现实信息，并把尚不确定的部分明确留作未知。这样解读不会把猜测当成事实。</p></div></div>
