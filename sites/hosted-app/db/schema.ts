@@ -46,3 +46,11 @@ export const ownerPreviewRequests = sqliteTable("owner_preview_requests", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const publicRequestRateLimits = sqliteTable("public_request_rate_limits", {
+  requestId: text("request_id").primaryKey(),
+  subjectHash: text("subject_hash").notNull(),
+  createdAt: text("created_at").notNull(),
+}, (table) => [
+  index("public_request_rate_limits_subject_created_idx").on(table.subjectHash, table.createdAt),
+]);

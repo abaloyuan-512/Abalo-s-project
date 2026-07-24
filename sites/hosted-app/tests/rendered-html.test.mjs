@@ -104,6 +104,7 @@ test("formal personalized API fails safely until the Python engine is configured
 function createBudgetDb() {
   let row = null;
   const requests = new Map();
+  const rateLimitRequests = new Map();
   return {
     get row() { return row; },
     prepare(sql) {
@@ -111,7 +112,21 @@ function createBudgetDb() {
       return {
         bind(...next) { values = next; return this; },
         async run() {
-          if (sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_budget") || sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_requests")) return { meta: { changes: 0 } };
+          if (sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_budget") || sql.includes("CREATE TABLE IF NOT EXISTS owner_preview_requests") || sql.includes("CREATE TABLE IF NOT EXISTS public_request_rate_limits") || sql.includes("CREATE INDEX IF NOT EXISTS public_request_rate_limits")) return { meta: { changes: 0 } };
+          if (sql.includes("DELETE FROM public_request_rate_limits")) {
+            for (const [requestId, request] of rateLimitRequests) {
+              if (request.created_at < values[0]) rateLimitRequests.delete(requestId);
+            }
+            return { meta: { changes: 0 } };
+          }
+          if (sql.includes("INSERT OR IGNORE INTO public_request_rate_limits")) {
+            const [requestId, subjectHash, createdAt, countedSubject, windowStart, limit] = values;
+            if (rateLimitRequests.has(requestId)) return { meta: { changes: 0 } };
+            const count = [...rateLimitRequests.values()].filter((request) => request.subject_hash === countedSubject && request.created_at >= windowStart).length;
+            if (count >= limit) return { meta: { changes: 0 } };
+            rateLimitRequests.set(requestId, { request_id: requestId, subject_hash: subjectHash, created_at: createdAt });
+            return { meta: { changes: 1 } };
+          }
           if (sql.includes("INSERT OR IGNORE INTO owner_preview_budget")) {
             if (!row) row = { window_id: values[0], status: "METERING", reserved_calls: 0, reserved_micro_usd: 0, actual_micro_usd: 0, last_result_status: null, created_at: values[1], updated_at: values[2] };
             return { meta: { changes: 1 } };
@@ -152,6 +167,10 @@ function createBudgetDb() {
           throw new Error(`Unexpected SQL: ${sql}`);
         },
         async first() {
+          if (sql.includes("FROM public_request_rate_limits")) {
+            const request = rateLimitRequests.get(values[0]);
+            return request ? { subject_hash: request.subject_hash } : null;
+          }
           if (sql.includes("FROM owner_preview_requests")) {
             const request = requests.get(values[0]);
             return request ? { result_status: request.result_status, finalized: request.finalized } : null;
@@ -216,7 +235,7 @@ test("owner preview meters repeated attempts without blocking on count or reserv
     let requestNumber = 0;
     const request = () => new Request("http://localhost/api/v4/meihua", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.10", "oai-authenticated-user-email": "owner@example.com" },
       body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: `owner-test-${++requestNumber}` }),
     });
     const first = await app.fetch(request(), { ...env, DB: db }, context);
@@ -268,7 +287,7 @@ test("owner preview submission allows enough time for a sleeping Render service 
     const app = await worker();
     const response = await app.fetch(new Request("http://localhost/api/v4/meihua", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.11", "oai-authenticated-user-email": "owner@example.com" },
       body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: "cold-start-test" }),
     }), { ...env, DB: createBudgetDb() }, context);
     assert.equal(response.status, 202);
@@ -311,7 +330,7 @@ test("owner preview upstream failure is metered without automatic retry or futur
     let requestNumber = 0;
     const request = () => new Request("http://localhost/api/v4/meihua", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.12", "oai-authenticated-user-email": "owner@example.com" },
       body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: `owner-failure-${++requestNumber}` }),
     });
     const failed = await app.fetch(request(), { ...env, DB: db }, context);
@@ -334,7 +353,7 @@ test("owner preview upstream failure is metered without automatic retry or futur
   }
 });
 
-test("owner preview polls an accepted job and meters its terminal result only once", async () => {
+test("public preview submits and polls without a site login while preserving idempotency", async () => {
   const previousFetch = globalThis.fetch;
   const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
@@ -368,15 +387,19 @@ test("owner preview polls an accepted job and meters its terminal result only on
     const db = createBudgetDb();
     const started = await app.fetch(new Request("http://localhost/api/v4/meihua", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "owner@example.com" },
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.13" },
       body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId }),
     }), { ...env, DB: db }, context);
-    const poll = () => app.fetch(new Request(`http://localhost/api/v4/meihua?request_id=${requestId}`, {
-      headers: { "oai-authenticated-user-email": "owner@example.com" },
+    const duplicate = await app.fetch(new Request("http://localhost/api/v4/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.13" },
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId }),
     }), { ...env, DB: db }, context);
+    const poll = () => app.fetch(new Request(`http://localhost/api/v4/meihua?request_id=${requestId}`), { ...env, DB: db }, context);
     const completed = await poll();
     const repeated = await poll();
     assert.equal(started.status, 202);
+    assert.equal(duplicate.status, 202);
     assert.equal(completed.status, 200);
     assert.equal(repeated.status, 200);
     assert.equal(upstreamCalls, 3);
@@ -418,7 +441,7 @@ test("owner preview ignores the retired total cap and never regenerates a finali
     const db = createBudgetDb();
     const makeRequest = (requestId) => new Request("http://localhost/api/v4/meihua", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "oai-authenticated-user-email": "beta-user@example.com" },
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.14", "oai-authenticated-user-email": "beta-user@example.com" },
       body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId }),
     });
     const first = await app.fetch(makeRequest("beta-cap-first"), { ...env, DB: db }, context);
@@ -434,6 +457,51 @@ test("owner preview ignores the retired total cap and never regenerates a finali
     globalThis.fetch = previousFetch;
     if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
     if (previousLimit === undefined) delete process.env.ABALO_PREVIEW_MAX_REQUESTS; else process.env.ABALO_PREVIEW_MAX_REQUESTS = previousLimit;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
+});
+
+test("public preview limits one network to six new requests per hour", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousGate = process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = "true";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "test-only-engine-key-that-is-long-enough";
+  let upstreamCalls = 0;
+  globalThis.fetch = async (_url, init) => {
+    upstreamCalls += 1;
+    const requestId = JSON.parse(init.body).request_id;
+    return Response.json({
+      contract_version: "SITES_OWNER_PREVIEW_CONTRACT_V1",
+      request_id: requestId,
+      status: "SUCCESS",
+      personalized_reading: { core_judgment: "test" },
+      preview_meta: { actual_api_cost_usd: 0.01 },
+    });
+  };
+  try {
+    const app = await worker();
+    const db = createBudgetDb();
+    const submit = (requestId) => app.fetch(new Request("http://localhost/api/v4/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.99" },
+      body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId }),
+    }), { ...env, DB: db }, context);
+    for (let number = 1; number <= 6; number += 1) {
+      assert.equal((await submit(`public-limit-${number}`)).status, 200);
+    }
+    const blocked = await submit("public-limit-7");
+    assert.equal(blocked.status, 429);
+    assert.equal(blocked.headers.get("retry-after"), "3600");
+    assert.match((await blocked.json()).error, /每小时最多发起 6 次/);
+    assert.equal(upstreamCalls, 6);
+    assert.equal(db.row.reserved_calls, 6);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousGate === undefined) delete process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED; else process.env.ABALO_OWNER_PREVIEW_GATE_ENABLED = previousGate;
     if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
     if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
   }
