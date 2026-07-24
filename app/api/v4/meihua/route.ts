@@ -3,6 +3,11 @@ import {
   recordOwnerPreviewResult,
   reserveOwnerPreviewAttempt,
 } from "../../../../db/owner-preview-budget";
+import {
+  PUBLIC_RATE_LIMIT_MAX_REQUESTS,
+  PUBLIC_RATE_LIMIT_WINDOW_SECONDS,
+  reservePublicRequestRateLimit,
+} from "../../../../db/public-request-rate-limit";
 
 const MAX_REQUEST_BYTES = 32 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -23,8 +28,8 @@ type PersonalizedPayload = {
   [key: string]: unknown;
 };
 
-function safeJson(body: unknown, status: number): Response {
-  return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
+function safeJson(body: unknown, status: number, headers: Record<string, string> = {}): Response {
+  return Response.json(body, { status, headers: { "Cache-Control": "no-store", ...headers } });
 }
 
 function upstreamUrl(path: string): URL | null {
@@ -72,6 +77,25 @@ function publicPayload(payload: PersonalizedPayload): PersonalizedPayload {
   return { ...payload, contract_version: PUBLIC_CONTRACT_VERSION };
 }
 
+async function publicRateLimitSubject(request: Request, secret: string): Promise<string | null> {
+  const clientAddress = request.headers.get("cf-connecting-ip")?.trim();
+  if (!clientAddress || clientAddress.length > 64) return null;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(`guanxiang-public-rate-v1\n${clientAddress}`),
+  );
+  return Array.from(new Uint8Array(signature), (value) => value.toString(16).padStart(2, "0")).join("");
+}
+
 async function terminalResponse(requestId: string, payload: PersonalizedPayload): Promise<Response> {
   const actualCost = typeof payload.preview_meta?.actual_api_cost_usd === "number"
     ? payload.preview_meta.actual_api_cost_usd
@@ -95,9 +119,9 @@ async function terminalResponse(requestId: string, payload: PersonalizedPayload)
 }
 
 export async function GET(request: Request): Promise<Response> {
-  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录当前站点。" }, 403);
   const requestId = new URL(request.url).searchParams.get("request_id")?.trim();
   if (!requestId) {
+    if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录当前站点。" }, 403);
     try {
       const budget = await getOwnerPreviewBudgetSnapshot();
       return safeJson({
@@ -149,11 +173,22 @@ export async function POST(request: Request): Promise<Response> {
   if (!previewEnabled()) return safeJson({ error: "个性化解读服务尚未开放。" }, 503);
   const requestId = typeof requestPayload.request_id === "string" ? requestPayload.request_id.trim() : "";
   if (!REQUEST_ID_PATTERN.test(requestId)) return safeJson({ error: "请求编号无效。" }, 400);
-  if (!isAuthenticatedPreviewUser(request)) return safeJson({ error: "请先登录当前站点。" }, 403);
 
   const url = upstreamUrl("/api/preview/v1/meihua/jobs");
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
   if (!url || !engineKey) return safeJson({ error: "个性化解读服务尚未连接。" }, 503);
+  const subjectHash = await publicRateLimitSubject(request, engineKey);
+  if (!subjectHash) return safeJson({ error: "暂时无法确认访问来源，未发起模型请求。" }, 503);
+  try {
+    const rateLimit = await reservePublicRequestRateLimit(subjectHash, requestId);
+    if (!rateLimit.allowed) {
+      return safeJson({
+        error: `同一网络每小时最多发起 ${PUBLIC_RATE_LIMIT_MAX_REQUESTS} 次观象，请稍后再试。`,
+      }, 429, { "Retry-After": String(PUBLIC_RATE_LIMIT_WINDOW_SECONDS) });
+    }
+  } catch {
+    return safeJson({ error: "访问频率守门暂时不可用，未发起模型请求。" }, 503);
+  }
   let reservation: Awaited<ReturnType<typeof reserveOwnerPreviewAttempt>>;
   try {
     reservation = await reserveOwnerPreviewAttempt(requestId);
@@ -165,6 +200,13 @@ export async function POST(request: Request): Promise<Response> {
       return safeJson({ error: "这个任务已经结束。为避免重复生成，请返回页面发起一个新任务。" }, 409);
     }
     return safeJson({ error: "使用记录暂时不可用，未发起模型请求。" }, 503);
+  }
+  if (reservation.requestState === "IN_FLIGHT") {
+    return safeJson({
+      contract_version: PUBLIC_CONTRACT_VERSION,
+      request_id: requestId,
+      status: "RUNNING",
+    }, 202);
   }
   try {
     const upstream = await fetch(url, {

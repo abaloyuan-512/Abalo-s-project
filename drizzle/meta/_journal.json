@@ -22,6 +22,13 @@
       "when": 1784735950416,
       "tag": "0002_aberrant_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784877896988,
+      "tag": "0003_crazy_wrecker",
+      "breakpoints": true
     }
   ]
 }
