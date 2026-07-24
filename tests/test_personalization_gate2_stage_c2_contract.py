@@ -34,11 +34,12 @@ from abalo_iching.personalization_gate2.stage_c2_contract import (
     STAGE_C2_SCHEMA_VERSION,
     STAGE_C2_VALIDATOR_VERSION,
     Gate2ExperimentOutputV2,
+    Gate2ExperimentOutputV3,
     Gate2StageC2PromptBuilder,
     SourceTraceV2,
     build_stage_c2_request,
     build_stage_c2_retest_request,
-    gate2_output_schema_v2_sha256,
+    gate2_output_schema_v3_sha256,
 )
 from abalo_iching.personalization_gate2.stage_c2_execution import (
     Gate2StageC2OfflineBackgroundRunner,
@@ -46,6 +47,7 @@ from abalo_iching.personalization_gate2.stage_c2_execution import (
     Gate2StageC2BackgroundRunner,
     OpenAIGate2StageC2BackgroundProvider,
 )
+from abalo_iching.personalization_gate2.validators import question_clauses_from_text
 
 
 def _trace_payload(
@@ -95,7 +97,7 @@ def _branch(
 
 def test_c2_is_offline_only_and_has_new_version_coordinates() -> None:
     request = build_stage_c2_request(VISIBLE_CALIBRATION_CASES[0], ExperimentArm.B)
-    assert request.metadata.schema_version == STAGE_C2_SCHEMA_VERSION == "gate2_schema_v2"
+    assert request.metadata.schema_version == STAGE_C2_SCHEMA_VERSION == "gate2_schema_v3"
     assert request.metadata.prompt_version == STAGE_C2_PROMPT_VERSION
     assert request.metadata.validator_version == STAGE_C2_VALIDATOR_VERSION
     assert STAGE_C2_EXTERNAL_MODEL_CALLS == 1
@@ -189,7 +191,10 @@ def test_c2_prompt_repeats_machine_contract_in_plain_language() -> None:
     assert prompt.prompt_version == STAGE_C2_PROMPT_VERSION
     assert C2_SOURCE_TRACE_INSTRUCTIONS in prompt.system_instructions
     assert "不得再把自己的 RWxx 或 EVxx 重复写入" in prompt.system_instructions
-    assert prompt.input_payload["output_schema"] == Gate2ExperimentOutputV2.model_json_schema()
+    assert prompt.input_payload["output_schema"] == Gate2ExperimentOutputV3.model_json_schema()
+    assert prompt.input_payload["question_clauses"] == question_clauses_from_text(
+        request.reality.question_text
+    )
     json.dumps(prompt.input_payload, ensure_ascii=False)
 
 
@@ -241,6 +246,7 @@ def _valid_b_output(request: Gate2ExperimentRequest) -> dict[str, object]:
                 "user_facing_reading.reality_application",
                 "user_facing_reading.action",
                 "user_facing_reading.switch_condition",
+                "user_facing_reading.question_responses[0].answer_text",
             ],
             "link_mode": "REALITY_ONLY",
             "reality_refs": reality_refs,
@@ -298,6 +304,12 @@ def _valid_b_output(request: Gate2ExperimentRequest) -> dict[str, object]:
             "reality_application": "把已经完成的准备转成可观察的外部答复。",
             "action": "提交方案并直接询问下一步。",
             "switch_condition": "若出现明确补充条件，就按条件调整后再推进。",
+            "question_responses": [
+                {
+                    "question_text": question_clauses_from_text(request.reality.question_text)[0],
+                    "answer_text": "现在可以正式提出方案并请求明确回应。",
+                }
+            ],
         },
     }
 
@@ -307,8 +319,13 @@ def _valid_chart_output(request: Gate2ExperimentRequest) -> dict[str, object]:
     assert request.chart_context is not None
     facts = request.reality.reality_facts()[:2]
     chart_fact = request.chart_context.evidence[0]
+    change_fact = next(
+        item
+        for item in request.chart_context.evidence
+        if "变化后" in item.text or "爻" in item.text
+    )
     reality_refs = [item.ref for item in facts]
-    evidence_refs = [chart_fact.ref]
+    evidence_refs = [chart_fact.ref, change_fact.ref]
     source_trace = [
         {
             "trace_id": item.ref,
@@ -335,6 +352,16 @@ def _valid_chart_output(request: Gate2ExperimentRequest) -> dict[str, object]:
                 "interpretation_hypothesis": False,
             },
             {
+                "trace_id": change_fact.ref,
+                "source_kind": "CHART_FACT",
+                "source_ref": change_fact.ref,
+                "supports_fields": ["chart_signals[1]"],
+                "link_mode": "NOT_APPLICABLE",
+                "reality_refs": [],
+                "evidence_refs": [],
+                "interpretation_hypothesis": False,
+            },
+            {
                 "trace_id": "IL01",
                 "source_kind": "INTERPRETIVE_LINK",
                 "source_ref": "IL01",
@@ -349,6 +376,7 @@ def _valid_chart_output(request: Gate2ExperimentRequest) -> dict[str, object]:
                     "user_facing_reading.reality_application",
                     "user_facing_reading.action",
                     "user_facing_reading.switch_condition",
+                    "user_facing_reading.question_responses[0].answer_text",
                 ],
                 "link_mode": "REALITY_AND_CHART",
                 "reality_refs": reality_refs,
@@ -370,9 +398,14 @@ def _valid_chart_output(request: Gate2ExperimentRequest) -> dict[str, object]:
         "chart_signals": [
             {
                 "signal_text": chart_fact.text,
-                "evidence_refs": evidence_refs,
+                "evidence_refs": [chart_fact.ref],
                 "knowledge_review_status": chart_fact.knowledge_review_status.value,
-            }
+            },
+            {
+                "signal_text": change_fact.text,
+                "evidence_refs": [change_fact.ref],
+                "knowledge_review_status": change_fact.knowledge_review_status.value,
+            },
         ],
         "core_conflict": {
             "text": "当前关键是把现实条件与程序提供的卦象信号一起核对。",
@@ -414,6 +447,12 @@ def _valid_chart_output(request: Gate2ExperimentRequest) -> dict[str, object]:
             "reality_application": "重点确认有决定权者是否给出明确回应。",
             "action": "提交现有方案并询问下一步。",
             "switch_condition": "若对方提出明确条件，就据此调整。",
+            "question_responses": [
+                {
+                    "question_text": question_clauses_from_text(request.reality.question_text)[0],
+                    "answer_text": "可以推进一次明确沟通，但要按卦象变化核对现实回应。",
+                }
+            ],
         },
     }
 
@@ -507,12 +546,12 @@ def test_c2_offline_background_runner_validates_v2_end_to_end(
     )
 
     assert result.status is DryRunStatus.VALIDATED
-    assert isinstance(result.output, Gate2ExperimentOutputV2)
+    assert isinstance(result.output, Gate2ExperimentOutputV3)
     assert responses.parse_calls == 1
     assert responses.retrieve_calls == 1
-    assert responses.parse_kwargs["text_format"] is Gate2ExperimentOutputV2
+    assert responses.parse_kwargs["text_format"] is Gate2ExperimentOutputV3
     assert result.evidence_record.schema_version == STAGE_C2_SCHEMA_VERSION
-    assert result.evidence_record.schema_sha256 == gate2_output_schema_v2_sha256()
+    assert result.evidence_record.schema_sha256 == gate2_output_schema_v3_sha256()
     assert result.evidence_record.validator_version == STAGE_C2_VALIDATOR_VERSION
     assert result.evidence_record.cost_usd == 0
     assert runner.budget_guard.spent_usd == 0
@@ -542,7 +581,7 @@ def test_c2_offline_background_runner_validates_chart_arms_end_to_end(
     )
 
     assert result.status is DryRunStatus.VALIDATED
-    assert isinstance(result.output, Gate2ExperimentOutputV2)
+    assert isinstance(result.output, Gate2ExperimentOutputV3)
     assert request.chart_context is not None
     assert request.chart_context.is_mismatched_control is (arm is ExperimentArm.D)
     assert all(
@@ -587,7 +626,7 @@ def test_c2_runner_rejects_c1_provider_type(tmp_path: Path) -> None:
         )
 
 
-def test_c2_live_runner_is_mockable_but_uses_v2_contract(
+def test_c2_live_runner_is_mockable_but_uses_v3_contract(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -626,10 +665,10 @@ def test_c2_live_runner_is_mockable_but_uses_v2_contract(
     )
 
     assert result.status is DryRunStatus.VALIDATED
-    assert isinstance(result.output, Gate2ExperimentOutputV2)
+    assert isinstance(result.output, Gate2ExperimentOutputV3)
     assert responses.parse_calls == 1
     assert responses.retrieve_calls == 1
-    assert responses.parse_kwargs["text_format"] is Gate2ExperimentOutputV2
+    assert responses.parse_kwargs["text_format"] is Gate2ExperimentOutputV3
     assert result.evidence_record.schema_version == STAGE_C2_SCHEMA_VERSION
 
 
@@ -642,7 +681,7 @@ def test_c1_provider_still_uses_v1_output_model() -> None:
     "arm",
     [ExperimentArm.B, ExperimentArm.C, ExperimentArm.D],
 )
-def test_c2_real_sdk_mock_transport_sends_v2_schema_for_every_model_arm(
+def test_c2_real_sdk_mock_transport_sends_v3_schema_for_every_model_arm(
     tmp_path: Path,
     arm: ExperimentArm,
 ) -> None:

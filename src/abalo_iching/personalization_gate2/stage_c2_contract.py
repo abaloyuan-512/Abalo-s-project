@@ -17,16 +17,22 @@ from .models import (
     Gate2ExperimentRequest,
     Gate2PromptPackage,
     LinkMode,
+    QuestionResponse,
     RunMetadata,
     SourceKind,
     StrictModel,
+    UserFacingReading,
 )
-from .validators import Gate2ExperimentValidator, gate2_validator_source_sha256
+from .validators import (
+    Gate2ExperimentValidator,
+    gate2_validator_source_sha256,
+    question_clauses_from_text,
+)
 
 
-STAGE_C2_SCHEMA_VERSION = "gate2_schema_v2"
-STAGE_C2_PROMPT_VERSION = "personalization_gate2_calibration_v4"
-STAGE_C2_VALIDATOR_VERSION = "personalization_gate2_validator_v3"
+STAGE_C2_SCHEMA_VERSION = "gate2_schema_v3"
+STAGE_C2_PROMPT_VERSION = "personalization_gate2_calibration_v5"
+STAGE_C2_VALIDATOR_VERSION = "personalization_gate2_validator_v4"
 STAGE_C2_EXTERNAL_MODEL_CALLS = 1
 STAGE_C2_REAL_RETEST_AUTHORIZED = True
 STAGE_C2_RETEST_REASONING_EFFORT = "medium"
@@ -39,6 +45,15 @@ C2_SOURCE_TRACE_INSTRUCTIONS = """
 3. REALITY_ONLY 的 INTERPRETIVE_LINK：trace_id 与 source_ref 必须是同一个 ILxx；reality_refs 必须非空；evidence_refs 必须为空数组；interpretation_hypothesis 必须为 true。
 4. REALITY_AND_CHART 的 INTERPRETIVE_LINK：trace_id 与 source_ref 必须是同一个 ILxx；reality_refs 与 evidence_refs 都必须非空；interpretation_hypothesis 必须为 true。
 5. 事实项用自己的 source_ref 表示来源身份，不得再把自己的 RWxx 或 EVxx 重复写入 reality_refs 或 evidence_refs；这两个引用数组只供 INTERPRETIVE_LINK 使用。
+""".strip()
+
+C2_SELF_SERVE_QUALITY_INSTRUCTIONS = """
+阶段 C.2 自助解读质量约束：
+1. user_facing_reading.question_responses 必须逐项覆盖 input_payload.question_clauses，question_text 必须逐字复制对应子问题。
+2. 每个 answer_text 都必须先给有边界的方向，不得只说信息不足、需要确认或无法判断。
+3. C/D 组用户可见答案必须由至少两条不同 EVxx 支撑，其中至少一条来自变化后体用或动爻；这些 EVxx 必须通过 INTERPRETIVE_LINK 指向用户可见字段。
+4. 核心判断和逐项回答先于行动建议；不得只复述输入事实或用通用咨询建议代替判断。
+5. 高不可逆主题不得使用小试、试错、最小版本、先投入一部分或同义表达。
 """.strip()
 
 
@@ -106,6 +121,14 @@ class Gate2ExperimentOutputV2(Gate2ExperimentOutput):
     source_trace: list[SourceTraceV2] = Field(min_length=1, max_length=80)
 
 
+class UserFacingReadingV3(UserFacingReading):
+    question_responses: list[QuestionResponse] = Field(min_length=1, max_length=12)
+
+
+class Gate2ExperimentOutputV3(Gate2ExperimentOutputV2):
+    user_facing_reading: UserFacingReadingV3
+
+
 class Gate2StageC2RunMetadata(RunMetadata):
     max_output_tokens: int = Field(ge=1, le=25_000)
 
@@ -124,15 +147,27 @@ def gate2_output_schema_v2_sha256() -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def gate2_output_schema_v3_sha256() -> str:
+    payload = json.dumps(
+        Gate2ExperimentOutputV3.model_json_schema(),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 class Gate2StageC2PromptBuilder:
     version = STAGE_C2_PROMPT_VERSION
 
     def build(self, request: Gate2ExperimentRequest) -> Gate2PromptPackage:
         base = Gate2CalibrationPromptBuilder().build(request)
         payload = dict(base.input_payload)
-        payload["output_schema"] = Gate2ExperimentOutputV2.model_json_schema()
+        payload["question_clauses"] = question_clauses_from_text(request.reality.question_text)
+        payload["output_schema"] = Gate2ExperimentOutputV3.model_json_schema()
         system_instructions = (
-            f"{base.system_instructions}\n\n{C2_SOURCE_TRACE_INSTRUCTIONS}"
+            f"{base.system_instructions}\n\n{C2_SOURCE_TRACE_INSTRUCTIONS}\n\n"
+            f"{C2_SELF_SERVE_QUALITY_INSTRUCTIONS}"
         )
         payload_text = json.dumps(
             payload,
@@ -157,9 +192,18 @@ class Gate2StageC2Validator(Gate2ExperimentValidator):
 
 def gate2_validator_v3_sha256() -> str:
     payload = (
-        f"{STAGE_C2_VALIDATOR_VERSION}:"
+        "personalization_gate2_validator_v3:"
         f"{gate2_validator_source_sha256()}:"
         f"{gate2_output_schema_v2_sha256()}"
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def gate2_validator_v4_sha256() -> str:
+    payload = (
+        f"{STAGE_C2_VALIDATOR_VERSION}:"
+        f"{gate2_validator_source_sha256()}:"
+        f"{gate2_output_schema_v3_sha256()}"
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 

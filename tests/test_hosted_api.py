@@ -60,6 +60,7 @@ def valid_owner_preview_request() -> dict[str, object]:
         "time_horizon": "NEXT_30_DAYS",
         "decision_stage": "ALREADY_ACTING",
         "key_uncertainty": "OTHER_RESPONSE",
+        "decision_risk_profile": "STANDARD",
         "confirmed_facts": ["双方已经沟通过两次。"],
         "unknowns": ["不知道最终负责人是否已经看过方案。"],
         "options": [],

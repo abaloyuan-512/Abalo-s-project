@@ -123,6 +123,24 @@ def test_personal_plan_signals_name_the_missing_conditions_and_cost_limits():
     assert "时间、精力或预算上限" in pause_text
 
 
+def test_high_irreversible_profile_uses_non_experimental_display_language():
+    response = process(request(
+        question_text="是否要孩子？",
+        question_domain="PERSONAL_PLANNING",
+        decision_goal="PLAN_NEXT_STEP",
+        decision_risk_profile="HIGH_IRREVERSIBLE",
+    ))
+
+    assert response["status"] == "SUCCESS"
+    assert response["structured_intake"]["decision_risk_profile"] == "HIGH_IRREVERSIBLE"
+    report = response["deterministic_result"]["clarity_report"]
+    report_text = json.dumps(report, ensure_ascii=False)
+    assert "共同意愿" in report_text
+    assert "专业核实" in report_text
+    for mismatched in ("最小版本", "最小的一部分", "小试一下", "试错"):
+        assert mismatched not in report_text
+
+
 def test_v3_rejects_invalid_free_text_without_echoing_it():
     sentinel = "X" * 161
     response = process(request(question_text=sentinel))

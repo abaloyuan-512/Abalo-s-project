@@ -16,7 +16,8 @@
       "required": ["question_domain", "decision_goal", "time_horizon", "decision_stage", "key_uncertainty"],
       "properties": {
         "decision_stage": {"enum": ["EXPLORING", "PREPARING", "ALREADY_ACTING", "WAITING_FEEDBACK"]},
-        "key_uncertainty": {"enum": ["CONDITIONS", "OTHER_RESPONSE", "OWN_COMMITMENT", "TIMING"]}
+        "key_uncertainty": {"enum": ["CONDITIONS", "OTHER_RESPONSE", "OWN_COMMITMENT", "TIMING"]},
+        "decision_risk_profile": {"enum": ["STANDARD", "HIGH_IRREVERSIBLE"]}
       }
     },
     "deterministic_result": {

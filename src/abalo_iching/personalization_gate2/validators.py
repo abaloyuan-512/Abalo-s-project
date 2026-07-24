@@ -40,8 +40,56 @@ IRREVERSIBLE_COMMAND_TERMS = ("必须立刻辞职", "必须马上分手", "必�
 UNREVIEWED_AUTHORITY_TERMS = ("传统梅花定律证明", "历代权威一致认定", "这是梅花易数的确定规则")
 GENERIC_POSTURE_TERMS = ("最小可逆", "低成本验证", "收集反馈", "保留调整空间")
 ABSTRACT_AI_TERMS = ("外部支点", "进入明处", "承接能力", "结构性反馈")
+IRREVERSIBLE_EXPERIMENT_TERMS = (
+    "小试一下",
+    "试错",
+    "最小版本",
+    "最小的一部分",
+    "先投入一部分",
+    "可撤回的一小步",
+)
+NON_ANSWER_TERMS = ("信息不足", "依据不足", "还需确认", "需要确认", "暂时不知道", "无法判断")
+DIRECTIONAL_TERMS = (
+    "可以",
+    "不宜",
+    "适合",
+    "不适合",
+    "偏向",
+    "有条件",
+    "有阻",
+    "先",
+    "继续",
+    "暂停",
+    "等待",
+    "推进",
+    "转向",
+    "退出",
+    "收尾",
+    "不要",
+    "应当",
+    "应该",
+)
 
 _DATE_PATTERN = re.compile(r"(?<!\d)20\d{2}[年/-](?:0?[1-9]|1[0-2])(?:月|[-/])(?:0?[1-9]|[12]\d|3[01])日?")
+_QUESTION_SPLIT_PATTERN = re.compile(r"[？?；;。]+")
+_QUESTION_CUES = (
+    "是否",
+    "能否",
+    "可否",
+    "应该",
+    "该不该",
+    "要不要",
+    "还是",
+    "如何",
+    "怎么",
+    "为什么",
+    "为何",
+    "何时",
+    "哪里",
+    "哪个",
+    "吗",
+    "么",
+)
 
 _ALLOWED_SUPPORT_FIELD_PATTERNS = (
     re.compile(r"^context_facts\[\d+\](?:\.(?:fact_text|reality_refs))?$"),
@@ -53,6 +101,7 @@ _ALLOWED_SUPPORT_FIELD_PATTERNS = (
     re.compile(r"^one_action(?:\.(?:action_text|target_or_person|observable_result|reality_refs|evidence_refs))?$"),
     re.compile(r"^switch_conditions\[\d+\](?:\.(?:condition_text|reality_refs|evidence_refs))?$"),
     re.compile(r"^user_facing_reading\.(?:core_judgment|explanation|reality_application|action|switch_condition)$"),
+    re.compile(r"^user_facing_reading\.question_responses\[\d+\](?:\.(?:question_text|answer_text))?$"),
 )
 
 
@@ -80,6 +129,24 @@ def _refs_from_output(output: Gate2ExperimentOutput) -> tuple[set[str], set[str]
         reality_refs.update(item.reality_refs)
         evidence_refs.update(item.evidence_refs)
     return reality_refs, evidence_refs
+
+
+def question_clauses_from_text(question_text: str) -> list[str]:
+    """Split explicitly punctuated subquestions without inferring new meaning."""
+    clauses = [item.strip(" ，,：:") for item in _QUESTION_SPLIT_PATTERN.split(question_text)]
+    result = [item for item in clauses if item]
+    interrogative = [
+        item for item in result if any(cue in item for cue in _QUESTION_CUES)
+    ]
+    if interrogative:
+        result = interrogative
+    return result or [question_text.strip()]
+
+
+def _is_non_answer(text: str) -> bool:
+    return any(term in text for term in NON_ANSWER_TERMS) and not any(
+        term in text for term in DIRECTIONAL_TERMS
+    )
 
 
 class Gate2ExperimentValidator:
@@ -182,6 +249,37 @@ class Gate2ExperimentValidator:
         for field in sorted(REQUIRED_TRACE_COVERAGE - covered_fields):
             hard.append(_failure("missing_final_field_trace", f"最终字段缺少来源覆盖：{field}", field))
 
+        question_responses = getattr(output.user_facing_reading, "question_responses", None)
+        if question_responses is not None:
+            expected_questions = question_clauses_from_text(request.reality.question_text)
+            actual_questions = [item.question_text for item in question_responses]
+            if actual_questions != expected_questions:
+                quality.append(
+                    _failure(
+                        "question_coverage_missing",
+                        "逐项回答未按原问题子句完整覆盖。",
+                        "user_facing_reading.question_responses",
+                    )
+                )
+            for index, response in enumerate(question_responses):
+                answer_field = f"user_facing_reading.question_responses[{index}].answer_text"
+                if answer_field not in covered_fields:
+                    hard.append(
+                        _failure(
+                            "missing_final_field_trace",
+                            f"逐项回答缺少来源覆盖：{answer_field}",
+                            answer_field,
+                        )
+                    )
+                if _is_non_answer(response.answer_text):
+                    quality.append(
+                        _failure(
+                            "question_clauses_unanswered",
+                            f"子问题没有给出有边界方向：{response.question_text}",
+                            answer_field,
+                        )
+                    )
+
         interpretive_links = [
             item for item in output.source_trace if item.source_kind is SourceKind.INTERPRETIVE_LINK
         ]
@@ -266,6 +364,94 @@ class Gate2ExperimentValidator:
             if term in visible_text:
                 quality.append(
                     _failure("abstract_ai_syntax", f"出现抽象 AI 句法：{term}", "user_facing_reading")
+                )
+
+        if _is_non_answer(output.user_facing_reading.core_judgment):
+            quality.append(
+                _failure(
+                    "non_answer_judgment",
+                    "核心判断只陈述信息不足，没有给出有边界方向。",
+                    "user_facing_reading.core_judgment",
+                )
+            )
+
+        judgment_length = len(output.user_facing_reading.core_judgment) + len(
+            output.user_facing_reading.explanation
+        )
+        if len(output.user_facing_reading.action) > max(120, judgment_length * 5 // 4):
+            quality.append(
+                _failure(
+                    "generic_advice_dominates",
+                    "行动建议篇幅压过核心判断与解释。",
+                    "user_facing_reading.action",
+                )
+            )
+
+        risk_profile = getattr(request.reality, "decision_risk_profile", None)
+        if str(risk_profile) == "HIGH_IRREVERSIBLE":
+            for term in IRREVERSIBLE_EXPERIMENT_TERMS:
+                if term in visible_text:
+                    quality.append(
+                        _failure(
+                            "irreversible_domain_mismatch",
+                            f"高不可逆主题出现试错式语言：{term}",
+                            "user_facing_reading",
+                        )
+                    )
+
+        if question_responses is not None and arm in (ExperimentArm.C, ExperimentArm.D):
+            user_facing_links = [
+                trace
+                for trace in interpretive_links
+                if any(field.startswith("user_facing_reading.") for field in trace.supports_fields)
+            ]
+            visible_ev_refs = {
+                ref
+                for trace in user_facing_links
+                for ref in trace.evidence_refs
+            }
+            if len(visible_ev_refs) < 2:
+                quality.append(
+                    _failure(
+                        "chart_distinctiveness_missing",
+                        "用户可见答案至少需要两条不同卦象事实支撑。",
+                        "user_facing_reading",
+                    )
+                )
+            evidence_text_by_ref = {
+                item.ref: item.text
+                for item in (request.chart_context.evidence if request.chart_context else [])
+            }
+            if not any(
+                "变化后" in evidence_text_by_ref.get(ref, "")
+                or "爻" in evidence_text_by_ref.get(ref, "")
+                for ref in visible_ev_refs
+            ):
+                quality.append(
+                    _failure(
+                        "change_or_line_missing",
+                        "用户可见答案没有使用变化后体用或动爻事实。",
+                        "user_facing_reading",
+                    )
+                )
+            answer_fields = {
+                f"user_facing_reading.question_responses[{index}].answer_text"
+                for index in range(len(question_responses))
+            }
+            chart_answer_fields = {
+                field
+                for trace in user_facing_links
+                if trace.link_mode is LinkMode.REALITY_AND_CHART
+                for field in trace.supports_fields
+                if field in answer_fields
+            }
+            if chart_answer_fields != answer_fields:
+                quality.append(
+                    _failure(
+                        "input_restated_without_insight",
+                        "至少一个逐项回答没有由现实事实与卦象事实共同支撑。",
+                        "user_facing_reading.question_responses",
+                    )
                 )
 
         return Gate2ValidationReport(hard_failures=hard, quality_failures=quality)

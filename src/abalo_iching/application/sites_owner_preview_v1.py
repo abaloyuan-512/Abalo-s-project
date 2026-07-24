@@ -23,6 +23,7 @@ from abalo_iching.personalization_gate2.models import (
     Gate2ProviderResult,
     KnowledgeReviewStatus,
     RealityFact,
+    SourceKind,
     StrictModel,
     UnknownItem,
 )
@@ -30,22 +31,29 @@ from abalo_iching.personalization_gate2.live_provider import Gate2LiveProviderEr
 from abalo_iching.personalization_gate2.pricing import Gate2TokenPricing
 from abalo_iching.personalization_gate2.stage_c2_contract import (
     C2_SOURCE_TRACE_INSTRUCTIONS,
-    Gate2ExperimentOutputV2,
+    C2_SELF_SERVE_QUALITY_INSTRUCTIONS,
+    Gate2ExperimentOutputV3,
     Gate2StageC2Validator,
 )
+from abalo_iching.personalization_gate2.validators import question_clauses_from_text
 
 from .sites_meihua_service_v3 import (
     CONTRACT_VERSION_V3,
     process_sites_meihua_v3_request,
 )
+from .interpretation_packet_v1 import (
+    InterpretationPacketV1,
+    build_interpretation_packet_v1,
+    interpretation_packet_evidence_v1,
+)
 
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
-OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v4"
-OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v4"
+OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v6"
+OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v6"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
-OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
+OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 9_000
 OWNER_PREVIEW_MAX_POLL_ATTEMPTS = 180
 OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD = Decimal("0.50")
 LOGGER = logging.getLogger("abalo.owner_preview")
@@ -105,6 +113,10 @@ _UNCERTAINTY_LABELS = {
     "OWN_COMMITMENT": "自己是否值得继续投入",
     "TIMING": "时机是否合适",
 }
+_RISK_PROFILE_LABELS = {
+    "STANDARD": "一般，可分阶段调整",
+    "HIGH_IRREVERSIBLE": "高不可逆，需要先确认共同意愿、长期责任与专业现实条件",
+}
 
 
 class OwnerPreviewAcknowledgements(StrictModel):
@@ -123,6 +135,7 @@ class OwnerPreviewPayload(StrictModel):
     time_horizon: str = Field(min_length=1, max_length=80)
     decision_stage: str = Field(min_length=1, max_length=80)
     key_uncertainty: str = Field(min_length=1, max_length=80)
+    decision_risk_profile: Literal["STANDARD", "HIGH_IRREVERSIBLE"] = "STANDARD"
     confirmed_facts: list[str] = Field(min_length=1, max_length=8)
     unknowns: list[str] = Field(min_length=1, max_length=6)
     options: list[str] = Field(default_factory=list, max_length=4)
@@ -137,6 +150,8 @@ class OwnerPreviewPayload(StrictModel):
 class OwnerPreviewRealityContext(StrictModel):
     data_classification: Literal["OWNER_PROVIDED_PRIVATE_PREVIEW"]
     question_text: str
+    question_clauses: list[str] = Field(min_length=1, max_length=12)
+    decision_risk_profile: Literal["STANDARD", "HIGH_IRREVERSIBLE"]
     explicit_facts: list[RealityFact]
     unknowns: list[UnknownItem]
     options: list[RealityFact]
@@ -161,10 +176,20 @@ OWNER_PREVIEW_SYSTEM_INSTRUCTIONS = """你正在生成观象正式站点的个�
 现实陈述、卦象事实和解释接榫必须分开。解释接榫只能标记为实验性解释假设。
 context_facts.fact_text 必须逐字复制其唯一 reality_refs 对应的输入陈述，不得改写或补充。
 第一段先给一个明确但不过界的主要判断；说明为什么不是相反姿态，并给出具体对象、动作、可观察结果与转向条件。
+必须逐项回答 question_clauses 中的每个子问题，并把这些回答写入 user_facing_reading.question_responses；question_text 必须逐字复制对应子问题。
+用户可见回答至少使用两条不同卦象 Evidence，其中至少一条来自变化后体用或动爻，并说明这些卦象事实为何支持该方向。
 只能引用输入中提供的 EVxx；所有解释接榫必须同时引用现实陈述与卦象事实。
 中文应自然、平实、具体，有少量传统文化气息；避免翻译腔、抽象 AI 句法和万能咨询套话。
 user_facing_reading 中不得出现以下会触发质量拦截的原词：最小可逆、低成本验证、收集反馈、保留调整空间、外部支点、进入明处、承接能力、结构性反馈。请直接写具体的人、动作、条件与可观察结果。
 必须严格按给定结构化 Schema 输出，不得增加字段。一次生成完成，不请求工具，不联网，不自我修复。"""
+
+OWNER_PREVIEW_JUDGMENT_FIRST_INSTRUCTIONS = """判断优先与解释资料包使用约束：
+1. 先对整个问题给出一个明确、有边界的总判断，再按 question_clauses 原顺序逐项回答；缺失信息只能用来限定判断，不能代替判断。
+2. 从 interpretation_packet 与 chart_context 中选择最能区分本案的 2 至 3 条 EVxx；必须至少使用 EV10 至 EV13 中的一条，并至少覆盖变卦、变化后体用或动爻中的一项。
+3. 解释这些卦象事实为何支持当前方向，并明确说明为什么不是相反方向；不得只罗列卦名、卦辞或爻辞。
+4. interpretation_packet 只包含排盘事实与经典原文。把它们应用到用户现实处境时，必须标记为解释假设，并同时引用现实 RWxx 与卦象 EVxx。
+5. 行动建议必须是前述判断的直接落实，写清对象、动作、可观察结果和转向条件；不得用通用咨询套话填充篇幅。
+6. 经典原文不得被表述为对现实结果的保证，也不得据此虚构第三方动机、未提供的日期或未核实事实。""".strip()
 
 
 def _canonical_json(value: object) -> str:
@@ -191,6 +216,7 @@ def _reality(payload: OwnerPreviewPayload) -> OwnerPreviewRealityContext:
         f"用户选择的观察范围：{_HORIZON_LABELS.get(payload.time_horizon, payload.time_horizon)}。",
         f"用户说明事情阶段：{_STAGE_LABELS.get(payload.decision_stage, payload.decision_stage)}。",
         f"用户最需要确认的变量：{_UNCERTAINTY_LABELS.get(payload.key_uncertainty, payload.key_uncertainty)}。",
+        f"用户选择的决定风险：{_RISK_PROFILE_LABELS[payload.decision_risk_profile]}。",
         *confirmed,
     ]
     next_ref = 1
@@ -206,6 +232,8 @@ def _reality(payload: OwnerPreviewPayload) -> OwnerPreviewRealityContext:
     return OwnerPreviewRealityContext(
         data_classification="OWNER_PROVIDED_PRIVATE_PREVIEW",
         question_text=payload.question_text.strip(),
+        question_clauses=question_clauses_from_text(payload.question_text.strip()),
+        decision_risk_profile=payload.decision_risk_profile,
         explicit_facts=referenced(facts),
         unknowns=[UnknownItem(text=item) for item in unknowns],
         options=referenced(options),
@@ -214,7 +242,10 @@ def _reality(payload: OwnerPreviewPayload) -> OwnerPreviewRealityContext:
     )
 
 
-def _chart_context(payload: OwnerPreviewPayload, generated_at: datetime) -> ChartContext:
+def _chart_context(
+    payload: OwnerPreviewPayload,
+    generated_at: datetime,
+) -> tuple[ChartContext, InterpretationPacketV1]:
     chart = cast_meihua(
         MeihuaInput(
             *payload.numbers,
@@ -233,16 +264,22 @@ def _chart_context(payload: OwnerPreviewPayload, generated_at: datetime) -> Char
         )
         for index, item in enumerate(chart.evidence, start=1)
     ]
-    return ChartContext(
-        chart_mapping_id=f"CHART-{hashlib.sha256(chart_bytes).hexdigest()[:20]}",
-        is_mismatched_control=False,
-        evidence=evidence,
+    packet = build_interpretation_packet_v1(chart)
+    evidence.extend(interpretation_packet_evidence_v1(packet))
+    return (
+        ChartContext(
+            chart_mapping_id=f"CHART-{hashlib.sha256(chart_bytes).hexdigest()[:20]}",
+            is_mismatched_control=False,
+            evidence=evidence,
+        ),
+        packet,
     )
 
 
 def _prompt(
     reality: OwnerPreviewRealityContext,
     chart_context: ChartContext,
+    interpretation_packet: InterpretationPacketV1,
 ) -> Gate2PromptPackage:
     payload = {
         "preview_constraints": {
@@ -270,14 +307,18 @@ def _prompt(
                 for item in chart_context.evidence
             ],
         },
+        "interpretation_packet": interpretation_packet.model_dump(mode="json"),
         "allowed_reality_refs": sorted(reality.reality_refs()),
         "allowed_evidence_refs": sorted(chart_context.evidence_refs()),
-        "output_schema": Gate2ExperimentOutputV2.model_json_schema(),
+        "question_clauses": reality.question_clauses,
+        "output_schema": Gate2ExperimentOutputV3.model_json_schema(),
     }
     instructions = (
         f"{OWNER_PREVIEW_SYSTEM_INSTRUCTIONS}\n\n"
         f"{C2_SOURCE_TRACE_INSTRUCTIONS}\n\n"
-        f"{OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS}"
+        f"{OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS}\n\n"
+        f"{C2_SELF_SERVE_QUALITY_INSTRUCTIONS}\n\n"
+        f"{OWNER_PREVIEW_JUDGMENT_FIRST_INSTRUCTIONS}"
     )
     digest = hashlib.sha256(
         f"{instructions}\n{_canonical_json(payload)}".encode("utf-8")
@@ -293,7 +334,7 @@ def _prompt(
 def _validate_output(
     reality: OwnerPreviewRealityContext,
     chart_context: ChartContext,
-    output: Gate2ExperimentOutputV2,
+    output: Gate2ExperimentOutputV3,
 ) -> tuple[list[str], list[str]]:
     request_view = SimpleNamespace(
         metadata=SimpleNamespace(arm=ExperimentArm.C),
@@ -323,16 +364,24 @@ def _validate_output(
             if matched_text and matched_text not in authored_text:
                 continue
         hard_failures.append(item.code)
-    return (
-        hard_failures,
-        [item.code for item in report.quality_failures],
-    )
+    quality_failures = [item.code for item in report.quality_failures]
+    visible_packet_refs = {
+        ref
+        for trace in output.source_trace
+        if trace.source_kind is SourceKind.INTERPRETIVE_LINK
+        and any(field.startswith("user_facing_reading.") for field in trace.supports_fields)
+        for ref in trace.evidence_refs
+        if ref in {"EV10", "EV11", "EV12", "EV13"}
+    }
+    if not visible_packet_refs:
+        quality_failures.append("interpretation_packet_unused")
+    return hard_failures, quality_failures
 
 
 def _restore_input_unknowns(
     reality: OwnerPreviewRealityContext,
-    output: Gate2ExperimentOutputV2,
-) -> tuple[Gate2ExperimentOutputV2, bool]:
+    output: Gate2ExperimentOutputV3,
+) -> tuple[Gate2ExperimentOutputV3, bool]:
     """Keep copied unknowns deterministic instead of trusting model transcription."""
     expected_unknowns = [item.text for item in reality.unknowns]
     model_unknowns = [item.unknown_text for item in output.unknowns]
@@ -342,7 +391,7 @@ def _restore_input_unknowns(
         for text in expected_unknowns
     ]
     return (
-        Gate2ExperimentOutputV2.model_validate(normalized_payload),
+        Gate2ExperimentOutputV3.model_validate(normalized_payload),
         model_unknowns != expected_unknowns,
     )
 
@@ -411,7 +460,7 @@ def _live_generator(prompt: Gate2PromptPackage) -> Gate2ProviderResult:
 
     class OwnerPreviewProvider(OpenAIGate2BackgroundProvider):
         provider_name = "OPENAI_RESPONSES_API_OWNER_PREVIEW_BACKGROUND"
-        output_model = Gate2ExperimentOutputV2
+        output_model = Gate2ExperimentOutputV3
         stage_label = "OWNER_PREVIEW_V1"
 
     provider = OwnerPreviewProvider(
@@ -453,6 +502,7 @@ def process_sites_owner_preview_v1_request(
         "time_horizon": payload.time_horizon,
         "decision_stage": payload.decision_stage,
         "key_uncertainty": payload.key_uncertainty,
+        "decision_risk_profile": payload.decision_risk_profile,
         "numbers": payload.numbers,
         "locale": payload.locale,
         "client_timestamp": payload.client_timestamp,
@@ -473,8 +523,8 @@ def process_sites_owner_preview_v1_request(
     payload.question_text = deterministic["user_question"]
     generated_at = datetime.fromisoformat(deterministic["audit"]["generated_at"])
     reality = _reality(payload)
-    chart_context = _chart_context(payload, generated_at)
-    prompt = _prompt(reality, chart_context)
+    chart_context, interpretation_packet = _chart_context(payload, generated_at)
+    prompt = _prompt(reality, chart_context, interpretation_packet)
     preflight = Gate2TokenPricing(model=OWNER_PREVIEW_MODEL).conservative_preflight_estimate(
         prompt,
         max_output_tokens=OWNER_PREVIEW_MAX_OUTPUT_TOKENS,
@@ -497,7 +547,7 @@ def process_sites_owner_preview_v1_request(
         generator = _live_generator
     try:
         provider_result = generator(prompt)
-        output = Gate2ExperimentOutputV2.model_validate(provider_result.raw_output)
+        output = Gate2ExperimentOutputV3.model_validate(provider_result.raw_output)
         output, model_unknowns_replaced = _restore_input_unknowns(reality, output)
         hard_failures, quality_failures = _validate_output(reality, chart_context, output)
     except Exception as exc:

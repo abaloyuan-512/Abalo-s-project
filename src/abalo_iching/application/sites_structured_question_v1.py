@@ -29,6 +29,13 @@ class TimeHorizon(StrEnum):
     NEXT_6_MONTHS = "NEXT_6_MONTHS"
 
 
+class DecisionRiskProfile(StrEnum):
+    """Display-safety context only; never participates in chart calculation."""
+
+    STANDARD = "STANDARD"
+    HIGH_IRREVERSIBLE = "HIGH_IRREVERSIBLE"
+
+
 ALLOWED_GOALS: dict[QuestionDomain, frozenset[DecisionGoal]] = {
     QuestionDomain.WORK_CAREER: frozenset({
         DecisionGoal.IDENTIFY_OBSTACLES,
@@ -90,6 +97,17 @@ def parse_structured_fields(
         )
     except ValueError as exc:
         raise ValueError("unknown structured field value") from exc
+
+
+def parse_decision_risk_profile(value: object) -> DecisionRiskProfile:
+    if value is None:
+        return DecisionRiskProfile.STANDARD
+    if not isinstance(value, str):
+        raise ValueError("decision risk profile must be a string")
+    try:
+        return DecisionRiskProfile(value)
+    except ValueError as exc:
+        raise ValueError("unknown decision risk profile") from exc
 
 
 def generate_structured_question(

@@ -14,6 +14,7 @@
     "time_horizon": {"enum": ["CURRENT", "NEXT_30_DAYS", "NEXT_QUARTER", "NEXT_6_MONTHS"]},
     "decision_stage": {"enum": ["EXPLORING", "PREPARING", "ALREADY_ACTING", "WAITING_FEEDBACK"]},
     "key_uncertainty": {"enum": ["CONDITIONS", "OTHER_RESPONSE", "OWN_COMMITMENT", "TIMING"]},
+    "decision_risk_profile": {"enum": ["STANDARD", "HIGH_IRREVERSIBLE"], "description": "Presentation safety only; never participates in chart calculation."},
     "numbers": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "integer", "minimum": 1, "maximum": 999}},
     "locale": {"const": "zh-CN"},
     "client_timestamp": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"},

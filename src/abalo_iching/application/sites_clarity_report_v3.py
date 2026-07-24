@@ -10,7 +10,12 @@ from __future__ import annotations
 from typing import Any, TypedDict
 
 from .sites_question_context_v1 import DecisionStage, KeyUncertainty
-from .sites_structured_question_v1 import DecisionGoal, QuestionDomain, TimeHorizon
+from .sites_structured_question_v1 import (
+    DecisionGoal,
+    DecisionRiskProfile,
+    QuestionDomain,
+    TimeHorizon,
+)
 
 CLARITY_REPORT_VERSION = "SITES_CLARITY_REPORT_V3"
 
@@ -114,7 +119,7 @@ _CONTINUE_SIGNALS: dict[QuestionDomain, tuple[str, str, str]] = {
     QuestionDomain.WORK_CAREER: ("你的职责与授权范围，以及需要承担的结果，都已经说清楚。", "完成工作所需的人力、时间、预算或上级支持已经实际到位。", "评价标准在行动前已经明确，并且可以用事实核对。"),
     QuestionDomain.PROJECT_COOPERATION: ("双方分工已经明确到具体负责人和可验收的交付结果。", "对方承诺的人力、预算、信息或渠道已经实际到位。", "约定的阶段节点能够按时完成，并且结果可以验收。"),
     QuestionDomain.RELATIONSHIP_COMMUNICATION: ("对方有稳定而主动的回应，而不是只在你推动时出现。", "你表达的需要和边界被听见，也在后续行动中得到尊重。", "双方说过的话能够落实为持续而一致的行动。"),
-    QuestionDomain.PERSONAL_PLANNING: ("现有时间、精力与预算都在你能长期承受的范围内。", "你已经完成一个成本较低、可以回退的第一步，并得到真实反馈。", "复盘后，目标、优先级和下一步比开始时更清楚。"),
+    QuestionDomain.PERSONAL_PLANNING: ("现有时间、精力与预算都在你能长期承受的范围内。", "计划依赖的人、资源与长期责任已经明确。", "复盘后，目标、优先级和下一步比开始时更清楚。"),
 }
 
 _PAUSE_SIGNALS: dict[QuestionDomain, tuple[str, str, str]] = {
@@ -169,9 +174,28 @@ _NEXT_ACTIONS: dict[QuestionDomain, dict[KeyUncertainty, str]] = {
     QuestionDomain.PERSONAL_PLANNING: {
         KeyUncertainty.CONDITIONS: "列出计划启动所需的三个最低条件，先补最关键且最容易验证的一项。",
         KeyUncertainty.OTHER_RESPONSE: "找到一个会受这项计划影响的人或资源方，取得一次明确反馈。",
-        KeyUncertainty.OWN_COMMITMENT: "写下可承受的时间、精力与预算上限，只先投入其中最小的一部分。",
-        KeyUncertainty.TIMING: "先完成一个最小版本，用实际体验判断现在是否适合继续。",
+        KeyUncertainty.OWN_COMMITMENT: "写下可承受的时间、精力与预算上限，先确认长期责任是否与你的边界一致。",
+        KeyUncertainty.TIMING: "先确认决定所依赖的关键条件是否已经具备，再判断现在是否适合继续。",
     },
+}
+
+_HIGH_IRREVERSIBLE_CONTINUE_SIGNALS = (
+    "直接受影响的人已经明确表达意愿，而不是由你替对方假设。",
+    "长期责任、资源安排与需要专业核实的现实条件已经说清楚。",
+    "关键分歧已有双方认可的处理方式，不依赖一方单独承担后果。",
+)
+
+_HIGH_IRREVERSIBLE_PAUSE_SIGNALS = (
+    "核心当事人的意愿仍然空白、回避或彼此冲突。",
+    "长期责任与代价尚未分配清楚，主要由一方补齐答案。",
+    "需要医疗、法律、财务等专业判断的现实条件尚未核实。",
+)
+
+_HIGH_IRREVERSIBLE_NEXT_ACTIONS: dict[KeyUncertainty, str] = {
+    KeyUncertainty.CONDITIONS: "列出作出决定前不能缺少的共同意愿、长期责任与专业现实条件，并逐项确认。",
+    KeyUncertainty.OTHER_RESPONSE: "与直接受影响的人完成一次完整对谈，明确记录彼此意愿、责任与不能接受的边界。",
+    KeyUncertainty.OWN_COMMITMENT: "先写清你愿意承担和不能独自承担的长期责任，再确认对方是否愿意共同承担。",
+    KeyUncertainty.TIMING: "先核实共同意愿与关键现实条件；它们没有说清前，不把不可逆决定继续往下推进。",
 }
 
 _HORIZON_SUFFIX: dict[TimeHorizon, str] = {
@@ -189,6 +213,7 @@ def build_clarity_report(
     horizon: TimeHorizon,
     stage: DecisionStage,
     uncertainty: KeyUncertainty,
+    risk_profile: DecisionRiskProfile = DecisionRiskProfile.STANDARD,
 ) -> ClarityReport:
     """Translate rule facts and finite display context into a decision aid."""
     conclusion = deterministic_result["deterministic_conclusion"]
@@ -205,18 +230,39 @@ def build_clarity_report(
         {"title": "事情会怎么变", "text": f"动爻发生变化后，{_PLAIN_RELATION_EFFECTS[body_use['changed_relation']]}"},
         {"title": "你现在有多少余力", "text": _PLAIN_STRENGTH_EFFECTS[body_strength]},
     ]
+    high_irreversible = risk_profile is DecisionRiskProfile.HIGH_IRREVERSIBLE
+    continue_signals = (
+        _HIGH_IRREVERSIBLE_CONTINUE_SIGNALS
+        if high_irreversible
+        else _CONTINUE_SIGNALS[domain]
+    )
+    pause_signals = (
+        _HIGH_IRREVERSIBLE_PAUSE_SIGNALS
+        if high_irreversible
+        else _PAUSE_SIGNALS[domain]
+    )
+    next_action = (
+        _HIGH_IRREVERSIBLE_NEXT_ACTIONS[uncertainty]
+        if high_irreversible
+        else _NEXT_ACTIONS[domain][uncertainty]
+    )
+    domain_focus = (
+        "回到现实，先确认共同意愿、长期责任与需要专业核实的条件。"
+        if high_irreversible
+        else _DOMAIN_FOCUS[domain]
+    )
     return {
         "template_version": CLARITY_REPORT_VERSION,
         "answer": f"{base['name']}把重点放在“{base_focus}”。{_ANSWER_TEMPLATES[level].format(topic=topic)}",
         "what_it_means": (
             f"本卦是{base['name']}，先提醒你：{base_focus}。"
             f"动爻之后变为{changed['name']}，局面的下一层重点转向：{changed_focus}。"
-            f"{_LEVEL_MEANINGS[level]}{_DOMAIN_FOCUS[domain]}{_GOAL_MEANINGS[goal]}"
+            f"{_LEVEL_MEANINGS[level]}{domain_focus}{_GOAL_MEANINGS[goal]}"
         ),
         "priority": _PRIORITIES[level],
-        "continue_signals": list(_CONTINUE_SIGNALS[domain]),
-        "pause_signals": list(_PAUSE_SIGNALS[domain]),
-        "next_action": f"{_STAGE_PREFIX[stage]}{_NEXT_ACTIONS[domain][uncertainty]}{_HORIZON_SUFFIX[horizon]}",
+        "continue_signals": list(continue_signals),
+        "pause_signals": list(pause_signals),
+        "next_action": f"{_STAGE_PREFIX[stage]}{next_action}{_HORIZON_SUFFIX[horizon]}",
         "evidence_path": evidence_path,
         "boundary_note": "这份解读先由三个数字排定卦象，再结合你选择的现实处境安排说明重点。你写下的问题帮助我们把卦意说到具体事情上；真正做决定时，请继续以现实中的回应、资源与行动为准。",
     }

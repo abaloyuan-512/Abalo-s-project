@@ -13,11 +13,11 @@ from .background_runner import Gate2BackgroundCalibrationRunner
 from .budget import Gate2CalibrationBudgetGuard
 from .stage_c2_contract import (
     STAGE_C2_SCHEMA_VERSION,
-    Gate2ExperimentOutputV2,
+    Gate2ExperimentOutputV3,
     Gate2StageC2PromptBuilder,
     Gate2StageC2Validator,
-    gate2_output_schema_v2_sha256,
-    gate2_validator_v3_sha256,
+    gate2_output_schema_v3_sha256,
+    gate2_validator_v4_sha256,
 )
 
 
@@ -25,7 +25,7 @@ class OfflineGate2StageC2BackgroundProvider(OpenAIGate2BackgroundProvider):
     """只接受注入客户端的 C.2 后台模拟 Provider；没有真实网络默认值。"""
 
     provider_name = "OFFLINE_SIMULATED_RESPONSES_API_GATE2_STAGE_C2"
-    output_model = Gate2ExperimentOutputV2
+    output_model = Gate2ExperimentOutputV3
     stage_label = "C.2"
     offline_simulation = True
 
@@ -65,10 +65,10 @@ class Gate2StageC2OfflineBackgroundRunner(Gate2BackgroundCalibrationRunner):
     provider_type: ClassVar[type[OpenAIGate2BackgroundProvider]] = (
         OfflineGate2StageC2BackgroundProvider
     )
-    output_model = Gate2ExperimentOutputV2
+    output_model = Gate2ExperimentOutputV3
     schema_version = STAGE_C2_SCHEMA_VERSION
-    schema_sha256_factory = staticmethod(gate2_output_schema_v2_sha256)
-    validator_sha256_factory = staticmethod(gate2_validator_v3_sha256)
+    schema_sha256_factory = staticmethod(gate2_output_schema_v3_sha256)
+    validator_sha256_factory = staticmethod(gate2_validator_v4_sha256)
     offline_only = True
 
     def __init__(self, *, repository_root: Path) -> None:
@@ -88,7 +88,7 @@ class OpenAIGate2StageC2BackgroundProvider(OpenAIGate2BackgroundProvider):
     """C.2真实后台Provider；只能由显式授权入口调用。"""
 
     provider_name = "OPENAI_RESPONSES_API_GATE2_STAGE_C2_BACKGROUND"
-    output_model = Gate2ExperimentOutputV2
+    output_model = Gate2ExperimentOutputV3
     stage_label = "C.2"
 
 
@@ -99,10 +99,10 @@ class Gate2StageC2BackgroundRunner(Gate2BackgroundCalibrationRunner):
     provider_type: ClassVar[type[OpenAIGate2BackgroundProvider]] = (
         OpenAIGate2StageC2BackgroundProvider
     )
-    output_model = Gate2ExperimentOutputV2
+    output_model = Gate2ExperimentOutputV3
     schema_version = STAGE_C2_SCHEMA_VERSION
-    schema_sha256_factory = staticmethod(gate2_output_schema_v2_sha256)
-    validator_sha256_factory = staticmethod(gate2_validator_v3_sha256)
+    schema_sha256_factory = staticmethod(gate2_output_schema_v3_sha256)
+    validator_sha256_factory = staticmethod(gate2_validator_v4_sha256)
 
     def __init__(
         self,

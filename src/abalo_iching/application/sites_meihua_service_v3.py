@@ -12,14 +12,18 @@ from .sites_clarity_report_v3 import build_clarity_report
 from .sites_meihua_service import INVALID_REQUEST_ID_FALLBACK, _safe_audit_id, _valid_client_timestamp, validate_and_normalize_request_id
 from .sites_meihua_service_v2 import process_sites_meihua_v2_request
 from .sites_question_context_v1 import CONTEXT_VERSION, normalize_question_text, parse_question_context
-from .sites_structured_question_v1 import generate_structured_question, parse_structured_fields
+from .sites_structured_question_v1 import (
+    generate_structured_question,
+    parse_decision_risk_profile,
+    parse_structured_fields,
+)
 
 CONTRACT_VERSION_V3 = "SITES_MEIHUA_API_CONTRACT_V3"
 
 _ALLOWED_FIELDS = {
     "contract_version", "request_id", "question_text", "question_domain", "decision_goal",
     "time_horizon", "decision_stage", "key_uncertainty", "numbers", "locale",
-    "client_timestamp", "user_acknowledgements",
+    "decision_risk_profile", "client_timestamp", "user_acknowledgements",
 }
 
 
@@ -60,6 +64,7 @@ def process_sites_meihua_v3_request(
         domain, goal, horizon = parse_structured_fields(request_payload.get("question_domain"), request_payload.get("decision_goal"), request_payload.get("time_horizon"))
         generate_structured_question(domain, goal, horizon)
         stage, uncertainty = parse_question_context(request_payload.get("decision_stage"), request_payload.get("key_uncertainty"))
+        risk_profile = parse_decision_risk_profile(request_payload.get("decision_risk_profile"))
     except ValueError:
         return _error(request_id, "INVALID_REQUEST", "问题或结构化选择不完整，请检查后重试。", generated_at)
     if request_payload.get("locale") != "zh-CN" or not _valid_client_timestamp(request_payload.get("client_timestamp")):
@@ -93,11 +98,15 @@ def process_sites_meihua_v3_request(
         return response
     validated_for_hash = {**request_payload, "question_text": question_text}
     response["audit"]["request_hash"] = hashlib.sha256(json.dumps(validated_for_hash, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
-    response["structured_intake"].update({"decision_stage": stage.value, "key_uncertainty": uncertainty.value})
+    response["structured_intake"].update({
+        "decision_stage": stage.value,
+        "key_uncertainty": uncertainty.value,
+        "decision_risk_profile": risk_profile.value,
+    })
     response["user_question"] = question_text
     response["normalized_question"] = question_text
     response["question_context_version"] = CONTEXT_VERSION
     response["deterministic_result"]["clarity_report"] = build_clarity_report(
-        response["deterministic_result"], domain, goal, horizon, stage, uncertainty
+        response["deterministic_result"], domain, goal, horizon, stage, uncertainty, risk_profile
     )
     return response

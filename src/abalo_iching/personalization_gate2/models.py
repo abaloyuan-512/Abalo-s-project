@@ -328,6 +328,13 @@ class UserFacingReading(StrictModel):
     switch_condition: str = Field(min_length=1, max_length=900)
 
 
+class QuestionResponse(StrictModel):
+    """One visible, directional answer for one clause in the user's question."""
+
+    question_text: str = Field(min_length=1, max_length=400)
+    answer_text: str = Field(min_length=1, max_length=900)
+
+
 class Gate2ExperimentOutput(StrictModel):
     context_facts: list[ContextFact] = Field(min_length=1, max_length=20)
     unknowns: list[OutputUnknown] = Field(default_factory=list, max_length=20)
