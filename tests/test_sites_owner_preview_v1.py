@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from abalo_iching.application.sites_owner_preview_v1 import (
     OWNER_PREVIEW_CONTRACT_VERSION,
     OWNER_PREVIEW_MAX_POLL_ATTEMPTS,
@@ -163,6 +165,8 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert response["preview_meta"]["max_preflight_cost_usd"] == 0.5
     assert response["preview_meta"]["preflight_estimated_cost_usd"] > 0
     assert response["preview_meta"]["stored"] is False
+    assert response["preview_meta"]["input_unknowns_canonicalized"] is True
+    assert response["preview_meta"]["model_unknowns_replaced"] is False
     assert response["deterministic_result"]["base_hexagram"]["name"]
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
@@ -230,7 +234,44 @@ def test_owner_preview_allows_prohibited_phrase_only_inside_verbatim_unknown():
     )
 
     assert response["status"] == "SUCCESS"
-    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v3"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v4"
+
+
+@pytest.mark.parametrize(
+    "model_unknowns",
+    [
+        [],
+        [{"unknown_text": "不知道负责人是否已经阅读方案。", "must_not_infer": True}],
+    ],
+)
+def test_owner_preview_restores_input_unknowns_without_retry(model_unknowns):
+    calls = 0
+
+    def generator(prompt):
+        nonlocal calls
+        calls += 1
+        output = valid_output(prompt)
+        output["unknowns"] = model_unknowns
+        return Gate2ProviderResult(
+            response_id="test-restored-unknowns-response-id",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=output,
+            cost_usd=0.035,
+            api_status="completed",
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "SUCCESS"
+    assert response["preview_meta"]["input_unknowns_canonicalized"] is True
+    assert response["preview_meta"]["model_unknowns_replaced"] is True
+    assert response["preview_meta"]["automatic_model_repair_calls"] == 0
+    assert calls == 1
 
 
 def test_owner_preview_accepts_exact_aggregate_source_trace_paths_from_live_output():
@@ -261,7 +302,7 @@ def test_owner_preview_accepts_exact_aggregate_source_trace_paths_from_live_outp
 
     assert response["status"] == "SUCCESS"
     assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v4"
-    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v3"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v4"
 
 
 def test_owner_preview_still_rejects_unknown_aggregate_source_trace_path():
@@ -311,6 +352,7 @@ def test_owner_preview_hard_stops_invalid_model_output_without_retry():
         nonlocal calls
         calls += 1
         output = valid_output(prompt)
+        output["unknowns"] = []
         output["user_facing_reading"]["action"] = "必须立刻辞职"
         return Gate2ProviderResult(
             response_id="test-response-id",
@@ -331,6 +373,8 @@ def test_owner_preview_hard_stops_invalid_model_output_without_retry():
     assert response["preview_meta"]["hard_cost_limit_enabled"] is True
     assert response["preview_meta"]["failure_stage"] == "OUTPUT_VALIDATION"
     assert "forced_irreversible_decision" in response["preview_meta"]["hard_failure_codes"]
+    assert "unknowns_not_preserved" not in response["preview_meta"]["hard_failure_codes"]
+    assert response["preview_meta"]["model_unknowns_replaced"] is True
     assert calls == 1
 
 

@@ -42,7 +42,7 @@ from .sites_meihua_service_v3 import (
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
 OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v4"
-OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v3"
+OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v4"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 10_000
@@ -329,6 +329,24 @@ def _validate_output(
     )
 
 
+def _restore_input_unknowns(
+    reality: OwnerPreviewRealityContext,
+    output: Gate2ExperimentOutputV2,
+) -> tuple[Gate2ExperimentOutputV2, bool]:
+    """Keep copied unknowns deterministic instead of trusting model transcription."""
+    expected_unknowns = [item.text for item in reality.unknowns]
+    model_unknowns = [item.unknown_text for item in output.unknowns]
+    normalized_payload = output.model_dump(mode="python")
+    normalized_payload["unknowns"] = [
+        {"unknown_text": text, "must_not_infer": True}
+        for text in expected_unknowns
+    ]
+    return (
+        Gate2ExperimentOutputV2.model_validate(normalized_payload),
+        model_unknowns != expected_unknowns,
+    )
+
+
 def _error(
     request_id: str,
     status: str,
@@ -480,6 +498,7 @@ def process_sites_owner_preview_v1_request(
     try:
         provider_result = generator(prompt)
         output = Gate2ExperimentOutputV2.model_validate(provider_result.raw_output)
+        output, model_unknowns_replaced = _restore_input_unknowns(reality, output)
         hard_failures, quality_failures = _validate_output(reality, chart_context, output)
     except Exception as exc:
         failure_meta = _provider_failure_meta(exc)
@@ -520,6 +539,8 @@ def process_sites_owner_preview_v1_request(
                 "reasoning_effort": OWNER_PREVIEW_REASONING_EFFORT,
                 "prompt_version": OWNER_PREVIEW_PROMPT_VERSION,
                 "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
+                "input_unknowns_canonicalized": True,
+                "model_unknowns_replaced": model_unknowns_replaced,
                 "failure_stage": "OUTPUT_VALIDATION",
                 "failure_codes": hard_failure_codes + quality_failure_codes,
                 "hard_failure_codes": hard_failure_codes,
@@ -549,6 +570,8 @@ def process_sites_owner_preview_v1_request(
             "reasoning_effort": OWNER_PREVIEW_REASONING_EFFORT,
             "prompt_version": OWNER_PREVIEW_PROMPT_VERSION,
             "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
+            "input_unknowns_canonicalized": True,
+            "model_unknowns_replaced": model_unknowns_replaced,
             "actual_api_cost_usd": provider_result.cost_usd,
             "preflight_estimated_cost_usd": float(preflight),
             "max_preflight_cost_usd": float(max_preflight_cost_usd),
