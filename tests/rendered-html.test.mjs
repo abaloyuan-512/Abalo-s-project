@@ -38,6 +38,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /已经确认的现实事实/);
   assert.match(html, /目前不能假设的未知项/);
   assert.match(html, /静心取数/);
+  assert.match(html, /一般，可分阶段调整/);
+  assert.match(html, /高不可逆，不能试错后撤回/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
@@ -238,16 +240,13 @@ test("owner preview meters repeated attempts without blocking on count or reserv
       headers: { "Content-Type": "application/json", "cf-connecting-ip": "203.0.113.10", "oai-authenticated-user-email": "owner@example.com" },
       body: JSON.stringify({ contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: `owner-test-${++requestNumber}` }),
     });
-    const first = await app.fetch(request(), { ...env, DB: db }, context);
-    const second = await app.fetch(request(), { ...env, DB: db }, context);
-    const third = await app.fetch(request(), { ...env, DB: db }, context);
-    assert.equal(first.status, 200);
-    assert.equal(second.status, 200);
-    assert.equal(third.status, 200);
-    assert.equal(upstreamCalls, 3);
-    assert.equal(db.row.reserved_calls, 3);
+    for (let number = 1; number <= 7; number += 1) {
+      assert.equal((await app.fetch(request(), { ...env, DB: db }, context)).status, 200);
+    }
+    assert.equal(upstreamCalls, 7);
+    assert.equal(db.row.reserved_calls, 7);
     assert.equal(db.row.reserved_micro_usd, 0);
-    assert.equal(db.row.actual_micro_usd, 80_000);
+    assert.equal(db.row.actual_micro_usd, 200_000);
     assert.equal(db.row.status, "METERING");
   } finally {
     globalThis.fetch = previousFetch;
