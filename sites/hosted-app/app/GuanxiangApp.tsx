@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -579,6 +579,45 @@ export function GuanxiangApp() {
   const [loading, setLoading] = useState(false);
   const [savingRecord, setSavingRecord] = useState(false);
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
+  const [homeNavigationVisible, setHomeNavigationVisible] = useState(false);
+  const [inkBloomOpen, setInkBloomOpen] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const updateNavigation = () => {
+      const revealAt = Math.max(120, window.innerHeight * .62);
+      setHomeNavigationVisible(window.scrollY >= revealAt);
+    };
+    updateNavigation();
+    window.addEventListener("scroll", updateNavigation, { passive: true });
+    window.addEventListener("resize", updateNavigation);
+    return () => {
+      window.removeEventListener("scroll", updateNavigation);
+      window.removeEventListener("resize", updateNavigation);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    audioRef.current?.pause();
+  }, []);
+
+  async function toggleSound() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (soundOn) {
+      audio.pause();
+      setSoundOn(false);
+      return;
+    }
+    audio.volume = .18;
+    try {
+      await audio.play();
+      setSoundOn(true);
+    } catch {
+      setSoundOn(false);
+    }
+  }
 
   function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
     setQuestion(example.text);
@@ -750,24 +789,30 @@ export function GuanxiangApp() {
   }
 
   return <>
-    <header className="site-header">
-      <a className="wordmark" href="#top">观象</a>
-      <nav><a href="#method">如何观</a><a href="#inquiry">开始问</a><a href="/journal">观事簿</a></nav>
+    <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden={!homeNavigationVisible}>
+      <a className="wordmark" href="#top" tabIndex={homeNavigationVisible ? undefined : -1}>观象</a>
+      <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>如何观</a><a href="#inquiry" tabIndex={homeNavigationVisible ? undefined : -1}>开始问</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>观事簿</a></nav>
       <small>确定性排盘 · 个性化解读</small>
     </header>
     <main id="top" className="scroll-canvas">
-      <section className="hero scroll-section" data-reveal aria-labelledby="hero-title">
-        <div className="hero-lockup">
-          <p className="hero-motto">心有所问，静观其象。</p>
-          <img className="hero-seal" src="/bagua-seal.png" alt="" aria-hidden="true" />
-          <h1 id="hero-title"><span>观</span><span>象</span></h1>
-        </div>
-        <div className="hero-classic">
-          <span className="hero-ink-bloom" aria-hidden="true"><img src="/ink-golden-landscape.png" alt="" /></span>
-          <blockquote>寂然不动，感而遂通天下之故。</blockquote>
-          <cite>《周易·系辞上》</cite>
-        </div>
-        <a className="hero-scroll-cue" href="#method">向下 · 观法</a>
+      <section className="hero entry-hero scroll-section" data-reveal aria-labelledby="hero-title">
+        <picture className="entry-hero-picture">
+          <source media="(max-width: 760px)" srcSet="/hero-entry-mobile-v1.png" />
+          <img className="entry-hero-backdrop" src="/hero-entry-v1.png" alt="" />
+        </picture>
+        <h1 id="hero-title" className="sr-only">观象</h1>
+        <p className="sr-only">心有所问，静观其象。</p>
+        <figure className={`hero-classic${inkBloomOpen ? " is-ink-open" : ""}`}>
+          <button type="button" className="hero-classic-trigger" aria-pressed={inkBloomOpen} aria-label="让经典题字如墨般洇染开来" onClick={() => setInkBloomOpen((current) => !current)}>
+            <img className="hero-ink-bloom" src="/hero-ink-bloom-v1.png" alt="" aria-hidden="true" />
+            <span className="hero-classic-text">寂然不动，感而遂通天下之故。</span>
+            <span className="hero-classic-source">《周易·系辞上》</span>
+          </button>
+          <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
+        </figure>
+        <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
+        <button type="button" className="hero-sound-control" aria-pressed={soundOn} onClick={toggleSound}><span aria-hidden="true">{soundOn ? "静" : "琴"}</span><b>{soundOn ? "静音" : "闻琴"}</b></button>
+        <a className="hero-scroll-cue" href="#method"><span>向下</span><img src="/hero-down-cue-v1.png" alt="" aria-hidden="true" /><span className="sr-only">阅读观象之法</span></a>
       </section>
 
       <section id="method" className="method scroll-section" data-reveal aria-labelledby="method-title">
