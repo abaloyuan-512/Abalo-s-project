@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -93,7 +93,7 @@ type ApiResponse = {
   error?: string;
   errors?: { message?: string }[];
 };
-type JournalRecord = {
+export type JournalRecord = {
   id: string;
   created_at: string;
   updated_at: string;
@@ -107,14 +107,8 @@ type JournalRecord = {
   learning_text: string;
   status: "OPEN" | "REVIEWED";
 };
-type JournalDraft = Pick<JournalRecord, "action_text" | "review_on" | "reality_text" | "learning_text" | "status">;
+export type JournalDraft = Pick<JournalRecord, "action_text" | "review_on" | "reality_text" | "learning_text" | "status">;
 
-const DOMAINS = {
-  WORK_CAREER: "å·¥ä½œä¸èŒä¸š",
-  PROJECT_COOPERATION: "é¡¹ç›®ä¸åˆä½œ",
-  RELATIONSHIP_COMMUNICATION: "å…³ç³»ä¸æ²Ÿé€š",
-  PERSONAL_PLANNING: "ä¸ªäººè§„åˆ’",
-} as const;
 const GOALS = {
   IDENTIFY_OBSTACLES: "çœ‹æ¸…é˜»åŠ›ä¸æ¡ä»¶",
   PLAN_NEXT_STEP: "åˆ¤æ–­ä¸‹ä¸€æ­¥æ€ä¹ˆèµ°",
@@ -130,25 +124,44 @@ const GOALS_BY_DOMAIN: Record<string, (keyof typeof GOALS)[]> = {
 };
 const HORIZONS = { CURRENT: "å½“å‰é˜¶æ®µ", NEXT_30_DAYS: "æœªæ¥ä¸‰åå¤©", NEXT_QUARTER: "æœªæ¥ä¸€ä¸ªå­£åº¦", NEXT_6_MONTHS: "æœªæ¥å…­ä¸ªæœˆ" } as const;
 const STAGES = { EXPLORING: "åˆšå¼€å§‹äº†è§£", PREPARING: "å‡†å¤‡è¡ŒåŠ¨", ALREADY_ACTING: "æ­£åœ¨æ¨è¿›", WAITING_FEEDBACK: "ç­‰å¾…å›åº”" } as const;
-const UNCERTAINTIES = { CONDITIONS: "è¿˜ç¼ºå“ªäº›æ¡ä»¶", OTHER_RESPONSE: "å¯¹æ–¹æ˜¯å¦å›åº”", OWN_COMMITMENT: "è‡ªå·±æŠ•å…¥å¤šå°‘", TIMING: "ç°åœ¨æ˜¯å¦åˆé€‚" } as const;
-const RISK_PROFILES = { STANDARD: "ä¸€èˆ¬ï¼Œå¯åˆ†é˜¶æ®µè°ƒæ•´", HIGH_IRREVERSIBLE: "é«˜ä¸å¯é€†ï¼Œä¸èƒ½è¯•é”™åæ’¤å›" } as const;
 
 const QUESTION_EXAMPLES = [
-  { topic: "å·¥ä½œ", domain: "WORK_CAREER", text: "è¿™ä»½å·¥ä½œå·²ç»è®©æˆ‘å¾ˆç–²æƒ«ï¼Œæˆ‘è¿˜åº”è¯¥ç»§ç»­ç•™ä¸‹å—ï¼Ÿ" },
   { topic: "å·¥ä½œ", domain: "WORK_CAREER", text: "é¢å¯¹ç°åœ¨çš„å·¥ä½œæœºä¼šï¼Œæˆ‘ä¸‹ä¸€æ­¥æœ€è¯¥å…ˆç¡®è®¤ä»€ä¹ˆï¼Ÿ" },
   { topic: "åˆä½œ", domain: "PROJECT_COOPERATION", text: "è¿™æ¬¡åˆä½œï¼Œæˆ‘è¿˜åº”è¯¥ç»§ç»­æŠ•å…¥å—ï¼Ÿ" },
-  { topic: "åˆä½œ", domain: "PROJECT_COOPERATION", text: "å¯¹æ–¹è¿Ÿè¿Ÿæ²¡æœ‰æ˜ç¡®å›åº”ï¼Œæˆ‘è¿˜è¦ç»§ç»­æ¨è¿›è¿™ä¸ªé¡¹ç›®å—ï¼Ÿ" },
   { topic: "å…³ç³»", domain: "RELATIONSHIP_COMMUNICATION", text: "è¿™æ®µå…³ç³»ä¸€ç›´æ²¡æœ‰è¿›å±•ï¼Œæˆ‘è¿˜è¦ç»§ç»­ä¸»åŠ¨å—ï¼Ÿ" },
-  { topic: "å…³ç³»", domain: "RELATIONSHIP_COMMUNICATION", text: "æˆ‘ä»¬æœ€è¿‘åå¤äº‰æ‰§ï¼Œæˆ‘åº”è¯¥å…ˆæ²Ÿé€šè¿˜æ˜¯å…ˆå†·é™ä¸€æ®µæ—¶é—´ï¼Ÿ" },
   { topic: "è§„åˆ’", domain: "PERSONAL_PLANNING", text: "æˆ‘ç°åœ¨å¼€å§‹è¿™é¡¹é•¿æœŸè®¡åˆ’ï¼Œæœ€éœ€è¦å…ˆå‡†å¤‡ä»€ä¹ˆï¼Ÿ" },
-  { topic: "è§„åˆ’", domain: "PERSONAL_PLANNING", text: "è¿™é¡¹è®¡åˆ’æŠ•å…¥è¶Šæ¥è¶Šå¤šï¼Œæˆ‘æ˜¯å¦åº”è¯¥å…ˆåœä¸‹æ¥è°ƒæ•´ï¼Ÿ" },
 ] as const;
 
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
+const JOURNAL_OPEN_KEY = "guanxiang-open-journal-record-v1";
 
 function nonemptyLines(value: string): string[] {
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
+}
+
+function downloadReadingHtml(response: ApiResponse): void {
+  const result = response.deterministic_result;
+  if (!result) return;
+  const question = escapeHtml(response.user_question ?? "ä½ æ‰€é—®ä¹‹äº‹");
+  const cultural = result.cultural_reading;
+  const personalized = response.personalized_reading ?? result.personalized_reading;
+  const report = result.clarity_report;
+  const hexagrams = cultural?.hexagrams.map((item) => `<article><header><span>${escapeHtml(item.role)}</span><b>${escapeHtml(item.symbol)}</b><div><small>ç¬¬ ${item.king_wen_number} å¦</small><h2>${escapeHtml(item.name)}</h2></div></header><p>${escapeHtml(item.reading_role)}</p><blockquote><i>ã€Šæ˜“ã€‹æ›°</i>${escapeHtml(item.canonical_text)}</blockquote><p>${escapeHtml(item.plain_note)}</p></article>`).join("") ?? "";
+  const terms = cultural?.terms.map((term) => `<article><span>${escapeHtml(term.title)}</span><h3>${escapeHtml(term.current_value)}</h3><p>${escapeHtml(term.meaning)}</p><b>æœ¬æ¬¡å½±å“</b><p>${escapeHtml(term.current_effect)}</p></article>`).join("") ?? "";
+  const personal = personalized ? `<section><p class="eyebrow">å›åˆ°ä½ çš„ç°å®</p><h2>${escapeHtml(personalized.core_judgment)}</h2><div class="columns"><article><h3>ä¸ºä»€ä¹ˆè¿™æ ·åˆ¤æ–­</h3><p>${escapeHtml(personalized.explanation)}</p></article><article><h3>è½åˆ°ç°å®</h3><p>${escapeHtml(personalized.reality_application)}</p></article><article><h3>ä¸‹ä¸€æ­¥</h3><p>${escapeHtml(personalized.action)}</p></article><article><h3>ä½•æ—¶è½¬å‘</h3><p>${escapeHtml(personalized.switch_condition)}</p></article></div></section>` : "";
+  const html = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>è§‚è±¡ Â· ${escapeHtml(result.base_hexagram.name)}</title><style>@font-face{font-family:gx;src:url(data:font/woff2;base64,) format('woff2')}*{box-sizing:border-box}body{margin:0;color:#2a2b25;background:#f2ead9;font-family:STKaiti,KaiTi,serif;letter-spacing:.055em}main{max-width:1180px;margin:auto;padding:9vw 7vw;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Cfilter id="n"%3E%3CfeTurbulence baseFrequency=".7" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity=".025"/%3E%3C/svg%3E')}header.hero{text-align:center;min-height:58vh;display:grid;place-content:center;border-bottom:1px solid rgba(53,55,48,.2)}.hero b{font-size:8rem;font-weight:400}.hero h1{margin:.1em 0;font-size:4rem;font-weight:400}.hero p{color:#62665d}.eyebrow{color:#963b28;letter-spacing:.22em}section{padding:5rem 0;border-bottom:1px solid rgba(53,55,48,.2)}section>h2{font-size:2.5rem;font-weight:400;line-height:1.45}.grid,.columns{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4rem}.columns{grid-template-columns:repeat(2,1fr)}article header{display:flex;gap:1rem;align-items:center}article header>b{font-size:3.4rem;font-weight:400}article h2,article h3{font-weight:400}article p{line-height:1.85;color:#50544b}blockquote{margin:1.5rem 0;padding:1.5rem 0;border-block:1px solid rgba(53,55,48,.16);line-height:1.9}blockquote i{display:block;color:#963b28;font-style:normal}.terms{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}.final{font-size:2rem;line-height:1.65;text-align:center}.boundary{font-size:.85rem;color:#62665d;line-height:1.8}@media(max-width:720px){main{padding:3rem 1.4rem}.hero b{font-size:5rem}.hero h1{font-size:2.8rem}.grid,.columns,.terms{grid-template-columns:1fr}}</style></head><body><main><header class="hero"><p class="eyebrow">æœ¬æ¬¡æ‰€å¾—ä¹‹å¦</p><b>${escapeHtml(result.base_hexagram.symbol)}</b><h1>ç¬¬ ${result.base_hexagram.king_wen_number} å¦ Â· ${escapeHtml(result.base_hexagram.name)}</h1><p>æ‰€é—®ï¼š${question}</p></header><section><p class="eyebrow">æœ¬å¦ Â· äº’å¦ Â· å˜å¦</p><div class="grid">${hexagrams}</div></section><section><p class="eyebrow">åŠ¨çˆ» Â· ä½“ç”¨ Â· æ—ºè¡°</p><div class="terms">${terms}</div></section>${personal}<section><p class="eyebrow">è§£è¯»è‡³æ­¤</p><p class="final">${escapeHtml(personalized?.action ?? report.next_action)}</p><p class="boundary">${escapeHtml(report.boundary_note)}</p></section></main></body></html>`;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `è§‚è±¡-${result.base_hexagram.name}.html`;
+  anchor.click();
+  URL.revokeObjectURL(url);
 }
 
 function sleep(milliseconds: number): Promise<void> {
@@ -191,503 +204,85 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
   />;
 }
 
-function ChoiceMenu({ label, value, options, disabled = false, onChange }: {
-  label: string;
-  value: string;
-  options: Record<string, string>;
-  disabled?: boolean;
-  onChange: (value: string) => void;
-}) {
-  const selected = options[value] ?? "è¯·é€‰æ‹©";
-  return <div className={`choice-field ${disabled ? "is-disabled" : ""}`}>
-    <span>{label}</span>
-    <details className="choice-menu">
-      <summary aria-label={`${label}ï¼š${selected}`} aria-disabled={disabled} onClick={(event) => { if (disabled) event.preventDefault(); }}>
-        <BaguaMark />
-        <b>{selected}</b>
-      </summary>
-      <div role="listbox" aria-label={label}>
-        {Object.entries(options).map(([key, text]) => <button
-          key={key}
-          type="button"
-          role="option"
-          aria-selected={value === key}
-          onClick={(event) => {
-            onChange(key);
-            event.currentTarget.closest("details")?.removeAttribute("open");
-          }}
-        ><BaguaMark />{text}</button>)}
-      </div>
-    </details>
-  </div>;
+type IntakeAnswer = { prompt: string; answer: string };
+type GuidedIntakeProps = {
+  question: string;
+  onFacts: (value: string) => void;
+  onUnknowns: (value: string) => void;
+  onActions: (value: string) => void;
+  onObservableResponses: (value: string) => void;
+  onQuestion: (value: string) => void;
+  onStructured: (value: { domain: string; goal: string; horizon: string; stage: string; uncertainty: string; riskProfile?: string }) => void;
+  onComplete: (complete: boolean) => void;
+};
+
+type GuidedIntakeApiResponse = {
+  status: "ASK" | "COMPLETE";
+  assistant_message: string;
+  next_question: string | null;
+  suggested_question: string;
+  question_change_reason: string;
+  structured_intake: StructuredIntake;
+  confirmed_facts: string[];
+  unknowns: string[];
+  actions_already_taken: string[];
+  observable_responses: string[];
+  boundary_note: string;
+  error?: string;
+};
+
+function inferDomain(text: string): string {
+  if (/å…³ç³»|å–œæ¬¢|è¡¨ç™½|æœ‹å‹|ä¼´ä¾£|æ²Ÿé€š|åŒäº‹ä¹‹é—´|å®¶äºº/.test(text)) return "RELATIONSHIP_COMMUNICATION";
+  if (/é¡¹ç›®|åˆä½œ|å®¢æˆ·|åˆåŒ|æ–¹æ¡ˆ|åˆä¼™|èµ„æº/.test(text)) return "PROJECT_COOPERATION";
+  if (/å·¥ä½œ|èŒä¸š|å²—ä½|å…¬å¸|å‡èŒ|ç¦»èŒ|æ±‚èŒ/.test(text)) return "WORK_CAREER";
+  return "PERSONAL_PLANNING";
 }
 
-function OptionList({ name, value, options, onChange }: { name: string; value: string; options: Record<string, string>; onChange: (value: string) => void }) {
-  return <div className="option-list" role="radiogroup" aria-label={name}>{Object.entries(options).map(([key, label]) => (
-    <label key={key} className={value === key ? "selected" : ""}>
-      <input type="radio" name={name} value={key} checked={value === key} onChange={() => onChange(key)} />
-      <BaguaMark />
-      <span>{label}</span>
-    </label>
-  ))}</div>;
+function inferGoal(text: string): keyof typeof GOALS {
+  if (/æ²Ÿé€š|è¡¨è¾¾|è°ˆ|è¯´/.test(text)) return "PREPARE_COMMUNICATION";
+  if (/è¾¹ç•Œ|æŠ•å…¥|ä»˜å‡º|åœæ­¢|é€€å‡º/.test(text)) return "ADJUST_COMMITMENT_BOUNDARIES";
+  if (/å›åº”|ä¿¡å·|è¿¹è±¡|åé¦ˆ/.test(text)) return "OBSERVE_VERIFY_SIGNALS";
+  if (/é˜»åŠ›|å›°éš¾|å¡ä½|åŸå› /.test(text)) return "IDENTIFY_OBSTACLES";
+  return "PLAN_NEXT_STEP";
 }
 
-function JournalEntry({ record, onOpen, onUpdate, onDelete }: {
-  record: JournalRecord;
-  onOpen: (record: JournalRecord) => void;
-  onUpdate: (id: string, draft: JournalDraft) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-}) {
-  const [draft, setDraft] = useState<JournalDraft>({ action_text: record.action_text, review_on: record.review_on, reality_text: record.reality_text, learning_text: record.learning_text, status: record.status });
-  const [busy, setBusy] = useState(false);
-  const due = record.review_on && record.status === "OPEN" && record.review_on <= new Date().toISOString().slice(0, 10);
-  async function saveReview() {
-    setBusy(true);
-    await onUpdate(record.id, { ...draft, status: draft.reality_text.trim() || draft.learning_text.trim() ? "REVIEWED" : "OPEN" });
-    setBusy(false);
-  }
-  return <details className="journal-entry">
-    <summary>
-      <div><span>{record.status === "REVIEWED" ? "å·²å¤ç›˜" : due ? "å¾…å¤ç›˜" : "è§‚å¯Ÿä¸­"}</span><h3>{record.question}</h3><small>{formatDate(record.created_at)} Â· {record.result.base_hexagram.name} â†’ {record.result.changed_hexagram.name}</small></div>
-      <b>{record.result.base_hexagram.symbol}</b>
-    </summary>
-    <div className="journal-entry-body">
-      <button type="button" className="text-button" onClick={() => onOpen(record)}>é‡æ–°æ‰“å¼€å®Œæ•´ç»“æœ</button>
-      <label><span>å½“æ—¶å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨</span><textarea value={draft.action_text} maxLength={500} onChange={(event) => setDraft({ ...draft, action_text: event.target.value })} /></label>
-      <label><span>è®¡åˆ’å›çœ‹æ—¥æœŸ</span><input type="date" value={draft.review_on ?? ""} onChange={(event) => setDraft({ ...draft, review_on: event.target.value || null })} /></label>
-      <label><span>åæ¥å®é™…å‘ç”Ÿäº†ä»€ä¹ˆ</span><textarea value={draft.reality_text} maxLength={2000} placeholder="åªå†™äº‹å®ï¼šè°åšäº†ä»€ä¹ˆã€æ¡ä»¶å‘ç”Ÿäº†ä»€ä¹ˆå˜åŒ–ã€‚" onChange={(event) => setDraft({ ...draft, reality_text: event.target.value })} /></label>
-      <label><span>è¿™æ¬¡ç»å†ä¿®æ­£äº†ä»€ä¹ˆè®¤è¯†</span><textarea value={draft.learning_text} maxLength={2000} placeholder="å“ªäº›åˆ¤æ–­å¾—åˆ°éªŒè¯ï¼Œå“ªäº›æ²¡æœ‰ï¼›ä¸‹ä¸€æ¬¡ä¼šæ€æ ·è°ƒæ•´ã€‚" onChange={(event) => setDraft({ ...draft, learning_text: event.target.value })} /></label>
-      <div className="journal-actions"><button type="button" disabled={busy} onClick={saveReview}>{busy ? "æ­£åœ¨ä¿å­˜" : "ä¿å­˜å¤ç›˜"}</button><button type="button" className="danger-link" onClick={() => onDelete(record.id)}>æ°¸ä¹…åˆ é™¤</button></div>
-    </div>
-  </details>;
+function inferUncertainty(text: string): "CONDITIONS" | "OTHER_RESPONSE" | "OWN_COMMITMENT" | "TIMING" {
+  if (/æ—¶æœº|æ—¶å€™|å¤šä¹…|æ—¶é—´|ç°åœ¨/.test(text)) return "TIMING";
+  if (/å›åº”|æ€åº¦|å¯¹æ–¹|åé¦ˆ|ç­”å¤/.test(text)) return "OTHER_RESPONSE";
+  if (/æŠ•å…¥|ä»˜å‡º|åšæŒ|ç»§ç»­/.test(text)) return "OWN_COMMITMENT";
+  return "CONDITIONS";
 }
 
-function JournalSection({ records, loading, message, hasUnsavedResult, onOpen, onUpdate, onDelete, onExport, onSaveCurrent }: {
-  records: JournalRecord[];
-  loading: boolean;
-  message: string;
-  hasUnsavedResult: boolean;
-  onOpen: (record: JournalRecord) => void;
-  onUpdate: (id: string, draft: JournalDraft) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-  onExport: () => void;
-  onSaveCurrent: () => void;
-}) {
-  const openCount = records.filter((record) => record.status === "OPEN").length;
-  return <section id="journal" className="journal scroll-section" data-reveal>
-    <VerticalBrand />
-    <header className="section-heading"><p className="eyebrow">äº‹åå†çœ‹ï¼Œæ‰çŸ¥æ‰€è§æ˜¯å¦å‡†ç¡®</p><h2>è§‚äº‹ç°¿</h2><p>æŠŠä¸€æ¬¡è§‚è±¡ç•™åˆ°ç°å®ä¸­ç»§ç»­ã€‚è®°å½•é‡‡å–äº†ä»€ä¹ˆè¡ŒåŠ¨ã€åæ¥å‘ç”Ÿäº†ä»€ä¹ˆï¼Œå†ç”¨æ–°è¯æ®ä¿®æ­£åˆ¤æ–­ã€‚</p></header>
-    <div className="journal-intro"><p><b>{records.length}</b> æ¬¡è®°å½•</p><p><b>{openCount}</b> æ¬¡ç­‰å¾…å¤ç›˜</p><button type="button" className="text-button" disabled={!records.length} onClick={onExport}>å¯¼å‡ºå…¨éƒ¨è®°å½•</button></div>
-    <p className="journal-privacy">è®°å½•ä¸å½“å‰æµè§ˆå™¨ä¸­çš„éšæœºå‡­æ®ç›¸è¿ï¼Œä¸è¦æ±‚å§“åæˆ–è´¦å·ã€‚æ¢è®¾å¤‡å‰è¯·å…ˆå¯¼å‡ºï¼›ä½ ä¹Ÿå¯ä»¥éšæ—¶é€æ¡åˆ é™¤ã€‚</p>
-    {hasUnsavedResult && <div className="journal-current-prompt"><p>åˆšæ‰è¿™æ¬¡è§£è¯»è¿˜æ²¡æœ‰ä¿å­˜ã€‚å¦‚æœä½ å¸Œæœ›ä»¥åå›æ¥çœ‹çœ‹äº‹æƒ…å®é™…æ€æ ·å‘å±•ï¼Œå¯ä»¥å…ˆå†™ä¸‹å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨ï¼Œå†å­˜å…¥è§‚äº‹ç°¿ã€‚</p><button type="button" className="text-button" onClick={onSaveCurrent}>å»ä¿å­˜åˆšæ‰è¿™æ¬¡è§‚è±¡</button></div>}
-    {loading ? <p className="journal-empty">æ­£åœ¨æ‰“å¼€è§‚äº‹ç°¿â€¦â€¦</p> : records.length ? <div className="journal-list">{records.map((record) => <JournalEntry key={record.id} record={record} onOpen={onOpen} onUpdate={onUpdate} onDelete={onDelete} />)}</div> : <div className="journal-empty"><BaguaMark /><div><p>è¿™é‡Œè¿˜æ²¡æœ‰è®°å½•ã€‚æ¯æ¬¡è§£è¯»ç»“æŸåï¼Œä½ éƒ½å¯ä»¥å†™ä¸‹å‡†å¤‡æ€ä¹ˆåšå¹¶ä¿å­˜ï¼›è¿‡ä¸€æ®µæ—¶é—´å†å›æ¥è®°å½•çœŸå®ç»“æœã€‚</p>{hasUnsavedResult && <button type="button" className="text-button" onClick={onSaveCurrent}>ä¿å­˜åˆšæ‰è¿™æ¬¡è§‚è±¡</button>}</div></div>}
-    {message && <p className="journal-message" role="status">{message}</p>}
-  </section>;
-}
+function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onQuestion, onStructured, onComplete }: GuidedIntakeProps) {
+  const [turn, setTurn] = useState(0);
+  const [draft, setDraft] = useState("");
+  const [answers, setAnswers] = useState<IntakeAnswer[]>([]);
+  const [horizonAnswer, setHorizonAnswer] = useState("");
+  const [stageAnswer, setStageAnswer] = useState("");
+  const prompts = [
+    "å…ˆç¡®å®šè§‚å¯Ÿçš„èŒƒå›´ï¼šä½ å¸Œæœ›åœ¨å¤šé•¿æ—¶é—´å†…çœ‹æ¸…è¿™ä»¶äº‹ï¼Ÿ",
+    "è¿™ä»¶äº‹ç°åœ¨èµ°åˆ°äº†å“ªä¸€æ­¥ï¼Ÿ",
+    "åˆ°ç›®å‰ä¸ºæ­¢ï¼Œå“ªäº›æ˜¯ä½ å·²ç»ç¡®è®¤çš„ç°å®äº‹å®ï¼Ÿè¯·ä¸è¦å†™æ¨æµ‹ã€‚",
+    "å“ªä¸€éƒ¨åˆ†ä»ç„¶æœªçŸ¥ï¼Œä¸èƒ½å…ˆå½“ä½œäº‹å®ï¼Ÿ",
+    "ä¸ºäº†è¿™ä»¶äº‹ï¼Œä½ å·²ç»é‡‡å–è¿‡ä»€ä¹ˆè¡ŒåŠ¨ï¼Ÿå¦‚æœè¿˜æ²¡æœ‰ï¼Œå¯ä»¥å†™â€œå°šæœªè¡ŒåŠ¨â€ã€‚",
+    "äº‹æƒ…å·²ç»ç»™è¿‡ä½ æ€æ ·çš„å›åº”æˆ–åé¦ˆï¼Ÿå¦‚æœè¿˜æ²¡æœ‰ï¼Œå¯ä»¥å†™â€œå°šæ— å›åº”â€ã€‚",
+    "å¦‚æœè¿™ä¸€æ¬¡åªèƒ½çœ‹æ¸…ä¸€ä»¶äº‹ï¼Œä½ æœ€å¸Œæœ›ç¡®è®¤ä»€ä¹ˆï¼Ÿ",
+  ];
+  const currentPrompt = prompts[turn];
 
-function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
-  const result = response.deterministic_result;
-  const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
-  const [action, setAction] = useState(`æˆ‘å‡†å¤‡è¿™æ ·åšï¼š${initialAction}`);
-  const [reviewOn, setReviewOn] = useState(defaultReviewDate());
-  if (!result) return null;
-  const report = result.clarity_report;
-  const cultural = result.cultural_reading;
-  const personalized = response.personalized_reading ?? result.personalized_reading;
-  const sectionVisibility = resultSectionVisibility(Boolean(personalized));
-  const questionResponses = personalized?.question_responses ?? [];
-  const question = response.user_question ?? "ä½ æ‰€é—®ä¹‹äº‹";
-  const primaryJudgment = personalized?.core_judgment ?? report.answer;
-  const primaryAction = personalized?.action ?? report.next_action;
-  const quickSignals = [report.continue_signals[0], report.continue_signals[1], report.pause_signals[0]].filter(Boolean);
-  const upperPath = cultural?.number_path[0];
-  const lowerPath = cultural?.number_path[1];
-  const movingTerm = cultural?.terms.find((term) => term.title.startsWith("åŠ¨çˆ»"));
-  const counsel = cultural?.classic_counsel ?? {
-    quote: "ç©·åˆ™å˜ï¼Œå˜åˆ™é€šï¼Œé€šåˆ™ä¹…ã€‚",
-    source: "ã€Šå‘¨æ˜“Â·ç³»è¾ä¸‹ã€‹",
-  };
-
-  return <section id="result" className="result-shell" aria-labelledby="result-title">
-    <section className="result-overview scroll-section" data-reveal>
-      <VerticalBrand />
-      <p className="result-question">æ‰€é—®ï¼š{question}</p>
-      <div className="result-verdict">
-        <p className="eyebrow">ç°åœ¨å…ˆçœ‹</p>
-        <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>ç¬¬ {result.base_hexagram.king_wen_number} å¦</span><h2>{result.base_hexagram.name}</h2></div>
-        <p className="eyebrow conclusion-label">æ ¸å¿ƒåˆ¤æ–­</p>
-        <h3 id="result-title" tabIndex={-1}>{primaryJudgment}</h3>
-      </div>
-      <aside className="result-aside">
-        <span>çœ¼ä¸‹å¯åšçš„ä¸€æ­¥</span><b>{report.priority}</b><p>{primaryAction}</p><a href="#personalized-reading">çœ‹å®Œæ•´ç°å®è§£è¯»</a>
-      </aside>
-    </section>
-
-    {personalized && <section id="personalized-reading" className="personalized-reading scroll-section" data-reveal>
-      <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">æŠŠå¦è±¡æ”¾å›ä½ çš„ç°å®</p><h2>è¿™ä»¶äº‹ï¼Œçœ¼ä¸‹çœŸæ­£è¦çœ‹ä»€ä¹ˆ</h2><p>ä»¥ä¸‹è§£è¯»åªä½¿ç”¨ä½ æ˜ç¡®å†™ä¸‹çš„äº‹å®ã€æœªçŸ¥é¡¹ä¸ç¨‹åºæ’å‡ºçš„å¦è±¡ï¼›å®ƒä¸ä¼šæŠŠçŒœæµ‹è¡¥æˆäº‹å®ï¼Œä¹Ÿä¸ä¼šæ›¿ä½ åšå†³å®šã€‚</p></header>
-      <div className="personalized-reading-grid">
-        {questionResponses.length > 1 && <article className="question-responses"><span>é€é¡¹å›ç­”</span><ul>{questionResponses.map((item) => <li key={item.question_text}><b>{item.question_text}</b><p>{item.answer_text}</p></li>)}</ul></article>}
-        <article><span>ä¸ºä»€ä¹ˆè¿™æ ·åˆ¤æ–­</span><p>{personalized.explanation}</p></article>
-        <article><span>è½åˆ°ä½ çš„ç°å®</span><p>{personalized.reality_application}</p></article>
-        <article><span>ä¸‹ä¸€æ­¥</span><p>{personalized.action}</p></article>
-        <article><span>ä½•æ—¶éœ€è¦è½¬å‘</span><p>{personalized.switch_condition}</p></article>
-      </div>
-    </section>}
-
-    {sectionVisibility.showGenericSignals && <section id="result-signals" className="quick-reading scroll-section" data-reveal>
-      <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">å…ˆå¸¦èµ°æœ€æœ‰ç”¨çš„éƒ¨åˆ†</p><h2>å…ˆåšä¸€ä»¶äº‹ï¼Œå†çœ‹ä¸‰ä¸ªè¿¹è±¡</h2><p>ä¸ç”¨æ€¥ç€æŠŠæ•´ä»½è§£è¯»éƒ½è®°ä½ã€‚å…ˆç¡®å®šçœ¼å‰å‡†å¤‡åšçš„äº‹ï¼Œå†ç•™æ„ä¸‹é¢ä¸‰ä¸ªè¿¹è±¡ï¼›å®ƒä»¬å‡ºç°æˆ–æ²¡æœ‰å‡ºç°ï¼Œä¼šå¸®åŠ©ä½ åˆ¤æ–­æ¥ä¸‹æ¥è¯¥ç»§ç»­ã€è°ƒæ•´ï¼Œè¿˜æ˜¯åœä¸€åœã€‚</p></header>
-      <div className="quick-signal-list">{quickSignals.map((signal, index) => <article key={signal}><span>{["å£¹", "è´°", "å"][index]}</span><p>{signal}</p></article>)}</div>
-      <nav className="result-jump"><a href="#why-reading">ä¸ºä»€ä¹ˆè¿™æ ·åˆ¤æ–­</a><a href="#deep-reading">æ·±å…¥äº†è§£æ’ç›˜</a><a href="#save-current-reading">è¯»å®Œåä¿å­˜è¿™æ¬¡è§‚è±¡</a></nav>
-    </section>}
-
-    <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
-      <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">ç¬¬äºŒå±‚ Â· ä¸ºä»€ä¹ˆ</p><h2>{personalized ? "æ ¸å¯¹å¦è±¡ä¾æ®" : "ä»å¦è±¡å›åˆ°æ‰€é—®ä¹‹äº‹"}</h2><p>{personalized ? "ä¸‹é¢ä¿ç•™æœ¬å¦ã€äº’å¦ä¸å˜å¦çš„è§„èŒƒææ–™ï¼Œä¾›ä½ æ ¸å¯¹ä¸Šæ–¹åˆ¤æ–­ç”¨äº†å“ªäº›å˜åŒ–çº¿ç´¢ã€‚" : "è¿™ä¸€å±‚è¯´æ˜åˆ¤æ–­ä¾æ®ã€‚è‹¥ä½ åªéœ€è¦è¡ŒåŠ¨æ–¹å‘ï¼Œå¯ä»¥å…ˆè·³è¿‡ï¼Œç­‰ç°å®å‡ºç°æ–°è¯æ®åå†å›æ¥å¯¹ç…§ã€‚"}</p></header>
-      {sectionVisibility.showGenericWhy && <div className="detailed-conclusion">
-        <span>å›åˆ°ä½ æ‰€é—®ä¹‹äº‹</span><h3>{report.what_it_means}</h3>
-        <ol>{report.evidence_path.map((item) => <li key={item.title}><b>{item.title}</b><p>{item.text}</p></li>)}</ol>
-      </div>}
-      {cultural ? <div className="canonical-grid">{cultural.hexagrams.map((item) => <article key={item.role} className="canonical-card">
-        <header><span>{item.role}</span><strong>{item.symbol}</strong><div><small>ç¬¬ {item.king_wen_number} å¦</small><h3>{item.name}</h3></div></header>
-        <p className="reading-role">{item.reading_role}</p>
-        <blockquote><b>ã€Šæ˜“ã€‹æ›°</b>{item.canonical_text}</blockquote>
-        <p className="plain-note">{item.plain_note}</p>
-      </article>)}</div> : <p className="compatibility-note">ç»å…¸åŸæ–‡æ­£åœ¨éšæ’ç›˜å¼•æ“åŒæ­¥ï¼Œè¯·ç¨åé‡æ–°è§‚å¦ã€‚</p>}
-    </section>
-
-    <section id="deep-reading" className="evidence-scroll layered-reading scroll-section" data-reveal>
-      <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">ç¬¬ä¸‰å±‚ Â· æ·±å…¥ç†è§£</p><h2>å¦ä»ä½•æ¥ï¼Œå˜åŒ–è½åœ¨å“ªé‡Œ</h2><p>è¿™é‡Œæˆ‘ä»¬ä¸ºä½ ä¿ç•™å®Œæ•´çš„ä¸‰æ•°æˆå¦ã€åŠ¨çˆ»ã€ä½“ç”¨å’Œæ—ºè¡°è§£é‡Šã€‚å¦‚æœä½ å¯¹è¿™äº›å†…å®¹æ„Ÿå…´è¶£ï¼Œæƒ³è¿›ä¸€æ­¥äº†è§£å¦è±¡æ˜¯æ€æ ·ä¸€æ­¥æ­¥å½¢æˆçš„ï¼Œå¯ä»¥å±•å¼€é˜…è¯»ã€‚</p></header>
-      <details className="reading-disclosure"><summary><span>ä¸‰æ•°å¦‚ä½•æˆå¦</span><small>ç¬¬ä¸€æ•°å®šä¸Šå¦ Â· ç¬¬äºŒæ•°å®šä¸‹å¦ Â· ç¬¬ä¸‰æ•°å®šåŠ¨çˆ»</small></summary>{cultural && <><div className="concept-explainer"><h3>å…ˆåˆ†æ¸…ä¸‰ä¸ªå®¹æ˜“æ··åœ¨ä¸€èµ·çš„æ¦‚å¿µ</h3><p><b>ä¸Šå¦å’Œä¸‹å¦</b>éƒ½æ˜¯ç”±ä¸‰æ¡çˆ»ç»„æˆçš„â€œå…«ç»å¦â€ï¼Œä¾‹å¦‚â€œç¦»â€ã€‚ä¸Šä¸‹ä¸¤ä¸ªä¸‰çˆ»å¦å åœ¨ä¸€èµ·ï¼Œæ‰ç»„æˆä¸€ä¸ªå…­çˆ»çš„<b>æœ¬å¦</b>ï¼Œä¾‹å¦‚â€œç¦»ä¸ºç«â€ã€‚æ‰€ä»¥â€œç¦»â€ä¸â€œç¦»ä¸ºç«â€ä¸æ˜¯åŒä¸€ä¸ªå±‚çº§ï¼šå‰è€…æ˜¯ç»„æˆéƒ¨åˆ†ï¼Œåè€…æ˜¯å®Œæ•´å¦è±¡ã€‚</p><p>æœ¬æ¬¡ä¸Šå¦ä¸º<b>{upperPath?.result_name}</b>ï¼Œä¸‹å¦ä¸º<b>{lowerPath?.result_name}</b>ï¼Œä¸¤è€…ç›¸å å¾—åˆ°æœ¬å¦<b>{result.base_hexagram.name}</b>ï¼›ç¬¬ä¸‰ä¸ªæ•°å­—å†ç¡®å®šå…¶ä¸­å“ªä¸€æ¡çˆ»å‘ç”Ÿå˜åŒ–ã€‚</p></div><div className="number-path">{cultural.number_path.map((item, index) => <article key={item.role}><span>{["å£¹", "è´°", "å"][index]}</span><b>{item.input_number}</b><i aria-hidden="true">â†’</i><strong>{item.role} Â· {item.result_name}</strong><small>{item.explanation}</small></article>)}</div></>}</details>
-      <details className="reading-disclosure"><summary><span>æœ¬å¦ã€äº’å¦ä¸å˜å¦</span><small>çœ¼ä¸‹çš„å±€é¢ Â· å†…éƒ¨çš„å‘å±• Â· å˜åŒ–åçš„æ–¹å‘</small></summary><div className="concept-explainer"><h3>ä¸‰ä¸ªå¦å„è‡ªçœ‹ä»€ä¹ˆ</h3><p><b>æœ¬å¦</b>çœ‹çœ¼ä¸‹æœ€ä¸»è¦çš„å±€é¢ï¼›<b>äº’å¦</b>ä»æœ¬å¦ä¸­é—´å››çˆ»é‡æ–°ç»„åˆï¼Œå¸®åŠ©çœ‹äº‹æƒ…å†…éƒ¨æ€æ ·å‘å±•ï¼›<b>å˜å¦</b>ç”±åŠ¨çˆ»å˜åŒ–åå½¢æˆï¼Œå¸®åŠ©çœ‹å±€é¢æ”¹å˜åä¼šæŠŠé‡ç‚¹å¸¦å‘å“ªé‡Œã€‚</p></div><div className="hexagram-route">{[{ label: "æœ¬å¦", value: result.base_hexagram, note: cultural?.hexagrams[0]?.reading_role }, { label: "äº’å¦", value: result.mutual_hexagram, note: cultural?.hexagrams[1]?.reading_role }, { label: "å˜å¦", value: result.changed_hexagram, note: cultural?.hexagrams[2]?.reading_role }].map(({ label, value, note }) => <article key={label}><span>{label}</span><strong>{value.symbol}</strong><h3>{value.name}</h3><small>ç¬¬ {value.king_wen_number} å¦</small><p>{note}</p></article>)}</div></details>
-      {cultural && <details className="reading-disclosure"><summary><span>æœ¬æ¬¡åŠ¨çˆ»</span><small>{cultural.moving_line.line_name} Â· {cultural.moving_line.stage}</small></summary><article className="moving-line-reading"><header><span>ä»€ä¹ˆæ˜¯åŠ¨çˆ»</span><h3>{cultural.moving_line.line_name}</h3><p>ä¸€å¦å…±æœ‰å…­æ¡çˆ»ã€‚åŠ¨çˆ»å°±æ˜¯è¿™æ¬¡å‘ç”Ÿå˜åŒ–çš„é‚£ä¸€æ¡ï¼›å®ƒä¸€å˜ï¼Œæœ¬å¦ä¾¿éšä¹‹æˆä¸ºå˜å¦ã€‚</p></header><div className="moving-change"><section><span>å˜åŒ–ä¹‹å‰</span><b>{result.base_hexagram.symbol} {result.base_hexagram.name}</b><p>è¿™æ˜¯æ²¡æœ‰å‘ç”Ÿæœ¬æ¬¡å˜åŒ–å‰ï¼Œäº‹æƒ…çœ¼ä¸‹å‘ˆç°çš„ä¸»è¦å±€é¢ã€‚</p></section><section><span>å‘ç”Ÿäº†ä»€ä¹ˆ</span><b>{cultural.moving_line.line_name}å‘ç”Ÿå˜åŒ–</b><p>å˜åŒ–è½åœ¨â€œ{cultural.moving_line.stage}â€ï¼Œè¯´æ˜è¿™ä¸€å¤„æ˜¯æœ¬æ¬¡æœ€éœ€è¦ç•™æ„çš„è½¬æŠ˜ã€‚</p></section><section><span>å˜åŒ–ä¹‹å</span><b>{result.changed_hexagram.symbol} {result.changed_hexagram.name}</b><p>è¿™ä¸€çˆ»æ”¹å˜åå½¢æˆå˜å¦ï¼Œå±€é¢çš„é‡ç‚¹ä¹Ÿéšä¹‹è½¬å‘ã€‚</p></section></div><blockquote><b>çˆ»è¾åŸæ–‡</b>{cultural.moving_line.canonical_text}</blockquote><p className="moving-reality"><b>è½åˆ°ä½ æ‰€é—®çš„è¿™ä»¶äº‹ä¸Š</b>{movingTerm?.current_effect}</p></article></details>}
-      <details className="reading-disclosure"><summary><span>ä½“ç”¨å…³ç³»ä¸æ—ºè¡°</span><small>åŒæ–¹å…³ç³» Â· å˜åŒ–æ–¹å‘ Â· å½“å‰æ‰¿æ¥èƒ½åŠ›</small></summary><div className="term-grid">{cultural?.terms.map((term) => <article key={term.title}><span>{term.title}</span><h3>{term.current_value}</h3><p>{term.meaning}</p><strong>æœ¬æ¬¡å½±å“</strong><p>{term.current_effect}</p></article>)}</div></details>
-      <p className="evidence-boundary">{report.boundary_note}</p>
-    </section>
-
-    <section className="final-guidance scroll-section" data-reveal>
-      <VerticalBrand />
-      <p className="final-question">ä½ é—®çš„æ˜¯ï¼š{question}</p>
-      <header className="section-heading"><p className="eyebrow">çœ‹æ¸…ä¹‹åï¼Œå›åˆ°å½“ä¸‹</p><h2>å¯å€Ÿä¹‹åŠ›ï¼Œä¸å½“æ…ä¹‹å¤„</h2></header>
-      {sectionVisibility.showGenericGuidance && <div className="guidance-columns"><article><span>å½“ä¸‹æœ‰åˆ©</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article><article><span>å°¤å…¶æ³¨æ„</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article></div>}
-      <div className="next-action"><span>çœ¼ä¸‹å¯åšçš„ä¸€æ­¥</span><p>{primaryAction}</p>{personalized && <small>è‹¥å‡ºç°ä»¥ä¸‹æƒ…å†µï¼Œåº”åœä¸‹æ¥é‡æ–°åˆ¤æ–­ï¼š{personalized.switch_condition}</small>}</div>
-      <section id="save-current-reading" className="save-current-reading"><p className="eyebrow">è§£è¯»è‡³æ­¤</p><h3>æŠŠè¿™æ¬¡æ‰€è§ç•™åˆ°ä»¥åå†çœ‹</h3><p>åˆ°è¿™é‡Œï¼Œè¿™æ¬¡å¦è±¡çš„è§£è¯»å°±å®Œæˆäº†ã€‚å¸Œæœ›å®ƒå·²ç»å¸®ä½ ç†æ¸…æ–¹å‘ï¼Œä¹Ÿè®©ä½ æ›´æ¸…æ¥šä¸‹ä¸€æ­¥å‡†å¤‡æ€ä¹ˆåšã€‚å¦‚æœä½ æƒ³åœ¨äº‹æƒ…æœ‰äº†è¿›å±•åå›æ¥å¤ç›˜ï¼Œå¯ä»¥åœ¨ä¸‹é¢å†™ä¸‹å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨ï¼Œå¹¶é€‰æ‹©ä¸€ä¸ªå›çœ‹æ—¥æœŸã€‚</p><div className="save-observation">
-        <label><span>æˆ‘å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨</span><textarea aria-describedby="action-help" placeholder="è¯·ç”¨è‡ªå·±çš„è¯å†™ä¸‹ï¼šæˆ‘æ¥ä¸‹æ¥å‡†å¤‡åšä»€ä¹ˆã€å…ˆè§‚å¯Ÿä»€ä¹ˆï¼Œä»€ä¹ˆæƒ…å†µå‡ºç°æ—¶ä¼šè°ƒæ•´ã€‚" value={action} maxLength={500} onChange={(event) => setAction(event.target.value)} /></label>
-        <label><span>æˆ‘å‡†å¤‡å›æ¥å¤ç›˜çš„æ—¥æœŸ</span><input type="date" value={reviewOn} onChange={(event) => setReviewOn(event.target.value)} /></label>
-        <button type="button" disabled={saving || saved || !action.trim()} onClick={() => onSave(action, reviewOn || null)}>{saved ? "å·²ç»å­˜å…¥è§‚äº‹ç°¿" : saving ? "æ­£åœ¨ä¿å­˜" : "å­˜å…¥è§‚äº‹ç°¿"}</button>
-        <small id="action-help">ä¿å­˜åï¼Œä½ å¯ä»¥åœ¨è§‚äº‹ç°¿é‡Œé‡æ–°æ‰“å¼€æœ¬æ¬¡å¦è±¡ï¼Œè®°å½•åæ¥å®é™…å‘ç”Ÿäº†ä»€ä¹ˆï¼Œå¹¶æ®æ­¤ä¿®æ­£è‡ªå·±çš„åˆ¤æ–­ã€‚è®°å½•å¯ä»¥å¯¼å‡ºï¼Œä¹Ÿå¯ä»¥éšæ—¶åˆ é™¤ã€‚</small>
-      </div></section>
-      <div className="result-actions"><button type="button" className="restart-button secondary" onClick={onEdit}>å›åˆ°æœ¬é¢˜ä¿®æ”¹</button><button type="button" className="restart-button" onClick={onClear}>æ¸…ç©ºå¹¶å†é—®ä¸€äº‹</button></div>
-      <blockquote className="classic-counsel"><p>{counsel.quote}</p><cite>{counsel.source}</cite></blockquote>
-    </section>
-  </section>;
-}
-
-function CastingLoader() {
-  return <div className="casting" role="status"><BaguaMark /><p><b>æ­£åœ¨è§‚è±¡</b><span>æ’å®šæœ¬å¦ Â· åˆ†æ¸…äº‹å®ä¸æœªçŸ¥ Â· ç”Ÿæˆç°å®è§£è¯»</span></p></div>;
-}
-
-export function GuanxiangApp() {
-  const [question, setQuestion] = useState("");
-  const [domain, setDomain] = useState("");
-  const [goal, setGoal] = useState("");
-  const [horizon, setHorizon] = useState("");
-  const [stage, setStage] = useState("");
-  const [uncertainty, setUncertainty] = useState("");
-  const [riskProfile, setRiskProfile] = useState("STANDARD");
-  const [facts, setFacts] = useState("");
-  const [unknowns, setUnknowns] = useState("");
-  const [actions, setActions] = useState("");
-  const [observableResponses, setObservableResponses] = useState("");
-  const [numbers, setNumbers] = useState(["", "", ""]);
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [response, setResponse] = useState<ApiResponse | null>(null);
-  const [error, setError] = useState("");
-  const [progress, setProgress] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [records, setRecords] = useState<JournalRecord[]>([]);
-  const [journalLoading, setJournalLoading] = useState(true);
-  const [journalMessage, setJournalMessage] = useState("");
-  const [savingRecord, setSavingRecord] = useState(false);
-  const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
-  const allowedGoals = useMemo(() => GOALS_BY_DOMAIN[domain] ?? [], [domain]);
-
-  function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
-    setQuestion(example.text);
-    setDomain(example.domain);
-    setGoal("");
-  }
-
-  function finishPersonalizedRequest(payload: ApiResponse): void {
-    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-    if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.deterministic_result?.clarity_report) {
-      throw new Error(payload.error || "æœ¬æ¬¡è§£è¯»æ²¡æœ‰é€šè¿‡æ£€æŸ¥ï¼Œä¹Ÿä¸ä¼šè‡ªåŠ¨é‡æ–°ç”Ÿæˆã€‚");
-    }
-    setResponse(payload);
-    setProgress("");
-  }
-
-  async function pollPersonalizedRequest(requestId: string, cancelled: () => boolean = () => false): Promise<void> {
-    setProgress("æ­£åœ¨ç»“åˆå¦è±¡ä¸ç°å®ä¿¡æ¯ç”Ÿæˆè§£è¯»ã€‚é¡µé¢ä¼šè‡ªåŠ¨å–å¾—åŒä¸€ä»»åŠ¡çš„ç»“æœï¼Œä¸ä¼šé‡å¤ç”Ÿæˆã€‚");
-    try {
-      const payload = await pollPersonalizedTask(requestId, {
-        fetchResult: () => fetch(`/api/v4/meihua?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" }),
-        sleep,
-        cancelled,
-      });
-      if (payload) finishPersonalizedRequest(payload as ApiResponse);
-    } catch (caught) {
-      if (caught instanceof PersonalizedPollError && caught.terminal) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-      throw caught;
-    }
-  }
-
-  function personalizedErrorMessage(caught: unknown, requestId?: string): string {
-    const message = caught instanceof Error ? caught.message : "æŸ¥è¯¢ç”Ÿæˆç»“æœæ—¶å‡ºç°å¼‚å¸¸ã€‚";
-    const taskId = caught instanceof PersonalizedPollError ? caught.requestId : requestId;
-    return taskId ? `${message}ï¼ˆä»»åŠ¡ç¼–å·ï¼š${taskId}ï¼‰` : message;
-  }
-
-  useEffect(() => {
-    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
-    if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
-    let cancelled = false;
-    const resumeTimer = window.setTimeout(() => {
-      setLoading(true);
-      setError("");
-      void pollPersonalizedRequest(activeRequestId, () => cancelled)
-        .catch((caught) => { if (!cancelled) setError(personalizedErrorMessage(caught, activeRequestId)); })
-        .finally(() => { if (!cancelled) { setLoading(false); setProgress(""); } });
-    }, 0);
-    return () => { cancelled = true; window.clearTimeout(resumeTimer); };
-  // An unfinished request is intentionally resumed only once when the formal page mounts.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
-    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { elements.forEach((item) => item.classList.add("is-visible")); return; }
-    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: .08, rootMargin: "0px 0px -3%" });
-    elements.forEach((item) => observer.observe(item));
-    return () => observer.disconnect();
-  }, [response, records]);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function loadJournal() {
-      try {
-        const request = await fetch("/api/journal", { headers: journalHeaders(), cache: "no-store" });
-        const payload = await request.json() as { records?: JournalRecord[]; error?: string };
-        if (!request.ok) throw new Error(payload.error || "è§‚äº‹ç°¿æš‚æ—¶æ— æ³•æ‰“å¼€ã€‚");
-        if (!cancelled) setRecords(payload.records ?? []);
-      } catch (caught) {
-        if (!cancelled) setJournalMessage(caught instanceof Error ? caught.message : "è§‚äº‹ç°¿æš‚æ—¶æ— æ³•æ‰“å¼€ã€‚");
-      } finally { if (!cancelled) setJournalLoading(false); }
-    }
-    loadJournal();
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    if (!response) return;
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      document.getElementById("result-title")?.focus({ preventScroll: true });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [response]);
-
-  function editQuestion() {
-    setResponse(null); setError("");
-    window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
-  }
-
-  function clearQuestion() {
-    setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
-    setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
-    window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
-  }
-
-  async function saveObservation(actionText: string, reviewOn: string | null) {
-    if (!response?.deterministic_result) return;
-    setSavingRecord(true); setJournalMessage("");
-    const id = crypto.randomUUID();
-    try {
-      const request = await fetch("/api/journal", { method: "POST", headers: journalHeaders(), body: JSON.stringify({
-        id, question: response.user_question ?? question.trim(), structured_intake: response.structured_intake ?? { question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile },
-        numbers: response.deterministic_result.input_numbers,
-        result: { ...response.deterministic_result, ...(response.personalized_reading ? { personalized_reading: response.personalized_reading } : {}) },
-        action_text: actionText, review_on: reviewOn,
-      }) });
-      const payload = await request.json() as { record?: JournalRecord; error?: string };
-      if (!request.ok || !payload.record) throw new Error(payload.error || "è¿™æ¬¡è§‚è±¡æš‚æ—¶æ²¡æœ‰ä¿å­˜æˆåŠŸã€‚");
-      setRecords((current) => [payload.record!, ...current]); setSavedRecordId(id); setJournalMessage("å·²ç»å­˜å…¥è§‚äº‹ç°¿ã€‚ç­‰ç°å®å‡ºç°æ–°è¯æ®åï¼Œå†å›æ¥å¤ç›˜ã€‚");
-    } catch (caught) { setJournalMessage(caught instanceof Error ? caught.message : "è¿™æ¬¡è§‚è±¡æš‚æ—¶æ²¡æœ‰ä¿å­˜æˆåŠŸã€‚"); }
-    finally { setSavingRecord(false); }
-  }
-
-  async function updateObservation(id: string, draft: JournalDraft) {
-    setJournalMessage("");
-    try {
-      const request = await fetch("/api/journal", { method: "PATCH", headers: journalHeaders(), body: JSON.stringify({ id, ...draft }) });
-      const payload = await request.json() as { record?: JournalRecord; error?: string };
-      if (!request.ok || !payload.record) throw new Error(payload.error || "å¤ç›˜æš‚æ—¶æ²¡æœ‰ä¿å­˜æˆåŠŸã€‚");
-      setRecords((current) => current.map((record) => record.id === id ? payload.record! : record)); setJournalMessage("å¤ç›˜å·²ç»ä¿å­˜ã€‚æ–°çš„ç°å®è¯æ®ï¼Œå·²ç»å›åˆ°è¿™æ¬¡åˆ¤æ–­ä¹‹ä¸­ã€‚");
-    } catch (caught) { setJournalMessage(caught instanceof Error ? caught.message : "å¤ç›˜æš‚æ—¶æ²¡æœ‰ä¿å­˜æˆåŠŸã€‚"); }
-  }
-
-  async function deleteObservation(id: string) {
-    if (!window.confirm("è¿™æ¡è§‚è±¡ä¸å¤ç›˜å°†è¢«æ°¸ä¹…åˆ é™¤ï¼Œä¸”æ— æ³•æ¢å¤ã€‚ç¡®å®šåˆ é™¤å—ï¼Ÿ")) return;
-    setJournalMessage("");
-    try {
-      const request = await fetch(`/api/journal?id=${encodeURIComponent(id)}`, { method: "DELETE", headers: journalHeaders() });
-      const payload = await request.json() as { error?: string };
-      if (!request.ok) throw new Error(payload.error || "æš‚æ—¶æ— æ³•åˆ é™¤ã€‚");
-      setRecords((current) => current.filter((record) => record.id !== id)); setJournalMessage("è¿™æ¡è®°å½•å·²ç»æ°¸ä¹…åˆ é™¤ã€‚");
-    } catch (caught) { setJournalMessage(caught instanceof Error ? caught.message : "æš‚æ—¶æ— æ³•åˆ é™¤ã€‚"); }
-  }
-
-  function openObservation(record: JournalRecord) {
-    setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setAcknowledged(true); setSavedRecordId(record.id);
-    setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
-    window.setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth" }), 0);
-  }
-
-  function exportJournal() {
-    const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), product: "è§‚è±¡", records }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
-    anchor.href = url; anchor.download = `è§‚è±¡-è§‚äº‹ç°¿-${new Date().toISOString().slice(0, 10)}.json`; anchor.click(); URL.revokeObjectURL(url);
-  }
-
-  async function submit(event: FormEvent) {
-    event.preventDefault(); setError(""); setResponse(null); setSavedRecordId(null);
-    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
-    if (activeRequestId && /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) {
-      setLoading(true);
-      try { await pollPersonalizedRequest(activeRequestId); }
-      catch (caught) { setError(personalizedErrorMessage(caught, activeRequestId)); }
-      finally { setLoading(false); setProgress(""); }
-      return;
-    }
-    if (activeRequestId) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-
-    const factLines = nonemptyLines(facts);
-    const unknownLines = nonemptyLines(unknowns);
-    const actionLines = nonemptyLines(actions);
-    const responseLines = nonemptyLines(observableResponses);
-    const parsed = numbers.map(Number);
-    const textLists = [factLines, unknownLines, actionLines, responseLines];
-    if (question.trim().length < 6 || question.trim().length > 160 || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
-      setError("è¯·å®Œæ•´å¡«å†™é—®é¢˜ã€å¤„å¢ƒã€è‡³å°‘ä¸€æ¡å·²ç¡®è®¤äº‹å®å’Œä¸€æ¡æœªçŸ¥é¡¹ï¼Œå†å¡«å†™ä¸‰ä¸ª 1â€“999 çš„æ•´æ•°å¹¶ç¡®è®¤ä½¿ç”¨è¾¹ç•Œã€‚æ¯é¡¹ä¸€è¡Œï¼Œäº‹å®æœ€å¤š 8 è¡Œï¼Œå…¶ä»–å„æœ€å¤š 6 è¡Œã€‚"); return;
-    }
-    setLoading(true); setProgress("æ­£åœ¨æäº¤æœ¬æ¬¡è§‚è±¡ä»»åŠ¡â€¦â€¦");
-    const requestId = `sites-${crypto.randomUUID()}`;
-    try {
-      sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
-      const body = JSON.stringify({
-        contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId,
-        question_text: question.trim(), question_domain: domain, decision_goal: goal,
-        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile,
-        confirmed_facts: factLines, unknowns: unknownLines, options: [],
-        actions_already_taken: actionLines, observable_responses: responseLines,
-        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-        user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
-      });
-      let accepted = false;
-      for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
-        try {
-          const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
-          const payload = await request.json() as ApiResponse;
-          if (request.status === 202) { accepted = true; break; }
-          if (request.ok) { finishPersonalizedRequest(payload); return; }
-          if (request.status !== 503) {
-            sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-            throw new Error(payload.error || payload.errors?.[0]?.message || "æœ¬æ¬¡æœªèƒ½ç”Ÿæˆç»“æœã€‚");
-          }
-        } catch (caught) {
-          if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) throw caught;
-        }
-        await sleep(1_500);
-      }
-      await pollPersonalizedRequest(requestId);
-    } catch (caught) { setError(personalizedErrorMessage(caught, requestId)); }
-    finally { setLoading(false); setProgress(""); }
-  }
-
-  return <>
-    <header className="site-header">
-      <a className="wordmark" href="#top">è§‚è±¡</a>
-      <nav><a href="#method">å¦‚ä½•è§‚</a><a href="#inquiry">å¼€å§‹é—®</a><a href="#journal">è§‚äº‹ç°¿</a></nav>
-      <small>ç¡®å®šæ€§æ’ç›˜ Â· ä¸ªæ€§åŒ–è§£è¯»</small>
-    </header>
-    <main id="top" className="scroll-canvas">
-      <section className="hero scroll-section" data-reveal>
-        <VerticalBrand />
-        <p className="hero-motto">å¿ƒæœ‰æ‰€é—®ï¼Œé™è§‚å…¶è±¡ã€‚</p>
-        <div className="hero-copy">
-          <p className="eyebrow">ã€Šå‘¨æ˜“Â·ç³»è¾ä¸Šã€‹</p>
-          <h1>å¯‚ç„¶ä¸åŠ¨ï¼Œ<br />æ„Ÿè€Œé‚é€šå¤©ä¸‹ä¹‹æ•…ã€‚</h1>
-          <p className="hero-value">ç”¨ä¸‰åˆ†é’Ÿï¼ŒæŠŠä¸€ä»¶æ‹¿ä¸å‡†çš„äº‹ç†æ¸…æ–¹å‘ï¼Œä¹Ÿçœ‹æ¸…ä¸‹ä¸€æ­¥è¯¥ç•™æ„ä»€ä¹ˆã€‚</p>
-          <p>è§‚è±¡ä¸æ›¿ä½ å†³å®šï¼Œä¹Ÿä¸é¢„å…ˆå†™å¥½ç»“æœã€‚å®ƒæŠŠå¦è±¡çš„ç»“æ„ã€å˜åŒ–ä¸ç°å®ä¸­è¯¥è§‚å¯Ÿçš„æ¡ä»¶ä¸€å±‚å±‚å±•å¼€ï¼Œå¹¶è®©ä½ åœ¨åæ¥å›æ¥å¤ç›˜ã€‚</p>
-          <a className="seal-button" href="#method"><BaguaMark className="cta-emblem" /><span>é‡äº‹ä¸å†³ï¼Œå¯é—®æ˜¥é£</span><BaguaMark className="cta-seal" /></a>
-        </div>
-      </section>
-
-      <section id="method" className="method scroll-section" data-reveal>
-        <VerticalBrand />
-        <div className="method-quote"><p className="eyebrow">è§‚è±¡ä¹‹æ³•</p><h2>åœ¨å¤©æˆè±¡ï¼Œ<br />åœ¨åœ°æˆå½¢ï¼Œå˜åŒ–è§çŸ£ã€‚</h2><cite>ã€Šå‘¨æ˜“Â·ç³»è¾ä¸Šã€‹</cite></div>
-        <div className="method-explainer"><p>æ‰€è°“è§‚è±¡çš„æ„æ€ï¼Œå°±æ˜¯è§‚å¯Ÿèº«è¾¹çš„ç°è±¡ï¼Œç”±å¯è§ä¹‹å½¢å¯Ÿå…¶å…³ç³»ï¼Œç”±å˜åŒ–ä¹‹ä¸­è¾¨å…¶è¶‹å‘ã€‚å®ƒä¸æ˜¯ä¸€å¥å«æ··çš„é¢„è¨€ï¼Œè€Œæ˜¯ä¸€æ¡ä»æ‰€é—®ã€å–æ•°ã€æˆå¦åˆ°ç°å®éªŒè¯çš„è§‚å¯Ÿè·¯å¾„ã€‚</p>
-          <ol><li><span>å£¹</span><b>æ­£é—®</b><p>å†™ä¸‹ä¸€ä»¶å…·ä½“è€ŒçœŸå®çš„äº‹ã€‚</p></li><li><span>è´°</span><b>è¾¨å®</b><p>åˆ†æ¸…å·²ç¡®è®¤çš„äº‹å®ä¸ä»æœªçŸ¥çš„éƒ¨åˆ†ã€‚</p></li><li><span>å</span><b>æˆå¦</b><p>ç¨‹åºæŒ‰ä¸‰æ•°èµ·å¦è§„åˆ™æ’å®šæœ¬å¦ã€äº’å¦ä¸å˜å¦ï¼Œå†ç»“åˆç°å®å¤„å¢ƒç”Ÿæˆè§£è¯»ã€‚</p></li><li><span>è‚†</span><b>éªŒäº‹</b><p>æŠŠæ–¹å‘æ”¾å›ç°å®ï¼Œä»¥è¡ŒåŠ¨å’Œåé¦ˆå¤æ ¸ã€‚</p></li></ol>
-          <div className="input-roles"><h3>å¦ä»æ•°èµ·ï¼Œæ„éšäº‹æ˜</h3><p><b>ä¸‰ä¸ªæ•°å­—</b>ç”¨æ¥èµ·å¦ï¼›ä½ å†™ä¸‹çš„<b>é—®é¢˜å’Œç°å®å¤„å¢ƒ</b>ï¼Œå¸®åŠ©æˆ‘ä»¬ä»å¦è±¡ä¸­æ‰¾åˆ°ä¸çœ¼å‰è¿™ä»¶äº‹æœ‰å…³çš„é‡ç‚¹ï¼Œå¹¶æ•´ç†å‡ºå¯ä»¥é‡‡å–çš„åº”å¯¹æ–¹æ³•ã€‚</p><a href="/about">æŸ¥çœ‹å®Œæ•´æ–¹æ³•ä¸è§„åˆ™ç‰ˆæœ¬</a></div>
-          <a className="method-cta" href="#inquiry">å·²æ˜å…¶æ³•ï¼Œå¼€å§‹æ­£é—®</a>
-        </div>
-      </section>
-
-      <section id="inquiry" className="inquiry scroll-section" data-reveal>
-        <VerticalBrand />
-        <form onSubmit={submit} noValidate>
-          <header className="inquiry-heading"><p className="eyebrow">æ­£é—®</p><h2>ä¸€æ¬¡åªé—®ä¸€ä»¶å…·ä½“çš„äº‹</h2><p>ä¸è¦æŠŠè®¸å¤šé€‰æ‹©æ‰æˆä¸€ä¸ªå¤§é—®é¢˜ã€‚æ‰€é—®è¶Šå…·ä½“ï¼Œè¶Šå®¹æ˜“ä»å¦è±¡ä¸­çœ‹æ¸…çœ¼å‰çœŸæ­£éœ€è¦å¤„ç†çš„éƒ¨åˆ†ã€‚æ•´ä¸ªè¿‡ç¨‹çº¦ä¸‰åˆ†é’Ÿï¼Œå¸¦æ˜Ÿå·çš„å†…å®¹éœ€è¦å¡«å†™ã€‚</p></header>
-
-          <section className="inquiry-step"><div className="step-heading"><span>å£¹</span><div><h3>å†™æ¸…æ‰€é—®</h3><p>å°½é‡å†™æ¸…å¯¹è±¡ã€å½“å‰é€‰æ‹©å’Œç°å®èŒƒå›´ã€‚</p></div></div>
-            <label className="question-label"><span>ä½ çœŸæ­£æƒ³é—®çš„é—®é¢˜ *</span><textarea aria-label="ä½ çœŸæ­£æƒ³é—®çš„é—®é¢˜" placeholder="ä¾‹å¦‚ï¼šè¿™æ¬¡åˆä½œï¼Œæˆ‘è¿˜åº”è¯¥ç»§ç»­æŠ•å…¥å—ï¼Ÿ" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} /><small>{question.trim().length} / 160 Â· è¯·ç”¨æ¸…æ™°å…·ä½“çš„æ–‡å­—è¯´å‡ºä½ æƒ³å¼„æ˜ç™½çš„äº‹ï¼Œè¿™ä¼šå¸®åŠ©æˆ‘ä»¬æŠŠæŠ½è±¡çš„å¦æ„è½åˆ°ç°å®å¤„å¢ƒä¸­ã€‚</small></label>
-            <div className="question-examples"><header><span>ä¸çŸ¥æ€æ ·å¼€å£ï¼Œå¯ä»¥ä»è¿™äº›é—®é¢˜å¼€å§‹</span><small>ç‚¹å‡»ä»»æ„ä¸€å¥ï¼Œä¼šè‡ªåŠ¨å¡«å…¥ä¸Šæ–¹</small></header><div>{QUESTION_EXAMPLES.map((example) => <button type="button" key={example.text} onClick={() => applyQuestionExample(example)}><span>{example.topic}</span><b>{example.text}</b></button>)}</div></div>
-          </section>
-
-          <section className="inquiry-step"><div className="step-heading"><span>è´°</span><div><h3>è¯´æ˜ç°å®å¤„å¢ƒ</h3><p>å‘Šè¯‰æˆ‘ä»¬äº‹æƒ…å±äºå“ªä¸€ç±»ã€èµ°åˆ°å“ªä¸€æ­¥ã€ä½ æœ€åœ¨æ„ä»€ä¹ˆã€‚è¿™æ ·è§£è¯»æ—¶ï¼Œå¦è±¡ä¸­çš„æ–¹å‘æ‰èƒ½è½åˆ°ä½ çœŸæ­£å…³å¿ƒçš„åœ°æ–¹ã€‚</p></div></div>
-            <div className="context-line"><ChoiceMenu label="äº‹æƒ…å±äº *" value={domain} options={DOMAINS} onChange={(value) => { setDomain(value); setGoal(""); }} /><ChoiceMenu label="è¿™æ¬¡æœ€æƒ³çœ‹æ¸… *" value={goal} options={Object.fromEntries(allowedGoals.map((key) => [key, GOALS[key]]))} disabled={!domain} onChange={setGoal} /><ChoiceMenu label="è§‚å¯ŸèŒƒå›´ *" value={horizon} options={HORIZONS} onChange={setHorizon} /></div>
-            <div className="hanging-slips context-slips"><fieldset><legend>äº‹æƒ…èµ°åˆ°å“ªä¸€æ­¥ *</legend><OptionList name="è¿›ç¨‹" value={stage} options={STAGES} onChange={setStage} /></fieldset><fieldset><legend>æœ€éœ€è¦ç¡®è®¤çš„å˜é‡ *</legend><OptionList name="æ‰€å¿§" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></fieldset><fieldset><legend>å†³å®šèƒ½å¦æ’¤å› *</legend><OptionList name="é£é™©" value={riskProfile} options={RISK_PROFILES} onChange={setRiskProfile} /></fieldset></div>
-          </section>
-
-          <section className="inquiry-step"><div className="step-heading"><span>å</span><div><h3>åˆ†æ¸…äº‹å®ä¸æœªçŸ¥</h3><p>åªå†™ä½ å·²ç»ç¡®è®¤çš„ç°å®ä¿¡æ¯ï¼Œå¹¶æŠŠå°šä¸ç¡®å®šçš„éƒ¨åˆ†æ˜ç¡®ç•™ä½œæœªçŸ¥ã€‚è¿™æ ·è§£è¯»ä¸ä¼šæŠŠçŒœæµ‹å½“æˆäº‹å®ã€‚</p></div></div>
-            <p className="reality-context-note">æ¯è¡Œå†™ä¸€ä»¶äº‹ï¼Œä¸è¦å¡«å†™å§“åã€ç”µè¯ã€ä½å€ã€è´¦å·ã€è¯ä»¶å·ç ç­‰æ•æ„Ÿä¿¡æ¯ã€‚å·²ç¡®è®¤äº‹å®ä¸æœªçŸ¥é¡¹å„è‡³å°‘ä¸€è¡Œï¼›è¡ŒåŠ¨å’Œå›åº”å¯ä»¥ç•™ç©ºã€‚</p>
-            <div className="reality-context-grid">
-              <label><span>å·²ç»ç¡®è®¤çš„ç°å®äº‹å® *</span><textarea aria-label="å·²ç»ç¡®è®¤çš„ç°å®äº‹å®" value={facts} maxLength={3200} onChange={(event) => setFacts(event.target.value)} placeholder={"ä¾‹å¦‚ï¼šå·²ç»æ²Ÿé€šè¿‡ä¸¤æ¬¡ï¼Œå¯¹æ–¹éƒ½æ²¡æœ‰æ˜ç¡®æˆªæ­¢æ—¶é—´\næœ¬å‘¨éœ€è¦å†³å®šæ˜¯å¦ç»§ç»­é¢„ç•™èµ„æº"} /><small>æœ€å¤š 8 è¡Œï¼Œæ¯è¡Œä¸è¶…è¿‡ 400 å­—ã€‚</small></label>
-              <label><span>ç›®å‰ä¸èƒ½å‡è®¾çš„æœªçŸ¥é¡¹ *</span><textarea aria-label="ç›®å‰ä¸èƒ½å‡è®¾çš„æœªçŸ¥é¡¹" value={unknowns} maxLength={2400} onChange={(event) => setUnknowns(event.target.value)} placeholder={"ä¾‹å¦‚ï¼šä¸çŸ¥é“æœ€ç»ˆè´Ÿè´£äººæ˜¯å¦å·²ç»çœ‹è¿‡æ–¹æ¡ˆ\nä¸çŸ¥é“ä¸‹ä¸ªæœˆæ˜¯å¦ä»æœ‰é¢„ç®—"} /><small>æœ€å¤š 6 è¡Œï¼›ä¸çŸ¥é“çš„äº‹å°±ç•™åœ¨è¿™é‡Œã€‚</small></label>
-              <label><span>å·²ç»é‡‡å–çš„è¡ŒåŠ¨</span><textarea aria-label="å·²ç»é‡‡å–çš„è¡ŒåŠ¨" value={actions} maxLength={2400} onChange={(event) => setActions(event.target.value)} placeholder="ä¾‹å¦‚ï¼šä¸Šå‘¨å‘è¿‡ä¸€å°ç¡®è®¤æ—¶é—´è¡¨çš„é‚®ä»¶" /><small>å¯ç•™ç©ºï¼Œæœ€å¤š 6 è¡Œã€‚</small></label>
-              <label><span>å·²ç»å‡ºç°çš„å›åº”</span><textarea aria-label="å·²ç»å‡ºç°çš„å›åº”" value={observableResponses} maxLength={2400} onChange={(event) => setObservableResponses(event.target.value)} placeholder="ä¾‹å¦‚ï¼šå¯¹æ–¹åªå›å¤äº†æ”¶åˆ°ï¼Œå°šæœªç¡®è®¤ä¸‹ä¸€æ­¥" /><small>å¯ç•™ç©ºï¼Œæœ€å¤š 6 è¡Œã€‚</small></label>
-            </div>
-          </section>
-
-          <section className="inquiry-step number-step"><div className="step-heading"><span>è‚†</span><div><h3>é™å¿ƒå–æ•°</h3><p>ä¸‰ä¸ªæ•°å­—æ²¡æœ‰å‰å‡¶ï¼Œä¹Ÿæ²¡æœ‰é€‰å¯¹é€‰é”™ã€‚å‡­å½“ä¸‹æ‰€æ„Ÿï¼Œå„å†™ä¸€ä¸ª 1â€”999 çš„æ•´æ•°ã€‚</p></div></div>
-            <fieldset className="numbers-slip"><legend className="sr-only">å–ä¸‰ä¸ªæ•´æ•°</legend>{numbers.map((value, index) => <label key={index}><span>{["å£¹ Â· ä¸Šå¦", "è´° Â· ä¸‹å¦", "å Â· åŠ¨çˆ»"][index]}</span><input aria-label={`ç¬¬${index + 1}ä¸ªæ•°å­—`} placeholder="1â€”999" type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</fieldset>
-            <p className="number-note">ç¬¬ä¸€æ•°å®šä¸Šå¦ï¼Œç¬¬äºŒæ•°å®šä¸‹å¦ï¼Œç¬¬ä¸‰æ•°å®šåŠ¨çˆ»ã€‚ç¨‹åºéšåä¾è§„åˆ™æ’å®šæœ¬å¦ã€äº’å¦ä¸å˜å¦ã€‚</p>
-          </section>
-
-          <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>æˆ‘ç†è§£ï¼šå¦è±¡æä¾›ä¸€ç§è§‚å¯Ÿè§’åº¦ï¼Œä¸ªæ€§åŒ–æ–‡å­—åªä½¿ç”¨æˆ‘å†™ä¸‹çš„äº‹å®ã€æœªçŸ¥é¡¹å’Œç¨‹åºæ’å‡ºçš„å¦è±¡ï¼›å®ƒä¸æ›¿ä»£åŒ»ç–—ã€æ³•å¾‹ã€è´¢åŠ¡ç­‰ä¸“ä¸šæ„è§ã€‚ç”Ÿæˆå¤±è´¥ä¸ä¼šè‡ªåŠ¨é‡æ–°ç”Ÿæˆï¼›åªæœ‰æˆ‘ä¸»åŠ¨ä¿å­˜æ—¶ï¼Œç»“æœæ‰ä¼šè¿›å…¥è§‚äº‹ç°¿ã€‚</span></label>
-          {progress && <p className="generation-progress" role="status">{progress}</p>}
-          {error && <p className="error" role="alert">{error}</p>}
-          <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "æ­£åœ¨ç”Ÿæˆè§£è¯»" : "è§‚å¦"}</button>
-          {loading && <CastingLoader />}
-        </form>
-      </section>
-
-      {response && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
-      <JournalSection records={records} loading={journalLoading} message={journalMessage} hasUnsavedResult={Boolean(response?.deterministic_result) && savedRecordId === null} onOpen={openObservation} onUpdate={updateObservation} onDelete={deleteObservation} onExport={exportJournal} onSaveCurrent={() => document.getElementById("save-current-reading")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
-      <aside className="version-note">å¦è±¡ä¸æ˜¯é¢„å…ˆå†™å¥½çš„åˆ¤è¯ï¼Œè€Œæ˜¯å¯¹å½“ä¸‹ç»“æ„çš„ä¸€æ¬¡ç…§è§ã€‚æ‰€è°“â€œç©·åˆ™å˜ï¼Œå˜åˆ™é€šâ€ï¼Œå¿ƒå¿µä¸è¡ŒåŠ¨ä¸€å˜ï¼Œåç»­æ¡ä»¶ä¹Ÿä¼šéšä¹‹æ”¹å˜ã€‚å¾—é¡ºåŠ¿ä¹‹è±¡ï¼Œä¸å¯å› æ­¤åœæ­¥ï¼›è§é˜»åŠ›ä¹‹è±¡ï¼Œä¹Ÿä¸å¿…è‡ªå¼ƒã€‚è§‚è±¡çš„æ„ä¹‰ï¼Œæ˜¯è®©æˆ‘ä»¬çœ‹è§ç…§æ—§å‰è¡Œå¯èƒ½æŠµè¾¾ä¹‹å¤„ï¼Œä»è€ŒåŠæ—©å‡†å¤‡ã€ä¿®æ­£ä¸è¡ŒåŠ¨ã€‚</aside>
-    </main>
-    <footer className="site-footer"><b>è§‚è±¡</b><span>ä¼ ç»Ÿæ–‡åŒ–ç»“æ„å‚è€ƒ Â· ä»¥ç°å®éªŒè¯æ›´æ–°åˆ¤æ–­</span><nav><a href="/guide">å¦‚ä½•ä½¿ç”¨</a><a href="/about">æ–¹æ³•ä¸è¾¹ç•Œ</a><a href="/privacy">éšç§è¯´æ˜</a></nav></footer>
-  </>;
-}
+  function record(answer: string) {
+    const value = answer.trim();
+    if (!value || !currentPrompt) return;
+    setAnswers((current) => [...current, { prompt: currentPrompt, answer: value }]);
+    if (turn === 0) setHorizonAnswer(Object.entries(HORIZONS).find(([, label]) => label === value)?.[0] ?? "CURRENT");
+    if (turn === 1) setStageAnswer(Object.entries(STAGES).find(([, label]) => label === value)?.[0] ?? "EXPLORING");
+    if (turn === 2) onFacts(value);
+    if (turn === 3) onUnknowns(value);
+    if (turn === 4) onActions(v×MzÖÚ$z{-®éÜj×VW7F–öâ“²6WDFöÖ–â‡&V6÷&Bç7G'V7GW&VEö–çF¶RçVW7F–öåöFöÖ–â“²6WDvöÂ‡&V6÷&Bç7G'V7GW&VEö–çF¶RæFV6—6–öåövöÂ“²6WD†÷&—¦öâ‡&V6÷&Bç7G'V7GW&VEö–çF¶RçF–ÖUö†÷&—¦öâ“²6WE7FvR‡&V6÷&Bç7G'V7GW&VEö–çF¶RæFV6—6–öå÷7FvR“²6WEVæ6W'F–çG’‡&V6÷&Bç7G'V7GW&VEö–çF¶Ræ¶W•÷Væ6W'F–çG’“²6WE&—6µ&öf–ÆR‡&V6÷&Bç7G'V7GW&VEö–çF¶RæFV6—6–öå÷&—6µ÷&öf–ÆRóò%5DäD$B"“²6WDçVÖ&W'2‡&V6÷&BæçVÖ&W'2æÖ…7G&–ær’“²6WD–çF¶T6ö×ÆWFR‡G'VR“²6WD6¶æ÷vÆVFvVB‡G'VR“²6WE6fVE&V6÷&D–B‡&V6÷&Bæ–B“°¢6WE&W7öç6R‡²7FGW3¢%5T44U52"ÂW6W%÷VW7F–öã¢&V6÷&BçVW7F–öâÂ7G'V7GW&VEö–çF¶S¢&V6÷&Bç7G'V7GW&VEö–çF¶RÂFWFW&Ö–æ—7F–5÷&W7VÇC¢&V6÷&Bç&W7VÇBÂW'6öæÆ—¦VE÷&VF–æs¢&V6÷&Bç&W7VÇBçW'6öæÆ—¦VE÷&VF–æróòçVÆÂÒ“°¢ÒÂ“°¢&WGW&â‚’Óâv–æF÷ræ6ÆV%F–ÖV÷WB‡F–ÖW"“°¢ÒÂµÒ“° Ğ¢W6TVffV7B‚‚’Óâ°Ğ¢–b‚&W7öç6R’&WGW&ã°Ğ¢6öç7Bg&ÖRÒv–æF÷rç&WVW7Dæ–ÖF–öäg&ÖR‚‚’Óâ°Ğ¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚'&W7VÇB"“òç67&öÆÄ–çFõf–Wr‡²&V†f–÷#¢'6Öö÷F‚"Â&Æö6³¢'7F'B"Ò“°Ğ¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚'&W7VÇB×F—FÆR"“òæfö7W2‡²&WfVçE67&öÆÃ¢G'VRÒ“°Ğ¢Ò“°Ğ¢&WGW&â‚’Óâv–æF÷ræ6æ6VÄæ–ÖF–öäg&ÖR†g&ÖR“°Ğ¢ÒÂ·&W7öç6UÒ“°Ğ Ğ¢gVæ7F–öâVF—EVW7F–öâ‚’°Ğ¢6WE&W7öç6R†çVÆÂ“²6WDW'&÷"‚""“°Ğ¢v–æF÷rç6WEF–ÖV÷WB‚‚’ÓâFö7VÖVçBævWDVÆVÖVçD'”–B‚&–çV—'’"“òç67&öÆÄ–çFõf–Wr‡²&V†f–÷#¢'6Öö÷F‚"Ò’Â“°Ğ¢ĞĞ Ğ¢gVæ7F–öâ6ÆV%VW7F–öâ‚’°¢6WEVW7F–öâ‚""“²6WDFöÖ–â‚""“²6WDvöÂ‚""“²6WD†÷&—¦öâ‚""“²6WE7FvR‚""“²6WEVæ6W'F–çG’‚""“²6WE&—6µ&öf–ÆR‚%5DäD$B"“°Ğ¢6WDf7G2‚""“²6WEVæ¶æ÷vç2‚""“²6WD7F–öç2‚""“²6WDö'6W'f&ÆU&W7öç6W2‚""“°Ğ¢6WDçVÖ&W'2…²""Â""Â"%Ò“²6WD–çF¶T6ö×ÆWFR†fÇ6R“²6WD6¶æ÷vÆVFvVB†fÇ6R“²6WE&W7öç6R†çVÆÂ“²6WDW'&÷"‚""“²6WE6fVE&V6÷&D–B†çVÆÂ“°¢v–æF÷rç6WEF–ÖV÷WB‚‚’ÓâFö7VÖVçBævWDVÆVÖVçD'”–B‚&–çV—'’"“òç67&öÆÄ–çFõf–Wr‡²&V†f–÷#¢'6Öö÷F‚"Ò’Â“°Ğ¢ĞĞ Ğ¢7–æ2gVæ7F–öâ6fTö'6W'fF–öâ†7F–öåFW‡C¢7G&–ærÂ&Wf–Wtöã¢7G&–ærÂçVÆÂ’°¢–b‚&W7öç6SòæFWFW&Ö–æ—7F–5÷&W7VÇB’&WGW&ã°¢6WE6f–æu&V6÷&B‡G'VR“²6WDW'&÷"‚""“°¢6öç7B–BÒ7'—Fòç&æFöÕUT”B‚“°Ğ¢G'’°Ğ¢6öç7B&WVW7BÒv—BfWF6‚‚"ö’ö¦÷W&æÂ"Â²ÖWF†öC¢%õ5B"Â†VFW'3¢¦÷W&æÄ†VFW'2‚’Â&öG“¢¥4ôâç7G&–æv–g’‡°Ğ¢–BÂVW7F–öã¢&W7öç6RçW6W%÷VW7F–öâóòVW7F–öâçG&–Ò‚’Â7G'V7GW&VEö–çF¶S¢&W7öç6Rç7G'V7GW&VEö–çF¶Róò²VW7F–öåöFöÖ–ã¢FöÖ–âÂFV6—6–öåövöÃ¢vöÂÂF–ÖUö†÷&—¦öã¢†÷&—¦öâÂFV6—6–öå÷7FvS¢7FvRÂ¶W•÷Væ6W'F–çG“¢Væ6W'F–çG’ÂFV6—6–öå÷&—6µ÷&öf–ÆS¢&—6µ&öf–ÆRÒÀĞ¢çVÖ&W'3¢&W7öç6RæFWFW&Ö–æ—7F–5÷&W7VÇBæ–çWEöçVÖ&W'2ÀĞ¢&W7VÇC¢²ââç&W7öç6RæFWFW&Ö–æ—7F–5÷&W7VÇBÂâââ‡&W7öç6RçW'6öæÆ—¦VE÷&VF–ærò²W'6öæÆ—¦VE÷&VF–æs¢&W7öç6RçW'6öæÆ—¦VE÷&VF–ærÒ¢·Ò’ÒÀĞ¢7F–öå÷FW‡C¢7F–öåFW‡BÂ&Wf–Wuööã¢&Wf–WtöâÀĞ¢Ò’Ò“°Ğ¢6öç7B–ÆöBÒv—B&WVW7Bæ§6öâ‚’2²&V6÷&Có¢¦÷W&æÅ&V6÷&C²W'&÷#ó¢7G&–ærÓ°Ğ¢–b‚&WVW7Bæö²ÇÂ–ÆöBç&V6÷&B’F‡&÷ræWrW'&÷"‡–ÆöBæW'&÷"ÇÂ.‹ùjÊŠx.‹i¨.i{nk*iÈKùŞZÙh‰X©ş8""“°Ğ¢6WE6fVE&V6÷&D–B†–B“°¢Ò6F6‚†6Vv‡B’²6WDW'&÷"†6Vv‡B–ç7Fæ6VöbW'&÷"ò6Vv‡BæÖW76vR¢.‹ùjÊŠx.‹i¨.i{nk*iÈKùŞZÙh‰X©ş8""“²Ğ¢f–æÆÇ’²6WE6f–æu&V6÷&B†fÇ6R“²Ğ¢Ğ Ğ¢7–æ2gVæ7F–öâ7V&Ö—B†WfVçC¢f÷&ÔWfVçB’°Ğ¢WfVçBç&WfVçDFVfVÇB‚“²6WDW'&÷"‚""“²6WE&W7öç6R†çVÆÂ“²6WE6fVE&V6÷&D–B†çVÆÂ“°Ğ¢6öç7B7F—fU&WVW7D–BÒ6W76–öå7F÷&vRævWD—FVÒ„5D•dUõ$UTU5Eô´U’“°Ğ¢–b†7F—fU&WVW7D–Bbbõå´Õ¦×£Ó•Õ´Õ¦×£Ó’åòÕ×³Ãs—ÒBòçFW7B†7F—fU&WVW7D–B’’°Ğ¢6WDÆöF–ær‡G'VR“°Ğ¢G'’²v—BöÆÅW'6öæÆ—¦VE&WVW7B†7F—fU&WVW7D–B“²ĞĞ¢6F6‚†6Vv‡B’²6WDW'&÷"‡W'6öæÆ—¦VDW'&÷$ÖW76vR†6Vv‡BÂ7F—fU&WVW7D–B’“²ĞĞ¢f–æÆÇ’²6WDÆöF–ær†fÇ6R“²6WE&öw&W72‚""“²ĞĞ¢&WGW&ã°Ğ¢ĞĞ¢–b†7F—fU&WVW7D–B’6W76–öå7F÷&vRç&VÖ÷fT—FVÒ„5D•dUõ$UTU5Eô´U’“°Ğ Ğ¢6öç7Bf7DÆ–æW2ÒæöæV×G”Æ–æW2†f7G2“°Ğ¢6öç7BVæ¶æ÷väÆ–æW2ÒæöæV×G”Æ–æW2‡Væ¶æ÷vç2“°Ğ¢6öç7B7F–öäÆ–æW2ÒæöæV×G”Æ–æW2†7F–öç2“°Ğ¢6öç7B&W7öç6TÆ–æW2ÒæöæV×G”Æ–æW2†ö'6W'f&ÆU&W7öç6W2“°Ğ¢6öç7B'6VBÒçVÖ&W'2æÖ„çVÖ&W"“°Ğ¢6öç7BFW‡DÆ—7G2Ò¶f7DÆ–æW2ÂVæ¶æ÷väÆ–æW2Â7F–öäÆ–æW2Â&W7öç6TÆ–æW5Ó°Ğ¢–b‡VW7F–öâçG&–Ò‚’æÆVæwF‚ÂbÇÂVW7F–öâçG&–Ò‚’æÆVæwF‚âcÇÂ–çF¶T6ö×ÆWFRÇÂFöÖ–âÇÂvöÂÇÂ†÷&—¦öâÇÂ7FvRÇÂVæ6W'F–çG’ÇÂ&—6µ&öf–ÆRÇÂf7DÆ–æW2æÆVæwF‚ÂÇÂf7DÆ–æW2æÆVæwF‚â‚ÇÂVæ¶æ÷väÆ–æW2æÆVæwF‚ÂÇÂVæ¶æ÷väÆ–æW2æÆVæwF‚âbÇÂ7F–öäÆ–æW2æÆVæwF‚âbÇÂ&W7öç6TÆ–æW2æÆVæwF‚âbÇÂFW‡DÆ—7G2ç6öÖR‚†—FV×2’Óâ—FV×2ç6öÖR‚†—FVÒ’Óâ—FVÒæÆVæwF‚âC’’ÇÂ'6VBç6öÖR‚†âÂ–æFW‚’ÓâçVÖ&W'5¶–æFW…ÒÇÂçVÖ&W"æ—4–çFVvW"†â’ÇÂâÂÇÂââ““’’ÇÂ6¶æ÷vÆVFvVB’°¢6WDW'&÷"‚.Šû~XXZèÎh‰jÚ>™zîKˆî‹êŠønûÈÎXhŞ™Ù[ø>Z¾XiKˆKŠ¢(	3““’y¨Ni[Ni[ûÈÎ[›nzîŠêNKÛşyJ‹ëyXÎ8""“²&WGW&ã°¢ĞĞ¢6WDÆöF–ær‡G'VR“²6WE&öw&W72‚.jÚ>YÊhùKªNiÊÎjÊŠx.‹K»¾Xª(
+n(
+b"“°Ğ¢6öç7B&WVW7D–BÒ6—FW2ÒG¶7'—Fòç&æFöÕUT”B‚—Ö°Ğ¢G'’°Ğ¢6W76–öå7F÷&vRç6WD—FVÒ„5D•dUõ$UTU5Eô´U’Â&WVW7D–B“°Ğ¢6öç7B&öG’Ò¥4ôâç7G&–æv–g’‡°Ğ¢6öçG&7E÷fW'6–öã¢%4•DU5õU%4ôäÄ•¤TEôÔT”…Tô4ôåE$5Eõc"Â&WVW7Eö–C¢&WVW7D–BÀĞ¢VW7F–öå÷FW‡C¢VW7F–öâçG&–Ò‚’ÂVW7F–öåöFöÖ–ã¢FöÖ–âÂFV6—6–öåövöÃ¢vöÂÀĞ¢F–ÖUö†÷&—¦öã¢†÷&—¦öâÂFV6—6–öå÷7FvS¢7FvRÂ¶W•÷Væ6W'F–çG“¢Væ6W'F–çG’ÂFV6—6–öå÷&—6µ÷&öf–ÆS¢&—6µ&öf–ÆRÀĞ¢6öæf—&ÖVEöf7G3¢f7DÆ–æW2ÂVæ¶æ÷vç3¢Væ¶æ÷väÆ–æW2Â÷F–öç3¢µÒÀĞ¢7F–öç5öÇ&VG•÷F¶Vã¢7F–öäÆ–æW2Âö'6W'f&ÆU÷&W7öç6W3¢&W7öç6TÆ–æW2ÀĞ¢çVÖ&W'3¢'6VBÂÆö6ÆS¢'¦‚Ô4â"Â6Æ–VçE÷F–ÖW7F×¢æWrFFR‚’çFô•4õ7G&–ær‚’ÀĞ¢W6W%ö6¶æ÷vÆVFvVÖVçG3¢²æõöWFöÖF–5÷&VvVæW&F–öã¢G'VRÂW6W%÷7FFVÖVçG5öæ÷E÷fW&–f–VEöf7G3¢G'VRÒÀĞ¢Ò“°Ğ¢ÆWB66WFVBÒfÇ6S°Ğ¢f÷"†ÆWBGFV×BÒ²GFV×BÂ2bb66WFVC²GFV×B³Ò’°Ğ¢G'’°Ğ¢6öç7B&WVW7BÒv—BfWF6‚‚"ö’÷cBöÖV–‡V"Â²ÖWF†öC¢%õ5B"Â†VFW'3¢²$6öçFVçBÕG—R#¢&Æ–6F–öâö§6öâ"ÒÂ66†S¢&æò×7F÷&R"Â&öG’Ò“°Ğ¢6öç7B–ÆöBÒv—B&WVW7Bæ§6öâ‚’2•&W7öç6S°Ğ¢–b‡&WVW7Bç7FGW2ÓÓÒ#"’²66WFVBÒG'VS²'&V³²ĞĞ¢–b‡&WVW7Bæö²’²f–æ—6…W'6öæÆ—¦VE&WVW7B‡–ÆöB“²&WGW&ã²ĞĞ¢–b‡&WVW7Bç7FGW2ÓÒS2’°Ğ¢6W76–öå7F÷&vRç&VÖ÷fT—FVÒ„5D•dUõ$UTU5Eô´U’“°Ğ¢F‡&÷ræWrW'&÷"‡–ÆöBæW'&÷"ÇÂ–ÆöBæW'&÷'3òå³ÓòæÖW76vRÇÂ.iÊÎjÊiÊ®ˆ;ŞyIşh‰{¹>iéÎ8""“°Ğ¢ĞĞ¢Ò6F6‚†6Vv‡B’°Ğ¢–b†6Vv‡B–ç7Fæ6VöbW'&÷"bbôf–ÆVBFòfWF6‡ÆfWF6‚f–ÆVGÆæWGv÷&²ö’çFW7B†6Vv‡BæÖW76vR’’F‡&÷r6Vv‡C°Ğ¢ĞĞ¢v—B6ÆVWƒóS“°Ğ¢ĞĞ¢v—BöÆÅW'6öæÆ—¦VE&WVW7B‡&WVW7D–B“°Ğ¢Ò6F6‚†6Vv‡B’²6WDW'&÷"‡W'6öæÆ—¦VDW'&÷$ÖW76vR†6Vv‡BÂ&WVW7D–B’“²ĞĞ¢f–æÆÇ’²6WDÆöF–ær†fÇ6R“²6WE&öw&W72‚""“²ĞĞ¢ĞĞ Ğ¢&WGW&âÃàĞ¢Æ†VFW"6Æ74æÖSÒ'6—FRÖ†VFW"#àĞ¢Æ6Æ74æÖSÒ'v÷&FÖ&²"‡&VcÒ"7F÷#îŠx.‹ÂöàĞ¢ÆæcãÆ‡&VcÒ"6ÖWF†öB#îZh.KÙ^Šx#ÂöãÆ‡&VcÒ"6–çV—'’#î[ÈZx¾™zãÂöãÆ‡&VcÒ"ö¦÷W&æÂ#îŠx.K¨¾{óÂöãÂöæcà¢Ç6ÖÆÃîzîZé®h
+~hé.y¹‚+rKŠ®h
+~XÉnŠz>Šû³Â÷6ÖÆÃàĞ¢Âö†VFW#àĞ¢ÆÖ–â–CÒ'F÷"6Æ74æÖSÒ'67&öÆÂÖ6çf2#àĞ¢Ç6V7F–öâ6Æ74æÖSÒ&†W&ò67&öÆÂ×6V7F–öâ"FF×&WfVÂ&–ÖÆ&VÆÆVF'“Ò&†W&ò×F—FÆR#à¢ÆF—b6Æ74æÖSÒ&†W&òÖÆö6·W#à¢Ç6Æ74æÖSÒ&†W&òÖÖ÷GFò#î[ø>iÈh˜™zîûÈÎ™ÙŠx.X[n‹8#Â÷à¢Æ–Ör6Æ74æÖSÒ&†W&ò×6VÂ"7&3Ò"ö&wV×6VÂçær"ÇCÒ""&–Ö†–FFVãÒ'G'VR"óà¢Æƒ–CÒ&†W&ò×F—FÆR#ãÇ7ãîŠx#Â÷7ããÇ7ãî‹Â÷7ããÂöƒà¢ÂöF—cà¢ÆF—b6Æ74æÖSÒ&†W&òÖ6Æ76–2#à¢Ç7â6Æ74æÖSÒ&†W&òÖ–æ²Ö&ÆööÒ"&–Ö†–FFVãÒ'G'VR#ãÆ–Ör7&3Ò"ö–æ²ÖvöÆFVâÖÆæG66Rçær"ÇCÒ""óãÂ÷7ãà¢Æ&Æö6·V÷FSîZø.xKnKˆŞXªûÈÎhIşˆÎ˜.˜	®ZJKˆ¾K˜¾iX^8#Âö&Æö6·V÷FSà¢Æ6—FSî8®Yi‰<+~{;¾‹éîKˆ®8³Âö6—FSà¢ÂöF—cà¢Æ6Æ74æÖSÒ&†W&ò×67&öÆÂÖ7VR"‡&VcÒ"6ÖWF†öB#îY	Kˆ²+rŠx.k9SÂöà¢Â÷6V7F–öãà Ğ¢Ç6V7F–öâ–CÒ&ÖWF†öB"6Æ74æÖSÒ&ÖWF†öB67&öÆÂ×6V7F–öâ"FF×&WfVÂ&–ÖÆ&VÆÆVF'“Ò&ÖWF†öB×F—FÆR#à¢ÅfW'F–6Ä'&æBóà¢ÆF—b6Æ74æÖSÒ&ÖWF†öB×V÷FR#ãÇ6Æ74æÖSÒ&W–V'&÷r#îŠx.‹K˜¾k9SÂ÷ãÆƒ"–CÒ&ÖWF†öB×F—FÆR#ãÇ7â6Æ74æÖSÒ'7"ÖöæÇ’#îYÊZJh‰‹ûÈÎYÊYËh‰[Ú.ûÈÎXùXÉnŠxyú>8#Â÷7ããÇ7â&–Ö†–FFVãÒ'G'VR#îYÊZJh‰‹ûÈÃÂ÷7ããÇ7â&–Ö†–FFVãÒ'G'VR#îYÊYËh‰[Ú.ûÈÃÂ÷7ããÇ7â&–Ö†–FFVãÒ'G'VR#îXùXÉnŠxyú>8#Â÷7ããÂöƒ#ãÆ6—FSî8®Yi‰<+~{;¾‹éîKˆ®8³Âö6—FSãÂöF—cà¢ÆF—b6Æ74æÖSÒ&ÖWF†öBÖW‡Æ–æW"#à¢Ç6Æ74æÖSÒ&ÖWF†öBÖÆVB#îyJKˆXˆn™)şûÈÎh¨®KˆK»nh»şKˆŞXxny¨NK¨¾ynkˆ^ikY	ûÈÎK™şyÈ¾kˆ^Kˆ¾KˆjÚ^Šú^yYhHşK¸K˜8#Â÷à¢ÇîŠx.‹KˆŞKÉ®i»şKÚXk>Zé®ûÈÎK™şKˆŞKÉ®š(NXXXiZ[Ş{¹>iéÎ8.h‰KºÎKÉ®™š®KÚXikˆ^h˜™zî8‹êiˆîK¨¾ZéîKˆîiÊ®yú^ûÈÎXhŞKéŞKˆi[h‰XÚnûÈÎh¨®XÚn‹y¨N{¹>ièN8XùXÉnKˆîxëZéîKŠŞXÎ[é~Šx.Zùşy¨NiÚK»nKˆ[.[.[^[È8#Â÷à¢ÆöÃãÆÆ“ãÇ7ãîZ;“Â÷7ããÆ#îjÚ>™zãÂö#ãÇîXiKˆ¾KˆK»nX[~KÙ>ˆÎyÉşZéîy¨NK¨¾8#Â÷ãÂöÆ“ãÆÆ“ãÇ7ãî‹KÂ÷7ããÆ#î‹êŠøcÂö#ãÇîYÊ˜	jÚ^ZûŠùŞKŠŞûÈÎh›îX‹yÉşjÚ>h;>™zîy¨Nj[ø>8#Â÷ãÂöÆ“ãÆÆ“ãÇ7ãîXøÂ÷7ããÆ#îh‰XÚcÂö#ãÇî™Ù[ø>XùnKˆi[ûÈÎzˆ¾[¨şKéŞŠxNX‰ZèÎh‰hé.y¹8#Â÷ãÂöÆ“ãÆÆ“ãÇ7ãîˆ(cÂ÷7ããÆ#îŠx.XÚcÂö#ãÇîK¸îiÊÎXÚnX‹XùXÉnûÈÎiÈYîY¹îX‹ˆz®[{y¨NZHNZ(>8#Â÷ãÂöÆ“ãÂööÃà¢ÆF—b6Æ74æÖSÒ&ÖWF†öB×&VF–æW72#ãÇîZh.iéÎKÚ[{.{¸şXxnZH~Z[ŞK¨nûÈÎŠû~™zŞKˆ®yËÎyÙ¾ûÈÎ{É>{É>i[‹ø~KˆKŠ®YÎY8.XhŞyØ[ÈyËÎi{nûÈÎh‰KºÎK¸î[ø>KŠŞ˜*>K»nK¨¾[ÈZx¾8#Â÷ãÆ6Æ74æÖSÒ&ÖWF†öBÖ7F"‡&VcÒ"6–çV—'’#îh‰[{.XxnZH~Z[ÓÂöãÂöF—cà¢ÂöF—cà¢Â÷6V7F–öãà Ğ¢Ç6V7F–öâ–CÒ&–çV—'’"6Æ74æÖSÒ&–çV—'’67&öÆÂ×6V7F–öâ"FF×&WfVÃàĞ¢ÅfW'F–6Ä'&æBóàĞ¢Æf÷&Òöå7V&Ö—C×·7V&Ö—GÒæõfÆ–FFSàĞ¢Æ†VFW"6Æ74æÖSÒ&–çV—'’Ö†VF–ær#ãÇ6Æ74æÖSÒ&W–V'&÷r#îŠx.‹K˜¾k9R+rY¹¾jÚSÂ÷ãÆƒ#îK¸î[ø>KŠŞh˜™zîûÈÎ‹[X‹yËÎX˜ŞXúşŠÃÂöƒ#ãÇîjøşjÊXú®ZHNynKˆK»nX[~KÙ>y¨NK¨¾8.š^™Ú.KÉ®hÈjÚ>™zî8‹êŠøn8h‰XÚn8Šx.XÚny¨Nš®[¨ş™š®KÚZèÎh‰ûÈÎKˆŞ™ÈŠhKˆjÊZ¾ZèÎKˆ[Ê™zîXÛ~8#Â÷ãÂö†VFW#à Ğ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂ#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãîZ;“Â÷7ããÆF—cãÆƒ3îjÚ>™zãÂöƒ3ãÇîXiKˆ¾KˆK»nX[~KÙ>ˆÎyÉşZéîy¨NK¨¾8.XXhÈjÚNX‹¾iÈˆz®xKny¨Nik[ÈşXiûÈÎYî™Ú.‹ùiÈiË®KÉ®˜xŞikzîŠêN8#Â÷ãÂöF—cãÂöF—cà¢ÆÆ&VÂ6Æ74æÖSÒ'VW7F–öâÖÆ&VÂ#ãÇ7ãîKÚyÉşjÚ>h;>™zîy¨N™zîš)‚£Â÷7ããÇFW‡F&V&–ÖÆ&VÃÒ.KÚyÉşjÚ>h;>™zîy¨N™zîš)‚"Æ6V†öÆFW#Ò.Kè¾Zh.ûÉ®‹ùjÊYKÙÎûÈÎh‰‹ù[©NŠú^{º~{ºŞh©^XZ^Y	~ûÉò"fÇVS×·VW7F–öçÒÖ„ÆVæwFƒ×³cÒöä6†ævS×²†WfVçB’Óâ6WEVW7F–öâ†WfVçBçF&vWBçfÇVR—ÒóãÇ6ÖÆÃç·VW7F–öâçG&–Ò‚’æÆVæwF‡Òòc+rŠû~yJkˆ^i›X[~KÙ>y¨Nih~ZÙ~ŠûNX{®KÚh;>[ÈNiˆîy›Şy¨NK¨¾ûÈÎ‹ùKÉ®[ŠîXªh‰KºÎh¨®h«Ş‹y¨NXÚnhHş‰ŞX‹xëZéîZHNZ(>KŠŞ8#Â÷6ÖÆÃãÂöÆ&VÃà¢ÆF—b6Æ74æÖSÒ'VW7F–öâÖW†×ÆW2#ãÆ†VFW#ãÇ7ãîKˆŞyú^hîj~[ÈXú>ûÈÎXúşKº^K¸î‹ùK©¾™zîš)[ÈZx³Â÷7ããÇ6ÖÆÃîx+X{¾K»¾hHşKˆXú^ûÈÎKÉ®ˆz®XªZ¾XZ^Kˆ®ik“Â÷6ÖÆÃãÂö†VFW#ãÆF—cçµTU5D”ôåôU„ÕÄU2æÖ‚†W†×ÆR’ÓâÆ'WGFöâG—SÒ&'WGFöâ"¶W“×¶W†×ÆRçFW‡GÒöä6Æ–6³×²‚’ÓâÇ•VW7F–öäW†×ÆR†W†×ÆR—ÓãÇ7ãç¶W†×ÆRçF÷–7ÓÂ÷7ããÆ#ç¶W†×ÆRçFW‡GÓÂö#ãÂö'WGFöãâ—ÓÂöF—cãÂöF—cà¢Â÷6V7F–öãà ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂ#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãî‹KÂ÷7ããÆF—cãÆƒ3î‹êŠøcÂöƒ3ãÇîKˆjÊXú®Y¹îzÙNKˆ™zî8.h‰KºÎh¨®K¨¾ZéîKˆîiÊ®yú^Xˆn[ÈûÈÎK™ş[ŠîXªKÚ‹êŠêNiÈX‰ŞXiKˆ¾y¨N™zîš)iŠşY
+nyÉşy¨N™zîX‹K¨n[ø>˜xÎ8#Â÷ãÂöF—cãÂöF—cà¢·VW7F–öâçG&–Ò‚’æÆVæwF‚ãÒbòÄwV–FVD–çF¶RVW7F–öã×·VW7F–öçÒöäf7G3×·6WDf7G7ÒöåVæ¶æ÷vç3×·6WEVæ¶æ÷vç7Òöä7F–öç3×·6WD7F–öç7Òöäö'6W'f&ÆU&W7öç6W3×·6WDö'6W'f&ÆU&W7öç6W7ÒöåVW7F–öã×·6WEVW7F–öçÒöå7G'V7GW&VC×²‡²FöÖ–ã¢æW‡DFöÖ–âÂvöÃ¢æW‡DvöÂÂ†÷&—¦öã¢æW‡D†÷&—¦öâÂ7FvS¢æW‡E7FvRÂVæ6W'F–çG“¢æW‡EVæ6W'F–çG’Â&—6µ&öf–ÆS¢æW‡E&—6µ&öf–ÆRÒ’Óâ²6WDFöÖ–â†æW‡DFöÖ–â“²6WDvöÂ†æW‡DvöÂ“²6WD†÷&—¦öâ†æW‡D†÷&—¦öâ“²6WE7FvR†æW‡E7FvR“²6WEVæ6W'F–çG’†æW‡EVæ6W'F–çG’“²–b†æW‡E&—6µ&öf–ÆR’6WE&—6µ&öf–ÆR†æW‡E&—6µ&öf–ÆR“²×Òöä6ö×ÆWFS×·6WD–çF¶T6ö×ÆWFWÒóâ¢Ç6Æ74æÖSÒ&F–ÆöwVR×&W&WV—6—FR#îXXYÊKˆ®KˆjÚ^XiKˆ¾ˆ{>[	XZŞKŠ®ZÙ~y¨NX[~KÙ>™zîš)ûÈÎ‹êŠønZûŠùŞh˜ŞKÉ®[ÈZx¾8#Â÷çĞ¢Â÷6V7F–öãà ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂçVÖ&W"×7FW#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãîXøÂ÷7ããÆF—cãÆƒ3îh‰XÚcÂöƒ3ãÇî™zŞKˆ®yËÎyÙ¾ûÈÎ{É>{É>YÎYKˆjÊûÈÎYÊ[ø>KŠŞXhŞ˜xŞZHŞKˆ˜ŞzîŠêNYîy¨N™zîš)8.XxnZH~Z[Şi{nûÈÎXhŞXzŞ[Ù>Kˆ¾h˜hIşXùnKˆKŠ®i[8#Â÷ãÂöF—cãÂöF—cà¢ÆF—b6Æ74æÖSÒ&'&VF‚×&—GVÂ"&–ÖÆ&VÃÒ.KˆjÊYÎYhùzK¢#ãÇ7ãîKˆhò+riÛî[ÈiØ.[ûSÂ÷7ããÇ7ãîK¨Îhò+rY¹îX‹h˜™zãÂ÷7ããÇ7ãîKˆhò+r[ø>Zé®Xùni[Â÷7ããÂöF—cà¢Æf–VÆG6WB6Æ74æÖSÒ&çVÖ&W'2×6Æ—#ãÆÆVvVæB6Æ74æÖSÒ'7"ÖöæÇ’#îXùnKˆKŠ®i[Ni[ÂöÆVvVæCç¶çVÖ&W'2æÖ‚‡fÇVRÂ–æFW‚’ÓâÆÆ&VÂ¶W“×¶–æFW‡ÓãÇ7ãçµ².Z;’+rKˆ®XÚb"Â.‹K+rKˆ¾XÚb"Â.Xø+rXªx‹²%Õ¶–æFW…×ÓÂ÷7ããÆ–çWB&–ÖÆ&VÃ×¶zÊÂG¶–æFW‚²ŞKŠ®i[ZÙvÒÆ6V†öÆFW#Ò#(	C““’"G—SÒ&çVÖ&W""–çWDÖöFSÒ&çVÖW&–2"Ö–ãÒ#"ÖƒÒ#““’"fÇVS×·fÇVWÒöä6†ævS×²†WfVçB’Óâ6WDçVÖ&W'2†çVÖ&W'2æÖ‚†—FVÒÂ—FVÔ–æFW‚’Óâ—FVÔ–æFW‚ÓÓÒ–æFW‚òWfVçBçF&vWBçfÇVR¢—FVÒ’—ÒóãÂöÆ&VÃâ—ÓÂöf–VÆG6WCà¢Ç6Æ74æÖSÒ&çVÖ&W"Öæ÷FR#îzÊÎKˆi[Zé®Kˆ®XÚnûÈÎzÊÎK¨Îi[Zé®Kˆ¾XÚnûÈÎzÊÎKˆi[Zé®Xªx‹¾8.zˆ¾[¨ş™¨şYîKéŞŠxNX‰hé.Zé®iÊÎXÚn8K©.XÚnKˆîXùXÚn8#Â÷à¢Â÷6V7F–öãà ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂ67B×7FW#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãîˆ(cÂ÷7ããÆF—cãÆƒ3îŠx.XÚcÂöƒ3ãÇîzîŠêN‹ëyXÎYîûÈÎzˆ¾[¨şXXxºÎz¸¾ZèÎh‰zîZé®h
+~hé.y¹ûÈÎXhŞ{¹>YKÚYÊ‹êŠønKŠŞhùKé¾y¨NxëZéîKúhşyIşh‰Šz>˜x®8#Â÷ãÂöF—cãÂöF—cà¢ÆÆ&VÂ6Æ74æÖSÒ&6²#ãÆ–çWBG—SÒ&6†V6¶&÷‚"6†V6¶VC×¶6¶æ÷vÆVFvVGÒöä6†ævS×²†WfVçB’Óâ6WD6¶æ÷vÆVFvVB†WfVçBçF&vWBæ6†V6¶VB—ÒóãÇ7ãîh‰ynŠz>ûÉ®XÚn‹hùKé¾KˆzxŞŠx.ZùşŠy.[ªnûÈÎKŠ®h
+~XÉnih~ZÙ~Xú®KÛşyJh‰XiKˆ¾y¨NK¨¾Zéî8iÊ®yú^šY(Îzˆ¾[¨şhé.X{®y¨NXÚn‹ûÉ¾Zè>KˆŞi»şKº>XË¾yi~8k9^[è¾8‹J.XªzØK‰>K‰®hHşŠx8.yIşh‰ZK‹J^KˆŞKÉ®ˆz®Xª˜xŞikyIşh‰ûÉ¾Xú®iÈh‰K‹¾XªKùŞZÙi{nûÈÎ{¹>iéÎh˜ŞKÉ®‹ù¾XZ^Šx.K¨¾{ş8#Â÷7ããÂöÆ&VÃà¢·&öw&W72bbÇ6Æ74æÖSÒ&vVæW&F–öâ×&öw&W72"&öÆSÒ'7FGW2#ç·&öw&W77ÓÂ÷çĞ¢¶W'&÷"bbÇ6Æ74æÖSÒ&W'&÷""&öÆSÒ&ÆW'B#ç¶W'&÷'ÓÂ÷çĞ¢Æ'WGFöâ6Æ74æÖSÒ&67BÖ'WGFöâ"F—6&ÆVC×¶ÆöF–æwÓãÄ&wVÖ&²óç¶ÆöF–ærò.jÚ>YÊyIşh‰Šz>Šû²"¢.Šx.XÚb'ÓÂö'WGFöãà¢¶ÆöF–ærbbÄ67F–ætÆöFW"óçĞ¢Â÷6V7F–öãà¢Âöf÷&Óà¢Â÷6V7F–öãàĞ Ğ¢·&W7öç6RbbÅ&W7VÇEf–Wr&W7öç6S×·&W7öç6WÒöäVF—C×¶VF—EVW7F–öçÒöä6ÆV#×¶6ÆV%VW7F–öçÒöå6fS×·6fTö'6W'fF–öçÒ6f–æs×·6f–æu&V6÷&GÒ6fVC×·6fVE&V6÷&D–BÓÒçVÆÇÒóçĞĞ¢Æ6–FR6Æ74æÖSÒ'fW'6–öâÖæ÷FR#îXÚn‹KˆŞiŠşš(NXXXiZ[Şy¨NXŠNŠøŞûÈÎˆÎiŠşZû[Ù>Kˆ¾{¹>ièNy¨NKˆjÊxZ~Šx8.h˜‹	>(	Îz›~X‰XùûÈÎXùX‰˜	®(	ŞûÈÎ[ø>[û^KˆîŠÎXªKˆXùûÈÎYî{ºŞiÚK»nK™şKÉ®™¨şK˜¾iKXù8.[é~š®X«şK˜¾‹ûÈÎKˆŞXúşYºjÚNXÎjÚ^ûÉ¾Šx™‹¾X©¾K˜¾‹ûÈÎK™şKˆŞ[ø^ˆz®[È>8.Šx.‹y¨NhHşK˜ûÈÎiŠşŠêh‰KºÎyÈ¾ŠxxZ~iz~X˜ŞŠÎXúşˆ;Şh«^‹ëîK˜¾ZHNûÈÎK¸îˆÎXø®izXxnZH~8KúîjÚ>KˆîŠÎXª8#Âö6–FSà¢ÂöÖ–ãàĞ¢Æfö÷FW"6Æ74æÖSÒ'6—FRÖfö÷FW"#ãÆ#îŠx.‹Âö#ãÇ7ãîKÊ{¹şih~XÉn{¹>ièNXø.ˆ2+rKº^xëZéîš¨ÎŠøi»NikXŠNijÓÂ÷7ããÆæcãÆ‡&VcÒ"öwV–FR#îZh.KÙ^KÛşyJƒÂöãÆ‡&VcÒ"ö&÷WB#îikk9^Kˆî‹ëyXÃÂöãÆ‡&VcÒ"÷&—f7’#î™©zxŠûNiˆãÂöãÂöæcãÂöfö÷FW#àĞ¢Âóã°Ğ§ĞĞ 

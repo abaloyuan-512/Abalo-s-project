@@ -1,33 +1,64 @@
-# 观象视觉冻结验收（v15）
+# Design QA
 
-## 验收依据
+- Source visual truth: `C:\Users\27622\.codex\generated_images\019f9969-4b3e-7e22-a7fb-711a4edec794\exec-5cf3e57a-6a65-4e2c-941f-beb5286207ca.png`
+- Secondary effect reference: `C:\Users\27622\.codex\generated_images\019f9969-4b3e-7e22-a7fb-711a4edec794\exec-07677041-4d24-4826-8d73-91c458dffc64.png`
+- Implementation screenshot: `.artifacts/final-redesign/desktop-hero-v13.png`
+- Same-input comparison: `.artifacts/final-redesign/comparison-hero-v13.png`
+- Intended viewport: 1440 × 1024 CSS px, device scale factor 1
+- Source pixels: 1536 × 1024
+- Implementation pixels: 1440 × 1024
+- State: homepage, initial load
 
-- 现有设计系统：方案 2「舒展长卷」
-- 首页入口确认稿：`C:\Users\27622\.codex\generated_images\019f7868-d13e-7e22-8830-991086edc93a\exec-08752ee9-1d3f-4952-8a1a-8d32a782f91b.png`
-- 发布后首页截图：`work/visual-freeze-v15.png`
-- 发布地址：`https://guanxiang-abalo.abaloyuan.chatgpt.site`
-- 发布版本：15
+**Findings**
 
-## 已核对项目
+- [P2] The implementation keeps more of the existing landscape and navigation than the visual study
+  - Location: homepage hero.
+  - Evidence: the side-by-side comparison shows the same paper, ink, cinnabar, brush-lettering, vertical prompt, and lower landscape language. The implementation preserves the live site's top navigation and uses a more expansive landscape crop, so the title sits higher and the lower-left scenery is denser than the visual study.
+  - Impact: this is a deliberate product adaptation rather than a style change; the selected study remains the composition basis while the existing site identity is preserved.
+  - Fix: no blocking change. Revisit only if the user asks for a closer pixel match to the study.
 
-1. 全站 `BaguaMark` 只引用 `fuxi-bagua-taiji.svg`；原图来自 Wikimedia Commons 的 `BatQuaiDo.svg`，包含太极与乾、兑、离、震、巽、坎、艮、坤八个基础卦，归类为伏羲先天八卦。
-2. 首页入口恢复为确认稿中的横向长卷关系：淡墨八卦在左、朱砂书法在前、山水墨痕承托文字；旧的方形印章图不再被引用。
-3. 自定义下拉菜单和公开反馈页原生下拉菜单均改为宣纸暖色；选项区域取消四边框，使用不对称柔和边缘和水墨背景。
-4. 主按钮、保存按钮、结果操作按钮取消四边矩形与实色矩形底，改为文字、水墨托底与细线反馈。
-5. 方形“观”标记和方形“展/收”标记已经去框；确认项改为圆点状态。
-6. 八卦图只做呼吸式透明度变化，不旋转，避免改变八卦方位；所有动效遵守 `prefers-reduced-motion`。
-7. Sites 发布截图确认桌面首屏没有横向溢出、错误资源或布局断裂。
+- [P2] Ink-bloom motion could not be captured reliably through browser control
+  - Location: the quotation “寂然不动，感而遂通天下之故”.
+  - Evidence: the resting state renders correctly at 1440 × 1024 and the hover/focus animation is present in CSS, but browser control timed out while moving the pointer and taking the second screenshot.
+  - Impact: motion timing still needs a human glance in the published preview; it does not block the static composition or the rest of the product flow.
+  - Fix: verify the hover once browser control is stable, without delaying the AI intake implementation.
 
-## 验证
+**Required Fidelity Surfaces**
 
-- `vinext build`：通过。
-- `node --test tests/rendered-html.test.mjs`：5/5 通过。
-- Sites 私有生产部署：成功。
+- Fonts and typography: visually verified in the deployed desktop capture; the local brush face and Kai-style supporting text retain the selected hierarchy.
+- Spacing and layout rhythm: desktop hero visually verified at 1440 × 1024; mobile rules compile but are not yet browser-captured in this pass.
+- Colors and visual tokens: existing paper, ink, mist, pine, and cinnabar tokens are preserved.
+- Image quality and asset fidelity: the deployed capture confirms the existing landscape, ink texture, seal, and paper grain render sharply at the target viewport.
+- Copy and content: verified through server-rendered HTML tests.
 
-## 限制
+**Full-view comparison evidence**
 
-Codex 内置浏览器会拦截本机地址，并且在私有 Sites 登录页无法进入页面下半屏。因此发布后的自动截图只覆盖首屏，未能自动截取首屏下方的首页入口和打开状态的下拉菜单；这两处已通过服务端渲染 HTML、CSS 规则和资源路径核对，但仍需站点所有者在真实浏览器中做最后目视确认。
+- Completed in `.artifacts/final-redesign/comparison-hero-v13.png`, with the source and implementation shown side by side at 1440 × 1024.
 
-## 最终结果
+**Focused region comparison evidence**
 
-blocked
+- The horizontal `观象` lockup and resting quotation region were verified in `.artifacts/final-redesign/desktop-hero-v13.png`.
+- Motion-state capture remains pending because the browser-control handoff timed out after pointer movement.
+
+**Primary interactions checked**
+
+- Build-level behavior and server-rendered routes were tested.
+- The published homepage route and server-rendered structure were checked in Chrome.
+- Hover-state capture and the full guided-intake/journal/download path remain pending for the next stable browser-control pass.
+- The page loaded without a product console error in the captured initial state; browser-control telemetry itself reported unrelated connectivity timeouts.
+
+**Comparison history**
+
+- Initial pass: local addresses were blocked.
+- Published pass: private Sites deployment opened successfully; source and implementation were compared together at 1440 × 1024. No P0 or P1 visual mismatch was found.
+
+**Implementation Checklist**
+
+- Capture the selected visual and homepage implementation at the same viewport. — done
+- Verify the hero landscape crop and brand lockup scale. — done
+- Verify the ink-bloom hover/focus effect around the classic quotation.
+- Exercise the full guided-intake conversation and final-question edit.
+- Verify `/journal`, save/open behavior, and HTML download.
+- Check desktop and mobile console output.
+
+final result: passed for the static desktop hero; interaction and mobile capture remain follow-up QA
