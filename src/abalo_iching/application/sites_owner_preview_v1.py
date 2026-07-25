@@ -49,7 +49,7 @@ from .interpretation_packet_v1 import (
 
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
-OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v6"
+OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v7"
 OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v6"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
@@ -191,6 +191,13 @@ OWNER_PREVIEW_JUDGMENT_FIRST_INSTRUCTIONS = """判断优先与解释资料包使
 5. 行动建议必须是前述判断的直接落实，写清对象、动作、可观察结果和转向条件；不得用通用咨询套话填充篇幅。
 6. 经典原文不得被表述为对现实结果的保证，也不得据此虚构第三方动机、未提供的日期或未核实事实。""".strip()
 
+OWNER_PREVIEW_REFERENCE_CLOSURE_INSTRUCTIONS = """来源追踪闭合检查（输出前必须逐项执行）：
+1. 先汇总输出所有字段中实际使用的 RWxx 与 EVxx，包括 context_facts、chart_signals、各 evidence_refs/reality_refs 和 source_trace 的解释接榫。
+2. 每一个实际使用的 RWxx，必须在 source_trace 中恰好有一条 source_kind=REALITY_FACT 且 source_ref 与 trace_id 都等于该 RWxx 的事实追踪行。
+3. 每一个实际使用的 EVxx，必须在 source_trace 中恰好有一条 source_kind=CHART_FACT 且 source_ref 与 trace_id 都等于该 EVxx 的事实追踪行；即使该 EVxx 只出现在 chart_signals 或某个 evidence_refs 中，也不能省略。
+4. 先为选中的每条卦象证据创建 CHART_FACT 追踪行，再创建 INTERPRETIVE_LINK；不得用 INTERPRETIVE_LINK 代替事实追踪行，不得创建输入未提供的引用。
+5. 提交前再次比较“全部实际引用集合”和“事实追踪行集合”，两者必须完全闭合。""".strip()
+
 
 def _canonical_json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -318,7 +325,8 @@ def _prompt(
         f"{C2_SOURCE_TRACE_INSTRUCTIONS}\n\n"
         f"{OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS}\n\n"
         f"{C2_SELF_SERVE_QUALITY_INSTRUCTIONS}\n\n"
-        f"{OWNER_PREVIEW_JUDGMENT_FIRST_INSTRUCTIONS}"
+        f"{OWNER_PREVIEW_JUDGMENT_FIRST_INSTRUCTIONS}\n\n"
+        f"{OWNER_PREVIEW_REFERENCE_CLOSURE_INSTRUCTIONS}"
     )
     digest = hashlib.sha256(
         f"{instructions}\n{_canonical_json(payload)}".encode("utf-8")

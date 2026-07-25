@@ -38,6 +38,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /已经确认的现实事实/);
   assert.match(html, /目前不能假设的未知项/);
   assert.match(html, /静心取数/);
+  assert.match(html, /一般，可分阶段调整/);
+  assert.match(html, /高不可逆，不能试错后撤回/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
