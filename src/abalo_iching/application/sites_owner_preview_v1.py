@@ -8,7 +8,6 @@ import logging
 import os
 from collections.abc import Callable
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
 from types import SimpleNamespace
 from typing import Any, Literal
 
@@ -55,7 +54,6 @@ OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 9_000
 OWNER_PREVIEW_MAX_POLL_ATTEMPTS = 180
-OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD = Decimal("0.50")
 LOGGER = logging.getLogger("abalo.owner_preview")
 
 OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS = """
@@ -448,19 +446,6 @@ def _provider_failure_meta(exc: Exception) -> dict[str, Any]:
     return meta
 
 
-def _max_preflight_cost_usd() -> Decimal:
-    raw = os.getenv("ABALO_OWNER_PREVIEW_MAX_PREFLIGHT_USD", "").strip()
-    if not raw:
-        return OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD
-    try:
-        value = Decimal(raw)
-    except InvalidOperation:
-        return OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD
-    if value <= 0 or value > Decimal("5"):
-        return OWNER_PREVIEW_DEFAULT_MAX_PREFLIGHT_USD
-    return value
-
-
 def _live_generator(prompt: Gate2PromptPackage) -> Gate2ProviderResult:
     from abalo_iching.personalization_gate2.background_provider import (
         OpenAIGate2BackgroundProvider,
@@ -537,18 +522,6 @@ def process_sites_owner_preview_v1_request(
         prompt,
         max_output_tokens=OWNER_PREVIEW_MAX_OUTPUT_TOKENS,
     )
-    max_preflight_cost_usd = _max_preflight_cost_usd()
-    if preflight > max_preflight_cost_usd:
-        return _error(
-            payload.request_id,
-            "PREVIEW_BUDGET_BLOCKED",
-            "本次生成的保守费用预估超过体验上限，未发起模型请求。",
-            preview_meta_extra={
-                "preflight_estimated_cost_usd": float(preflight),
-                "max_preflight_cost_usd": float(max_preflight_cost_usd),
-                "hard_cost_limit_enabled": True,
-            },
-        )
     if generator is None:
         if os.getenv("ABALO_OWNER_PREVIEW_ENABLED", "").strip().lower() != "true":
             return _error(payload.request_id, "PREVIEW_DISABLED", "新版解读私有体验尚未启用。")
@@ -605,8 +578,7 @@ def process_sites_owner_preview_v1_request(
                 "quality_failure_codes": quality_failure_codes,
                 "actual_api_cost_usd": provider_result.cost_usd,
                 "preflight_estimated_cost_usd": float(preflight),
-                "max_preflight_cost_usd": float(max_preflight_cost_usd),
-                "hard_cost_limit_enabled": True,
+                "hard_cost_limit_enabled": False,
             },
         )
     return {
@@ -632,8 +604,7 @@ def process_sites_owner_preview_v1_request(
             "model_unknowns_replaced": model_unknowns_replaced,
             "actual_api_cost_usd": provider_result.cost_usd,
             "preflight_estimated_cost_usd": float(preflight),
-            "max_preflight_cost_usd": float(max_preflight_cost_usd),
-            "hard_cost_limit_enabled": True,
+            "hard_cost_limit_enabled": False,
         },
         "error": None,
     }

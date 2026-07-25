@@ -177,17 +177,19 @@ export async function POST(request: Request): Promise<Response> {
   const url = upstreamUrl("/api/preview/v1/meihua/jobs");
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
   if (!url || !engineKey) return safeJson({ error: "个性化解读服务尚未连接。" }, 503);
-  const subjectHash = await publicRateLimitSubject(request, engineKey);
-  if (!subjectHash) return safeJson({ error: "暂时无法确认访问来源，未发起模型请求。" }, 503);
-  try {
-    const rateLimit = await reservePublicRequestRateLimit(subjectHash, requestId);
-    if (!rateLimit.allowed) {
-      return safeJson({
-        error: `同一网络每小时最多发起 ${PUBLIC_RATE_LIMIT_MAX_REQUESTS} 次观象，请稍后再试。`,
-      }, 429, { "Retry-After": String(PUBLIC_RATE_LIMIT_WINDOW_SECONDS) });
+  if (!isAuthenticatedPreviewUser(request)) {
+    const subjectHash = await publicRateLimitSubject(request, engineKey);
+    if (!subjectHash) return safeJson({ error: "暂时无法确认访问来源，未发起模型请求。" }, 503);
+    try {
+      const rateLimit = await reservePublicRequestRateLimit(subjectHash, requestId);
+      if (!rateLimit.allowed) {
+        return safeJson({
+          error: `同一网络每小时最多发起 ${PUBLIC_RATE_LIMIT_MAX_REQUESTS} 次观象，请稍后再试。`,
+        }, 429, { "Retry-After": String(PUBLIC_RATE_LIMIT_WINDOW_SECONDS) });
+      }
+    } catch {
+      return safeJson({ error: "访问频率守门暂时不可用，未发起模型请求。" }, 503);
     }
-  } catch {
-    return safeJson({ error: "访问频率守门暂时不可用，未发起模型请求。" }, 503);
   }
   let reservation: Awaited<ReturnType<typeof reserveOwnerPreviewAttempt>>;
   try {

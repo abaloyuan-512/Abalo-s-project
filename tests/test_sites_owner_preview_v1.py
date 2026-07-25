@@ -184,8 +184,8 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert response["structured_intake"]["question_domain"] == "PROJECT_COOPERATION"
     assert response["personalized_reading"]["core_judgment"].startswith("先不要追加投入")
     assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
-    assert response["preview_meta"]["max_preflight_cost_usd"] == 0.5
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
+    assert "max_preflight_cost_usd" not in response["preview_meta"]
     assert response["preview_meta"]["preflight_estimated_cost_usd"] > 0
     assert response["preview_meta"]["stored"] is False
     assert response["preview_meta"]["input_unknowns_canonicalized"] is True
@@ -245,7 +245,7 @@ def test_owner_preview_records_high_actual_cost_without_hard_block():
 
     assert response["status"] == "SUCCESS"
     assert response["preview_meta"]["actual_api_cost_usd"] == 1.25
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
 
 
 def test_owner_preview_allows_prohibited_phrase_only_inside_verbatim_unknown():
@@ -487,7 +487,7 @@ def test_owner_preview_hard_stops_invalid_model_output_without_retry():
     assert response["status"] == "PREVIEW_FAILED"
     assert response["personalized_reading"] is None
     assert response["preview_meta"]["actual_api_cost_usd"] == 0.035
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
     assert response["preview_meta"]["failure_stage"] == "OUTPUT_VALIDATION"
     assert "forced_irreversible_decision" in response["preview_meta"]["hard_failure_codes"]
     assert "unknowns_not_preserved" not in response["preview_meta"]["hard_failure_codes"]
@@ -617,13 +617,23 @@ def test_owner_preview_rejects_question_answer_supported_only_as_input_restateme
     assert "input_restated_without_insight" in response["preview_meta"]["quality_failure_codes"]
 
 
-def test_owner_preview_blocks_before_generation_when_preflight_exceeds_limit(monkeypatch):
+def test_owner_preview_ignores_retired_preflight_limit_and_generates(monkeypatch):
     called = False
 
-    def generator(_prompt):
+    def generator(prompt):
         nonlocal called
         called = True
-        raise AssertionError("must not generate")
+        return Gate2ProviderResult(
+            response_id="test-no-cost-cap-response-id",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=valid_output(prompt),
+            usage=Gate2Usage(input_tokens=1000, output_tokens=1000, total_tokens=2000),
+            cost_usd=0.75,
+            api_status="completed",
+            background_mode=True,
+            poll_count=1,
+        )
 
     monkeypatch.setenv("ABALO_OWNER_PREVIEW_MAX_PREFLIGHT_USD", "0.01")
     response = process_sites_owner_preview_v1_request(
@@ -632,11 +642,11 @@ def test_owner_preview_blocks_before_generation_when_preflight_exceeds_limit(mon
         clock=lambda: FIXED_NOW,
     )
 
-    assert response["status"] == "PREVIEW_BUDGET_BLOCKED"
-    assert response["preview_meta"]["hard_cost_limit_enabled"] is True
-    assert response["preview_meta"]["max_preflight_cost_usd"] == 0.01
+    assert response["status"] == "SUCCESS"
+    assert response["preview_meta"]["hard_cost_limit_enabled"] is False
+    assert "max_preflight_cost_usd" not in response["preview_meta"]
     assert response["preview_meta"]["preflight_estimated_cost_usd"] > 0.01
-    assert called is False
+    assert called is True
 
 
 def test_owner_preview_records_safe_provider_diagnostics_without_sensitive_payload(caplog):
