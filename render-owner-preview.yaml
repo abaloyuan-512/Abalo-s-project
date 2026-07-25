@@ -16,5 +16,3 @@ services:
         sync: false
       - key: ABALO_OWNER_PREVIEW_ENABLED
         value: "true"
-      - key: ABALO_OWNER_PREVIEW_MAX_PREFLIGHT_USD
-        value: "0.50"
