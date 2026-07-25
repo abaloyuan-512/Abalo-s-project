@@ -152,10 +152,17 @@ a { color: inherit; }
 .inquiry .dialogue-compose textarea, .inquiry .dialogue-review textarea { min-height: 112px; margin: 0; padding: 18px 0; border-bottom-color: var(--rule); font: 400 21px/1.75 var(--kai); letter-spacing: .04em; }
 .dialogue-compose button { min-width: 150px; min-height: 52px; padding: 10px 20px; color: var(--cinnabar-dark); background: transparent; border: 0; border-bottom: 1px solid var(--cinnabar); cursor: pointer; font: 400 20px/1.2 var(--brush); }
 .dialogue-compose button:disabled { opacity: .38; cursor: default; }
+.dialogue-start { margin: 30px 0 0 50px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; }
+.dialogue-start > button:first-child { min-height: 52px; padding: 10px 24px; border: 1px solid rgba(150,59,40,.55); color: var(--cinnabar-dark); background: rgba(246,239,225,.38); cursor: pointer; font: 400 21px/1.2 var(--brush); letter-spacing: .08em; }
+.dialogue-start > button:first-child:disabled { opacity: .48; cursor: wait; }
+.dialogue-start p { flex-basis: 100%; margin: 0; color: var(--cinnabar-dark); line-height: 1.7; }
 .dialogue-review { margin: 44px 0 0 50px; padding: 34px 0 0; border-top: 1px solid rgba(150,59,40,.5); }
 .dialogue-review h3 { margin: 14px 0 8px; font: 400 clamp(32px, 3vw, 50px)/1.35 var(--brush); }
 .dialogue-review > p:not(.eyebrow) { max-width: 800px; color: var(--ink-soft); line-height: 1.8; }
 .dialogue-review .text-button { margin-top: 18px; }
+.dialogue-review blockquote { max-width: 860px; margin: 24px 0; padding: 24px 30px; border: 0; border-left: 2px solid var(--cinnabar); background: rgba(246,239,225,.42); font: 400 clamp(24px,2.4vw,38px)/1.65 var(--kai); }
+.dialogue-review-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 24px; }
+.dialogue-review-actions > button:first-child { min-height: 50px; padding: 10px 24px; color: var(--paper); border: 1px solid var(--cinnabar-dark); background: var(--cinnabar-dark); cursor: pointer; font: 400 19px/1.2 var(--brush); }
 .guided-boundary { margin: 28px 0 0 50px; color: var(--mist); font-size: 13px; line-height: 1.7; }
 .dialogue-prerequisite { max-width: 740px; margin: 36px 0 0 76px; padding-left: 20px; color: var(--mist); border-left: 1px solid var(--cinnabar); line-height: 1.8; }
 .text-button { padding: 3px 0; color: var(--ink-soft); background: transparent; border: 0; border-bottom: 1px solid var(--rule); cursor: pointer; font-size: 14px; }
@@ -481,7 +488,7 @@ a { color: inherit; }
   .dialogue-options { margin-left: 0; grid-template-columns: 1fr 1fr; }
   .dialogue-compose { margin-left: 0; grid-template-columns: 1fr; }
   .dialogue-compose button { justify-self: end; }
-  .dialogue-review, .guided-boundary { margin-left: 0; }
+  .dialogue-start, .dialogue-review, .guided-boundary { margin-left: 0; }
   .breath-ritual { grid-template-columns: 1fr; gap: 14px; }
   .breath-ritual span { min-height: 76px; padding: 22px 18px; }
   .inquiry { min-height: 0; }

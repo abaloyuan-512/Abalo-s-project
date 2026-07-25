@@ -101,6 +101,24 @@ test("formal personalized API fails safely until the Python engine is configured
   assert.deepEqual(await response.json(), { error: "个性化解读服务尚未开放。" });
 });
 
+test("AI guided intake fails safely until the Python engine is configured", async () => {
+  const app = await worker();
+  const response = await app.fetch(new Request("http://localhost/api/intake", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contract_version: "SITES_GUIDED_INTAKE_CONTRACT_V1",
+      session_id: "intake-test-001",
+      question_text: "这次合作，我还应该继续投入吗？",
+      turns: [],
+      locale: "zh-CN",
+    }),
+  }), env, context);
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await response.json(), { error: "AI 辨识暂时未连接。" });
+});
+
 function createBudgetDb() {
   let row = null;
   const requests = new Map();

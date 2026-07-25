@@ -78,6 +78,16 @@ def valid_owner_preview_request() -> dict[str, object]:
     }
 
 
+def valid_guided_intake_request() -> dict[str, object]:
+    return {
+        "contract_version": "SITES_GUIDED_INTAKE_CONTRACT_V1",
+        "session_id": "hosted-intake-001",
+        "question_text": "这次合作，我还应该继续投入吗？",
+        "turns": [],
+        "locale": "zh-CN",
+    }
+
+
 @contextmanager
 def running_server():
     server = hosted_api.create_server("127.0.0.1", 0, ENGINE_KEY)
@@ -169,6 +179,52 @@ def test_owner_preview_route_is_authenticated_and_disabled_by_default(monkeypatc
     assert headers["Cache-Control"] == "no-store"
     assert payload["status"] == "PREVIEW_DISABLED"
     assert payload["personalized_reading"] is None
+
+
+def test_guided_intake_route_is_authenticated_and_disabled_by_default(monkeypatch) -> None:
+    monkeypatch.delenv("ABALO_GUIDED_INTAKE_ENABLED", raising=False)
+    with running_server() as port:
+        unauthorized, _headers, _payload = request(
+            port, "POST", "/api/intake/v1/turn", payload=valid_guided_intake_request()
+        )
+        disabled, headers, payload = request(
+            port,
+            "POST",
+            "/api/intake/v1/turn",
+            key=ENGINE_KEY,
+            payload=valid_guided_intake_request(),
+        )
+    assert unauthorized == 401
+    assert disabled == 503
+    assert headers["Cache-Control"] == "no-store"
+    assert payload == {"status": "intake_disabled"}
+
+
+def test_guided_intake_route_returns_one_model_question(monkeypatch) -> None:
+    monkeypatch.setenv("ABALO_GUIDED_INTAKE_ENABLED", "true")
+    expected = {
+        "contract_version": "SITES_GUIDED_INTAKE_CONTRACT_V1",
+        "session_id": "hosted-intake-001",
+        "status": "ASK",
+        "assistant_message": "先确认观察范围。",
+        "next_question": "你希望在多长时间内看清这件事？",
+    }
+    monkeypatch.setattr(
+        hosted_api,
+        "process_sites_guided_intake_v1_request",
+        lambda payload: {**expected, "question_text": payload["question_text"]},
+    )
+    with running_server() as port:
+        status, _headers, payload = request(
+            port,
+            "POST",
+            "/api/intake/v1/turn",
+            key=ENGINE_KEY,
+            payload=valid_guided_intake_request(),
+        )
+    assert status == 200
+    assert payload["status"] == "ASK"
+    assert payload["next_question"] == "你希望在多长时间内看清这件事？"
 
 
 def test_owner_preview_job_is_async_authenticated_and_idempotent(monkeypatch) -> None:

@@ -25,6 +25,10 @@ if str(SRC) not in sys.path:
 from abalo_iching.application.sites_meihua_service_v2 import (  # noqa: E402
     process_sites_meihua_v2_request,
 )
+from abalo_iching.application.sites_guided_intake_v1 import (  # noqa: E402
+    GuidedIntakeError,
+    process_sites_guided_intake_v1_request,
+)
 from abalo_iching.application.sites_meihua_service_v3 import (  # noqa: E402
     process_sites_meihua_v3_request,
 )
@@ -36,6 +40,7 @@ MAX_BODY_BYTES = 16 * 1024
 OWNER_PREVIEW_MAX_BODY_BYTES = 32 * 1024
 OWNER_PREVIEW_JOB_PREFIX = "/api/preview/v1/meihua/jobs/"
 OWNER_PREVIEW_JOB_PATH = "/api/preview/v1/meihua/jobs"
+GUIDED_INTAKE_PATH = "/api/intake/v1/turn"
 # Completed jobs remain retrievable after the model polling lifecycle ends.
 OWNER_PREVIEW_JOB_TTL_SECONDS = 45 * 60
 OWNER_PREVIEW_MAX_ACTIVE_JOBS = 2
@@ -170,6 +175,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             "/api/v3/meihua",
             "/api/preview/v1/meihua",
             OWNER_PREVIEW_JOB_PATH,
+            GUIDED_INTAKE_PATH,
         }:
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
@@ -186,7 +192,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             content_length = -1
         max_body_bytes = (
             OWNER_PREVIEW_MAX_BODY_BYTES
-            if path in {"/api/preview/v1/meihua", OWNER_PREVIEW_JOB_PATH}
+            if path in {"/api/preview/v1/meihua", OWNER_PREVIEW_JOB_PATH, GUIDED_INTAKE_PATH}
             else MAX_BODY_BYTES
         )
         if content_length < 0 or content_length > max_body_bytes:
@@ -198,6 +204,20 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_json"})
             return
         try:
+            if path == GUIDED_INTAKE_PATH:
+                if os.environ.get("ABALO_GUIDED_INTAKE_ENABLED", "").strip().lower() != "true":
+                    self._send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"status": "intake_disabled"})
+                    return
+                try:
+                    response = process_sites_guided_intake_v1_request(payload)
+                except ValueError:
+                    self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_request"})
+                    return
+                except GuidedIntakeError:
+                    self._send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"status": "intake_unavailable"})
+                    return
+                self._send_json(HTTPStatus.OK, response)
+                return
             if path == OWNER_PREVIEW_JOB_PATH:
                 if not isinstance(payload, dict):
                     self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_request"})
