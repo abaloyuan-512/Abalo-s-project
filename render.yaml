@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: abalo-iching-engine
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r requirements-hosted.txt
+    startCommand: python scripts/run_hosted_api.py
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.13
+      - key: ABALO_ENGINE_KEY
+        sync: false

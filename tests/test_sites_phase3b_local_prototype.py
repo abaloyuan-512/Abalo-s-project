@@ -119,6 +119,7 @@ def test_static_routes_are_fixed_and_successful(path, content_type):
     with running_server() as port:
         status, headers, body = request(port, "GET", path)
     assert status == 200 and content_type in headers["Content-Type"] and body
+    assert headers["Cache-Control"] == "no-store"
 
 
 def test_healthz_is_safe_and_unverified():
@@ -281,7 +282,7 @@ def parsed_elements():
 def test_page_has_no_external_resources_or_inline_script():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     assert "http://" not in html and "https://" not in html and "<script>" not in html
-    assert 'src="/assets/app.js"' in html and 'href="/assets/app.css"' in html
+    assert 'src="/assets/app.js?v=0.2.0"' in html and 'href="/assets/app.css?v=0.2.0"' in html
 
 
 def test_favicon_is_a_single_embedded_svg_without_an_http_resource():
@@ -369,8 +370,18 @@ def test_frontend_rejects_malformed_release_envelope_before_render():
 
 def test_frontend_success_view_names_all_required_deterministic_fields():
     text = source_text()
-    for label in ["本次卦象结构", "核心倾向", "本卦", "互卦", "变卦", "动爻", "体卦", "初始用卦", "变化用卦", "初始体用关系", "变化体用关系", "五行", "旺衰", "节气 / 月支", "程序证据", "查看技术详情"]:
+    for label in ["本次卦象与行动建议", "核心倾向", "导师式导读", "为什么会得到这个倾向", "接下来可以怎样做", "给自己的复盘问题", "本卦", "互卦", "变卦", "动爻", "体卦", "初始用卦", "变化用卦", "初始体用关系", "变化体用关系", "五行", "旺衰", "节气 / 月支", "程序证据", "查看技术详情"]:
         assert label in text
+
+
+def test_frontend_renders_mentor_report_without_unsafe_html() -> None:
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+    for marker in ["mentor-opening", "reading-guide", "reasoning-list", "action-plan", "caution-list", "review-list", "mentor-boundary"]:
+        assert f'id="{marker}"' in html
+    for behavior in ["validMentorReport", "renderTextItems", "renderActions", "renderStringList"]:
+        assert behavior in js
+    assert "innerHTML" not in js
 
 
 def test_frontend_product_view_keeps_internal_fields_in_closed_technical_details():

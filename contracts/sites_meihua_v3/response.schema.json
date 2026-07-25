@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abalo:sites-meihua:v3:response",
+  "title": "Sites Meihua Concrete Question Response V3",
+  "type": "object",
+  "required": ["contract_version", "request_id", "status", "deterministic_result", "narrative", "release_gate", "audit", "errors"],
+  "properties": {
+    "contract_version": {"const": "SITES_MEIHUA_API_CONTRACT_V3"},
+    "request_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "status": {"enum": ["SUCCESS", "VALIDATION_ERROR", "ENGINE_ERROR", "RELEASE_BLOCKED"]},
+    "user_question": {"type": "string", "minLength": 6, "maxLength": 160},
+    "normalized_question": {"type": "string", "minLength": 6, "maxLength": 160},
+    "question_context_version": {"const": "SITES_QUESTION_CONTEXT_V1"},
+    "structured_intake": {
+      "type": "object",
+      "required": ["question_domain", "decision_goal", "time_horizon", "decision_stage", "key_uncertainty"],
+      "properties": {
+        "decision_stage": {"enum": ["EXPLORING", "PREPARING", "ALREADY_ACTING", "WAITING_FEEDBACK"]},
+        "key_uncertainty": {"enum": ["CONDITIONS", "OTHER_RESPONSE", "OWN_COMMITMENT", "TIMING"]},
+        "decision_risk_profile": {"enum": ["STANDARD", "HIGH_IRREVERSIBLE"]}
+      }
+    },
+    "deterministic_result": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["base_hexagram", "mutual_hexagram", "changed_hexagram", "moving_line", "body_use", "seasonal_strength", "deterministic_conclusion", "mentor_report", "clarity_report"], "properties": {"clarity_report": {"$ref": "#/$defs/clarity_report"}}}
+      ]
+    },
+    "narrative": {"type": "object", "required": ["status", "available"], "properties": {"status": {"const": "UNVERIFIED"}, "available": {"const": false}}},
+    "release_gate": {"type": "object", "required": ["should_charge", "formal_report_persistence_allowed"], "properties": {"should_charge": {"const": false}, "formal_report_persistence_allowed": {"const": false}}},
+    "audit": {"type": "object", "required": ["contract_version", "calculation_source", "question_context_version", "question_text_used_for_calculation"], "properties": {"contract_version": {"const": "SITES_MEIHUA_API_CONTRACT_V3"}, "calculation_source": {"const": "PYTHON_AUTHORITATIVE_ENGINE"}, "question_context_version": {"oneOf": [{"const": "SITES_QUESTION_CONTEXT_V1"}, {"type": "null"}]}, "question_text_used_for_calculation": {"const": false}}},
+    "errors": {"type": "array"}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "SUCCESS"}}, "required": ["status"]}, "then": {"required": ["user_question", "normalized_question", "question_context_version", "structured_intake"], "properties": {"deterministic_result": {"type": "object"}, "errors": {"maxItems": 0}}}},
+    {"if": {"properties": {"status": {"enum": ["VALIDATION_ERROR", "ENGINE_ERROR", "RELEASE_BLOCKED"]}}, "required": ["status"]}, "then": {"properties": {"deterministic_result": {"type": "null"}, "errors": {"minItems": 1}}}}
+  ],
+  "$defs": {
+    "clarity_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["template_version", "answer", "what_it_means", "priority", "continue_signals", "pause_signals", "next_action", "evidence_path", "boundary_note"],
+      "properties": {
+        "template_version": {"const": "SITES_CLARITY_REPORT_V3"},
+        "answer": {"type": "string", "minLength": 1},
+        "what_it_means": {"type": "string", "minLength": 1},
+        "priority": {"type": "string", "minLength": 1},
+        "continue_signals": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 1}},
+        "pause_signals": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 1}},
+        "next_action": {"type": "string", "minLength": 1},
+        "evidence_path": {"type": "array", "minItems": 3, "items": {"type": "object", "required": ["title", "text"], "properties": {"title": {"type": "string"}, "text": {"type": "string"}}}},
+        "boundary_note": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

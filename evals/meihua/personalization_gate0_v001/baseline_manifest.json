@@ -1,0 +1,26 @@
+{
+  "api_cost_usd": 0,
+  "baseline_name": "GUANXIANG_V16_PERSONALIZATION_GATE0",
+  "dataset_version": "GUANXIANG_PERSONALIZATION_GATE0_V001",
+  "divination_reviewer_status": "UNASSIGNED",
+  "external_model_calls": 0,
+  "files": {
+    "audit_summary.json": "05eff7989c2d7fcf3fa5b83b354bbb0fa123a63b4a5a72c9e1053c0b3dd84aed",
+    "baseline_outputs.json": "b3c23763dce5e995562cacc0a1660b2f13349a41ba9eaf5c67841f533ce1df0e",
+    "fixed_cases.json": "eda2b3aa37af9059c2525cd8fd46c965c25d3ed5a7e9ec1c4d65012b7bf9d805",
+    "question_text_pair_outputs.json": "b86eccb9506d8d2c13a369fadbcccd31b37a1ea91bb3ee3d51d6f674ef26d6ef"
+  },
+  "fixed_clock": "2026-07-18T10:30:00+08:00",
+  "formal_report_persistence_allowed": false,
+  "generator_version": "GUANXIANG_PERSONALIZATION_GATE0_BUILDER_V001",
+  "governance_working_head_commit": "e75594208643232ae35134a70b41be1aeea74229",
+  "locked_test_set_status": "NOT_CREATED_OR_EXPOSED",
+  "narrative_release_status": "UNVERIFIED",
+  "product_behavior_baseline_commit": "7e96712c1ffc2c3209063c0efd60c33f8f1916ef",
+  "python_version": "3.12.13",
+  "should_charge": false,
+  "sites_baseline_version": "v16",
+  "source_branch": "codex/mvp-runnable-baseline",
+  "synthetic_only": true,
+  "timezone": "UTC+08:00"
+}

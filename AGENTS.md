@@ -10,6 +10,7 @@
 8. 不得提交密钥、验证码、用户出生资料。
 9. 新模块必须采用明确的数据模型和类型标注。
 10. 不得通过“看起来合理”代替测试。
+11. Codex 或 Git 出现 443、DNS、fetch/pull 异常时，按 `docs/runbooks/codex-git-network.md` 诊断，不得用扩大永久权限或强制重置代替定位。
 
 ## Phase 1 boundaries
 

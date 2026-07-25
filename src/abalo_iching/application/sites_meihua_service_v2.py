@@ -6,13 +6,14 @@ import hashlib
 import json
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from abalo_iching.interpretation.knowledge import KnowledgeAccessPolicy, select_knowledge
 from abalo_iching.interpretation.synthesis import ConclusionSynthesizer
 from abalo_iching.meihua import MeihuaInput, cast_meihua
 from abalo_iching.meihua.exceptions import InputValidationError
 
+from .sites_cultural_reading_v1 import build_cultural_reading
 from .sites_meihua_service import (
     INVALID_REQUEST_ID_FALLBACK,
     _gate,
@@ -23,7 +24,10 @@ from .sites_meihua_service import (
     _valid_client_timestamp,
     validate_and_normalize_request_id,
 )
+from .sites_mentor_report_v1 import build_mentor_report
 from .sites_structured_question_v1 import (
+    DecisionGoal,
+    TimeHorizon,
     generate_structured_question,
     parse_structured_fields,
 )
@@ -155,6 +159,8 @@ def process_sites_meihua_v2_request(
     request_payload: Any,
     *,
     clock: Callable[[], datetime] | None = None,
+    input_provenance: Literal["SYNTHETIC", "REAL"] = "SYNTHETIC",
+    include_cultural_reading: bool = False,
 ) -> dict[str, Any]:
     """Validate Contract V2 before making exactly one authoritative cast."""
     generated_at = (clock or _now)()
@@ -207,6 +213,12 @@ def process_sites_meihua_v2_request(
             "month_branch": chart.season_context.month_branch,
         },
         "deterministic_conclusion": synthesis.model_dump(mode="json"),
+        "mentor_report": build_mentor_report(
+            chart,
+            synthesis,
+            DecisionGoal(validated["decision_goal"]),
+            TimeHorizon(validated["time_horizon"]),
+        ),
         "evidence_summary": {
             "count": len(chart.evidence),
             "evidence_types": evidence_types,
@@ -214,6 +226,8 @@ def process_sites_meihua_v2_request(
             "approved_knowledge_items_used": len(knowledge.knowledge_evidence),
         },
     }
+    if include_cultural_reading:
+        result["cultural_reading"] = build_cultural_reading(chart, synthesis, knowledge)
     return {
         "contract_version": CONTRACT_VERSION_V2,
         "request_id": validated["request_id"],
@@ -235,7 +249,7 @@ def process_sites_meihua_v2_request(
             "generated_at": generated_at.isoformat(),
             "client_timestamp": validated["client_timestamp"],
             "client_timestamp_used_for_calculation": False,
-            "synthetic_or_real_input": "SYNTHETIC",
+            "synthetic_or_real_input": input_provenance,
             "request_hash": request_hash,
             "audit_id": _safe_audit_id(validated["request_id"]),
             "question_template_version": validated["question_template_version"],

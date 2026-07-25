@@ -72,6 +72,7 @@
         "five_elements": {"$ref": "#/$defs/five_elements"},
         "seasonal_strength": {"$ref": "#/$defs/seasonal_strength"},
         "deterministic_conclusion": {"$ref": "#/$defs/deterministic_conclusion"},
+        "mentor_report": {"$ref": "#/$defs/mentor_report"},
         "evidence_summary": {"$ref": "#/$defs/evidence_summary"}
       }
     },
@@ -134,6 +135,37 @@
         "synthesis_rule_ids": {"type": "array", "items": {"type": "string"}},
         "warnings": {"type": "array", "items": {"type": "string"}},
         "relation_assessments": {"type": "array", "items": {"$ref": "#/$defs/relation_assessment"}}
+      }
+    },
+    "mentor_text_item": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "text"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1}
+      }
+    },
+    "mentor_action_item": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "action", "why"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "action": {"type": "string", "minLength": 1},
+        "why": {"type": "string", "minLength": 1}
+      }
+    },
+    "mentor_report": {
+      "type": "object", "additionalProperties": false,
+      "required": ["template_version", "opening", "reading_guide", "reasoning", "action_plan", "cautions", "review_questions", "boundary_note"],
+      "properties": {
+        "template_version": {"const": "SITES_MENTOR_REPORT_V1"},
+        "opening": {"type": "string", "minLength": 1},
+        "reading_guide": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/mentor_text_item"}},
+        "reasoning": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/mentor_text_item"}},
+        "action_plan": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/mentor_action_item"}},
+        "cautions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "review_questions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "boundary_note": {"type": "string", "minLength": 1}
       }
     },
     "evidence_summary": {

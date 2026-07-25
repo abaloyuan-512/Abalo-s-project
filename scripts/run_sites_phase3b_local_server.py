@@ -129,7 +129,9 @@ class Phase3BRequestHandler(BaseHTTPRequestHandler):
         except OSError:
             self._send_json(HTTPStatus.INTERNAL_SERVER_ERROR, {"status": "unavailable"})
             return
-        self._send_bytes(HTTPStatus.OK, body, content_type)
+        # This is a local review server: stale HTML/JS can make a new product
+        # build look broken, so every static response must be re-fetched.
+        self._send_bytes(HTTPStatus.OK, body, content_type, no_store=True)
 
     def do_POST(self) -> None:  # noqa: N802
         started = time.perf_counter()

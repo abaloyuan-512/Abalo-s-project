@@ -1,0 +1,149 @@
+import json
+from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+import jsonschema
+
+from abalo_iching.application.sites_meihua_service_v3 import process_sites_meihua_v3_request
+
+CONTRACT_DIR = Path(__file__).parents[1] / "contracts" / "sites_meihua_v3"
+FIXED_NOW = datetime(2026, 7, 18, 10, 30, tzinfo=ZoneInfo("Asia/Shanghai"))
+
+
+def request(**changes):
+    payload = {
+        "contract_version": "SITES_MEIHUA_API_CONTRACT_V3",
+        "request_id": "v3-concrete-question",
+        "question_text": "这次合作，我还应该继续投入吗？",
+        "question_domain": "PROJECT_COOPERATION",
+        "decision_goal": "PLAN_NEXT_STEP",
+        "time_horizon": "NEXT_30_DAYS",
+        "decision_stage": "ALREADY_ACTING",
+        "key_uncertainty": "OTHER_RESPONSE",
+        "numbers": [7, 8, 9],
+        "locale": "zh-CN",
+        "client_timestamp": "2026-07-18T10:00:00+08:00",
+        "user_acknowledgements": {"deterministic_only": True, "narrative_unverified": True, "question_text_not_evidence": True},
+    }
+    payload.update(changes)
+    return payload
+
+
+def process(payload=None):
+    return process_sites_meihua_v3_request(payload or request(), clock=lambda: FIXED_NOW)
+
+
+def test_v3_request_and_response_schemas_accept_real_service_output():
+    request_schema = json.loads((CONTRACT_DIR / "request.schema.json").read_text(encoding="utf-8"))
+    response_schema = json.loads((CONTRACT_DIR / "response.schema.json").read_text(encoding="utf-8"))
+    jsonschema.Draft202012Validator.check_schema(request_schema)
+    jsonschema.Draft202012Validator.check_schema(response_schema)
+    jsonschema.validate(request(), request_schema, format_checker=jsonschema.FormatChecker())
+    jsonschema.validate(process(), response_schema, format_checker=jsonschema.FormatChecker())
+
+
+def test_v3_echoes_question_but_marks_it_non_calculative():
+    response = process()
+    assert response["status"] == "SUCCESS"
+    assert response["user_question"] == "这次合作，我还应该继续投入吗？"
+    assert response["audit"]["question_text_used_for_calculation"] is False
+    assert response["deterministic_result"]["clarity_report"]["template_version"] == "SITES_CLARITY_REPORT_V3"
+
+
+def test_changing_question_text_does_not_change_deterministic_chart():
+    first = process()
+    second = process(request(question_text="这份工作，我是否应该继续争取新的职责？"))
+    for field in ["base_hexagram", "mutual_hexagram", "changed_hexagram", "moving_line", "body_use", "deterministic_conclusion"]:
+        assert first["deterministic_result"][field] == second["deterministic_result"][field]
+    assert first["audit"]["request_hash"] != second["audit"]["request_hash"]
+
+
+def test_clarity_report_leads_with_direction_signals_and_reversible_action():
+    report = process()["deterministic_result"]["clarity_report"]
+    assert "项目或合作" in report["answer"]
+    assert report["what_it_means"]
+    assert len(report["continue_signals"]) == 3
+    assert len(report["pause_signals"]) == 3
+    assert "可验收节点" in report["next_action"]
+    assert "三个数字排定卦象" in report["boundary_note"]
+
+
+def test_each_domain_uses_its_own_reality_language():
+    cases = [
+        ("WORK_CAREER", "PLAN_NEXT_STEP", "工作或职业", "职责与授权"),
+        ("PROJECT_COOPERATION", "PLAN_NEXT_STEP", "项目或合作", "双方分工"),
+        ("RELATIONSHIP_COMMUNICATION", "PLAN_NEXT_STEP", "关系或沟通", "稳定而主动"),
+        ("PERSONAL_PLANNING", "PLAN_NEXT_STEP", "个人计划", "时间、精力与预算"),
+    ]
+    for domain, goal, answer_keyword, signal_keyword in cases:
+        report = process(request(question_domain=domain, decision_goal=goal))["deterministic_result"]["clarity_report"]
+        assert answer_keyword in report["answer"]
+        assert any(signal_keyword in signal for signal in report["continue_signals"])
+
+
+def test_question_text_still_does_not_enter_clarity_evidence():
+    sentinel = "这件具体的事只用于显示，不得成为卦象证据"
+    report = process(request(question_text=sentinel))["deterministic_result"]["clarity_report"]
+    assert sentinel not in json.dumps(report, ensure_ascii=False)
+    assert "你写下的问题帮助我们把卦意说到具体事情上" in report["boundary_note"]
+
+
+def test_clarity_evidence_uses_plain_language_instead_of_body_use_jargon():
+    report = process()["deterministic_result"]["clarity_report"]
+    evidence_text = json.dumps(report["evidence_path"], ensure_ascii=False)
+    for jargon in ["体方", "用方", "议题一方", "规则强度"]:
+        assert jargon not in evidence_text
+    assert any(plain_term in evidence_text for plain_term in ["外部条件", "主动权", "同频", "持续投入"])
+
+
+def test_each_base_hexagram_receives_a_distinct_plain_language_emphasis():
+    answers: set[str] = set()
+    names: set[str] = set()
+    for upper_number in range(1, 9):
+        for lower_number in range(1, 9):
+            response = process(request(numbers=[upper_number, lower_number, 1]))
+            result = response["deterministic_result"]
+            answer = result["clarity_report"]["answer"]
+            name = result["base_hexagram"]["name"]
+            assert name in answer
+            answers.add(answer)
+            names.add(name)
+    assert len(names) == 64
+    assert len(answers) == 64
+
+
+def test_personal_plan_signals_name_the_missing_conditions_and_cost_limits():
+    report = process(request(
+        question_domain="PERSONAL_PLANNING",
+        decision_goal="PLAN_NEXT_STEP",
+    ))["deterministic_result"]["clarity_report"]
+    pause_text = "".join(report["pause_signals"])
+    assert "时间、预算、必要资源或他人配合" in pause_text
+    assert "时间、精力或预算上限" in pause_text
+
+
+def test_high_irreversible_profile_uses_non_experimental_display_language():
+    response = process(request(
+        question_text="是否要孩子？",
+        question_domain="PERSONAL_PLANNING",
+        decision_goal="PLAN_NEXT_STEP",
+        decision_risk_profile="HIGH_IRREVERSIBLE",
+    ))
+
+    assert response["status"] == "SUCCESS"
+    assert response["structured_intake"]["decision_risk_profile"] == "HIGH_IRREVERSIBLE"
+    report = response["deterministic_result"]["clarity_report"]
+    report_text = json.dumps(report, ensure_ascii=False)
+    assert "共同意愿" in report_text
+    assert "专业核实" in report_text
+    for mismatched in ("最小版本", "最小的一部分", "小试一下", "试错"):
+        assert mismatched not in report_text
+
+
+def test_v3_rejects_invalid_free_text_without_echoing_it():
+    sentinel = "X" * 161
+    response = process(request(question_text=sentinel))
+    assert response["status"] == "VALIDATION_ERROR"
+    assert response["deterministic_result"] is None
+    assert sentinel not in json.dumps(response, ensure_ascii=False)

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abalo:sites-meihua:v3:request",
+  "title": "Sites Meihua Concrete Question Request V3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "request_id", "question_text", "question_domain", "decision_goal", "time_horizon", "decision_stage", "key_uncertainty", "numbers", "locale", "client_timestamp", "user_acknowledgements"],
+  "properties": {
+    "contract_version": {"const": "SITES_MEIHUA_API_CONTRACT_V3"},
+    "request_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$", "not": {"const": "invalid-request"}},
+    "question_text": {"type": "string", "minLength": 6, "maxLength": 160, "description": "Display and presentation context only; never an engine input or chart evidence."},
+    "question_domain": {"enum": ["WORK_CAREER", "PROJECT_COOPERATION", "RELATIONSHIP_COMMUNICATION", "PERSONAL_PLANNING"]},
+    "decision_goal": {"enum": ["IDENTIFY_OBSTACLES", "PLAN_NEXT_STEP", "PREPARE_COMMUNICATION", "ADJUST_COMMITMENT_BOUNDARIES", "OBSERVE_VERIFY_SIGNALS"]},
+    "time_horizon": {"enum": ["CURRENT", "NEXT_30_DAYS", "NEXT_QUARTER", "NEXT_6_MONTHS"]},
+    "decision_stage": {"enum": ["EXPLORING", "PREPARING", "ALREADY_ACTING", "WAITING_FEEDBACK"]},
+    "key_uncertainty": {"enum": ["CONDITIONS", "OTHER_RESPONSE", "OWN_COMMITMENT", "TIMING"]},
+    "decision_risk_profile": {"enum": ["STANDARD", "HIGH_IRREVERSIBLE"], "description": "Presentation safety only; never participates in chart calculation."},
+    "numbers": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "integer", "minimum": 1, "maximum": 999}},
+    "locale": {"const": "zh-CN"},
+    "client_timestamp": {"type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"},
+    "user_acknowledgements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deterministic_only", "narrative_unverified", "question_text_not_evidence"],
+      "properties": {
+        "deterministic_only": {"const": true},
+        "narrative_unverified": {"const": true},
+        "question_text_not_evidence": {"const": true}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"question_domain": {"const": "WORK_CAREER"}}, "required": ["question_domain"]}, "then": {"properties": {"decision_goal": {"enum": ["IDENTIFY_OBSTACLES", "PLAN_NEXT_STEP", "PREPARE_COMMUNICATION", "OBSERVE_VERIFY_SIGNALS"]}}}},
+    {"if": {"properties": {"question_domain": {"const": "RELATIONSHIP_COMMUNICATION"}}, "required": ["question_domain"]}, "then": {"properties": {"decision_goal": {"enum": ["PLAN_NEXT_STEP", "PREPARE_COMMUNICATION", "ADJUST_COMMITMENT_BOUNDARIES", "OBSERVE_VERIFY_SIGNALS"]}}}},
+    {"if": {"properties": {"question_domain": {"const": "PERSONAL_PLANNING"}}, "required": ["question_domain"]}, "then": {"properties": {"decision_goal": {"enum": ["IDENTIFY_OBSTACLES", "PLAN_NEXT_STEP", "ADJUST_COMMITMENT_BOUNDARIES", "OBSERVE_VERIFY_SIGNALS"]}}}}
+  ]
+}
