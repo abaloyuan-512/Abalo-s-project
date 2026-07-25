@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     region: singapore
-    branch: codex/owner-preview-private
+    branch: main
     autoDeployTrigger: off
     buildCommand: pip install -r requirements-hosted.txt
     startCommand: python scripts/run_hosted_api.py

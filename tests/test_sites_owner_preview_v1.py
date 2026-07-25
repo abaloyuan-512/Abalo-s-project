@@ -194,7 +194,7 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
     assert "synthetic_only" not in str(captured[0].input_payload)
-    assert captured[0].prompt_version == "guanxiang_owner_preview_v6"
+    assert captured[0].prompt_version == "guanxiang_owner_preview_v7"
     assert captured[0].input_payload["interpretation_packet"]["packet_version"] == "SITES_INTERPRETATION_PACKET_V1"
     assert captured[0].input_payload["interpretation_packet"]["epistemic_boundary"].startswith("PACKET_ITEMS_ARE_CHART")
     assert {item["ref"] for item in captured[0].input_payload["chart_context"]["evidence"]} >= {
@@ -204,6 +204,9 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
         "EV13",
     }
     assert "判断优先与解释资料包使用约束" in captured[0].system_instructions
+    assert "来源追踪闭合检查" in captured[0].system_instructions
+    assert "每一个实际使用的 EVxx" in captured[0].system_instructions
+    assert "source_kind=CHART_FACT" in captured[0].system_instructions
     assert "最小可逆、低成本验证、收集反馈、保留调整空间" in captured[0].system_instructions
     for field in (
         "judgment_signature.direction",
@@ -333,7 +336,39 @@ def test_owner_preview_accepts_exact_aggregate_source_trace_paths_from_live_outp
     )
 
     assert response["status"] == "SUCCESS"
-    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v6"
+    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v7"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v6"
+
+
+def test_owner_preview_v7_keeps_rejecting_a_used_ev_without_chart_fact_trace():
+    def generator(prompt):
+        output = valid_output(prompt)
+        removed_ref = output["chart_signals"][1]["evidence_refs"][0]
+        output["source_trace"] = [
+            trace
+            for trace in output["source_trace"]
+            if not (
+                trace["source_kind"] == "CHART_FACT"
+                and trace["source_ref"] == removed_ref
+            )
+        ]
+        return Gate2ProviderResult(
+            response_id="test-missing-chart-trace-v7",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=output,
+            cost_usd=0.01,
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "PREVIEW_FAILED"
+    assert "missing_chart_trace" in response["preview_meta"]["hard_failure_codes"]
+    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v7"
     assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v6"
 
 
