@@ -31,7 +31,7 @@ export async function pollPersonalizedTask(
     fetchResult,
     sleep,
     cancelled = () => false,
-    maxAttempts = 144,
+    maxAttempts = 720,
     intervalMs = 2_500,
   }: {
     fetchResult: () => Promise<PersonalizedTaskResponse>;
@@ -89,7 +89,7 @@ export async function pollPersonalizedTask(
   }
 
   throw new PersonalizedPollError(
-    "生成时间超过六分钟。任务仍保留，刷新页面会继续查询，不会重复生成。",
+    "生成时间超过三十分钟。任务仍保留，刷新页面会继续查询，不会重复生成。",
     requestId,
     false,
   );

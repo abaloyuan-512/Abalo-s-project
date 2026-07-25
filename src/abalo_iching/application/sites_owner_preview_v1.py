@@ -53,7 +53,9 @@ OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v6"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 9_000
-OWNER_PREVIEW_MAX_POLL_ATTEMPTS = 180
+# Keep the backend task alive longer than the browser's ordinary wait window.
+# This is a technical lifecycle boundary, not a usage or spending quota.
+OWNER_PREVIEW_MAX_POLL_ATTEMPTS = 900
 LOGGER = logging.getLogger("abalo.owner_preview")
 
 OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS = """
@@ -446,6 +448,25 @@ def _provider_failure_meta(exc: Exception) -> dict[str, Any]:
     return meta
 
 
+def _provider_failure_message(failure_codes: list[str]) -> str:
+    provider_prefixes = (
+        "background_",
+        "rate_limit",
+        "authentication_failed",
+        "api_key_missing",
+    )
+    communication_markers = ("_timeout", "_connection_failed")
+    if any(
+        code.startswith(provider_prefixes) or code.endswith(communication_markers)
+        for code in failure_codes
+    ):
+        return (
+            "OpenAI 服务本次未能完成通信；系统没有创建第二次生成，"
+            "也没有调用模型修复。"
+        )
+    return "本次新版解读未能完成结构或安全检查，未展示也不会自动重新生成。"
+
+
 def _live_generator(prompt: Gate2PromptPackage) -> Gate2ProviderResult:
     from abalo_iching.personalization_gate2.background_provider import (
         OpenAIGate2BackgroundProvider,
@@ -544,7 +565,7 @@ def process_sites_owner_preview_v1_request(
         return _error(
             payload.request_id,
             "PREVIEW_FAILED",
-            "本次新版解读未能完成结构或安全检查，未展示也不会自动重试。",
+            _provider_failure_message(failure_meta["failure_codes"]),
             preview_meta_extra=failure_meta,
         )
     if hard_failures or quality_failures:

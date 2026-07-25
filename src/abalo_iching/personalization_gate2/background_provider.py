@@ -36,6 +36,7 @@ STAGE_C1_POLL_INTERVAL_SECONDS = 2.0
 STAGE_C1_MAX_POLL_ATTEMPTS = 300
 _RUNNING_STATUSES = {"queued", "in_progress"}
 _TERMINAL_STATUSES = {"completed", "incomplete", "failed", "cancelled"}
+_TRANSIENT_HTTP_STATUS_CODES = {408, 409, 429}
 
 
 def _usage_from_response(response: Any) -> Gate2Usage:
@@ -175,16 +176,12 @@ class OpenAIGate2BackgroundProvider:
             raise ValueError(f"阶段 {self.stage_label}恢复响应ID无效")
         client = self._client()
         started = perf_counter()
-        try:
-            response = client.responses.retrieve(response_id)
-            self.poll_count += 1
-        except Exception as exc:
-            self._raise_api_error(
-                exc,
-                phase="background_resume",
-                response_id=response_id,
-                latency_ms=int((perf_counter() - started) * 1000),
-            )
+        response = self._retrieve_existing_response(
+            client,
+            response_id=response_id,
+            phase="background_resume",
+            started=started,
+        )
         if str(getattr(response, "id", "")) != response_id:
             raise Gate2LiveProviderError(
                 "background_response_id_mismatch",
@@ -243,10 +240,15 @@ class OpenAIGate2BackgroundProvider:
                     raw_output=_raw_output_from_response(response),
                 )
             self._sleep(self._poll_interval_seconds)
+            self.poll_count += 1
             try:
                 response = client.responses.retrieve(response_id)
-                self.poll_count += 1
             except Exception as exc:
+                # A GET failure does not mean that the already-created model
+                # response failed.  Recover by retrieving this same response ID;
+                # never issue a second parse/create request.
+                if self._is_transient_retrieve_error(exc):
+                    continue
                 self._raise_api_error(
                     exc,
                     phase="background_poll",
@@ -349,6 +351,58 @@ class OpenAIGate2BackgroundProvider:
             incomplete_reason=incomplete_reason,
             background_mode=True,
             poll_count=self.poll_count,
+        )
+
+    def _retrieve_existing_response(
+        self,
+        client: Any,
+        *,
+        response_id: str,
+        phase: str,
+        started: float,
+    ) -> Any:
+        """Retrieve one existing response, tolerating only transient GET failures."""
+
+        while self.poll_count < self._max_poll_attempts:
+            self.poll_count += 1
+            try:
+                return client.responses.retrieve(response_id)
+            except Exception as exc:
+                if not self._is_transient_retrieve_error(exc):
+                    self._raise_api_error(
+                        exc,
+                        phase=phase,
+                        response_id=response_id,
+                        latency_ms=int((perf_counter() - started) * 1000),
+                    )
+                if self.poll_count < self._max_poll_attempts:
+                    self._sleep(self._poll_interval_seconds)
+                    continue
+                self._raise_api_error(
+                    exc,
+                    phase=phase,
+                    response_id=response_id,
+                    latency_ms=int((perf_counter() - started) * 1000),
+                )
+        raise Gate2LiveProviderError(
+            "background_poll_limit_reached",
+            f"后台响应仍不可读取；已保存响应ID，阶段 {self.stage_label}不创建新请求",
+            response_id=response_id,
+            api_status="unknown",
+            latency_ms=int((perf_counter() - started) * 1000),
+            background_mode=True,
+            poll_count=self.poll_count,
+        )
+
+    @staticmethod
+    def _is_transient_retrieve_error(exc: Exception) -> bool:
+        """Return whether retrying the same idempotent GET is safe."""
+
+        if isinstance(exc, (APIConnectionError, APITimeoutError, RateLimitError)):
+            return True
+        status_code = getattr(exc, "status_code", None)
+        return isinstance(status_code, int) and (
+            status_code in _TRANSIENT_HTTP_STATUS_CODES or status_code >= 500
         )
 
     def _record_checkpoint(self, response: Any, *, generation_calls: int) -> None:

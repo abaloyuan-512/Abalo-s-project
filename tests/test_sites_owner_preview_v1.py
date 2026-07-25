@@ -128,7 +128,7 @@ def valid_output(prompt):
     }
 
 
-def test_live_generator_waits_for_same_response_for_up_to_six_minutes(monkeypatch):
+def test_live_generator_waits_for_same_response_for_up_to_thirty_minutes(monkeypatch):
     captured = {}
     sentinel = object()
 
@@ -145,7 +145,7 @@ def test_live_generator_waits_for_same_response_for_up_to_six_minutes(monkeypatc
     prompt = object()
     assert _live_generator(prompt) is sentinel
     assert captured["prompt"] is prompt
-    assert captured["max_poll_attempts"] == OWNER_PREVIEW_MAX_POLL_ATTEMPTS == 180
+    assert captured["max_poll_attempts"] == OWNER_PREVIEW_MAX_POLL_ATTEMPTS == 900
 
 
 def test_owner_preview_is_disabled_by_default_without_calling_openai(monkeypatch):
@@ -677,3 +677,26 @@ def test_owner_preview_records_safe_provider_diagnostics_without_sensitive_paylo
     assert "resp-sensitive-raw-id" not in caplog.text
     assert "绝不能进入日志" not in caplog.text
     assert "raw model output" not in caplog.text
+
+
+def test_owner_preview_reports_provider_communication_failure_separately():
+    def generator(_prompt):
+        raise Gate2LiveProviderError(
+            "background_poll_error",
+            "synthetic upstream failure",
+            response_id="resp-not-exposed",
+            api_status="in_progress",
+            poll_count=1,
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "PREVIEW_FAILED"
+    assert response["preview_meta"]["failure_codes"] == ["background_poll_error"]
+    assert "OpenAI 服务本次未能完成通信" in response["error"]
+    assert "结构或安全检查" not in response["error"]
+    assert "第二次生成" in response["error"]

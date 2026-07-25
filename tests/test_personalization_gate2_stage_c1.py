@@ -194,7 +194,14 @@ class _FakeBackgroundResponses:
     def retrieve(self, response_id: str):
         assert response_id == "resp-stage-c1-test"
         self.retrieve_calls += 1
-        return next(self.retrieved)
+        result = next(self.retrieved)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+
+class _TransientRetrieveError(Exception):
+    status_code = 500
 
 
 class _FakeClient:
@@ -279,6 +286,54 @@ def test_background_provider_creates_once_and_polls_same_response(
         "in_progress",
         "completed",
     ]
+
+
+def test_background_provider_recovers_same_response_after_transient_poll_500(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "test-only-placeholder")
+    responses = _FakeBackgroundResponses(
+        _response("queued"),
+        [
+            _TransientRetrieveError("synthetic upstream 500"),
+            _response("in_progress"),
+            _response(
+                "completed",
+                output=_output_dict(),
+                output_tokens=2500,
+                reasoning_tokens=1200,
+            ),
+        ],
+    )
+    provider = _provider(responses)
+
+    result = provider.generate(_prompt())
+
+    assert result.api_status == "completed"
+    assert provider.call_count == 1
+    assert provider.poll_count == 3
+    assert responses.parse_calls == 1
+    assert responses.retrieve_calls == 3
+
+
+def test_background_provider_does_not_hide_nontransient_poll_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "test-only-placeholder")
+    responses = _FakeBackgroundResponses(
+        _response("queued"),
+        [ValueError("synthetic client defect")],
+    )
+    provider = _provider(responses)
+
+    with pytest.raises(Gate2LiveProviderError) as captured:
+        provider.generate(_prompt())
+
+    assert captured.value.code == "background_poll_error"
+    assert provider.call_count == 1
+    assert provider.poll_count == 1
+    assert responses.parse_calls == 1
+    assert responses.retrieve_calls == 1
 
 
 def test_resume_only_retrieves_existing_response_and_never_creates(
