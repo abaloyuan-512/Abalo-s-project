@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -93,7 +93,7 @@ type ApiResponse = {
   error?: string;
   errors?: { message?: string }[];
 };
-type JournalRecord = {
+export type JournalRecord = {
   id: string;
   created_at: string;
   updated_at: string;
@@ -107,14 +107,8 @@ type JournalRecord = {
   learning_text: string;
   status: "OPEN" | "REVIEWED";
 };
-type JournalDraft = Pick<JournalRecord, "action_text" | "review_on" | "reality_text" | "learning_text" | "status">;
+export type JournalDraft = Pick<JournalRecord, "action_text" | "review_on" | "reality_text" | "learning_text" | "status">;
 
-const DOMAINS = {
-  WORK_CAREER: "工作与职业",
-  PROJECT_COOPERATION: "项目与合作",
-  RELATIONSHIP_COMMUNICATION: "关系与沟通",
-  PERSONAL_PLANNING: "个人规划",
-} as const;
 const GOALS = {
   IDENTIFY_OBSTACLES: "看清阻力与条件",
   PLAN_NEXT_STEP: "判断下一步怎么走",
@@ -130,25 +124,44 @@ const GOALS_BY_DOMAIN: Record<string, (keyof typeof GOALS)[]> = {
 };
 const HORIZONS = { CURRENT: "当前阶段", NEXT_30_DAYS: "未来三十天", NEXT_QUARTER: "未来一个季度", NEXT_6_MONTHS: "未来六个月" } as const;
 const STAGES = { EXPLORING: "刚开始了解", PREPARING: "准备行动", ALREADY_ACTING: "正在推进", WAITING_FEEDBACK: "等待回应" } as const;
-const UNCERTAINTIES = { CONDITIONS: "还缺哪些条件", OTHER_RESPONSE: "对方是否回应", OWN_COMMITMENT: "自己投入多少", TIMING: "现在是否合适" } as const;
-const RISK_PROFILES = { STANDARD: "一般，可分阶段调整", HIGH_IRREVERSIBLE: "高不可逆，不能试错后撤回" } as const;
 
 const QUESTION_EXAMPLES = [
-  { topic: "工作", domain: "WORK_CAREER", text: "这份工作已经让我很疲惫，我还应该继续留下吗？" },
   { topic: "工作", domain: "WORK_CAREER", text: "面对现在的工作机会，我下一步最该先确认什么？" },
   { topic: "合作", domain: "PROJECT_COOPERATION", text: "这次合作，我还应该继续投入吗？" },
-  { topic: "合作", domain: "PROJECT_COOPERATION", text: "对方迟迟没有明确回应，我还要继续推进这个项目吗？" },
   { topic: "关系", domain: "RELATIONSHIP_COMMUNICATION", text: "这段关系一直没有进展，我还要继续主动吗？" },
-  { topic: "关系", domain: "RELATIONSHIP_COMMUNICATION", text: "我们最近反复争执，我应该先沟通还是先冷静一段时间？" },
   { topic: "规划", domain: "PERSONAL_PLANNING", text: "我现在开始这项长期计划，最需要先准备什么？" },
-  { topic: "规划", domain: "PERSONAL_PLANNING", text: "这项计划投入越来越多，我是否应该先停下来调整？" },
 ] as const;
 
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
+const JOURNAL_OPEN_KEY = "guanxiang-open-journal-record-v1";
 
 function nonemptyLines(value: string): string[] {
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
+}
+
+function downloadReadingHtml(response: ApiResponse): void {
+  const result = response.deterministic_result;
+  if (!result) return;
+  const question = escapeHtml(response.user_question ?? "你所问之事");
+  const cultural = result.cultural_reading;
+  const personalized = response.personalized_reading ?? result.personalized_reading;
+  const report = result.clarity_report;
+  const hexagrams = cultural?.hexagrams.map((item) => `<article><header><span>${escapeHtml(item.role)}</span><b>${escapeHtml(item.symbol)}</b><div><small>第 ${item.king_wen_number} 卦</small><h2>${escapeHtml(item.name)}</h2></div></header><p>${escapeHtml(item.reading_role)}</p><blockquote><i>《易》曰</i>${escapeHtml(item.canonical_text)}</blockquote><p>${escapeHtml(item.plain_note)}</p></article>`).join("") ?? "";
+  const terms = cultural?.terms.map((term) => `<article><span>${escapeHtml(term.title)}</span><h3>${escapeHtml(term.current_value)}</h3><p>${escapeHtml(term.meaning)}</p><b>本次影响</b><p>${escapeHtml(term.current_effect)}</p></article>`).join("") ?? "";
+  const personal = personalized ? `<section><p class="eyebrow">回到你的现实</p><h2>${escapeHtml(personalized.core_judgment)}</h2><div class="columns"><article><h3>为什么这样判断</h3><p>${escapeHtml(personalized.explanation)}</p></article><article><h3>落到现实</h3><p>${escapeHtml(personalized.reality_application)}</p></article><article><h3>下一步</h3><p>${escapeHtml(personalized.action)}</p></article><article><h3>何时转向</h3><p>${escapeHtml(personalized.switch_condition)}</p></article></div></section>` : "";
+  const html = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>观象 · ${escapeHtml(result.base_hexagram.name)}</title><style>@font-face{font-family:gx;src:url(data:font/woff2;base64,) format('woff2')}*{box-sizing:border-box}body{margin:0;color:#2a2b25;background:#f2ead9;font-family:STKaiti,KaiTi,serif;letter-spacing:.055em}main{max-width:1180px;margin:auto;padding:9vw 7vw;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Cfilter id="n"%3E%3CfeTurbulence baseFrequency=".7" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity=".025"/%3E%3C/svg%3E')}header.hero{text-align:center;min-height:58vh;display:grid;place-content:center;border-bottom:1px solid rgba(53,55,48,.2)}.hero b{font-size:8rem;font-weight:400}.hero h1{margin:.1em 0;font-size:4rem;font-weight:400}.hero p{color:#62665d}.eyebrow{color:#963b28;letter-spacing:.22em}section{padding:5rem 0;border-bottom:1px solid rgba(53,55,48,.2)}section>h2{font-size:2.5rem;font-weight:400;line-height:1.45}.grid,.columns{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4rem}.columns{grid-template-columns:repeat(2,1fr)}article header{display:flex;gap:1rem;align-items:center}article header>b{font-size:3.4rem;font-weight:400}article h2,article h3{font-weight:400}article p{line-height:1.85;color:#50544b}blockquote{margin:1.5rem 0;padding:1.5rem 0;border-block:1px solid rgba(53,55,48,.16);line-height:1.9}blockquote i{display:block;color:#963b28;font-style:normal}.terms{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}.final{font-size:2rem;line-height:1.65;text-align:center}.boundary{font-size:.85rem;color:#62665d;line-height:1.8}@media(max-width:720px){main{padding:3rem 1.4rem}.hero b{font-size:5rem}.hero h1{font-size:2.8rem}.grid,.columns,.terms{grid-template-columns:1fr}}</style></head><body><main><header class="hero"><p class="eyebrow">本次所得之卦</p><b>${escapeHtml(result.base_hexagram.symbol)}</b><h1>第 ${result.base_hexagram.king_wen_number} 卦 · ${escapeHtml(result.base_hexagram.name)}</h1><p>所问：${question}</p></header><section><p class="eyebrow">本卦 · 互卦 · 变卦</p><div class="grid">${hexagrams}</div></section><section><p class="eyebrow">动爻 · 体用 · 旺衰</p><div class="terms">${terms}</div></section>${personal}<section><p class="eyebrow">解读至此</p><p class="final">${escapeHtml(personalized?.action ?? report.next_action)}</p><p class="boundary">${escapeHtml(report.boundary_note)}</p></section></main></body></html>`;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `观象-${result.base_hexagram.name}.html`;
+  anchor.click();
+  URL.revokeObjectURL(url);
 }
 
 function sleep(milliseconds: number): Promise<void> {
@@ -191,45 +204,103 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
   />;
 }
 
-function ChoiceMenu({ label, value, options, disabled = false, onChange }: {
-  label: string;
-  value: string;
-  options: Record<string, string>;
-  disabled?: boolean;
-  onChange: (value: string) => void;
-}) {
-  const selected = options[value] ?? "请选择";
-  return <div className={`choice-field ${disabled ? "is-disabled" : ""}`}>
-    <span>{label}</span>
-    <details className="choice-menu">
-      <summary aria-label={`${label}：${selected}`} aria-disabled={disabled} onClick={(event) => { if (disabled) event.preventDefault(); }}>
-        <BaguaMark />
-        <b>{selected}</b>
-      </summary>
-      <div role="listbox" aria-label={label}>
-        {Object.entries(options).map(([key, text]) => <button
-          key={key}
-          type="button"
-          role="option"
-          aria-selected={value === key}
-          onClick={(event) => {
-            onChange(key);
-            event.currentTarget.closest("details")?.removeAttribute("open");
-          }}
-        ><BaguaMark />{text}</button>)}
-      </div>
-    </details>
-  </div>;
+type IntakeAnswer = { prompt: string; answer: string };
+
+function inferDomain(text: string): string {
+  if (/关系|喜欢|表白|朋友|伴侣|沟通|同事之间|家人/.test(text)) return "RELATIONSHIP_COMMUNICATION";
+  if (/项目|合作|客户|合同|方案|合伙|资源/.test(text)) return "PROJECT_COOPERATION";
+  if (/工作|职业|岗位|公司|升职|离职|求职/.test(text)) return "WORK_CAREER";
+  return "PERSONAL_PLANNING";
 }
 
-function OptionList({ name, value, options, onChange }: { name: string; value: string; options: Record<string, string>; onChange: (value: string) => void }) {
-  return <div className="option-list" role="radiogroup" aria-label={name}>{Object.entries(options).map(([key, label]) => (
-    <label key={key} className={value === key ? "selected" : ""}>
-      <input type="radio" name={name} value={key} checked={value === key} onChange={() => onChange(key)} />
-      <BaguaMark />
-      <span>{label}</span>
-    </label>
-  ))}</div>;
+function inferGoal(text: string): keyof typeof GOALS {
+  if (/沟通|表达|谈|说/.test(text)) return "PREPARE_COMMUNICATION";
+  if (/边界|投入|付出|停止|退出/.test(text)) return "ADJUST_COMMITMENT_BOUNDARIES";
+  if (/回应|信号|迹象|反馈/.test(text)) return "OBSERVE_VERIFY_SIGNALS";
+  if (/阻力|困难|卡住|原因/.test(text)) return "IDENTIFY_OBSTACLES";
+  return "PLAN_NEXT_STEP";
+}
+
+function inferUncertainty(text: string): "CONDITIONS" | "OTHER_RESPONSE" | "OWN_COMMITMENT" | "TIMING" {
+  if (/时机|时候|多久|时间|现在/.test(text)) return "TIMING";
+  if (/回应|态度|对方|反馈|答复/.test(text)) return "OTHER_RESPONSE";
+  if (/投入|付出|坚持|继续/.test(text)) return "OWN_COMMITMENT";
+  return "CONDITIONS";
+}
+
+function GuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onQuestion, onStructured, onComplete }: {
+  question: string;
+  onFacts: (value: string) => void;
+  onUnknowns: (value: string) => void;
+  onActions: (value: string) => void;
+  onObservableResponses: (value: string) => void;
+  onQuestion: (value: string) => void;
+  onStructured: (value: { domain: string; goal: string; horizon: string; stage: string; uncertainty: string }) => void;
+  onComplete: (complete: boolean) => void;
+}) {
+  const [turn, setTurn] = useState(0);
+  const [draft, setDraft] = useState("");
+  const [answers, setAnswers] = useState<IntakeAnswer[]>([]);
+  const [horizonAnswer, setHorizonAnswer] = useState("");
+  const [stageAnswer, setStageAnswer] = useState("");
+  const prompts = [
+    "先确定观察的范围：你希望在多长时间内看清这件事？",
+    "这件事现在走到了哪一步？",
+    "到目前为止，哪些是你已经确认的现实事实？请不要写推测。",
+    "哪一部分仍然未知，不能先当作事实？",
+    "为了这件事，你已经采取过什么行动？如果还没有，可以写“尚未行动”。",
+    "事情已经给过你怎样的回应或反馈？如果还没有，可以写“尚无回应”。",
+    "如果这一次只能看清一件事，你最希望确认什么？",
+  ];
+  const currentPrompt = prompts[turn];
+
+  function record(answer: string) {
+    const value = answer.trim();
+    if (!value || !currentPrompt) return;
+    setAnswers((current) => [...current, { prompt: currentPrompt, answer: value }]);
+    if (turn === 0) setHorizonAnswer(Object.entries(HORIZONS).find(([, label]) => label === value)?.[0] ?? "CURRENT");
+    if (turn === 1) setStageAnswer(Object.entries(STAGES).find(([, label]) => label === value)?.[0] ?? "EXPLORING");
+    if (turn === 2) onFacts(value);
+    if (turn === 3) onUnknowns(value);
+    if (turn === 4) onActions(value === "尚未行动" ? "" : value);
+    if (turn === 5) onObservableResponses(value === "尚无回应" ? "" : value);
+    if (turn === prompts.length - 1) {
+      const combined = `${question}\n${answers.map((item) => item.answer).join("\n")}\n${value}`;
+      const domain = inferDomain(combined);
+      const desiredGoal = inferGoal(value);
+      const allowed = GOALS_BY_DOMAIN[domain] ?? [];
+      onStructured({
+        domain,
+        goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+        horizon: horizonAnswer,
+        stage: stageAnswer,
+        uncertainty: inferUncertainty(combined),
+      });
+      onComplete(true);
+    }
+    setTurn((current) => current + 1);
+    setDraft("");
+  }
+
+  function reset() {
+    setTurn(0); setDraft(""); setAnswers([]); setHorizonAnswer(""); setStageAnswer("");
+    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
+    onComplete(false);
+  }
+
+  const completed = turn >= prompts.length;
+  return <div className="guided-intake">
+    <div className="dialogue-history" aria-live="polite">
+      <div className="dialogue-row guide"><img src="/bagua-seal.png" alt="" /><p>我会一次问一个问题。你只需要说清已经知道的部分；不知道的，就明确留作未知。</p></div>
+      {answers.map((item) => <div className="dialogue-pair" key={`${item.prompt}-${item.answer}`}><div className="dialogue-row guide"><img src="/bagua-seal.png" alt="" /><p>{item.prompt}</p></div><div className="dialogue-row user"><p>{item.answer}</p></div></div>)}
+      {!completed && <div className="dialogue-row guide current"><img src="/bagua-seal.png" alt="" /><p>{currentPrompt}</p></div>}
+    </div>
+    {!completed && turn === 0 && <div className="dialogue-options">{Object.entries(HORIZONS).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
+    {!completed && turn === 1 && <div className="dialogue-options">{Object.entries(STAGES).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
+    {!completed && turn > 1 && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={turn === 6 ? 300 : 1200} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={!draft.trim()} onClick={() => record(draft)}>答完这一问</button></div>}
+    {completed && <div className="dialogue-review"><p className="eyebrow">辨识完成 · 最后确认</p><h3>这仍然是你真正想问的吗？</h3><p>如果对话之后，你发现心里真正关心的已经变了，可以在这里改写。最终排盘只会使用你确认后的这个问题。</p><textarea aria-label="最终确认的问题" value={question} maxLength={160} onChange={(event) => onQuestion(event.target.value)} /><button type="button" className="text-button" onClick={reset}>重新辨识</button></div>}
+    <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
+  </div>;
 }
 
 function JournalEntry({ record, onOpen, onUpdate, onDelete }: {
@@ -262,7 +333,7 @@ function JournalEntry({ record, onOpen, onUpdate, onDelete }: {
   </details>;
 }
 
-function JournalSection({ records, loading, message, hasUnsavedResult, onOpen, onUpdate, onDelete, onExport, onSaveCurrent }: {
+export function JournalSection({ records, loading, message, hasUnsavedResult, onOpen, onUpdate, onDelete, onExport, onSaveCurrent }: {
   records: JournalRecord[];
   loading: boolean;
   message: string;
@@ -299,7 +370,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
   const question = response.user_question ?? "你所问之事";
   const primaryJudgment = personalized?.core_judgment ?? report.answer;
   const primaryAction = personalized?.action ?? report.next_action;
-  const quickSignals = [report.continue_signals[0], report.continue_signals[1], report.pause_signals[0]].filter(Boolean);
+  const baseClassic = cultural?.hexagrams[0];
   const upperPath = cultural?.number_path[0];
   const lowerPath = cultural?.number_path[1];
   const movingTerm = cultural?.terms.find((term) => term.title.startsWith("动爻"));
@@ -313,42 +384,18 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <VerticalBrand />
       <p className="result-question">所问：{question}</p>
       <div className="result-verdict">
-        <p className="eyebrow">现在先看</p>
-        <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>第 {result.base_hexagram.king_wen_number} 卦</span><h2>{result.base_hexagram.name}</h2></div>
-        <p className="eyebrow conclusion-label">核心判断</p>
-        <h3 id="result-title" tabIndex={-1}>{primaryJudgment}</h3>
+        <p className="eyebrow">本次所得之卦</p>
+        <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>第 {result.base_hexagram.king_wen_number} 卦</span><h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2></div>
+        {baseClassic && <blockquote className="result-canonical"><b>卦辞</b>{baseClassic.canonical_text}</blockquote>}
       </div>
       <aside className="result-aside">
-        <span>眼下可做的一步</span><b>{report.priority}</b><p>{primaryAction}</p><a href="#personalized-reading">看完整现实解读</a>
+        <span>先不急着得到结论</span><p>接下来从本卦、互卦和变卦开始，看清这个卦怎样形成，又怎样落回你所问的事情。</p><a href="#why-reading">开始解读此卦</a>
       </aside>
     </section>
 
-    {personalized && <section id="personalized-reading" className="personalized-reading scroll-section" data-reveal>
-      <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">把卦象放回你的现实</p><h2>这件事，眼下真正要看什么</h2><p>以下解读只使用你明确写下的事实、未知项与程序排出的卦象；它不会把猜测补成事实，也不会替你做决定。</p></header>
-      <div className="personalized-reading-grid">
-        {questionResponses.length > 1 && <article className="question-responses"><span>逐项回答</span><ul>{questionResponses.map((item) => <li key={item.question_text}><b>{item.question_text}</b><p>{item.answer_text}</p></li>)}</ul></article>}
-        <article><span>为什么这样判断</span><p>{personalized.explanation}</p></article>
-        <article><span>落到你的现实</span><p>{personalized.reality_application}</p></article>
-        <article><span>下一步</span><p>{personalized.action}</p></article>
-        <article><span>何时需要转向</span><p>{personalized.switch_condition}</p></article>
-      </div>
-    </section>}
-
-    {sectionVisibility.showGenericSignals && <section id="result-signals" className="quick-reading scroll-section" data-reveal>
-      <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">先带走最有用的部分</p><h2>先做一件事，再看三个迹象</h2><p>不用急着把整份解读都记住。先确定眼前准备做的事，再留意下面三个迹象；它们出现或没有出现，会帮助你判断接下来该继续、调整，还是停一停。</p></header>
-      <div className="quick-signal-list">{quickSignals.map((signal, index) => <article key={signal}><span>{["壹", "贰", "叁"][index]}</span><p>{signal}</p></article>)}</div>
-      <nav className="result-jump"><a href="#why-reading">为什么这样判断</a><a href="#deep-reading">深入了解排盘</a><a href="#save-current-reading">读完后保存这次观象</a></nav>
-    </section>}
-
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">第二层 · 为什么</p><h2>{personalized ? "核对卦象依据" : "从卦象回到所问之事"}</h2><p>{personalized ? "下面保留本卦、互卦与变卦的规范材料，供你核对上方判断用了哪些变化线索。" : "这一层说明判断依据。若你只需要行动方向，可以先跳过，等现实出现新证据后再回来对照。"}</p></header>
-      {sectionVisibility.showGenericWhy && <div className="detailed-conclusion">
-        <span>回到你所问之事</span><h3>{report.what_it_means}</h3>
-        <ol>{report.evidence_path.map((item) => <li key={item.title}><b>{item.title}</b><p>{item.text}</p></li>)}</ol>
-      </div>}
+      <header className="section-heading"><p className="eyebrow">第一章 · 读卦</p><h2>本卦、互卦与变卦</h2><p>本卦看眼下的主要局面，互卦看内部怎样发展，变卦看变化之后重点转向哪里。先把三者逐一看清，再谈这件事应当如何判断。</p></header>
       {cultural ? <div className="canonical-grid">{cultural.hexagrams.map((item) => <article key={item.role} className="canonical-card">
         <header><span>{item.role}</span><strong>{item.symbol}</strong><div><small>第 {item.king_wen_number} 卦</small><h3>{item.name}</h3></div></header>
         <p className="reading-role">{item.reading_role}</p>
@@ -359,7 +406,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
 
     <section id="deep-reading" className="evidence-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">第三层 · 深入理解</p><h2>卦从何来，变化落在哪里</h2><p>这里我们为你保留完整的三数成卦、动爻、体用和旺衰解释。如果你对这些内容感兴趣，想进一步了解卦象是怎样一步步形成的，可以展开阅读。</p></header>
+      <header className="section-heading"><p className="eyebrow">第二章 · 察变</p><h2>卦从何来，变化落在哪里</h2><p>这一章解释三数怎样成卦、动爻怎样带来变化，以及体用和旺衰怎样帮助我们判断当下能否承接。</p></header>
       <details className="reading-disclosure"><summary><span>三数如何成卦</span><small>第一数定上卦 · 第二数定下卦 · 第三数定动爻</small></summary>{cultural && <><div className="concept-explainer"><h3>先分清三个容易混在一起的概念</h3><p><b>上卦和下卦</b>都是由三条爻组成的“八经卦”，例如“离”。上下两个三爻卦叠在一起，才组成一个六爻的<b>本卦</b>，例如“离为火”。所以“离”与“离为火”不是同一个层级：前者是组成部分，后者是完整卦象。</p><p>本次上卦为<b>{upperPath?.result_name}</b>，下卦为<b>{lowerPath?.result_name}</b>，两者相叠得到本卦<b>{result.base_hexagram.name}</b>；第三个数字再确定其中哪一条爻发生变化。</p></div><div className="number-path">{cultural.number_path.map((item, index) => <article key={item.role}><span>{["壹", "贰", "叁"][index]}</span><b>{item.input_number}</b><i aria-hidden="true">→</i><strong>{item.role} · {item.result_name}</strong><small>{item.explanation}</small></article>)}</div></>}</details>
       <details className="reading-disclosure"><summary><span>本卦、互卦与变卦</span><small>眼下的局面 · 内部的发展 · 变化后的方向</small></summary><div className="concept-explainer"><h3>三个卦各自看什么</h3><p><b>本卦</b>看眼下最主要的局面；<b>互卦</b>从本卦中间四爻重新组合，帮助看事情内部怎样发展；<b>变卦</b>由动爻变化后形成，帮助看局面改变后会把重点带向哪里。</p></div><div className="hexagram-route">{[{ label: "本卦", value: result.base_hexagram, note: cultural?.hexagrams[0]?.reading_role }, { label: "互卦", value: result.mutual_hexagram, note: cultural?.hexagrams[1]?.reading_role }, { label: "变卦", value: result.changed_hexagram, note: cultural?.hexagrams[2]?.reading_role }].map(({ label, value, note }) => <article key={label}><span>{label}</span><strong>{value.symbol}</strong><h3>{value.name}</h3><small>第 {value.king_wen_number} 卦</small><p>{note}</p></article>)}</div></details>
       {cultural && <details className="reading-disclosure"><summary><span>本次动爻</span><small>{cultural.moving_line.line_name} · {cultural.moving_line.stage}</small></summary><article className="moving-line-reading"><header><span>什么是动爻</span><h3>{cultural.moving_line.line_name}</h3><p>一卦共有六条爻。动爻就是这次发生变化的那一条；它一变，本卦便随之成为变卦。</p></header><div className="moving-change"><section><span>变化之前</span><b>{result.base_hexagram.symbol} {result.base_hexagram.name}</b><p>这是没有发生本次变化前，事情眼下呈现的主要局面。</p></section><section><span>发生了什么</span><b>{cultural.moving_line.line_name}发生变化</b><p>变化落在“{cultural.moving_line.stage}”，说明这一处是本次最需要留意的转折。</p></section><section><span>变化之后</span><b>{result.changed_hexagram.symbol} {result.changed_hexagram.name}</b><p>这一爻改变后形成变卦，局面的重点也随之转向。</p></section></div><blockquote><b>爻辞原文</b>{cultural.moving_line.canonical_text}</blockquote><p className="moving-reality"><b>落到你所问的这件事上</b>{movingTerm?.current_effect}</p></article></details>}
@@ -367,10 +414,22 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <p className="evidence-boundary">{report.boundary_note}</p>
     </section>
 
+    {personalized && <section id="personalized-reading" className="personalized-reading scroll-section" data-reveal>
+      <VerticalBrand />
+      <header className="section-heading"><p className="eyebrow">第三章 · 回到现实</p><h2>把卦象放回你所问的事</h2><p>以下文字只使用你明确写下的事实、未知项与程序排出的卦象；它不会把猜测补成事实，也不会替你做决定。</p></header>
+      <div className="personalized-reading-grid">
+        {questionResponses.length > 1 && <article className="question-responses"><span>逐项回答</span><ul>{questionResponses.map((item) => <li key={item.question_text}><b>{item.question_text}</b><p>{item.answer_text}</p></li>)}</ul></article>}
+        <article><span>为什么这样判断</span><p>{personalized.explanation}</p></article>
+        <article><span>落到你的现实</span><p>{personalized.reality_application}</p></article>
+        <article><span>下一步</span><p>{personalized.action}</p></article>
+        <article><span>何时需要转向</span><p>{personalized.switch_condition}</p></article>
+      </div>
+    </section>}
+
     <section className="final-guidance scroll-section" data-reveal>
       <VerticalBrand />
       <p className="final-question">你问的是：{question}</p>
-      <header className="section-heading"><p className="eyebrow">看清之后，回到当下</p><h2>可借之力，与当慎之处</h2></header>
+      <header className="section-heading"><p className="eyebrow">解读 · 最终收束</p><h2>{primaryJudgment}</h2><p>{report.what_it_means}</p></header>
       {sectionVisibility.showGenericGuidance && <div className="guidance-columns"><article><span>当下有利</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article><article><span>尤其注意</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article></div>}
       <div className="next-action"><span>眼下可做的一步</span><p>{primaryAction}</p>{personalized && <small>若出现以下情况，应停下来重新判断：{personalized.switch_condition}</small>}</div>
       <section id="save-current-reading" className="save-current-reading"><p className="eyebrow">解读至此</p><h3>把这次所见留到以后再看</h3><p>到这里，这次卦象的解读就完成了。希望它已经帮你理清方向，也让你更清楚下一步准备怎么做。如果你想在事情有了进展后回来复盘，可以在下面写下准备采取的行动，并选择一个回看日期。</p><div className="save-observation">
@@ -379,7 +438,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         <button type="button" disabled={saving || saved || !action.trim()} onClick={() => onSave(action, reviewOn || null)}>{saved ? "已经存入观事簿" : saving ? "正在保存" : "存入观事簿"}</button>
         <small id="action-help">保存后，你可以在观事簿里重新打开本次卦象，记录后来实际发生了什么，并据此修正自己的判断。记录可以导出，也可以随时删除。</small>
       </div></section>
-      <div className="result-actions"><button type="button" className="restart-button secondary" onClick={onEdit}>回到本题修改</button><button type="button" className="restart-button" onClick={onClear}>清空并再问一事</button></div>
+      <div className="result-actions"><button type="button" className="restart-button secondary" onClick={() => downloadReadingHtml(response)}>导出本次 HTML</button><a className="restart-button secondary" href="/journal">打开观事簿</a><button type="button" className="restart-button secondary" onClick={onEdit}>回到本题修改</button><button type="button" className="restart-button" onClick={onClear}>清空并再问一事</button></div>
       <blockquote className="classic-counsel"><p>{counsel.quote}</p><cite>{counsel.source}</cite></blockquote>
     </section>
   </section>;
@@ -402,17 +461,14 @@ export function GuanxiangApp() {
   const [actions, setActions] = useState("");
   const [observableResponses, setObservableResponses] = useState("");
   const [numbers, setNumbers] = useState(["", "", ""]);
+  const [intakeComplete, setIntakeComplete] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
-  const [records, setRecords] = useState<JournalRecord[]>([]);
-  const [journalLoading, setJournalLoading] = useState(true);
-  const [journalMessage, setJournalMessage] = useState("");
   const [savingRecord, setSavingRecord] = useState(false);
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
-  const allowedGoals = useMemo(() => GOALS_BY_DOMAIN[domain] ?? [], [domain]);
 
   function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
     setQuestion(example.text);
@@ -472,22 +528,21 @@ export function GuanxiangApp() {
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: .08, rootMargin: "0px 0px -3%" });
     elements.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
-  }, [response, records]);
+  }, [response]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function loadJournal() {
-      try {
-        const request = await fetch("/api/journal", { headers: journalHeaders(), cache: "no-store" });
-        const payload = await request.json() as { records?: JournalRecord[]; error?: string };
-        if (!request.ok) throw new Error(payload.error || "观事簿暂时无法打开。");
-        if (!cancelled) setRecords(payload.records ?? []);
-      } catch (caught) {
-        if (!cancelled) setJournalMessage(caught instanceof Error ? caught.message : "观事簿暂时无法打开。");
-      } finally { if (!cancelled) setJournalLoading(false); }
-    }
-    loadJournal();
-    return () => { cancelled = true; };
+    const saved = sessionStorage.getItem(JOURNAL_OPEN_KEY);
+    if (!saved) return;
+    sessionStorage.removeItem(JOURNAL_OPEN_KEY);
+    let record: JournalRecord;
+    try {
+      record = JSON.parse(saved) as JournalRecord;
+    } catch { return; }
+    const timer = window.setTimeout(() => {
+      setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setIntakeComplete(true); setAcknowledged(true); setSavedRecordId(record.id);
+      setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -507,13 +562,13 @@ export function GuanxiangApp() {
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
   async function saveObservation(actionText: string, reviewOn: string | null) {
     if (!response?.deterministic_result) return;
-    setSavingRecord(true); setJournalMessage("");
+    setSavingRecord(true); setError("");
     const id = crypto.randomUUID();
     try {
       const request = await fetch("/api/journal", { method: "POST", headers: journalHeaders(), body: JSON.stringify({
@@ -524,42 +579,9 @@ export function GuanxiangApp() {
       }) });
       const payload = await request.json() as { record?: JournalRecord; error?: string };
       if (!request.ok || !payload.record) throw new Error(payload.error || "这次观象暂时没有保存成功。");
-      setRecords((current) => [payload.record!, ...current]); setSavedRecordId(id); setJournalMessage("已经存入观事簿。等现实出现新证据后，再回来复盘。");
-    } catch (caught) { setJournalMessage(caught instanceof Error ? caught.message : "这次观象暂时没有保存成功。"); }
+      setSavedRecordId(id);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "这次观象暂时没有保存成功。"); }
     finally { setSavingRecord(false); }
-  }
-
-  async function updateObservation(id: string, draft: JournalDraft) {
-    setJournalMessage("");
-    try {
-      const request = await fetch("/api/journal", { method: "PATCH", headers: journalHeaders(), body: JSON.stringify({ id, ...draft }) });
-      const payload = await request.json() as { record?: JournalRecord; error?: string };
-      if (!request.ok || !payload.record) throw new Error(payload.error || "复盘暂时没有保存成功。");
-      setRecords((current) => current.map((record) => record.id === id ? payload.record! : record)); setJournalMessage("复盘已经保存。新的现实证据，已经回到这次判断之中。");
-    } catch (caught) { setJournalMessage(caught instanceof Error ? caught.message : "复盘暂时没有保存成功。"); }
-  }
-
-  async function deleteObservation(id: string) {
-    if (!window.confirm("这条观象与复盘将被永久删除，且无法恢复。确定删除吗？")) return;
-    setJournalMessage("");
-    try {
-      const request = await fetch(`/api/journal?id=${encodeURIComponent(id)}`, { method: "DELETE", headers: journalHeaders() });
-      const payload = await request.json() as { error?: string };
-      if (!request.ok) throw new Error(payload.error || "暂时无法删除。");
-      setRecords((current) => current.filter((record) => record.id !== id)); setJournalMessage("这条记录已经永久删除。");
-    } catch (caught) { setJournalMessage(caught instanceof Error ? caught.message : "暂时无法删除。"); }
-  }
-
-  function openObservation(record: JournalRecord) {
-    setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setAcknowledged(true); setSavedRecordId(record.id);
-    setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
-    window.setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth" }), 0);
-  }
-
-  function exportJournal() {
-    const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), product: "观象", records }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
-    anchor.href = url; anchor.download = `观象-观事簿-${new Date().toISOString().slice(0, 10)}.json`; anchor.click(); URL.revokeObjectURL(url);
   }
 
   async function submit(event: FormEvent) {
@@ -580,8 +602,8 @@ export function GuanxiangApp() {
     const responseLines = nonemptyLines(observableResponses);
     const parsed = numbers.map(Number);
     const textLists = [factLines, unknownLines, actionLines, responseLines];
-    if (question.trim().length < 6 || question.trim().length > 160 || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
-      setError("请完整填写问题、处境、至少一条已确认事实和一条未知项，再填写三个 1–999 的整数并确认使用边界。每项一行，事实最多 8 行，其他各最多 6 行。"); return;
+    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
+      setError("请先完成正问与辨识，再静心填写三个 1–999 的整数，并确认使用边界。"); return;
     }
     setLoading(true); setProgress("正在提交本次观象任务……");
     const requestId = `sites-${crypto.randomUUID()}`;
@@ -620,72 +642,66 @@ export function GuanxiangApp() {
   return <>
     <header className="site-header">
       <a className="wordmark" href="#top">观象</a>
-      <nav><a href="#method">如何观</a><a href="#inquiry">开始问</a><a href="#journal">观事簿</a></nav>
+      <nav><a href="#method">如何观</a><a href="#inquiry">开始问</a><a href="/journal">观事簿</a></nav>
       <small>确定性排盘 · 个性化解读</small>
     </header>
     <main id="top" className="scroll-canvas">
-      <section className="hero scroll-section" data-reveal>
-        <VerticalBrand />
-        <p className="hero-motto">心有所问，静观其象。</p>
-        <div className="hero-copy">
-          <p className="eyebrow">《周易·系辞上》</p>
-          <h1>寂然不动，<br />感而遂通天下之故。</h1>
-          <p className="hero-value">用三分钟，把一件拿不准的事理清方向，也看清下一步该留意什么。</p>
-          <p>观象不替你决定，也不预先写好结果。它把卦象的结构、变化与现实中该观察的条件一层层展开，并让你在后来回来复盘。</p>
-          <a className="seal-button" href="#method"><BaguaMark className="cta-emblem" /><span>遇事不决，可问春风</span><BaguaMark className="cta-seal" /></a>
+      <section className="hero scroll-section" data-reveal aria-labelledby="hero-title">
+        <div className="hero-lockup">
+          <p className="hero-motto">心有所问，静观其象。</p>
+          <img className="hero-seal" src="/bagua-seal.png" alt="" aria-hidden="true" />
+          <h1 id="hero-title"><span>观</span><span>象</span></h1>
         </div>
+        <div className="hero-classic">
+          <span className="hero-ink-bloom" aria-hidden="true"><img src="/ink-golden-landscape.png" alt="" /></span>
+          <blockquote>寂然不动，感而遂通天下之故。</blockquote>
+          <cite>《周易·系辞上》</cite>
+        </div>
+        <a className="hero-scroll-cue" href="#method">向下 · 观法</a>
       </section>
 
-      <section id="method" className="method scroll-section" data-reveal>
+      <section id="method" className="method scroll-section" data-reveal aria-labelledby="method-title">
         <VerticalBrand />
-        <div className="method-quote"><p className="eyebrow">观象之法</p><h2>在天成象，<br />在地成形，变化见矣。</h2><cite>《周易·系辞上》</cite></div>
-        <div className="method-explainer"><p>所谓观象的意思，就是观察身边的现象，由可见之形察其关系，由变化之中辨其趋向。它不是一句含混的预言，而是一条从所问、取数、成卦到现实验证的观察路径。</p>
-          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>辨实</b><p>分清已确认的事实与仍未知的部分。</p></li><li><span>叁</span><b>成卦</b><p>程序按三数起卦规则排定本卦、互卦与变卦，再结合现实处境生成解读。</p></li><li><span>肆</span><b>验事</b><p>把方向放回现实，以行动和反馈复核。</p></li></ol>
-          <div className="input-roles"><h3>卦从数起，意随事明</h3><p><b>三个数字</b>用来起卦；你写下的<b>问题和现实处境</b>，帮助我们从卦象中找到与眼前这件事有关的重点，并整理出可以采取的应对方法。</p><a href="/about">查看完整方法与规则版本</a></div>
-          <a className="method-cta" href="#inquiry">已明其法，开始正问</a>
+        <div className="method-quote"><p className="eyebrow">观象之法</p><h2 id="method-title"><span className="sr-only">在天成象，在地成形，变化见矣。</span><span aria-hidden="true">在天成象，</span><span aria-hidden="true">在地成形，</span><span aria-hidden="true">变化见矣。</span></h2><cite>《周易·系辞上》</cite></div>
+        <div className="method-explainer">
+          <p className="method-lead">用三分钟，把一件拿不准的事理清方向，也看清下一步该留意什么。</p>
+          <p>观象不会替你决定，也不会预先写好结果。我们会陪你写清所问、辨明事实与未知，再依三数成卦，把卦象的结构、变化与现实中值得观察的条件一层层展开。</p>
+          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>辨识</b><p>在逐步对话中，找到真正想问的核心。</p></li><li><span>叁</span><b>成卦</b><p>静心取三数，程序依规则完成排盘。</p></li><li><span>肆</span><b>观卦</b><p>从本卦到变化，最后回到自己的处境。</p></li></ol>
+          <div className="method-readiness"><p>如果你已经准备好了，请闭上眼睛，缓缓数过三个呼吸。再睁开眼时，我们从心中那件事开始。</p><a className="method-cta" href="#inquiry">我已准备好</a></div>
         </div>
       </section>
 
       <section id="inquiry" className="inquiry scroll-section" data-reveal>
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
-          <header className="inquiry-heading"><p className="eyebrow">正问</p><h2>一次只问一件具体的事</h2><p>不要把许多选择揉成一个大问题。所问越具体，越容易从卦象中看清眼前真正需要处理的部分。整个过程约三分钟，带星号的内容需要填写。</p></header>
+          <header className="inquiry-heading"><p className="eyebrow">观象之法 · 四步</p><h2>从心中所问，走到眼前可行</h2><p>每次只处理一件具体的事。页面会按正问、辨识、成卦、观卦的顺序陪你完成，不需要一次填完一张问卷。</p></header>
 
-          <section className="inquiry-step"><div className="step-heading"><span>壹</span><div><h3>写清所问</h3><p>尽量写清对象、当前选择和现实范围。</p></div></div>
+          <section className="inquiry-step inquiry-panel"><div className="step-heading"><span>壹</span><div><h3>正问</h3><p>写下一件具体而真实的事。先按此刻最自然的方式写，后面还有机会重新确认。</p></div></div>
             <label className="question-label"><span>你真正想问的问题 *</span><textarea aria-label="你真正想问的问题" placeholder="例如：这次合作，我还应该继续投入吗？" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} /><small>{question.trim().length} / 160 · 请用清晰具体的文字说出你想弄明白的事，这会帮助我们把抽象的卦意落到现实处境中。</small></label>
             <div className="question-examples"><header><span>不知怎样开口，可以从这些问题开始</span><small>点击任意一句，会自动填入上方</small></header><div>{QUESTION_EXAMPLES.map((example) => <button type="button" key={example.text} onClick={() => applyQuestionExample(example)}><span>{example.topic}</span><b>{example.text}</b></button>)}</div></div>
           </section>
 
-          <section className="inquiry-step"><div className="step-heading"><span>贰</span><div><h3>说明现实处境</h3><p>告诉我们事情属于哪一类、走到哪一步、你最在意什么。这样解读时，卦象中的方向才能落到你真正关心的地方。</p></div></div>
-            <div className="context-line"><ChoiceMenu label="事情属于 *" value={domain} options={DOMAINS} onChange={(value) => { setDomain(value); setGoal(""); }} /><ChoiceMenu label="这次最想看清 *" value={goal} options={Object.fromEntries(allowedGoals.map((key) => [key, GOALS[key]]))} disabled={!domain} onChange={setGoal} /><ChoiceMenu label="观察范围 *" value={horizon} options={HORIZONS} onChange={setHorizon} /></div>
-            <div className="hanging-slips context-slips"><fieldset><legend>事情走到哪一步 *</legend><OptionList name="进程" value={stage} options={STAGES} onChange={setStage} /></fieldset><fieldset><legend>最需要确认的变量 *</legend><OptionList name="所忧" value={uncertainty} options={UNCERTAINTIES} onChange={setUncertainty} /></fieldset><fieldset><legend>决定能否撤回 *</legend><OptionList name="风险" value={riskProfile} options={RISK_PROFILES} onChange={setRiskProfile} /></fieldset></div>
+          <section className="inquiry-step inquiry-panel"><div className="step-heading"><span>贰</span><div><h3>辨识</h3><p>一次只回答一问。我们把事实与未知分开，也帮助你辨认最初写下的问题是否真的问到了心里。</p></div></div>
+            {question.trim().length >= 6 ? <GuidedIntake question={question} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onQuestion={setQuestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); }} onComplete={setIntakeComplete} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
           </section>
 
-          <section className="inquiry-step"><div className="step-heading"><span>叁</span><div><h3>分清事实与未知</h3><p>只写你已经确认的现实信息，并把尚不确定的部分明确留作未知。这样解读不会把猜测当成事实。</p></div></div>
-            <p className="reality-context-note">每行写一件事，不要填写姓名、电话、住址、账号、证件号码等敏感信息。已确认事实与未知项各至少一行；行动和回应可以留空。</p>
-            <div className="reality-context-grid">
-              <label><span>已经确认的现实事实 *</span><textarea aria-label="已经确认的现实事实" value={facts} maxLength={3200} onChange={(event) => setFacts(event.target.value)} placeholder={"例如：已经沟通过两次，对方都没有明确截止时间\n本周需要决定是否继续预留资源"} /><small>最多 8 行，每行不超过 400 字。</small></label>
-              <label><span>目前不能假设的未知项 *</span><textarea aria-label="目前不能假设的未知项" value={unknowns} maxLength={2400} onChange={(event) => setUnknowns(event.target.value)} placeholder={"例如：不知道最终负责人是否已经看过方案\n不知道下个月是否仍有预算"} /><small>最多 6 行；不知道的事就留在这里。</small></label>
-              <label><span>已经采取的行动</span><textarea aria-label="已经采取的行动" value={actions} maxLength={2400} onChange={(event) => setActions(event.target.value)} placeholder="例如：上周发过一封确认时间表的邮件" /><small>可留空，最多 6 行。</small></label>
-              <label><span>已经出现的回应</span><textarea aria-label="已经出现的回应" value={observableResponses} maxLength={2400} onChange={(event) => setObservableResponses(event.target.value)} placeholder="例如：对方只回复了收到，尚未确认下一步" /><small>可留空，最多 6 行。</small></label>
-            </div>
-          </section>
-
-          <section className="inquiry-step number-step"><div className="step-heading"><span>肆</span><div><h3>静心取数</h3><p>三个数字没有吉凶，也没有选对选错。凭当下所感，各写一个 1—999 的整数。</p></div></div>
+          <section className="inquiry-step inquiry-panel number-step"><div className="step-heading"><span>叁</span><div><h3>成卦</h3><p>闭上眼睛，缓缓呼吸三次，在心中再重复一遍确认后的问题。准备好时，再凭当下所感取三个数。</p></div></div>
+            <div className="breath-ritual" aria-label="三次呼吸提示"><span>一息 · 松开杂念</span><span>二息 · 回到所问</span><span>三息 · 心定取数</span></div>
             <fieldset className="numbers-slip"><legend className="sr-only">取三个整数</legend>{numbers.map((value, index) => <label key={index}><span>{["壹 · 上卦", "贰 · 下卦", "叁 · 动爻"][index]}</span><input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</fieldset>
             <p className="number-note">第一数定上卦，第二数定下卦，第三数定动爻。程序随后依规则排定本卦、互卦与变卦。</p>
           </section>
 
-          <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象；它不替代医疗、法律、财务等专业意见。生成失败不会自动重新生成；只有我主动保存时，结果才会进入观事簿。</span></label>
-          {progress && <p className="generation-progress" role="status">{progress}</p>}
-          {error && <p className="error" role="alert">{error}</p>}
-          <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在生成解读" : "观卦"}</button>
-          {loading && <CastingLoader />}
+          <section className="inquiry-step inquiry-panel cast-step"><div className="step-heading"><span>肆</span><div><h3>观卦</h3><p>确认边界后，程序先独立完成确定性排盘，再结合你在辨识中提供的现实信息生成解释。</p></div></div>
+            <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象；它不替代医疗、法律、财务等专业意见。生成失败不会自动重新生成；只有我主动保存时，结果才会进入观事簿。</span></label>
+            {progress && <p className="generation-progress" role="status">{progress}</p>}
+            {error && <p className="error" role="alert">{error}</p>}
+            <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在生成解读" : "观卦"}</button>
+            {loading && <CastingLoader />}
+          </section>
         </form>
       </section>
 
       {response && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
-      <JournalSection records={records} loading={journalLoading} message={journalMessage} hasUnsavedResult={Boolean(response?.deterministic_result) && savedRecordId === null} onOpen={openObservation} onUpdate={updateObservation} onDelete={deleteObservation} onExport={exportJournal} onSaveCurrent={() => document.getElementById("save-current-reading")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
       <aside className="version-note">卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
     </main>
     <footer className="site-footer"><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>

@@ -1,33 +1,54 @@
-# 观象视觉冻结验收（v15）
+# Design QA
 
-## 验收依据
+- Source visual truth: `C:\Users\27622\.codex\generated_images\019f9969-4b3e-7e22-a7fb-711a4edec794\exec-5cf3e57a-6a65-4e2c-941f-beb5286207ca.png`
+- Secondary effect reference: `C:\Users\27622\.codex\generated_images\019f9969-4b3e-7e22-a7fb-711a4edec794\exec-07677041-4d24-4826-8d73-91c458dffc64.png`
+- Implementation screenshot: unavailable
+- Intended viewport: 1440 × 1024 CSS px, device scale factor 1
+- Source pixels: 1536 × 1024
+- Implementation pixels: unavailable
+- State: homepage, initial load
 
-- 现有设计系统：方案 2「舒展长卷」
-- 首页入口确认稿：`C:\Users\27622\.codex\generated_images\019f7868-d13e-7e22-8830-991086edc93a\exec-08752ee9-1d3f-4952-8a1a-8d32a782f91b.png`
-- 发布后首页截图：`work/visual-freeze-v15.png`
-- 发布地址：`https://guanxiang-abalo.abaloyuan.chatgpt.site`
-- 发布版本：15
+**Findings**
 
-## 已核对项目
+- [P0] Browser-rendered comparison is unavailable
+  - Location: local preview and QA capture.
+  - Evidence: the application builds and server-rendered HTML tests pass, but both the in-app browser and Chrome browser-control surfaces rejected the local preview address. No browser-rendered implementation screenshot could be captured.
+  - Impact: typography, crop, spacing, responsive behavior, ink-hover motion, image sharpness, and console state cannot be certified from code or server HTML alone.
+  - Fix: restore a browser-accessible local preview, capture the homepage at 1440 × 1024, and compare it together with the selected source image.
 
-1. 全站 `BaguaMark` 只引用 `fuxi-bagua-taiji.svg`；原图来自 Wikimedia Commons 的 `BatQuaiDo.svg`，包含太极与乾、兑、离、震、巽、坎、艮、坤八个基础卦，归类为伏羲先天八卦。
-2. 首页入口恢复为确认稿中的横向长卷关系：淡墨八卦在左、朱砂书法在前、山水墨痕承托文字；旧的方形印章图不再被引用。
-3. 自定义下拉菜单和公开反馈页原生下拉菜单均改为宣纸暖色；选项区域取消四边框，使用不对称柔和边缘和水墨背景。
-4. 主按钮、保存按钮、结果操作按钮取消四边矩形与实色矩形底，改为文字、水墨托底与细线反馈。
-5. 方形“观”标记和方形“展/收”标记已经去框；确认项改为圆点状态。
-6. 八卦图只做呼吸式透明度变化，不旋转，避免改变八卦方位；所有动效遵守 `prefers-reduced-motion`。
-7. Sites 发布截图确认桌面首屏没有横向溢出、错误资源或布局断裂。
+**Required Fidelity Surfaces**
 
-## 验证
+- Fonts and typography: not visually verified; local brush font is still used.
+- Spacing and layout rhythm: not visually verified; desktop and mobile rules compile.
+- Colors and visual tokens: existing paper, ink, mist, pine, and cinnabar tokens are preserved.
+- Image quality and asset fidelity: existing raster landscape, ink texture, and seal assets are used; final crop and sharpness are not visually verified.
+- Copy and content: verified through server-rendered HTML tests.
 
-- `vinext build`：通过。
-- `node --test tests/rendered-html.test.mjs`：5/5 通过。
-- Sites 私有生产部署：成功。
+**Full-view comparison evidence**
 
-## 限制
+- Blocked because the implementation screenshot is unavailable.
 
-Codex 内置浏览器会拦截本机地址，并且在私有 Sites 登录页无法进入页面下半屏。因此发布后的自动截图只覆盖首屏，未能自动截取首屏下方的首页入口和打开状态的下拉菜单；这两处已通过服务端渲染 HTML、CSS 规则和资源路径核对，但仍需站点所有者在真实浏览器中做最后目视确认。
+**Focused region comparison evidence**
 
-## 最终结果
+- Blocked for the same reason. The first focus pass should cover the horizontal `观象` lockup and the `寂然不动，感而遂通天下之故` ink-bloom region.
 
-blocked
+**Primary interactions checked**
+
+- Build-level behavior and server-rendered routes were tested.
+- Browser interaction checks for hover, one-question-at-a-time intake, journal navigation, and download were blocked.
+- Browser console errors could not be checked.
+
+**Comparison history**
+
+- Initial pass: blocked before visual comparison; no P0/P1/P2 visual fixes were inferred from screenshots.
+
+**Implementation Checklist**
+
+- Capture the selected visual and homepage implementation at the same viewport.
+- Verify the hero landscape crop and brand lockup scale.
+- Verify the ink-bloom hover/focus effect around the classic quotation.
+- Exercise the full guided-intake conversation and final-question edit.
+- Verify `/journal`, save/open behavior, and HTML download.
+- Check desktop and mobile console output.
+
+final result: blocked
