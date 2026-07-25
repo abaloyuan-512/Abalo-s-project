@@ -201,7 +201,8 @@ def test_guided_intake_route_is_authenticated_and_disabled_by_default(monkeypatc
 
 
 def test_guided_intake_route_returns_one_model_question(monkeypatch) -> None:
-    monkeypatch.setenv("ABALO_GUIDED_INTAKE_ENABLED", "true")
+    monkeypatch.delenv("ABALO_GUIDED_INTAKE_ENABLED", raising=False)
+    monkeypatch.setenv("ABALO_OWNER_PREVIEW_ENABLED", "true")
     expected = {
         "contract_version": "SITES_GUIDED_INTAKE_CONTRACT_V1",
         "session_id": "hosted-intake-001",

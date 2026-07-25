@@ -205,7 +205,9 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             return
         try:
             if path == GUIDED_INTAKE_PATH:
-                if os.environ.get("ABALO_GUIDED_INTAKE_ENABLED", "").strip().lower() != "true":
+                intake_enabled = os.environ.get("ABALO_GUIDED_INTAKE_ENABLED", "").strip().lower() == "true"
+                owner_preview_enabled = os.environ.get("ABALO_OWNER_PREVIEW_ENABLED", "").strip().lower() == "true"
+                if not (intake_enabled or owner_preview_enabled):
                     self._send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"status": "intake_disabled"})
                     return
                 try:
