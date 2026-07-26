@@ -829,13 +829,13 @@ export function GuanxiangApp() {
     </header>
     <main id="top" className="scroll-canvas">
       <section className={`hero entry-hero scroll-section${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} aria-labelledby="hero-title">
+        <EntryArtwork className="entry-hero-final" />
         <EntryArtwork className="entry-hero-picture" />
         <EntryArtwork className="entry-title-focus" />
         <EntryArtwork className="entry-life-layer entry-boat-life" />
         <EntryArtwork className="entry-life-layer entry-bird-life" />
         <img className="entry-ink-drop" src="/hero-ink-drop-v1.png" alt="" aria-hidden="true" />
         <img className="entry-ink-bloom" src="/hero-ink-whispers-v2.png" alt="" aria-hidden="true" />
-        <img className="entry-taiji-hover" src="/hero-taiji-ripple-v1.png" alt="" aria-hidden="true" />
         <h1 id="hero-title" className="sr-only">观象</h1>
         <p className="sr-only">心有所问 静观其象</p>
         <button type="button" className="hero-title-hotspot" aria-pressed={titleAwake} aria-label="让观象题字与水墨太极浮现" onPointerEnter={() => setTitleAwake(true)} onPointerLeave={() => setTitleAwake(false)} onFocus={() => setTitleAwake(true)} onBlur={() => setTitleAwake(false)} onClick={() => setTitleAwake((current) => !current)}><span className="sr-only">观象</span></button>

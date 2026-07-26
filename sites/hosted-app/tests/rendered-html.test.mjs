@@ -23,6 +23,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /hero-entry-wide-v2\.png/);
   assert.match(html, /hero-entry-square-v2\.png/);
   assert.match(html, /hero-entry-mobile-v2\.png/);
+  assert.match(html, /entry-hero-final/);
+  assert.doesNotMatch(html, /hero-taiji-ripple-v1\.png/);
   assert.match(html, /hero-title-hotspot/);
   assert.match(html, /<button[^>]+class="hero-scroll-cue"/);
   assert.doesNotMatch(html, /<a[^>]+class="hero-scroll-cue"/);
