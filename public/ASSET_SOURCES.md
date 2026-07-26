@@ -10,6 +10,11 @@
 - `hero-entry-mobile-v1.png`：从同一份已审定首页母版重排生成的移动端竖屏构图；保持原书法、题签和山水内容，避免横图强制裁切造成品牌残缺。
 - `hero-ink-whispers-v2.png`：以用户最终确认的引文截图为唯一效果基准生成；仅保留四处彼此分离的轻墨云，并通过色键去除背景，作为题字后的透明交互层。
 - `hero-down-cue-v1.png`：由 OpenAI 图像生成能力生成，并通过色键去除背景，作为首页最轻量的向下阅读提示。
+- `hero-entry-wide-v3.png`、`hero-entry-square-v3.png`、`hero-entry-mobile-v3.png`：以用户审定的三套响应式首页构图为编辑目标，由 OpenAI 图像编辑能力移除烘焙在背景中的墨滴、永久水波、中央船、飞鸟群和瀑布，重建为用于分层动画的干净背景板；题字、引文、题签、山水、竹木、建筑与入口保持原构图。
+- `hero-ink-drop-v2.png`：由 OpenAI 图像生成能力生成的单枚较大水墨液滴，经绿色色键处理为透明 PNG。
+- `hero-ripple-ring-v1.png`：由 OpenAI 图像生成能力生成的单圈俯视水墨涟漪，经绿色色键处理为透明 PNG；网页以同一真实位图错时扩散形成连续水波，不使用代码绘制圆环。
+- `hero-taiji-breath-v2.png`：由 OpenAI 图像生成能力生成的淡墨太极，经绿色色键处理为透明 PNG，用于题字背后的低透明度呼吸显隐。
+- `hero-birds-v1.png`、`hero-boat-v1.png`、`hero-waterfall-v1.png`：由 OpenAI 图像生成能力生成并经绿色色键处理的独立透明环境素材，分别用于飞行、漂移和错相位下落动画。
 
 ## 声音
 
