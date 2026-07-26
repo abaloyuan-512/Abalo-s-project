@@ -560,9 +560,9 @@ function CastingLoader() {
 
 function EntryArtwork({ className }: { className: string }) {
   return <picture className={className}>
-    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v2.png" />
-    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v2.png" />
-    <img src="/hero-entry-wide-v2.png" alt="" />
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v3.png" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v3.png" />
+    <img src="/hero-entry-wide-v3.png" alt="" />
   </picture>;
 }
 
@@ -830,12 +830,14 @@ export function GuanxiangApp() {
     <main id="top" className="scroll-canvas">
       <section className={`hero entry-hero scroll-section${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} aria-labelledby="hero-title">
         <EntryArtwork className="entry-hero-final" />
-        <EntryArtwork className="entry-hero-picture" />
         <EntryArtwork className="entry-title-focus" />
-        <EntryArtwork className="entry-life-layer entry-boat-life" />
-        <EntryArtwork className="entry-life-layer entry-bird-life" />
-        <img className="entry-ink-drop" src="/hero-ink-drop-v1.png" alt="" aria-hidden="true" />
-        <img className="entry-ink-bloom" src="/hero-ink-whispers-v2.png" alt="" aria-hidden="true" />
+        <img className="entry-taiji-breath" src="/hero-taiji-breath-v2.png" alt="" aria-hidden="true" />
+        <img className="entry-waterfall entry-waterfall-a" src="/hero-waterfall-v1.png" alt="" aria-hidden="true" />
+        <img className="entry-waterfall entry-waterfall-b" src="/hero-waterfall-v1.png" alt="" aria-hidden="true" />
+        <img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" />
+        <img className="entry-bird-life" src="/hero-birds-v1.png" alt="" aria-hidden="true" />
+        <div className="entry-ripple-stage" aria-hidden="true"><img className="entry-ripple entry-ripple-one" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-two" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-three" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-four" src="/hero-ripple-ring-v1.png" alt="" /></div>
+        <img className="entry-ink-drop" src="/hero-ink-drop-v2.png" alt="" aria-hidden="true" />
         <h1 id="hero-title" className="sr-only">观象</h1>
         <p className="sr-only">心有所问 静观其象</p>
         <button type="button" className="hero-title-hotspot" aria-pressed={titleAwake} aria-label="让观象题字与水墨太极浮现" onPointerEnter={() => setTitleAwake(true)} onPointerLeave={() => setTitleAwake(false)} onFocus={() => setTitleAwake(true)} onBlur={() => setTitleAwake(false)} onClick={() => setTitleAwake((current) => !current)}><span className="sr-only">观象</span></button>
