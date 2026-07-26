@@ -19,6 +19,13 @@ test("server-renders the Guanxiang product", async () => {
   const html = await response.text();
   assert.match(html, /<title>观象 · 寂然不动，感而遂通天下之故<\/title>/);
   assert.match(html, /寂然不动，感而遂通天下之故/);
+  assert.match(html, /心有所问 静观其象/);
+  assert.match(html, /hero-entry-wide-v2\.png/);
+  assert.match(html, /hero-entry-square-v2\.png/);
+  assert.match(html, /hero-entry-mobile-v2\.png/);
+  assert.match(html, /hero-title-hotspot/);
+  assert.match(html, /<button[^>]+class="hero-scroll-cue"/);
+  assert.doesNotMatch(html, /<a[^>]+class="hero-scroll-cue"/);
   assert.match(html, /在天成象，/);
   assert.match(html, /在地成形，变化见矣/);
   assert.doesNotMatch(html, /遇事不决，可问春风/);

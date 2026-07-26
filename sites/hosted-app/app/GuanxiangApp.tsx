@@ -558,6 +558,14 @@ function CastingLoader() {
   return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 分清事实与未知 · 生成现实解读</span></p></div>;
 }
 
+function EntryArtwork({ className }: { className: string }) {
+  return <picture className={className}>
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v2.png" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v2.png" />
+    <img src="/hero-entry-wide-v2.png" alt="" />
+  </picture>;
+}
+
 export function GuanxiangApp() {
   const [question, setQuestion] = useState("");
   const [domain, setDomain] = useState("");
@@ -580,9 +588,26 @@ export function GuanxiangApp() {
   const [savingRecord, setSavingRecord] = useState(false);
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
   const [homeNavigationVisible, setHomeNavigationVisible] = useState(false);
-  const [inkBloomOpen, setInkBloomOpen] = useState(false);
+  const [entrySequenceStarted, setEntrySequenceStarted] = useState(false);
+  const [entryReleased, setEntryReleased] = useState(false);
+  const [titleAwake, setTitleAwake] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const openingSavedReading = Boolean(sessionStorage.getItem(JOURNAL_OPEN_KEY));
+    if (!openingSavedReading) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const frame = window.requestAnimationFrame(() => {
+      setEntrySequenceStarted(true);
+      if (openingSavedReading) setEntryReleased(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("entry-locked", !entryReleased);
+    return () => document.body.classList.remove("entry-locked");
+  }, [entryReleased]);
 
   useEffect(() => {
     const updateNavigation = () => {
@@ -617,6 +642,14 @@ export function GuanxiangApp() {
     } catch {
       setSoundOn(false);
     }
+  }
+
+  function enterMethod() {
+    setEntryReleased(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("method")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    }));
   }
 
   function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
@@ -795,24 +828,22 @@ export function GuanxiangApp() {
       <small>确定性排盘 · 个性化解读</small>
     </header>
     <main id="top" className="scroll-canvas">
-      <section className="hero entry-hero scroll-section" data-reveal aria-labelledby="hero-title">
-        <picture className="entry-hero-picture">
-          <source media="(max-width: 760px)" srcSet="/hero-entry-mobile-v1.png" />
-          <img className="entry-hero-backdrop" src="/hero-entry-v1.png" alt="" />
-        </picture>
+      <section className={`hero entry-hero scroll-section${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} aria-labelledby="hero-title">
+        <EntryArtwork className="entry-hero-picture" />
+        <EntryArtwork className="entry-title-focus" />
+        <EntryArtwork className="entry-life-layer entry-boat-life" />
+        <EntryArtwork className="entry-life-layer entry-bird-life" />
+        <img className="entry-ink-drop" src="/hero-ink-drop-v1.png" alt="" aria-hidden="true" />
+        <img className="entry-ink-bloom" src="/hero-ink-whispers-v2.png" alt="" aria-hidden="true" />
+        <img className="entry-taiji-hover" src="/hero-taiji-ripple-v1.png" alt="" aria-hidden="true" />
         <h1 id="hero-title" className="sr-only">观象</h1>
-        <p className="sr-only">心有所问，静观其象。</p>
-        <figure className={`hero-classic${inkBloomOpen ? " is-ink-open" : ""}`}>
-          <button type="button" className="hero-classic-trigger" aria-pressed={inkBloomOpen} aria-label="让经典题字如墨般洇染开来" onClick={() => setInkBloomOpen((current) => !current)}>
-            <img className="hero-ink-whispers" src="/hero-ink-whispers-v2.png" alt="" aria-hidden="true" />
-            <span className="hero-classic-text">寂然不动，感而遂通天下之故。</span>
-          </button>
-          <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
-          <figcaption className="sr-only">《周易·系辞上》</figcaption>
-        </figure>
+        <p className="sr-only">心有所问 静观其象</p>
+        <button type="button" className="hero-title-hotspot" aria-pressed={titleAwake} aria-label="让观象题字与水墨太极浮现" onPointerEnter={() => setTitleAwake(true)} onPointerLeave={() => setTitleAwake(false)} onFocus={() => setTitleAwake(true)} onBlur={() => setTitleAwake(false)} onClick={() => setTitleAwake((current) => !current)}><span className="sr-only">观象</span></button>
+        <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
+        <span className="sr-only">《周易·系辞上》</span>
         <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
         <button type="button" className="hero-sound-control" aria-pressed={soundOn} onClick={toggleSound}><span aria-hidden="true">{soundOn ? "静" : "琴"}</span><b>{soundOn ? "静音" : "闻琴"}</b></button>
-        <a className="hero-scroll-cue" href="#method"><span>向下</span><img src="/hero-down-cue-v1.png" alt="" aria-hidden="true" /><span className="sr-only">阅读观象之法</span></a>
+        <button type="button" className="hero-scroll-cue" onClick={enterMethod}><span className="sr-only">了解观象之法</span></button>
       </section>
 
       <section id="method" className="method scroll-section" data-reveal aria-labelledby="method-title">
