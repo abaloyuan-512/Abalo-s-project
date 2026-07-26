@@ -804,11 +804,11 @@ export function GuanxiangApp() {
         <p className="sr-only">心有所问，静观其象。</p>
         <figure className={`hero-classic${inkBloomOpen ? " is-ink-open" : ""}`}>
           <button type="button" className="hero-classic-trigger" aria-pressed={inkBloomOpen} aria-label="让经典题字如墨般洇染开来" onClick={() => setInkBloomOpen((current) => !current)}>
-            <img className="hero-ink-bloom" src="/hero-ink-bloom-v1.png" alt="" aria-hidden="true" />
+            <img className="hero-ink-whispers" src="/hero-ink-whispers-v2.png" alt="" aria-hidden="true" />
             <span className="hero-classic-text">寂然不动，感而遂通天下之故。</span>
-            <span className="hero-classic-source">《周易·系辞上》</span>
           </button>
           <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
+          <figcaption className="sr-only">《周易·系辞上》</figcaption>
         </figure>
         <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
         <button type="button" className="hero-sound-control" aria-pressed={soundOn} onClick={toggleSound}><span aria-hidden="true">{soundOn ? "静" : "琴"}</span><b>{soundOn ? "静音" : "闻琴"}</b></button>
