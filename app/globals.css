@@ -235,6 +235,13 @@ a { color: inherit; }
 .discernment-echo span { display: block; color: var(--mist); font-size: 12px; line-height: 1.5; }
 .discernment-echo p { max-width: 640px; margin: 6px 0 0; overflow: hidden; color: var(--ink-soft); font-size: 14px; line-height: 1.65; text-overflow: ellipsis; white-space: nowrap; }
 .discernment-waiting { margin: 50px 0 0 58px; color: var(--mist); font: 400 20px/1.6 var(--brush); letter-spacing: .06em; }
+.discernment-working, .discernment-recovery { max-width: 720px; margin: 28px 0 0; padding: 22px 0 4px; border-top: 1px solid rgba(53,55,48,.13); }
+.discernment-working span, .discernment-recovery span { color: var(--cinnabar-dark); font: 400 19px/1.4 var(--brush); letter-spacing: .08em; }
+.discernment-working p, .discernment-recovery p { max-width: 650px; margin: 10px 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.8; }
+.discernment-working i { width: 86px; height: 1px; margin-top: 22px; display: block; overflow: hidden; background: rgba(53,55,48,.13); }
+.discernment-working i::after { content: ""; width: 38px; height: 1px; display: block; background: var(--cinnabar); animation: discernment-working-line 1.6s ease-in-out infinite; }
+.discernment-recovery > div { margin-top: 18px; display: flex; align-items: center; gap: 24px; }
+.discernment-recovery > div > button:first-child { min-height: 46px; padding: 8px 20px; color: var(--cinnabar-dark); background: transparent; border: 1px solid rgba(150,59,40,.5); cursor: pointer; font: 400 17px/1.2 var(--brush); letter-spacing: .07em; }
 .dialogue-options { margin: 28px 0 0 58px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 28px; }
 .dialogue-options button { min-height: 58px; padding: 12px 4px; color: var(--ink-soft); background: transparent; border: 0; border-bottom: 1px solid rgba(53,55,48,.18); cursor: pointer; text-align: left; font: 400 17px/1.5 var(--kai); transition: color .25s ease, border-color .25s ease, transform .25s ease; }
 .dialogue-options button:hover, .dialogue-options button:focus-visible { color: var(--cinnabar-dark); border-bottom-color: rgba(150,59,40,.58); transform: translateX(4px); }
@@ -270,6 +277,17 @@ a { color: inherit; }
 .final-question-heading h3 { margin: 15px 0 22px; color: var(--ink); font: 400 clamp(82px, 8vw, 126px)/.9 "Liu Jian Mao Cao Local", var(--brush); letter-spacing: .08em; }
 .final-question-heading > p:last-child { margin: 0; color: var(--ink-soft); font: 400 clamp(23px, 2vw, 31px)/1.65 var(--brush); letter-spacing: .08em; }
 .final-question-workspace { width: 100%; max-width: 980px; justify-self: end; }
+.question-change-proposal { max-width: 780px; margin-left: auto; padding: clamp(28px,4vh,46px) 0; border-top: 1px solid rgba(150,59,40,.52); border-bottom: 1px solid rgba(53,55,48,.15); }
+.question-change-proposal > p { max-width: 720px; margin: 0; color: var(--ink-soft); font-size: clamp(16px,1.35vw,20px); line-height: 1.85; }
+.question-change-proposal blockquote { margin: 24px 0 14px; padding: 4px 0 4px 28px; color: var(--ink); border: 0; border-left: 2px solid var(--cinnabar); font: 400 clamp(28px,2.6vw,40px)/1.65 var(--kai); letter-spacing: .035em; }
+.question-change-proposal small { display: block; margin: 0 0 22px 30px; color: var(--mist); font-size: 12px; line-height: 1.75; }
+.question-change-proposal > div { margin-top: 26px; display: flex; align-items: center; gap: 30px; }
+.question-change-proposal > div > button:first-child { min-height: 50px; padding: 9px 24px; color: var(--paper); background: var(--cinnabar-dark); border: 1px solid var(--cinnabar-dark); cursor: pointer; font: 400 18px/1.2 var(--brush); letter-spacing: .08em; }
+.final-question-ready { max-width: 780px; margin-left: auto; padding: clamp(38px,6vh,64px) 0 34px; text-align: center; border-top: 1px solid rgba(150,59,40,.5); border-bottom: 1px solid rgba(53,55,48,.14); }
+.final-question-ready p { margin: 0; color: var(--ink-soft); font-size: clamp(17px,1.45vw,21px); line-height: 1.8; }
+.final-question-ready strong { display: block; margin-top: 18px; color: var(--ink); font: 400 clamp(30px,3vw,46px)/1.55 var(--brush); letter-spacing: .06em; }
+.final-question-readiness { max-width: 780px; margin: clamp(34px,5vh,56px) 0 0 auto; display: grid; justify-items: center; }
+.final-question-cta { min-width: 148px; height: 54px; font-size: 20px; }
 .question-compare { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 3vw, 48px); }
 .question-compare article { position: relative; min-height: 238px; padding: 24px 4px 22px; display: flex; flex-direction: column; border-top: 1px solid rgba(53,55,48,.2); border-bottom: 1px solid rgba(53,55,48,.13); transition: border-color .3s ease, background-color .3s ease, padding .3s ease; }
 .question-compare article.is-selected { padding-inline: 20px; background: linear-gradient(105deg, rgba(150,59,40,.07), rgba(246,239,225,.12) 70%); border-top-color: rgba(150,59,40,.68); border-bottom-color: rgba(150,59,40,.3); }
@@ -603,6 +621,7 @@ a { color: inherit; }
 @keyframes method-cite-arrive { to { opacity: 1; } }
 @keyframes method-rule-draw { to { transform: scaleX(1); } }
 @keyframes inquiry-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes discernment-working-line { 0%, 100% { transform: translateX(-24px); opacity: .28; } 50% { transform: translateX(72px); opacity: .9; } }
 @keyframes discernment-question-arrive { from { opacity: 0; transform: translateY(18px); filter: blur(2px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 @keyframes discernment-echo-away { 0% { opacity: .42; transform: translateY(0); filter: blur(0); } 58% { opacity: .18; } 100% { opacity: 0; transform: translateY(-34px); filter: blur(2px); } }
 
@@ -768,6 +787,11 @@ a { color: inherit; }
   .discernment-current p { font-size: clamp(23px, 6.8vw, 28px); line-height: 1.5; }
   .discernment-echo { top: -25px; left: 0; }
   .discernment-waiting { margin: 38px 0 0; font-size: 18px; }
+  .discernment-working, .discernment-recovery { margin-top: 20px; padding-top: 17px; }
+  .discernment-working span, .discernment-recovery span { font-size: 17px; }
+  .discernment-working p, .discernment-recovery p { font-size: 12px; line-height: 1.7; }
+  .discernment-recovery > div { gap: 18px; }
+  .discernment-recovery > div > button:first-child { min-height: 44px; padding-inline: 16px; font-size: 15px; }
   .dialogue-options { margin-left: 0; grid-template-columns: 1fr 1fr; gap: 4px 18px; }
   .dialogue-options button { min-height: 50px; padding: 9px 2px; font-size: 15px; }
   .dialogue-compose { margin-left: 0; grid-template-columns: 1fr; }
@@ -818,6 +842,17 @@ a { color: inherit; }
   .final-question-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 4px; font-size: 11px; }
   .final-question-heading h3 { margin: 0; font-size: clamp(58px,18vw,72px); }
   .final-question-heading > p:last-child { margin: 0 0 3px; font-size: 18px; line-height: 1.5; }
+  .question-change-proposal { padding: 22px 0; }
+  .question-change-proposal > p { font-size: 14px; line-height: 1.75; }
+  .question-change-proposal blockquote { margin: 18px 0 10px; padding-left: 18px; font-size: 24px; line-height: 1.55; }
+  .question-change-proposal small { margin: 0 0 16px 20px; font-size: 10px; }
+  .question-change-proposal > div { margin-top: 20px; gap: 24px; }
+  .question-change-proposal > div > button:first-child { min-height: 46px; padding-inline: 18px; font-size: 16px; }
+  .final-question-ready { padding: 30px 0 25px; }
+  .final-question-ready p { font-size: 14px; }
+  .final-question-ready strong { margin-top: 14px; font-size: 28px; line-height: 1.5; }
+  .final-question-readiness { margin-top: 26px; }
+  .final-question-cta { min-width: 136px; height: 50px; font-size: 18px; }
   .question-compare { grid-template-columns: 1fr; gap: 12px; }
   .question-compare article { min-height: 0; padding: 14px 2px 13px; }
   .question-compare article.is-selected { padding-inline: 13px; }
@@ -900,6 +935,7 @@ a { color: inherit; }
   .inquiry .inquiry-heading, .inquiry .inquiry-writing { animation: none !important; opacity: 1; transform: none; }
   .discernment-current { animation: none !important; opacity: 1; transform: none; filter: none; }
   .discernment-echo { display: none; animation: none !important; }
+  .discernment-working i::after { animation: none !important; transform: translateX(24px); opacity: .7; }
   .question-examples button, .inquiry-advance button::after, .question-compare article, .final-question-confirm button { transition: none; }
   .dialogue-options button, .discernment-controls button { transition: none; }
 }

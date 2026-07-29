@@ -69,16 +69,12 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /写好了，继续辨识/);
   assert.match(html, /观象之法 · 贰/);
   assert.match(html, /<h3>辨识<\/h3>/);
-  assert.match(html, /一次只回答一问<br\/>辨清最初所问<br\/>是否真的问到了心里/);
+  assert.match(html, /为了能结合卦象，给你更具实际意义的建议，我还有几个问题请你回答/);
   assert.match(html, /<section[^>]+id="final-question"[^>]+hidden/);
   assert.match(html, /id="final-question-title"[^>]*>定问<\/h3>/);
-  assert.match(html, /你最初写下的/);
-  assert.match(html, /本次没有 AI 改写/);
-  assert.match(html, /保留原题/);
-  assert.match(html, /可以在下方亲自修改/);
-  assert.match(html, /最终问卦题目/);
-  assert.match(html, /只有你在这里确认的文字/);
-  assert.match(html, /就用这一问/);
+  assert.match(html, /请心中再次默念你的问题，深呼吸/);
+  assert.match(html, /开始卜卦/);
+  assert.doesNotMatch(html, /最终问卦题目/);
   assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step"[^>]+hidden/);
   assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel cast-step"[^>]+hidden/);
   assert.match(html, /<h3>成卦<\/h3>/);
@@ -176,6 +172,10 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.match(appSource, /跳过这一问/);
   assert.match(appSource, /已经说清，提前结束/);
   assert.match(appSource, /通常 4–7 问 · 最多 8 问/);
+  assert.match(appSource, /FIRST_DISCERNMENT_QUESTION = "这件事现在具体走到了哪一步？"/);
+  assert.match(appSource, /前 \{turns\.length\} 个回答都还在/);
+  assert.match(appSource, /onClick=\{retryTurn\}>继续这一轮/);
+  assert.doesNotMatch(appSource, /开始 AI 辨识|重新连接 AI 辨识|正在静心听你所问/);
   assert.match(cssSource, /discernment-step[^}]+min-height: 100svh[^}]+grid-template-columns/s);
   assert.match(cssSource, /discernment-heading h3[^}]+clamp\(88px, 8\.3vw, 132px\)/);
   assert.match(cssSource, /discernment-current img[^}]+object-fit: contain/);
@@ -183,18 +183,21 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+discernment-echo/);
 });
 
-test("final question keeps AI advice optional and user-confirmed", async () => {
+test("final question offers a concise user-controlled question decision", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(appSource, /AI 根据辨识建议/);
-  assert.match(appSource, /采用这句/);
-  assert.match(appSource, /保留原题/);
+  assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
+  assert.match(appSource, /采取建议/);
+  assert.match(appSource, /保持原题/);
+  assert.match(appSource, /现在已经更清晰你的现状，我们准备开始取数卜卦了/);
+  assert.match(appSource, /请心中再次默念你的问题，深呼吸/);
+  assert.match(appSource, /开始卜卦/);
+  assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
   assert.match(appSource, /number-step" hidden=\{!finalQuestionConfirmed\}/);
-  assert.match(appSource, /event\.key === "Enter" \|\| event\.key === " "/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+question-compare article/);
+  assert.match(cssSource, /final-question-cta/);
 });
 
 test("AI guided intake fails safely until the Python engine is configured", async () => {
@@ -212,6 +215,26 @@ test("AI guided intake fails safely until the Python engine is configured", asyn
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await response.json(), { error: "AI 辨识暂时未连接。" });
+});
+
+test("AI guided intake accepts later CJK turns within the engine transcript limit", async () => {
+  const app = await worker();
+  const response = await app.fetch(new Request("http://localhost/api/intake", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contract_version: "SITES_GUIDED_INTAKE_CONTRACT_V1",
+      session_id: "intake-cjk-size-001",
+      question_text: "这次合作，我还应该继续投入吗？",
+      turns: Array.from({ length: 5 }, (_, index) => ({
+        question: `这是第${index + 1}个需要辨清的问题？`,
+        answer: "现实".repeat(600),
+      })),
+      locale: "zh-CN",
+    }),
+  }), env, context);
+  assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: "AI 辨识暂时未连接。" });
 });
 
