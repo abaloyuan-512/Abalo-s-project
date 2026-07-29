@@ -67,8 +67,9 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /<h2[^>]+id="inquiry-title"[^>]*>正问<\/h2>/);
   assert.match(html, /<div[^>]+class="inquiry-future-flow"[^>]+hidden/);
   assert.match(html, /写好了，继续辨识/);
+  assert.match(html, /观象之法 · 贰/);
   assert.match(html, /<h3>辨识<\/h3>/);
-  assert.match(html, /一次只回答一问/);
+  assert.match(html, /一次只回答一问<br\/>辨清最初所问<br\/>是否真的问到了心里/);
   assert.match(html, /<section[^>]+id="final-question"[^>]+hidden/);
   assert.match(html, /id="final-question-title"[^>]*>定问<\/h3>/);
   assert.match(html, /你最初写下的/);
@@ -155,6 +156,31 @@ test("method lines retain the replayable writing interaction", async () => {
   assert.match(cssSource, /method-ink-line\.is-writing[^}]+scale\(2\)/s);
   assert.match(cssSource, /method-ink-line:focus-visible:not\(\.is-writing\)[^}]+font-weight: 700[^}]+scale\(1\.34\)/s);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+method-writing-layer i/);
+});
+
+test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /className="inquiry-step inquiry-panel discernment-step"/);
+  assert.match(appSource, /className="eyebrow">观象之法 · 贰/);
+  assert.doesNotMatch(appSource, /<div className="step-heading"><span>贰<\/span>/);
+  assert.doesNotMatch(appSource, /className="dialogue-history"/);
+  assert.match(appSource, /const previousAnswer = answers\[answers\.length - 1\]/);
+  assert.match(appSource, /const previousTurn = turns\[turns\.length - 1\]/);
+  assert.match(appSource, /className="discernment-echo"/);
+  assert.match(appSource, /className="discernment-current"/);
+  assert.match(appSource, /key=\{`local-echo-\$\{answers\.length\}`\}/);
+  assert.match(appSource, /key=\{`local-prompt-\$\{turn\}`\}/);
+  assert.match(appSource, /discernment-current[^\n]+fuxi-bagua-taiji\.svg/);
+  assert.doesNotMatch(appSource, /discernment-current[^\n]+bagua-seal\.png/);
+  assert.match(appSource, /跳过这一问/);
+  assert.match(appSource, /已经说清，提前结束/);
+  assert.match(appSource, /通常 4–7 问 · 最多 8 问/);
+  assert.match(cssSource, /discernment-step[^}]+min-height: 100svh[^}]+grid-template-columns/s);
+  assert.match(cssSource, /discernment-heading h3[^}]+clamp\(88px, 8\.3vw, 132px\)/);
+  assert.match(cssSource, /discernment-current img[^}]+object-fit: contain/);
+  assert.match(cssSource, /discernment-echo[^}]+discernment-echo-away/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+discernment-echo/);
 });
 
 test("final question keeps AI advice optional and user-confirmed", async () => {
