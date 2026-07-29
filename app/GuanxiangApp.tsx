@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -132,6 +132,8 @@ const QUESTION_EXAMPLES = [
   { topic: "规划", domain: "PERSONAL_PLANNING", text: "我现在开始这项长期计划，最需要先准备什么？" },
 ] as const;
 
+const METHOD_CLASSIC_LINES = ["在天成象", "在地成形", "变化见矣"] as const;
+
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
 const JOURNAL_OPEN_KEY = "guanxiang-open-journal-record-v1";
@@ -211,9 +213,10 @@ type GuidedIntakeProps = {
   onUnknowns: (value: string) => void;
   onActions: (value: string) => void;
   onObservableResponses: (value: string) => void;
-  onQuestion: (value: string) => void;
+  onSuggestion: (value: { question: string; reason: string } | null) => void;
   onStructured: (value: { domain: string; goal: string; horizon: string; stage: string; uncertainty: string; riskProfile?: string }) => void;
   onComplete: (complete: boolean) => void;
+  onContinue: () => void;
 };
 
 type GuidedIntakeApiResponse = {
@@ -253,7 +256,7 @@ function inferUncertainty(text: string): "CONDITIONS" | "OTHER_RESPONSE" | "OWN_
   return "CONDITIONS";
 }
 
-function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onQuestion, onStructured, onComplete }: GuidedIntakeProps) {
+function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onComplete, onContinue }: GuidedIntakeProps) {
   const [turn, setTurn] = useState(0);
   const [draft, setDraft] = useState("");
   const [answers, setAnswers] = useState<IntakeAnswer[]>([]);
@@ -292,7 +295,6 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
         stage: stageAnswer,
         uncertainty: inferUncertainty(combined),
       });
-      onComplete(true);
     }
     setTurn((current) => current + 1);
     setDraft("");
@@ -301,7 +303,14 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
   function reset() {
     setTurn(0); setDraft(""); setAnswers([]); setHorizonAnswer(""); setStageAnswer("");
     onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
+    onSuggestion(null);
     onComplete(false);
+  }
+
+  function finish() {
+    onSuggestion(null);
+    onComplete(true);
+    onContinue();
   }
 
   const completed = turn >= prompts.length;
@@ -314,13 +323,13 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
     {!completed && turn === 0 && <div className="dialogue-options">{Object.entries(HORIZONS).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
     {!completed && turn === 1 && <div className="dialogue-options">{Object.entries(STAGES).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
     {!completed && turn > 1 && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={turn === 6 ? 300 : 1200} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={!draft.trim()} onClick={() => record(draft)}>答完这一问</button></div>}
-    {completed && <div className="dialogue-review"><p className="eyebrow">辨识完成 · 最后确认</p><h3>这仍然是你真正想问的吗？</h3><p>如果对话之后，你发现心里真正关心的已经变了，可以在这里改写。最终排盘只会使用你确认后的这个问题。</p><textarea aria-label="最终确认的问题" value={question} maxLength={160} onChange={(event) => onQuestion(event.target.value)} /><button type="button" className="text-button" onClick={reset}>重新辨识</button></div>}
+    {completed && <div className="dialogue-review discernment-complete"><p className="eyebrow">基础整理完成</p><h3>现实脉络已经分开</h3><p>这次使用的是不调用 AI 的基础引导，因此不会生成 AI 改写建议。下一页仍由你亲自定下最终题目。</p><div className="dialogue-review-actions"><button type="button" onClick={finish}>继续定问</button><button type="button" className="text-button" onClick={reset}>重新辨识</button></div></div>}
     <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
   </div>;
 }
 
 function GuidedIntake(props: GuidedIntakeProps) {
-  const { question, onFacts, onUnknowns, onActions, onObservableResponses, onQuestion, onStructured, onComplete } = props;
+  const { question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onComplete, onContinue } = props;
   const [mode, setMode] = useState<"READY" | "ASKING" | "REVIEW" | "FALLBACK">("READY");
   const [sessionId, setSessionId] = useState("");
   const [turns, setTurns] = useState<IntakeAnswer[]>([]);
@@ -332,7 +341,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
   const [review, setReview] = useState<GuidedIntakeApiResponse | null>(null);
 
   function resetOutputs() {
-    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses(""); onComplete(false);
+    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses(""); onSuggestion(null); onComplete(false);
   }
 
   async function requestTurn(nextTurns: IntakeAnswer[], id: string) {
@@ -380,13 +389,13 @@ function GuidedIntake(props: GuidedIntakeProps) {
     await requestTurn(nextTurns, sessionId);
   }
 
-  function confirm(useSuggestion: boolean) {
+  function completeDiscernment() {
     if (!review) return;
-    if (useSuggestion) onQuestion(review.suggested_question);
     onFacts(review.confirmed_facts.join("\n"));
     onUnknowns(review.unknowns.join("\n"));
     onActions(review.actions_already_taken.join("\n"));
     onObservableResponses(review.observable_responses.join("\n"));
+    onSuggestion({ question: review.suggested_question, reason: review.question_change_reason });
     onStructured({
       domain: review.structured_intake.question_domain,
       goal: review.structured_intake.decision_goal,
@@ -396,6 +405,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
       riskProfile: review.structured_intake.decision_risk_profile,
     });
     onComplete(true);
+    onContinue();
   }
 
   if (mode === "FALLBACK") return <LocalGuidedIntake {...props} />;
@@ -408,9 +418,65 @@ function GuidedIntake(props: GuidedIntakeProps) {
     </div>
     {mode === "READY" && <div className="dialogue-start"><button type="button" disabled={busy} onClick={start}>{busy ? "正在静心听你所问……" : turns.length ? "重新连接 AI 辨识" : "开始 AI 辨识"}</button>{error && <p role="alert">{error}。你也可以使用不调用 AI 的基础引导。</p>}{error && <button type="button" className="text-button" onClick={() => setMode("FALLBACK")}>使用基础引导继续</button>}</div>}
     {mode === "ASKING" && <div className="dialogue-compose"><textarea aria-label="回答 AI 当前问题" value={draft} maxLength={1200} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={busy || !draft.trim()} onClick={answer}>{busy ? "正在辨识……" : "答完这一问"}</button></div>}
-    {mode === "REVIEW" && review && <div className="dialogue-review"><p className="eyebrow">辨识完成 · 由你决定</p><h3>AI 建议把问题聚焦为</h3><blockquote>{review.suggested_question}</blockquote><p>{review.question_change_reason || "它更聚焦于你能核实的条件和下一步行动。"}</p><div className="dialogue-review-actions"><button type="button" onClick={() => confirm(true)}>采用建议问题</button><button type="button" className="text-button" onClick={() => confirm(false)}>保留我原来的问题</button><button type="button" className="text-button" onClick={start}>重新辨识</button></div></div>}
+    {mode === "REVIEW" && review && <div className="dialogue-review discernment-complete"><p className="eyebrow">辨识已经足够</p><h3>现在，可以定下真正要问的事</h3><p>我已经整理好这次对话，也准备了一句更聚焦的问法。下一页会把原题与建议分别呈现，最终采用哪一句，只由你决定。</p><div className="dialogue-review-actions"><button type="button" onClick={completeDiscernment}>结束辨识，继续定问</button><button type="button" className="text-button" onClick={start}>重新辨识</button></div></div>}
     <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
   </div>;
+}
+
+type FinalQuestionProps = {
+  hidden: boolean;
+  originalQuestion: string;
+  suggestedQuestion: string;
+  suggestionReason: string;
+  draft: string;
+  source: "original" | "suggested" | "edited";
+  confirmed: boolean;
+  onChooseOriginal: () => void;
+  onChooseSuggestion: () => void;
+  onDraftChange: (value: string) => void;
+  onConfirm: () => void;
+};
+
+function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, suggestionReason, draft, source, confirmed, onChooseOriginal, onChooseSuggestion, onDraftChange, onConfirm }: FinalQuestionProps) {
+  const hasSuggestion = suggestedQuestion.trim().length >= 6;
+  const remaining = 160 - draft.length;
+  return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
+    <div className="final-question-heading">
+      <p className="eyebrow">观象之法 · 叁</p>
+      <h3 id="final-question-title" tabIndex={-1}>定问</h3>
+      <p>看过现实脉络之后<br />由你定下最后这一问</p>
+    </div>
+
+    <div className="final-question-workspace">
+      <div className="question-compare" aria-label="原题与建议题目">
+        <article className={source === "original" ? "is-selected" : undefined}>
+          <header><span>你最初写下的</span><i aria-hidden="true">原</i></header>
+          <p>{originalQuestion}</p>
+          <button type="button" aria-pressed={source === "original"} onClick={onChooseOriginal}>保留原题</button>
+        </article>
+
+        {hasSuggestion ? <article className={source === "suggested" ? "is-selected" : undefined}>
+          <header><span>AI 根据辨识建议</span><i aria-hidden="true">参</i></header>
+          <p>{suggestedQuestion}</p>
+          <small>{suggestionReason || "这句问法更聚焦于眼下真正需要看清的条件与行动。"}</small>
+          <button type="button" aria-pressed={source === "suggested"} onClick={onChooseSuggestion}>采用这句</button>
+        </article> : <article className="question-no-suggestion">
+          <header><span>本次没有 AI 改写</span><i aria-hidden="true">自</i></header>
+          <p>你使用了基础整理，或 AI 没有提出新的问法。可保留原题，也可以在下方亲自修改。</p>
+        </article>}
+      </div>
+
+      <div className="final-question-editor">
+        <div className="final-question-editor-heading"><label htmlFor="final-question-input">最终问卦题目</label><span aria-live="polite">还可写 {remaining} 字</span></div>
+        <textarea id="final-question-input" value={draft} maxLength={160} aria-describedby="final-question-note final-question-status" onChange={(event) => onDraftChange(event.target.value)} />
+        <div className="final-question-confirm">
+          <p id="final-question-note">AI 的建议只是参考。只有你在这里确认的文字，才会成为下一步复述与成卦所用的题目。</p>
+          <button type="button" disabled={draft.trim().length < 6} aria-pressed={confirmed} onClick={onConfirm} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onConfirm(); } }}>{confirmed ? "这一问已定" : "就用这一问"}</button>
+        </div>
+        <p id="final-question-status" className="final-question-status" role="status" aria-live="polite">{confirmed ? "最终题目已由你确认。" : draft.trim().length > 0 && draft.trim().length < 6 ? "再写具体一些，至少六个字。" : ""}</p>
+      </div>
+    </div>
+  </section>;
 }
 
 function JournalEntry({ record, onOpen, onUpdate, onDelete }: {
@@ -558,13 +624,30 @@ function CastingLoader() {
   return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 分清事实与未知 · 生成现实解读</span></p></div>;
 }
 
-function EntryArtwork({ className }: { className: string }) {
+function EntryArtwork({ className, imgRef }: { className: string; imgRef?: RefObject<HTMLImageElement | null> }) {
   return <picture className={className}>
-    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v3.png" />
-    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v3.png" />
-    <img src="/hero-entry-wide-v3.png" alt="" />
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v6.webp" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v6.webp" />
+    <img ref={imgRef} src="/hero-entry-wide-v6.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
   </picture>;
 }
+
+function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | null> }) {
+  return <picture className="entry-mist-scene" aria-hidden="true">
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mist-mobile-v2.webp" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-mist-square-v2.webp" />
+    <img ref={imgRef} src="/hero-entry-mist-wide-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+  </picture>;
+}
+
+const ENTRY_BIRDS = [
+  { left: "4%", top: "58%", scale: ".72", flap: ".74s", delay: "-.16s", drift: "7.2s", frame: "0%" },
+  { left: "19%", top: "42%", scale: ".56", flap: ".81s", delay: "-.48s", drift: "8.4s", frame: "33.333%" },
+  { left: "36%", top: "66%", scale: ".82", flap: ".69s", delay: "-.31s", drift: "6.8s", frame: "66.666%" },
+  { left: "53%", top: "31%", scale: ".62", flap: ".77s", delay: "-.62s", drift: "8.9s", frame: "100%" },
+  { left: "69%", top: "51%", scale: ".76", flap: ".72s", delay: "-.27s", drift: "7.8s", frame: "33.333%" },
+  { left: "84%", top: "23%", scale: ".51", flap: ".86s", delay: "-.55s", drift: "9.3s", frame: "66.666%" },
+] as const;
 
 export function GuanxiangApp() {
   const [question, setQuestion] = useState("");
@@ -578,6 +661,12 @@ export function GuanxiangApp() {
   const [unknowns, setUnknowns] = useState("");
   const [actions, setActions] = useState("");
   const [observableResponses, setObservableResponses] = useState("");
+  const [originalQuestion, setOriginalQuestion] = useState("");
+  const [suggestedQuestion, setSuggestedQuestion] = useState("");
+  const [suggestionReason, setSuggestionReason] = useState("");
+  const [finalQuestionDraft, setFinalQuestionDraft] = useState("");
+  const [finalQuestionSource, setFinalQuestionSource] = useState<"original" | "suggested" | "edited">("original");
+  const [finalQuestionConfirmed, setFinalQuestionConfirmed] = useState(false);
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
@@ -590,23 +679,78 @@ export function GuanxiangApp() {
   const [homeNavigationVisible, setHomeNavigationVisible] = useState(false);
   const [entrySequenceStarted, setEntrySequenceStarted] = useState(false);
   const [entryReleased, setEntryReleased] = useState(false);
+  const [methodReady, setMethodReady] = useState(false);
+  const [questionConfirmed, setQuestionConfirmed] = useState(false);
+  const [activeMethodLine, setActiveMethodLine] = useState<number | null>(null);
+  const [previewMethodLine, setPreviewMethodLine] = useState<number | null>(null);
+  const [methodWritingRun, setMethodWritingRun] = useState(0);
   const [titleAwake, setTitleAwake] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
+  const entryMistImageRef = useRef<HTMLImageElement | null>(null);
+  const methodAdvanceTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const openingSavedReading = Boolean(sessionStorage.getItem(JOURNAL_OPEN_KEY));
     if (!openingSavedReading) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    const frame = window.requestAnimationFrame(() => {
-      setEntrySequenceStarted(true);
-      if (openingSavedReading) setEntryReleased(true);
+    let cancelled = false;
+    let frame = 0;
+    let fallbackTimer = 0;
+    const criticalArtworkReady = Promise.all(
+      [entryHeroImageRef.current, entryMistImageRef.current].map((image) => image?.decode().catch(() => undefined)),
+    );
+    const fallbackReady = new Promise<void>((resolve) => {
+      fallbackTimer = window.setTimeout(resolve, 1800);
     });
-    return () => window.cancelAnimationFrame(frame);
+    void Promise.race([criticalArtworkReady, fallbackReady]).then(() => {
+      if (cancelled) return;
+      frame = window.requestAnimationFrame(() => {
+        setEntrySequenceStarted(true);
+        if (openingSavedReading) {
+          setEntryReleased(true);
+          setMethodReady(true);
+        }
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(fallbackTimer);
+      window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("entry-locked", !entryReleased);
     document.body.classList.toggle("entry-locked", !entryReleased);
-    return () => document.body.classList.remove("entry-locked");
+    return () => {
+      document.documentElement.classList.remove("entry-locked");
+      document.body.classList.remove("entry-locked");
+    };
+  }, [entryReleased]);
+
+  useEffect(() => {
+    if (entryReleased) return;
+    const blockScroll = (event: Event) => event.preventDefault();
+    const blockScrollKeys = (event: KeyboardEvent) => {
+      if (["ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp", " "].includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+    const holdEntryPosition = () => {
+      if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.addEventListener("wheel", blockScroll, { passive: false });
+    window.addEventListener("touchmove", blockScroll, { passive: false });
+    window.addEventListener("keydown", blockScrollKeys);
+    window.addEventListener("scroll", holdEntryPosition, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", blockScroll);
+      window.removeEventListener("touchmove", blockScroll);
+      window.removeEventListener("keydown", blockScrollKeys);
+      window.removeEventListener("scroll", holdEntryPosition);
+    };
   }, [entryReleased]);
 
   useEffect(() => {
@@ -625,6 +769,7 @@ export function GuanxiangApp() {
 
   useEffect(() => () => {
     audioRef.current?.pause();
+    if (methodAdvanceTimerRef.current !== null) window.clearTimeout(methodAdvanceTimerRef.current);
   }, []);
 
   async function toggleSound() {
@@ -652,10 +797,90 @@ export function GuanxiangApp() {
     }));
   }
 
+  function confirmMethodReady() {
+    if (methodReady) return;
+    setMethodReady(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    methodAdvanceTimerRef.current = window.setTimeout(() => {
+      document.getElementById("inquiry")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      window.requestAnimationFrame(() => document.getElementById("inquiry-title")?.focus({ preventScroll: true }));
+      methodAdvanceTimerRef.current = null;
+    }, reducedMotion ? 0 : 780);
+  }
+
+  function writeMethodLine(index: number) {
+    setPreviewMethodLine(null);
+    setActiveMethodLine(index);
+    setMethodWritingRun((run) => run + 1);
+  }
+
   function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
     setQuestion(example.text);
     setDomain(example.domain);
     setGoal("");
+    setQuestionConfirmed(false);
+    setIntakeComplete(false);
+    setFinalQuestionConfirmed(false);
+  }
+
+  function confirmQuestion() {
+    if (question.trim().length < 6) return;
+    const nextQuestion = question.trim();
+    setOriginalQuestion(nextQuestion);
+    setFinalQuestionDraft(nextQuestion);
+    setFinalQuestionSource("original");
+    setSuggestedQuestion("");
+    setSuggestionReason("");
+    setIntakeComplete(false);
+    setFinalQuestionConfirmed(false);
+    setQuestionConfirmed(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("discernment")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    }));
+  }
+
+  function continueToFinalQuestion() {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("final-question")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.getElementById("final-question-title")?.focus({ preventScroll: true });
+    }));
+  }
+
+  function receiveQuestionSuggestion(value: { question: string; reason: string } | null) {
+    setSuggestedQuestion(value?.question.trim() ?? "");
+    setSuggestionReason(value?.reason.trim() ?? "");
+    setFinalQuestionDraft(originalQuestion || question.trim());
+    setFinalQuestionSource("original");
+    setFinalQuestionConfirmed(false);
+  }
+
+  function chooseOriginalQuestion() {
+    setFinalQuestionDraft(originalQuestion);
+    setFinalQuestionSource("original");
+    setFinalQuestionConfirmed(false);
+  }
+
+  function chooseSuggestedQuestion() {
+    if (!suggestedQuestion.trim()) return;
+    setFinalQuestionDraft(suggestedQuestion.trim());
+    setFinalQuestionSource("suggested");
+    setFinalQuestionConfirmed(false);
+  }
+
+  function editFinalQuestion(value: string) {
+    setFinalQuestionDraft(value);
+    setFinalQuestionSource("edited");
+    setFinalQuestionConfirmed(false);
+  }
+
+  function confirmFinalQuestion() {
+    const value = finalQuestionDraft.trim();
+    if (value.length < 6) return;
+    setQuestion(value);
+    setFinalQuestionDraft(value);
+    setFinalQuestionConfirmed(true);
   }
 
   function finishPersonalizedRequest(payload: ApiResponse): void {
@@ -821,23 +1046,35 @@ export function GuanxiangApp() {
     finally { setLoading(false); setProgress(""); }
   }
 
+  const emphasizedMethodLine = activeMethodLine ?? previewMethodLine;
+
   return <>
     <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden={!homeNavigationVisible}>
       <a className="wordmark" href="#top" tabIndex={homeNavigationVisible ? undefined : -1}>观象</a>
-      <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>如何观</a><a href="#inquiry" tabIndex={homeNavigationVisible ? undefined : -1}>开始问</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>观事簿</a></nav>
+      <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>如何观</a><a href={methodReady ? "#inquiry" : "#method"} onClick={(event) => { if (!methodReady) { event.preventDefault(); document.getElementById("method-ready")?.focus(); } }} tabIndex={homeNavigationVisible ? undefined : -1}>开始问</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>观事簿</a></nav>
       <small>确定性排盘 · 个性化解读</small>
     </header>
     <main id="top" className="scroll-canvas">
       <section className={`hero entry-hero scroll-section${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} aria-labelledby="hero-title">
-        <EntryArtwork className="entry-hero-final" />
+        <EntryArtwork className="entry-hero-final" imgRef={entryHeroImageRef} />
+        <EntryMistArtwork imgRef={entryMistImageRef} />
         <EntryArtwork className="entry-title-focus" />
-        <img className="entry-taiji-breath" src="/hero-taiji-breath-v2.png" alt="" aria-hidden="true" />
-        <img className="entry-waterfall entry-waterfall-a" src="/hero-waterfall-v1.png" alt="" aria-hidden="true" />
-        <img className="entry-waterfall entry-waterfall-b" src="/hero-waterfall-v1.png" alt="" aria-hidden="true" />
         <img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" />
-        <img className="entry-bird-life" src="/hero-birds-v1.png" alt="" aria-hidden="true" />
-        <div className="entry-ripple-stage" aria-hidden="true"><img className="entry-ripple entry-ripple-one" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-two" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-three" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-four" src="/hero-ripple-ring-v1.png" alt="" /></div>
-        <img className="entry-ink-drop" src="/hero-ink-drop-v2.png" alt="" aria-hidden="true" />
+        <div className="entry-bird-flock" aria-hidden="true">
+          {ENTRY_BIRDS.map((bird, index) => <span
+            className="entry-bird"
+            key={index}
+            style={{
+              "--bird-left": bird.left,
+              "--bird-top": bird.top,
+              "--bird-scale": bird.scale,
+              "--bird-flap": bird.flap,
+              "--bird-delay": bird.delay,
+              "--bird-drift": bird.drift,
+              "--bird-frame": bird.frame,
+            } as CSSProperties}
+          />)}
+        </div>
         <h1 id="hero-title" className="sr-only">观象</h1>
         <p className="sr-only">心有所问 静观其象</p>
         <button type="button" className="hero-title-hotspot" aria-pressed={titleAwake} aria-label="让观象题字与水墨太极浮现" onPointerEnter={() => setTitleAwake(true)} onPointerLeave={() => setTitleAwake(false)} onFocus={() => setTitleAwake(true)} onBlur={() => setTitleAwake(false)} onClick={() => setTitleAwake((current) => !current)}><span className="sr-only">观象</span></button>
@@ -848,44 +1085,60 @@ export function GuanxiangApp() {
         <button type="button" className="hero-scroll-cue" onClick={enterMethod}><span className="sr-only">了解观象之法</span></button>
       </section>
 
-      <section id="method" className="method scroll-section" data-reveal aria-labelledby="method-title">
+      <section id="method" className={`method scroll-section${methodReady ? " is-ready" : ""}`} data-reveal aria-labelledby="method-title">
         <VerticalBrand />
-        <div className="method-quote"><p className="eyebrow">观象之法</p><h2 id="method-title"><span className="sr-only">在天成象，在地成形，变化见矣。</span><span aria-hidden="true">在天成象，</span><span aria-hidden="true">在地成形，</span><span aria-hidden="true">变化见矣。</span></h2><cite>《周易·系辞上》</cite></div>
-        <div className="method-explainer">
-          <p className="method-lead">用三分钟，把一件拿不准的事理清方向，也看清下一步该留意什么。</p>
-          <p>观象不会替你决定，也不会预先写好结果。我们会陪你写清所问、辨明事实与未知，再依三数成卦，把卦象的结构、变化与现实中值得观察的条件一层层展开。</p>
-          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>辨识</b><p>在逐步对话中，找到真正想问的核心。</p></li><li><span>叁</span><b>成卦</b><p>静心取三数，程序依规则完成排盘。</p></li><li><span>肆</span><b>观卦</b><p>从本卦到变化，最后回到自己的处境。</p></li></ol>
-          <div className="method-readiness"><p>如果你已经准备好了，请闭上眼睛，缓缓数过三个呼吸。再睁开眼时，我们从心中那件事开始。</p><a className="method-cta" href="#inquiry">我已准备好</a></div>
+        <div className="method-stage">
+          <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
+          <div className="method-explainer">
+            <p className="method-lead">接下来<br />我们尝试观象</p>
+            <p className="method-breath"><span>请闭上眼睛</span><b>做三个呼吸</b></p>
+          </div>
         </div>
+        <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label={methodReady ? "已定心，进入正问" : "开始正问"} aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">{methodReady ? "已定心" : "开始正问"}</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
       </section>
 
-      <section id="inquiry" className="inquiry scroll-section" data-reveal>
+      <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
-          <header className="inquiry-heading"><p className="eyebrow">观象之法 · 四步</p><h2>从心中所问，走到眼前可行</h2><p>每次只处理一件具体的事。页面会按正问、辨识、成卦、观卦的顺序陪你完成，不需要一次填完一张问卷。</p></header>
+          <div className="inquiry-stage">
+            <header className="inquiry-heading">
+              <p className="eyebrow">观象之法 · 壹</p>
+              <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
+              <p>写下一件<br />真实具体的事</p>
+            </header>
 
-          <section className="inquiry-step inquiry-panel"><div className="step-heading"><span>壹</span><div><h3>正问</h3><p>写下一件具体而真实的事。先按此刻最自然的方式写，后面还有机会重新确认。</p></div></div>
-            <label className="question-label"><span>你真正想问的问题 *</span><textarea aria-label="你真正想问的问题" placeholder="例如：这次合作，我还应该继续投入吗？" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} /><small>{question.trim().length} / 160 · 请用清晰具体的文字说出你想弄明白的事，这会帮助我们把抽象的卦意落到现实处境中。</small></label>
-            <div className="question-examples"><header><span>不知怎样开口，可以从这些问题开始</span><small>点击任意一句，会自动填入上方</small></header><div>{QUESTION_EXAMPLES.map((example) => <button type="button" key={example.text} onClick={() => applyQuestionExample(example)}><span>{example.topic}</span><b>{example.text}</b></button>)}</div></div>
+            <div className="inquiry-writing">
+              <label className="question-label" htmlFor="primary-question"><span>此刻，你真正想问的是什么？</span></label>
+              <textarea id="primary-question" aria-label="你真正想问的问题" aria-describedby="question-guidance question-count" placeholder="把心里的这一问，写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setFinalQuestionConfirmed(false); }} />
+              <div className="question-meta"><p id="question-guidance">先照此刻最自然的方式写。下一步，我们会陪你慢慢辨清事实、未知与真正的需要。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
+
+              <div className="question-examples"><header><span>若一时不知怎样开口</span><small>轻点一句，放入上方继续修改</small></header><div>{QUESTION_EXAMPLES.map((example, index) => <button type="button" key={example.text} aria-label={`参考${example.topic}例句：${example.text}`} onClick={() => applyQuestionExample(example)}><span>{String(index + 1).padStart(2, "0")} · {example.topic}</span><b>{example.text}</b></button>)}</div></div>
+
+              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "这一问已写下" : "写好了，继续辨识"}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "再写具体一些，至少六个字。" : ""}</p></div>
+            </div>
+          </div>
+
+          <div className="inquiry-future-flow" hidden={!questionConfirmed}>
+          <section id="discernment" className="inquiry-step inquiry-panel"><div className="step-heading"><span>贰</span><div><h3>辨识</h3><p>一次只回答一问。我们把事实与未知分开，也帮助你辨认最初写下的问题是否真的问到了心里。</p></div></div>
+            {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
           </section>
 
-          <section className="inquiry-step inquiry-panel"><div className="step-heading"><span>贰</span><div><h3>辨识</h3><p>一次只回答一问。我们把事实与未知分开，也帮助你辨认最初写下的问题是否真的问到了心里。</p></div></div>
-            {question.trim().length >= 6 ? <GuidedIntake question={question} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onQuestion={setQuestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onComplete={setIntakeComplete} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
-          </section>
+          <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} suggestionReason={suggestionReason} draft={finalQuestionDraft} source={finalQuestionSource} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onDraftChange={editFinalQuestion} onConfirm={confirmFinalQuestion} />
 
-          <section className="inquiry-step inquiry-panel number-step"><div className="step-heading"><span>叁</span><div><h3>成卦</h3><p>闭上眼睛，缓缓呼吸三次，在心中再重复一遍确认后的问题。准备好时，再凭当下所感取三个数。</p></div></div>
+          <section className="inquiry-step inquiry-panel number-step" hidden={!finalQuestionConfirmed}><div className="step-heading"><span>肆</span><div><h3>成卦</h3><p>闭上眼睛，缓缓呼吸三次，在心中再重复一遍确认后的问题。准备好时，再凭当下所感取三个数。</p></div></div>
             <div className="breath-ritual" aria-label="三次呼吸提示"><span>一息 · 松开杂念</span><span>二息 · 回到所问</span><span>三息 · 心定取数</span></div>
             <fieldset className="numbers-slip"><legend className="sr-only">取三个整数</legend>{numbers.map((value, index) => <label key={index}><span>{["壹 · 上卦", "贰 · 下卦", "叁 · 动爻"][index]}</span><input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</fieldset>
             <p className="number-note">第一数定上卦，第二数定下卦，第三数定动爻。程序随后依规则排定本卦、互卦与变卦。</p>
           </section>
 
-          <section className="inquiry-step inquiry-panel cast-step"><div className="step-heading"><span>肆</span><div><h3>观卦</h3><p>确认边界后，程序先独立完成确定性排盘，再结合你在辨识中提供的现实信息生成解释。</p></div></div>
+          <section className="inquiry-step inquiry-panel cast-step" hidden={!finalQuestionConfirmed}><div className="step-heading"><span>伍</span><div><h3>观卦</h3><p>确认边界后，程序先独立完成确定性排盘，再结合你在辨识中提供的现实信息生成解释。</p></div></div>
             <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象；它不替代医疗、法律、财务等专业意见。生成失败不会自动重新生成；只有我主动保存时，结果才会进入观事簿。</span></label>
             {progress && <p className="generation-progress" role="status">{progress}</p>}
             {error && <p className="error" role="alert">{error}</p>}
             <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在生成解读" : "观卦"}</button>
             {loading && <CastingLoader />}
           </section>
+          </div>
         </form>
       </section>
 
