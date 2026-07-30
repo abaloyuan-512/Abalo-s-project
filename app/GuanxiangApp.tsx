@@ -207,6 +207,21 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
   />;
 }
 
+const PEONY_BREATHS = [
+  { numeral: "一息", guidance: "松开杂念", flower: "/casting-peony-bloom-1-v1.png" },
+  { numeral: "二息", guidance: "回到所问", flower: "/casting-peony-bloom-2-v1.png" },
+  { numeral: "三息", guidance: "心定取数", flower: "/casting-peony-bloom-3-v1.png" },
+] as const;
+
+const PEONY_PETAL_MOTIONS = [
+  { left: 18, drift: -28, spin: -78, size: 22 },
+  { left: 31, drift: -12, spin: 54, size: 18 },
+  { left: 45, drift: 18, spin: 96, size: 25 },
+  { left: 58, drift: -20, spin: -112, size: 20 },
+  { left: 69, drift: 30, spin: 72, size: 17 },
+  { left: 78, drift: 12, spin: 138, size: 23 },
+] as const;
+
 type IntakeAnswer = { prompt: string; answer: string };
 type DiscernmentCompletionReason = "ENOUGH" | "MAX_TURNS" | "USER_EARLY";
 type GuidedIntakeProps = {
@@ -453,10 +468,10 @@ function GuidedIntake(props: GuidedIntakeProps) {
   return <div className="guided-intake ai-guided-intake">
     {mode === "ASKING" && <div className="discernment-turn" aria-live="polite">
       {previousTurn && <div className="discernment-echo" key={`ai-echo-${turns.length}`} aria-hidden="true"><span>{previousTurn.prompt}</span><p>{previousTurn.answer}</p></div>}
-      <div className="discernment-progress"><span>第 {Math.min(turns.length + 1, 8)} 问</span><small>通常 4–6 问 · 最多 8 问</small></div>
+      <div className="discernment-progress"><span>第 {Math.min(turns.length + 1, 8)} 问</span><small>信息足够即结束 · 最多 8 问</small></div>
       {!busy && !error && <p className="discernment-understanding">{assistantMessage}</p>}
       {currentPrompt && !busy && !error && <div className="discernment-current" key={currentPrompt}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>}
-      {busy && <div className="discernment-working" role="status"><span>你刚才的回答已经记下</span><p>正在从这句话里分清已知与未知，下一问会接着你刚才所说的内容。</p><i aria-hidden="true" /></div>}
+      {busy && <div className="discernment-working" role="status"><span>你刚才的回答已经记下</span><p>正在从这句话里分清已知与未知，下一问会接着你刚才所说的内容。</p><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
       {error && <div className="discernment-recovery" role="alert"><span>前 {turns.length} 个回答都还在</span><p>{error.replace(/[。！？]+$/, "")}。不需要从头再答，只要从这里继续。</p><div><button type="button" disabled={busy} onClick={retryTurn}>继续这一轮</button><button type="button" className="text-button" onClick={() => setMode("FALLBACK")}>改用基础引导</button></div></div>}
     </div>}
     {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "回答已记下" : "答完这一问"}</button></div>}
@@ -1170,10 +1185,45 @@ export function GuanxiangApp() {
 
           <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
-          <section className="inquiry-step inquiry-panel number-step" hidden={!finalQuestionConfirmed}><div className="step-heading"><span>肆</span><div><h3>成卦</h3><p>闭上眼睛，缓缓呼吸三次，在心中再重复一遍确认后的问题。准备好时，再凭当下所感取三个数。</p></div></div>
-            <div className="breath-ritual" aria-label="三次呼吸提示"><span>一息 · 松开杂念</span><span>二息 · 回到所问</span><span>三息 · 心定取数</span></div>
-            <fieldset className="numbers-slip"><legend className="sr-only">取三个整数</legend>{numbers.map((value, index) => <label key={index}><span>{["壹 · 上卦", "贰 · 下卦", "叁 · 动爻"][index]}</span><input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={value} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /></label>)}</fieldset>
-            <p className="number-note">第一数定上卦，第二数定下卦，第三数定动爻。程序随后依规则排定本卦、互卦与变卦。</p>
+          <section className="inquiry-step inquiry-panel number-step casting-number-step" hidden={!finalQuestionConfirmed} aria-labelledby="casting-title">
+            <div className="casting-peony-backdrop" aria-hidden="true" />
+            <header className="final-question-heading casting-heading">
+              <p className="eyebrow">观象之法 · 肆</p>
+              <h3 id="casting-title" tabIndex={-1}>成卦</h3>
+              <p>三息之间收束心念<br />凭当下所感取三个数</p>
+            </header>
+
+            <div className="casting-number-workspace">
+              <p className="casting-instruction">闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题。花瓣落下时，不必推算，只写下当下浮现的数。</p>
+              <fieldset className="peony-number-field" aria-describedby="number-rule-note">
+                <legend className="sr-only">依三次呼吸取三个整数</legend>
+                {PEONY_BREATHS.map((breath, index) => <label
+                  className={`peony-number peony-number-${index + 1}`}
+                  key={breath.numeral}
+                  style={{ "--breath-delay": `${index * 5.2}s` } as CSSProperties}
+                >
+                  <span className="peony-bloom" aria-hidden="true">
+                    <img className="peony-bloom-image" src={breath.flower} alt="" />
+                    {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
+                      className="peony-falling-petal"
+                      src="/casting-peony-petal-v1.png"
+                      alt=""
+                      key={`${breath.numeral}-${petalIndex}`}
+                      style={{
+                        "--petal-delay": `${petalIndex * .28}s`,
+                        "--petal-left": `${motion.left}%`,
+                        "--petal-drift": `${motion.drift}px`,
+                        "--petal-spin": `${motion.spin}deg`,
+                        "--petal-size": `${motion.size}px`,
+                      } as CSSProperties}
+                    />)}
+                  </span>
+                  <span className="peony-number-copy"><b>{breath.numeral}</b><small>{breath.guidance}</small></span>
+                  <input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
+                </label>)}
+              </fieldset>
+              <p id="number-rule-note" className="number-note">第一数定上卦，第二数定下卦，第三数定动爻。三个数字只交给程序，随后依既定规则排定本卦、互卦与变卦。</p>
+            </div>
           </section>
 
           <section className="inquiry-step inquiry-panel cast-step" hidden={!finalQuestionConfirmed}><div className="step-heading"><span>伍</span><div><h3>观卦</h3><p>确认边界后，程序先独立完成确定性排盘，再结合你在辨识中提供的现实信息生成解释。</p></div></div>

@@ -75,9 +75,14 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /请心中再次默念你的问题，深呼吸/);
   assert.match(html, /开始卜卦/);
   assert.doesNotMatch(html, /最终问卦题目/);
-  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step"[^>]+hidden/);
+  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step casting-number-step"[^>]+hidden/);
   assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel cast-step"[^>]+hidden/);
-  assert.match(html, /<h3>成卦<\/h3>/);
+  assert.match(html, /<h3[^>]+id="casting-title"[^>]*>成卦<\/h3>/);
+  assert.match(html, /casting-peony-bloom-1-v1\.png/);
+  assert.match(html, /casting-peony-bloom-2-v1\.png/);
+  assert.match(html, /casting-peony-bloom-3-v1\.png/);
+  assert.match(html, /casting-peony-petal-v1\.png/);
+  assert.match(html, /三息之间收束心念/);
   assert.match(html, /<h3>观卦<\/h3>/);
   assert.match(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
@@ -171,7 +176,7 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.doesNotMatch(appSource, /discernment-current[^\n]+bagua-seal\.png/);
   assert.match(appSource, /跳过这一问/);
   assert.match(appSource, /已经说清，提前结束/);
-  assert.match(appSource, /通常 4–6 问 · 最多 8 问/);
+  assert.match(appSource, /信息足够即结束 · 最多 8 问/);
   assert.match(appSource, /type DiscernmentCompletionReason = "ENOUGH" \| "MAX_TURNS" \| "USER_EARLY"/);
   assert.match(appSource, /nextTurns\.length >= 8[\s\S]+setReview\(payload\); setReviewReason\("MAX_TURNS"\); setCurrentPrompt\(""\); setMode\("REVIEW"\)/);
   assert.match(appSource, /onCompletionReason\("USER_EARLY"\)/);
@@ -181,11 +186,15 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.match(appSource, /FIRST_DISCERNMENT_QUESTION = "这件事现在具体走到了哪一步？"/);
   assert.match(appSource, /前 \{turns\.length\} 个回答都还在/);
   assert.match(appSource, /onClick=\{retryTurn\}>继续这一轮/);
+  assert.match(appSource, /className="discernment-mist-scroll"/);
+  assert.match(appSource, /discernment-mist-scroll-v1\.png/);
   assert.doesNotMatch(appSource, /开始 AI 辨识|重新连接 AI 辨识|正在静心听你所问/);
   assert.match(cssSource, /discernment-step[^}]+min-height: 100svh[^}]+grid-template-columns/s);
   assert.match(cssSource, /discernment-heading h3[^}]+clamp\(88px, 8\.3vw, 132px\)/);
   assert.match(cssSource, /discernment-current img[^}]+object-fit: contain/);
   assert.match(cssSource, /discernment-echo[^}]+discernment-echo-away/);
+  assert.match(cssSource, /discernment-mist-scroll img[^}]+discernment-mist-pass/);
+  assert.doesNotMatch(cssSource, /discernment-working-line/);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+discernment-echo/);
 });
 
@@ -202,9 +211,24 @@ test("final question offers a concise user-controlled question decision", async 
   assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
-  assert.match(appSource, /number-step" hidden=\{!finalQuestionConfirmed\}/);
+  assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
   assert.match(cssSource, /final-question-cta/);
+});
+
+test("casting uses a borderless peony breathing scene without changing number roles", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /className="eyebrow">观象之法 · 肆/);
+  assert.match(appSource, /id="casting-title"[^>]*>成卦/);
+  assert.match(appSource, /PEONY_BREATHS\.map/);
+  assert.match(appSource, /casting-peony-petal-v1\.png/);
+  assert.match(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
+  assert.match(appSource, /三个数字只交给程序/);
+  assert.doesNotMatch(appSource, /className="breath-ritual"/);
+  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v1\.webp/);
+  assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+peony-falling-petal[^}]+display: none/);
 });
 
 test("AI guided intake fails safely until the Python engine is configured", async () => {
