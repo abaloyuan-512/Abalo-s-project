@@ -344,7 +344,7 @@ a { color: inherit; }
 .number-step .numbers-slip label { min-height: 104px; grid-template-columns: minmax(90px, auto) 1fr; border-top: 1px solid var(--rule); }
 .number-step .numbers-slip label span { font-size: 24px; }
 .number-note { margin: 22px 0 0; color: var(--mist); font-size: 14px; line-height: 1.7; }
-.casting-number-step { position: relative; isolation: isolate; min-height: 100svh; padding: clamp(72px, 9vh, 108px) 0; display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: center; overflow: hidden; }
+.casting-number-step { position: relative; isolation: isolate; min-height: 100svh; padding: clamp(72px, 9vh, 108px) 0; display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: center; overflow: visible; }
 .casting-peony-scene { position: absolute; z-index: -2; top: 0; left: 50%; width: 100vw; aspect-ratio: 16 / 9; transform: translateX(-50%); pointer-events: none; }
 .casting-peony-backdrop { position: absolute; inset: -1px; background: url("/casting-peony-background-v1.webp") center / 100% 100% no-repeat; opacity: .69; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); }
 .casting-number-step::after { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: linear-gradient(90deg, rgba(246,239,225,.12), transparent 16%, transparent 84%, rgba(246,239,225,.12)), rgba(246,239,225,.08); pointer-events: none; }
@@ -903,7 +903,7 @@ a { color: inherit; }
   .final-question-confirm p { font-size: 10px; line-height: 1.55; }
   .final-question-confirm button { min-width: 118px; min-height: 44px; padding: 8px 12px; font-size: 16px; }
   .final-question-status { min-height: 15px; margin-top: 3px; font-size: 10px; }
-  .casting-number-step { min-height: 100svh; padding: 54px 0 48px; display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; overflow: hidden; }
+  .casting-number-step { min-height: 100svh; padding: 54px 0 48px; display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; overflow: visible; }
   .casting-peony-scene { top: auto; bottom: 126px; }
   .casting-peony-backdrop { opacity: .5; }
   .casting-heading { padding: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: end; }
