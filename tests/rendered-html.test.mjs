@@ -171,7 +171,13 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.doesNotMatch(appSource, /discernment-current[^\n]+bagua-seal\.png/);
   assert.match(appSource, /跳过这一问/);
   assert.match(appSource, /已经说清，提前结束/);
-  assert.match(appSource, /通常 4–7 问 · 最多 8 问/);
+  assert.match(appSource, /通常 4–6 问 · 最多 8 问/);
+  assert.match(appSource, /type DiscernmentCompletionReason = "ENOUGH" \| "MAX_TURNS" \| "USER_EARLY"/);
+  assert.match(appSource, /nextTurns\.length >= 8[\s\S]+setReview\(payload\); setReviewReason\("MAX_TURNS"\); setCurrentPrompt\(""\); setMode\("REVIEW"\)/);
+  assert.match(appSource, /onCompletionReason\("USER_EARLY"\)/);
+  assert.match(appSource, /《周易·系辞下》/);
+  assert.match(appSource, /穷则变，变则通，通则久/);
+  assert.doesNotMatch(appSource, /你选择了提前结束，或已经达到本次最多八问|不必为了问完而继续回答|AI 改写建议/);
   assert.match(appSource, /FIRST_DISCERNMENT_QUESTION = "这件事现在具体走到了哪一步？"/);
   assert.match(appSource, /前 \{turns\.length\} 个回答都还在/);
   assert.match(appSource, /onClick=\{retryTurn\}>继续这一轮/);
@@ -189,7 +195,8 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
   assert.match(appSource, /采取建议/);
   assert.match(appSource, /保持原题/);
-  assert.match(appSource, /现在已经更清晰你的现状，我们准备开始取数卜卦了/);
+  assert.match(appSource, /\{decisionMade \? "那现在" : "现在"\}已经更清晰你的现状，我们准备开始取数卜卦了/);
+  assert.match(appSource, /我感受到你想尽快进入取数卜卦的环节，现在请心中再次默念你的问题，深呼吸/);
   assert.match(appSource, /请心中再次默念你的问题，深呼吸/);
   assert.match(appSource, /开始卜卦/);
   assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
@@ -215,7 +222,7 @@ test("AI guided intake fails safely until the Python engine is configured", asyn
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
-  assert.deepEqual(await response.json(), { error: "AI 辨识暂时未连接。" });
+  assert.deepEqual(await response.json(), { error: "辨识服务暂时未连接。" });
 });
 
 test("AI guided intake accepts later CJK turns within the engine transcript limit", async () => {
@@ -235,7 +242,7 @@ test("AI guided intake accepts later CJK turns within the engine transcript limi
     }),
   }), env, context);
   assert.equal(response.status, 503);
-  assert.deepEqual(await response.json(), { error: "AI 辨识暂时未连接。" });
+  assert.deepEqual(await response.json(), { error: "辨识服务暂时未连接。" });
 });
 
 function createBudgetDb() {

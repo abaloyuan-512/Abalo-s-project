@@ -208,6 +208,7 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
 }
 
 type IntakeAnswer = { prompt: string; answer: string };
+type DiscernmentCompletionReason = "ENOUGH" | "MAX_TURNS" | "USER_EARLY";
 type GuidedIntakeProps = {
   question: string;
   onFacts: (value: string) => void;
@@ -216,6 +217,7 @@ type GuidedIntakeProps = {
   onObservableResponses: (value: string) => void;
   onSuggestion: (value: { question: string; reason: string } | null) => void;
   onStructured: (value: { domain: string; goal: string; horizon: string; stage: string; uncertainty: string; riskProfile?: string }) => void;
+  onCompletionReason: (reason: DiscernmentCompletionReason) => void;
   onComplete: (complete: boolean) => void;
   onContinue: () => void;
 };
@@ -257,7 +259,7 @@ function inferUncertainty(text: string): "CONDITIONS" | "OTHER_RESPONSE" | "OWN_
   return "CONDITIONS";
 }
 
-function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onComplete, onContinue }: GuidedIntakeProps) {
+function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onCompletionReason, onComplete, onContinue }: GuidedIntakeProps) {
   const [turn, setTurn] = useState(0);
   const [draft, setDraft] = useState("");
   const [answers, setAnswers] = useState<IntakeAnswer[]>([]);
@@ -313,6 +315,7 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
 
   function finish() {
     onSuggestion(null);
+    onCompletionReason("ENOUGH");
     onComplete(true);
     onContinue();
   }
@@ -330,6 +333,7 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
       uncertainty: inferUncertainty(combined),
     });
     onSuggestion(null);
+    onCompletionReason("USER_EARLY");
     onComplete(true);
     onContinue();
   }
@@ -346,13 +350,13 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
     {!completed && turn === 1 && <div className="dialogue-options">{Object.entries(STAGES).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
     {!completed && turn > 1 && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={turn === 6 ? 300 : 1200} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={!draft.trim()} onClick={() => record(draft)}>答完这一问</button></div>}
     {!completed && <div className="discernment-controls"><button type="button" onClick={() => record("暂不回答")}>跳过这一问</button><button type="button" onClick={finishEarly}>已经说清，提前结束</button></div>}
-    {completed && <div className="dialogue-review discernment-complete"><p className="eyebrow">基础整理完成</p><h3>现实脉络已经分开</h3><p>这次使用的是不调用 AI 的基础引导，因此不会生成 AI 改写建议。下一页仍由你亲自定下最终题目。</p><div className="dialogue-review-actions"><button type="button" onClick={finish}>继续定问</button><button type="button" className="text-button" onClick={reset}>重新辨识</button></div></div>}
+    {completed && <div className="dialogue-review discernment-complete"><p className="eyebrow">基础整理完成</p><h3>现实脉络已经分开</h3><p>这次使用的是基础引导，因此不会提出改写建议。下一页仍由你亲自定下最后这一问。</p><div className="dialogue-review-actions"><button type="button" onClick={finish}>继续定问</button><button type="button" className="text-button" onClick={reset}>重新辨识</button></div></div>}
     <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
   </div>;
 }
 
 function GuidedIntake(props: GuidedIntakeProps) {
-  const { question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onComplete, onContinue } = props;
+  const { question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onCompletionReason, onComplete, onContinue } = props;
   const [mode, setMode] = useState<"ASKING" | "REVIEW" | "FALLBACK" | "STOPPED">("ASKING");
   const [sessionId] = useState(() => `intake-${crypto.randomUUID()}`);
   const [turns, setTurns] = useState<IntakeAnswer[]>([]);
@@ -362,6 +366,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [review, setReview] = useState<GuidedIntakeApiResponse | null>(null);
+  const [reviewReason, setReviewReason] = useState<"ENOUGH" | "MAX_TURNS">("ENOUGH");
   const [pendingTurns, setPendingTurns] = useState<IntakeAnswer[] | null>(null);
 
   async function requestTurn(nextTurns: IntakeAnswer[], id: string) {
@@ -379,18 +384,18 @@ function GuidedIntake(props: GuidedIntakeProps) {
         }),
       });
       const payload = await response.json() as GuidedIntakeApiResponse;
-      if (!response.ok || !payload.status) throw new Error(payload.error || "AI 辨识暂时不可用");
+      if (!response.ok || !payload.status) throw new Error(payload.error || "辨识服务暂时不可用");
       setPendingTurns(null);
       setAssistantMessage(payload.assistant_message);
       if (payload.status === "COMPLETE") {
-        setReview(payload); setCurrentPrompt(""); setMode("REVIEW");
+        setReview(payload); setReviewReason("ENOUGH"); setCurrentPrompt(""); setMode("REVIEW");
       } else if (nextTurns.length >= 8) {
-        setCurrentPrompt(""); setMode("STOPPED");
+        setReview(payload); setReviewReason("MAX_TURNS"); setCurrentPrompt(""); setMode("REVIEW");
       } else {
         setCurrentPrompt(payload.next_question ?? "请再说清一项你尚未确认的部分。"); setMode("ASKING");
       }
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "AI 辨识暂时不可用");
+      setError(reason instanceof Error ? reason.message : "辨识服务暂时不可用");
       setMode("ASKING");
     } finally {
       setBusy(false);
@@ -417,6 +422,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
   function finishWithoutSuggestion() {
     onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
     onSuggestion(null);
+    onCompletionReason("USER_EARLY");
     onComplete(true);
     onContinue();
   }
@@ -436,6 +442,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
       uncertainty: review.structured_intake.key_uncertainty,
       riskProfile: review.structured_intake.decision_risk_profile,
     });
+    onCompletionReason(reviewReason);
     onComplete(true);
     onContinue();
   }
@@ -446,16 +453,16 @@ function GuidedIntake(props: GuidedIntakeProps) {
   return <div className="guided-intake ai-guided-intake">
     {mode === "ASKING" && <div className="discernment-turn" aria-live="polite">
       {previousTurn && <div className="discernment-echo" key={`ai-echo-${turns.length}`} aria-hidden="true"><span>{previousTurn.prompt}</span><p>{previousTurn.answer}</p></div>}
-      <div className="discernment-progress"><span>第 {Math.min(turns.length + 1, 8)} 问</span><small>通常 4–7 问 · 最多 8 问</small></div>
+      <div className="discernment-progress"><span>第 {Math.min(turns.length + 1, 8)} 问</span><small>通常 4–6 问 · 最多 8 问</small></div>
       {!busy && !error && <p className="discernment-understanding">{assistantMessage}</p>}
       {currentPrompt && !busy && !error && <div className="discernment-current" key={currentPrompt}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>}
       {busy && <div className="discernment-working" role="status"><span>你刚才的回答已经记下</span><p>正在从这句话里分清已知与未知，下一问会接着你刚才所说的内容。</p><i aria-hidden="true" /></div>}
       {error && <div className="discernment-recovery" role="alert"><span>前 {turns.length} 个回答都还在</span><p>{error.replace(/[。！？]+$/, "")}。不需要从头再答，只要从这里继续。</p><div><button type="button" disabled={busy} onClick={retryTurn}>继续这一轮</button><button type="button" className="text-button" onClick={() => setMode("FALLBACK")}>改用基础引导</button></div></div>}
     </div>}
-    {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="回答 AI 当前问题" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "回答已记下" : "答完这一问"}</button></div>}
+    {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "回答已记下" : "答完这一问"}</button></div>}
     {mode === "ASKING" && !error && <div className="discernment-controls"><button type="button" disabled={busy || !currentPrompt} onClick={() => answerWithValue("暂不回答")}>跳过这一问</button><button type="button" disabled={busy} onClick={() => setMode("STOPPED")}>已经说清，提前结束</button></div>}
     {mode === "REVIEW" && review && <div className="dialogue-review discernment-complete"><p className="eyebrow">辨识已经足够</p><h3>现在，可以定下真正要问的事</h3><p>我已经整理好这次对话。下一页只会在确有必要时提出一个更聚焦的问法，是否采用仍由你决定。</p><div className="dialogue-review-actions"><button type="button" onClick={completeDiscernment}>结束辨识，继续定问</button></div></div>}
-    {mode === "STOPPED" && <div className="dialogue-review discernment-complete"><p className="eyebrow">已经整理到这里</p><h3>不必为了问完而继续回答</h3><p>你选择了提前结束，或已经达到本次最多八问。本次不会生成 AI 改写建议；下一页仍由你亲自确认最终题目。</p><div className="dialogue-review-actions"><button type="button" onClick={finishWithoutSuggestion}>继续定问</button></div></div>}
+    {mode === "STOPPED" && <div className="dialogue-review discernment-complete discernment-classic"><p className="eyebrow">《周易·系辞下》</p><blockquote>穷则变，变则通，通则久。</blockquote><div className="dialogue-review-actions"><button type="button" onClick={finishWithoutSuggestion}>继续定问</button></div></div>}
     <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
   </div>;
 }
@@ -464,7 +471,7 @@ type FinalQuestionProps = {
   hidden: boolean;
   originalQuestion: string;
   suggestedQuestion: string;
-  suggestionReason: string;
+  earlyExit: boolean;
   decisionMade: boolean;
   confirmed: boolean;
   onChooseOriginal: () => void;
@@ -476,10 +483,10 @@ function normalizedQuestion(value: string): string {
   return value.replace(/[\s，。！？、,.!?；;：:]/g, "").toLocaleLowerCase("zh-CN");
 }
 
-function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, suggestionReason, decisionMade, confirmed, onChooseOriginal, onChooseSuggestion, onConfirm }: FinalQuestionProps) {
+function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit, decisionMade, confirmed, onChooseOriginal, onChooseSuggestion, onConfirm }: FinalQuestionProps) {
   const hasSuggestion = suggestedQuestion.trim().length >= 6;
-  const suggestionChangesQuestion = hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
-  const ready = !suggestionChangesQuestion || decisionMade;
+  const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
+  const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
   return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
     <div className="final-question-heading">
       <p className="eyebrow">观象之法 · 叁</p>
@@ -491,14 +498,14 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, suggestion
       {suggestionChangesQuestion && !decisionMade && <div className="question-change-proposal">
         <p>通过跟你的沟通，我建议你在卜卦之前，把问题更换为：</p>
         <blockquote>{suggestedQuestion}</blockquote>
-        <small>{suggestionReason || "这样更能把卦象落到你眼下真正需要看清的条件与行动上。"}</small>
-        <p>这样会更能给到你切实的建议。你愿意更换吗？</p>
+        <p>会更能给到你切实的建议。你愿意更换吗？</p>
         <div><button type="button" onClick={onChooseSuggestion}>采取建议</button><button type="button" className="text-button" onClick={onChooseOriginal}>保持原题</button></div>
       </div>}
 
       {ready && <div className="final-question-ready" role="status" aria-live="polite">
-        <p>现在已经更清晰你的现状，我们准备开始取数卜卦了。</p>
-        <strong>请心中再次默念你的问题，深呼吸。</strong>
+        {earlyExit
+          ? <p>我感受到你想尽快进入取数卜卦的环节，现在请心中再次默念你的问题，深呼吸。</p>
+          : <><p>{decisionMade ? "那现在" : "现在"}已经更清晰你的现状，我们准备开始取数卜卦了。</p><strong>请心中再次默念你的问题，深呼吸。</strong></>}
       </div>}
 
       {ready && <div className="final-question-readiness">
@@ -692,10 +699,11 @@ export function GuanxiangApp() {
   const [observableResponses, setObservableResponses] = useState("");
   const [originalQuestion, setOriginalQuestion] = useState("");
   const [suggestedQuestion, setSuggestedQuestion] = useState("");
-  const [suggestionReason, setSuggestionReason] = useState("");
+  const [, setSuggestionReason] = useState("");
   const [finalQuestionDraft, setFinalQuestionDraft] = useState("");
   const [finalQuestionDecisionMade, setFinalQuestionDecisionMade] = useState(false);
   const [finalQuestionConfirmed, setFinalQuestionConfirmed] = useState(false);
+  const [discernmentCompletionReason, setDiscernmentCompletionReason] = useState<DiscernmentCompletionReason>("ENOUGH");
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
@@ -849,6 +857,7 @@ export function GuanxiangApp() {
     setGoal("");
     setQuestionConfirmed(false);
     setIntakeComplete(false);
+    setDiscernmentCompletionReason("ENOUGH");
     setFinalQuestionDecisionMade(false);
     setFinalQuestionConfirmed(false);
   }
@@ -861,6 +870,7 @@ export function GuanxiangApp() {
     setSuggestedQuestion("");
     setSuggestionReason("");
     setIntakeComplete(false);
+    setDiscernmentCompletionReason("ENOUGH");
     setFinalQuestionDecisionMade(false);
     setFinalQuestionConfirmed(false);
     setQuestionConfirmed(true);
@@ -974,7 +984,7 @@ export function GuanxiangApp() {
       record = JSON.parse(saved) as JournalRecord;
     } catch { return; }
     const timer = window.setTimeout(() => {
-      setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setIntakeComplete(true); setAcknowledged(true); setSavedRecordId(record.id);
+      setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setDiscernmentCompletionReason("ENOUGH"); setIntakeComplete(true); setAcknowledged(true); setSavedRecordId(record.id);
       setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
     }, 0);
     return () => window.clearTimeout(timer);
@@ -997,7 +1007,7 @@ export function GuanxiangApp() {
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setIntakeComplete(false); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -1137,7 +1147,7 @@ export function GuanxiangApp() {
 
             <div className="inquiry-writing">
               <label className="question-label" htmlFor="primary-question"><span>此刻，你真正想问的是什么？</span></label>
-              <textarea id="primary-question" aria-label="你真正想问的问题" aria-describedby="question-guidance question-count" placeholder="把心里的这一问，写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
+              <textarea id="primary-question" aria-label="你真正想问的问题" aria-describedby="question-guidance question-count" placeholder="把心里的这一问，写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
               <div className="question-meta"><p id="question-guidance">先照此刻最自然的方式写。下一步，我们会陪你慢慢辨清事实、未知与真正的需要。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
 
               <div className="question-examples"><header><span>若一时不知怎样开口</span><small>轻点一句，放入上方继续修改</small></header><div>{QUESTION_EXAMPLES.map((example, index) => <button type="button" key={example.text} aria-label={`参考${example.topic}例句：${example.text}`} onClick={() => applyQuestionExample(example)}><span>{String(index + 1).padStart(2, "0")} · {example.topic}</span><b>{example.text}</b></button>)}</div></div>
@@ -1154,11 +1164,11 @@ export function GuanxiangApp() {
               <p>为了能结合卦象，给你更具实际意义的建议，我还有几个问题请你回答。</p>
             </header>
             <div className="discernment-workspace">
-              {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
+              {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
             </div>
           </section>
 
-          <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} suggestionReason={suggestionReason} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
+          <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
           <section className="inquiry-step inquiry-panel number-step" hidden={!finalQuestionConfirmed}><div className="step-heading"><span>肆</span><div><h3>成卦</h3><p>闭上眼睛，缓缓呼吸三次，在心中再重复一遍确认后的问题。准备好时，再凭当下所感取三个数。</p></div></div>
             <div className="breath-ritual" aria-label="三次呼吸提示"><span>一息 · 松开杂念</span><span>二息 · 回到所问</span><span>三息 · 心定取数</span></div>

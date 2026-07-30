@@ -70,7 +70,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const url = upstreamUrl();
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
-  if (!url || !engineKey) return safeJson({ error: "AI 辨识暂时未连接。" }, 503);
+  if (!url || !engineKey) return safeJson({ error: "辨识服务暂时未连接。" }, 503);
 
   try {
     const upstream = await fetch(url, {
@@ -89,6 +89,6 @@ export async function POST(request: Request): Promise<Response> {
     }
     return safeJson(result, 200);
   } catch {
-    return safeJson({ error: "AI 辨识连接超时，请稍后再试。" }, 503);
+    return safeJson({ error: "辨识服务连接超时，请稍后再试。" }, 503);
   }
 }
