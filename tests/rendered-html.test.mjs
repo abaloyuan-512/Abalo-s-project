@@ -227,8 +227,13 @@ test("casting uses a borderless peony breathing scene without changing number ro
   assert.match(appSource, /三个数字只交给程序/);
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
   assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v1\.webp/);
+  assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
+  assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
+  assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall/);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+peony-falling-petal[^}]+display: none/);
+  assert.doesNotMatch(cssSource, /discernment-step::before[^}]+content:/);
+  assert.doesNotMatch(cssSource, /final-question-step::before[^}]+content:/);
 });
 
 test("AI guided intake fails safely until the Python engine is configured", async () => {

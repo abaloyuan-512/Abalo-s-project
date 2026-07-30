@@ -214,12 +214,12 @@ const PEONY_BREATHS = [
 ] as const;
 
 const PEONY_PETAL_MOTIONS = [
-  { left: 18, drift: -28, spin: -78, size: 22 },
-  { left: 31, drift: -12, spin: 54, size: 18 },
-  { left: 45, drift: 18, spin: 96, size: 25 },
-  { left: 58, drift: -20, spin: -112, size: 20 },
-  { left: 69, drift: 30, spin: 72, size: 17 },
-  { left: 78, drift: 12, spin: 138, size: 23 },
+  { left: 18, midX: -10, travelX: -39, travelY: 34, spin: -286, size: 22 },
+  { left: 31, midX: -16, travelX: -48, travelY: 42, spin: 238, size: 18 },
+  { left: 45, midX: -8, travelX: -44, travelY: 49, spin: 326, size: 25 },
+  { left: 58, midX: -19, travelX: -55, travelY: 38, spin: -344, size: 20 },
+  { left: 69, midX: -13, travelX: -50, travelY: 46, spin: 272, size: 17 },
+  { left: 78, midX: -21, travelX: -60, travelY: 43, spin: 388, size: 23 },
 ] as const;
 
 type IntakeAnswer = { prompt: string; answer: string };
@@ -1186,7 +1186,34 @@ export function GuanxiangApp() {
           <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
           <section className="inquiry-step inquiry-panel number-step casting-number-step" hidden={!finalQuestionConfirmed} aria-labelledby="casting-title">
-            <div className="casting-peony-backdrop" aria-hidden="true" />
+            <div className="casting-peony-scene" aria-hidden="true">
+              <div className="casting-peony-backdrop" />
+              {PEONY_BREATHS.map((breath, index) => <span
+                className={`peony-bloom peony-bloom-scene-${index + 1}`}
+                key={breath.numeral}
+                style={{ "--breath-delay": `${index * 4.4}s` } as CSSProperties}
+              >
+                <img className="peony-bloom-image" src={breath.flower} alt="" />
+                {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
+                  className="peony-falling-petal"
+                  src="/casting-peony-petal-v1.png"
+                  alt=""
+                  key={`${breath.numeral}-${petalIndex}`}
+                  style={{
+                    "--petal-delay": `${petalIndex * .72}s`,
+                    "--petal-left": `${motion.left}%`,
+                    "--petal-mid-x": `${motion.midX}vw`,
+                    "--petal-late-x": `${motion.midX * 1.8}vw`,
+                    "--petal-travel-x": `${motion.travelX}vw`,
+                    "--petal-travel-y": `${motion.travelY}vh`,
+                    "--petal-mid-spin": `${motion.spin * .28}deg`,
+                    "--petal-late-spin": `${motion.spin * .62}deg`,
+                    "--petal-spin": `${motion.spin}deg`,
+                    "--petal-size": `${motion.size}px`,
+                  } as CSSProperties}
+                />)}
+              </span>)}
+            </div>
             <header className="final-question-heading casting-heading">
               <p className="eyebrow">观象之法 · 肆</p>
               <h3 id="casting-title" tabIndex={-1}>成卦</h3>
@@ -1200,24 +1227,7 @@ export function GuanxiangApp() {
                 {PEONY_BREATHS.map((breath, index) => <label
                   className={`peony-number peony-number-${index + 1}`}
                   key={breath.numeral}
-                  style={{ "--breath-delay": `${index * 5.2}s` } as CSSProperties}
                 >
-                  <span className="peony-bloom" aria-hidden="true">
-                    <img className="peony-bloom-image" src={breath.flower} alt="" />
-                    {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
-                      className="peony-falling-petal"
-                      src="/casting-peony-petal-v1.png"
-                      alt=""
-                      key={`${breath.numeral}-${petalIndex}`}
-                      style={{
-                        "--petal-delay": `${petalIndex * .28}s`,
-                        "--petal-left": `${motion.left}%`,
-                        "--petal-drift": `${motion.drift}px`,
-                        "--petal-spin": `${motion.spin}deg`,
-                        "--petal-size": `${motion.size}px`,
-                      } as CSSProperties}
-                    />)}
-                  </span>
                   <span className="peony-number-copy"><b>{breath.numeral}</b><small>{breath.guidance}</small></span>
                   <input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
