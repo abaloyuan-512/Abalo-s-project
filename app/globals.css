@@ -904,7 +904,7 @@ a { color: inherit; }
   .final-question-confirm button { min-width: 118px; min-height: 44px; padding: 8px 12px; font-size: 16px; }
   .final-question-status { min-height: 15px; margin-top: 3px; font-size: 10px; }
   .casting-number-step { min-height: 100svh; padding: 54px 0 48px; display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; overflow: visible; }
-  .casting-peony-scene { top: auto; bottom: 126px; }
+  .casting-peony-scene { top: auto; bottom: clamp(236px, 32vh, 278px); }
   .casting-peony-backdrop { opacity: .5; }
   .casting-heading { padding: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: end; }
   .casting-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 4px; font-size: 11px; }
