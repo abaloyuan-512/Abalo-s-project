@@ -82,9 +82,11 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /casting-peony-bloom-2-v1\.png/);
   assert.match(html, /casting-peony-bloom-3-v1\.png/);
   assert.match(html, /casting-peony-petal-v1\.png/);
-  assert.match(html, /三息之间收束心念/);
+  assert.match(html, /心中再默念一遍所问之事/);
+  assert.match(html, /三息之间，收束心念/);
+  assert.match(html, /凭当下所感，取三个数/);
   assert.match(html, /<h3>观卦<\/h3>/);
-  assert.match(html, /闭上眼睛，缓缓呼吸三次/);
+  assert.doesNotMatch(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
@@ -216,13 +218,21 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(cssSource, /final-question-cta/);
 });
 
-test("casting uses a borderless peony breathing scene without changing number roles", async () => {
+test("casting uses a borderless windblown peony scene without changing number roles", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const petalMotionSource = appSource.match(/const PEONY_PETAL_MOTIONS = \[([\s\S]*?)\] as const;/)?.[1] ?? "";
   assert.match(appSource, /className="eyebrow">观象之法 · 肆/);
   assert.match(appSource, /id="casting-title"[^>]*>成卦/);
   assert.match(appSource, /PEONY_BREATHS\.map/);
   assert.match(appSource, /casting-peony-petal-v1\.png/);
+  assert.equal((petalMotionSource.match(/\{ left:/g) ?? []).length, 18);
+  assert.match(petalMotionSource, /size: 10/);
+  assert.match(petalMotionSource, /size: 36/);
+  assert.match(appSource, /心中再默念一遍所问之事/);
+  assert.match(appSource, /三息之间，收束心念/);
+  assert.match(appSource, /凭当下所感，取三个数/);
+  assert.doesNotMatch(appSource, /闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题/);
   assert.match(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
   assert.match(appSource, /三个数字只交给程序/);
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
@@ -231,7 +241,8 @@ test("casting uses a borderless peony breathing scene without changing number ro
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
-  assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall/);
+  assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+rotateX\([^)]+\)[\s\S]+rotateY\([^)]+\)/);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+peony-falling-petal[^}]+display: none/);
   assert.doesNotMatch(cssSource, /discernment-step::before[^}]+content:/);
   assert.doesNotMatch(cssSource, /final-question-step::before[^}]+content:/);

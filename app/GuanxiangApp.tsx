@@ -214,12 +214,24 @@ const PEONY_BREATHS = [
 ] as const;
 
 const PEONY_PETAL_MOTIONS = [
-  { left: 18, midX: -10, travelX: -39, travelY: 34, spin: -286, size: 22 },
-  { left: 31, midX: -16, travelX: -48, travelY: 42, spin: 238, size: 18 },
-  { left: 45, midX: -8, travelX: -44, travelY: 49, spin: 326, size: 25 },
-  { left: 58, midX: -19, travelX: -55, travelY: 38, spin: -344, size: 20 },
-  { left: 69, midX: -13, travelX: -50, travelY: 46, spin: 272, size: 17 },
-  { left: 78, midX: -21, travelX: -60, travelY: 43, spin: 388, size: 23 },
+  { left: 12, midX: -7, travelX: -34, travelY: 32, spin: -420, flipX: 540, flipY: -360, size: 10, duration: 11.8, delay: -1.1 },
+  { left: 19, midX: -13, travelX: -44, travelY: 43, spin: 610, flipX: -720, flipY: 540, size: 16, duration: 14.6, delay: -8.7 },
+  { left: 25, midX: -5, travelX: -38, travelY: 51, spin: -760, flipX: 900, flipY: 360, size: 27, duration: 16.2, delay: -4.4 },
+  { left: 32, midX: -18, travelX: -52, travelY: 37, spin: 530, flipX: 450, flipY: -810, size: 13, duration: 12.9, delay: -11.8 },
+  { left: 38, midX: -10, travelX: -47, travelY: 48, spin: -350, flipX: -630, flipY: 720, size: 34, duration: 17.4, delay: -6.3 },
+  { left: 44, midX: -22, travelX: -61, travelY: 45, spin: 820, flipX: 1080, flipY: -540, size: 19, duration: 15.1, delay: -13.7 },
+  { left: 50, midX: -8, travelX: -42, travelY: 35, spin: -580, flipX: 720, flipY: 450, size: 23, duration: 13.7, delay: -2.9 },
+  { left: 56, midX: -15, travelX: -55, travelY: 53, spin: 460, flipX: -900, flipY: 810, size: 12, duration: 17.9, delay: -15.4 },
+  { left: 62, midX: -4, travelX: -36, travelY: 41, spin: -910, flipX: 1260, flipY: -720, size: 30, duration: 15.8, delay: -9.6 },
+  { left: 68, midX: -20, travelX: -64, travelY: 50, spin: 690, flipX: -540, flipY: 1080, size: 15, duration: 16.8, delay: -5.2 },
+  { left: 74, midX: -11, travelX: -49, travelY: 39, spin: -480, flipX: 810, flipY: 630, size: 36, duration: 14.2, delay: -12.5 },
+  { left: 81, midX: -24, travelX: -68, travelY: 47, spin: 940, flipX: -1080, flipY: -450, size: 20, duration: 17.2, delay: -7.4 },
+  { left: 16, midX: -16, travelX: -57, travelY: 55, spin: 720, flipX: 630, flipY: -990, size: 25, duration: 18.1, delay: -16.2 },
+  { left: 29, midX: -6, travelX: -41, travelY: 36, spin: -660, flipX: -810, flipY: 540, size: 11, duration: 12.4, delay: -3.7 },
+  { left: 47, midX: -19, travelX: -59, travelY: 44, spin: 390, flipX: 990, flipY: -720, size: 32, duration: 16.6, delay: -10.9 },
+  { left: 59, midX: -12, travelX: -46, travelY: 52, spin: -840, flipX: -1260, flipY: 810, size: 17, duration: 17.6, delay: -14.6 },
+  { left: 72, midX: -26, travelX: -71, travelY: 42, spin: 570, flipX: 720, flipY: 1260, size: 28, duration: 15.4, delay: -1.9 },
+  { left: 86, midX: -9, travelX: -43, travelY: 49, spin: -730, flipX: -900, flipY: -630, size: 14, duration: 16.9, delay: -8.1 },
 ] as const;
 
 type IntakeAnswer = { prompt: string; answer: string };
@@ -1191,7 +1203,7 @@ export function GuanxiangApp() {
               {PEONY_BREATHS.map((breath, index) => <span
                 className={`peony-bloom peony-bloom-scene-${index + 1}`}
                 key={breath.numeral}
-                style={{ "--breath-delay": `${index * 4.4}s` } as CSSProperties}
+                style={{ "--breath-delay": `${index * -1.6}s` } as CSSProperties}
               >
                 <img className="peony-bloom-image" src={breath.flower} alt="" />
                 {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
@@ -1200,16 +1212,30 @@ export function GuanxiangApp() {
                   alt=""
                   key={`${breath.numeral}-${petalIndex}`}
                   style={{
-                    "--petal-delay": `${petalIndex * .72}s`,
+                    "--petal-delay": `${motion.delay}s`,
                     "--petal-left": `${motion.left}%`,
+                    "--petal-quarter-x": `${motion.midX * .45}vw`,
                     "--petal-mid-x": `${motion.midX}vw`,
-                    "--petal-late-x": `${motion.midX * 1.8}vw`,
+                    "--petal-late-x": `${motion.travelX * .62}vw`,
                     "--petal-travel-x": `${motion.travelX}vw`,
+                    "--petal-quarter-y": `${motion.travelY * .17}vh`,
+                    "--petal-mid-y": `${motion.travelY * .4}vh`,
+                    "--petal-late-y": `${motion.travelY * .7}vh`,
                     "--petal-travel-y": `${motion.travelY}vh`,
-                    "--petal-mid-spin": `${motion.spin * .28}deg`,
-                    "--petal-late-spin": `${motion.spin * .62}deg`,
+                    "--petal-quarter-spin": `${motion.spin * .18}deg`,
+                    "--petal-mid-spin": `${motion.spin * .43}deg`,
+                    "--petal-late-spin": `${motion.spin * .72}deg`,
                     "--petal-spin": `${motion.spin}deg`,
+                    "--petal-quarter-flip-x": `${motion.flipX * .23}deg`,
+                    "--petal-mid-flip-x": `${motion.flipX * .48}deg`,
+                    "--petal-late-flip-x": `${motion.flipX * .76}deg`,
+                    "--petal-flip-x": `${motion.flipX}deg`,
+                    "--petal-quarter-flip-y": `${motion.flipY * .2}deg`,
+                    "--petal-mid-flip-y": `${motion.flipY * .46}deg`,
+                    "--petal-late-flip-y": `${motion.flipY * .74}deg`,
+                    "--petal-flip-y": `${motion.flipY}deg`,
                     "--petal-size": `${motion.size}px`,
+                    "--petal-duration": `${motion.duration}s`,
                   } as CSSProperties}
                 />)}
               </span>)}
@@ -1217,11 +1243,14 @@ export function GuanxiangApp() {
             <header className="final-question-heading casting-heading">
               <p className="eyebrow">观象之法 · 肆</p>
               <h3 id="casting-title" tabIndex={-1}>成卦</h3>
-              <p>三息之间收束心念<br />凭当下所感取三个数</p>
+              <p className="casting-contemplation">
+                <span>心中再默念一遍所问之事</span>
+                <span>三息之间，收束心念</span>
+                <span>凭当下所感，取三个数</span>
+              </p>
             </header>
 
             <div className="casting-number-workspace">
-              <p className="casting-instruction">闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题。花瓣落下时，不必推算，只写下当下浮现的数。</p>
               <fieldset className="peony-number-field" aria-describedby="number-rule-note">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
                 {PEONY_BREATHS.map((breath, index) => <label
