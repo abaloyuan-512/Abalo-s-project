@@ -208,30 +208,30 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
 }
 
 const PEONY_BREATHS = [
-  { numeral: "一息", guidance: "松开杂念", flower: "/casting-peony-bloom-1-v1.png" },
-  { numeral: "二息", guidance: "回到所问", flower: "/casting-peony-bloom-2-v1.png" },
-  { numeral: "三息", guidance: "心定取数", flower: "/casting-peony-bloom-3-v1.png" },
+  { numeral: "一息", guidance: "上卦取数", flower: "/casting-peony-bloom-1-v1.png" },
+  { numeral: "二息", guidance: "下卦取数", flower: "/casting-peony-bloom-2-v1.png" },
+  { numeral: "三息", guidance: "动爻取数", flower: "/casting-peony-bloom-3-v1.png" },
 ] as const;
 
 const PEONY_PETAL_MOTIONS = [
-  { left: 12, midX: -7, travelX: -34, travelY: 32, spin: -420, flipX: 540, flipY: -360, size: 10, duration: 11.8, delay: -1.1 },
-  { left: 19, midX: -13, travelX: -44, travelY: 43, spin: 610, flipX: -720, flipY: 540, size: 16, duration: 14.6, delay: -8.7 },
-  { left: 25, midX: -5, travelX: -38, travelY: 51, spin: -760, flipX: 900, flipY: 360, size: 27, duration: 16.2, delay: -4.4 },
-  { left: 32, midX: -18, travelX: -52, travelY: 37, spin: 530, flipX: 450, flipY: -810, size: 13, duration: 12.9, delay: -11.8 },
-  { left: 38, midX: -10, travelX: -47, travelY: 48, spin: -350, flipX: -630, flipY: 720, size: 34, duration: 17.4, delay: -6.3 },
-  { left: 44, midX: -22, travelX: -61, travelY: 45, spin: 820, flipX: 1080, flipY: -540, size: 19, duration: 15.1, delay: -13.7 },
-  { left: 50, midX: -8, travelX: -42, travelY: 35, spin: -580, flipX: 720, flipY: 450, size: 23, duration: 13.7, delay: -2.9 },
-  { left: 56, midX: -15, travelX: -55, travelY: 53, spin: 460, flipX: -900, flipY: 810, size: 12, duration: 17.9, delay: -15.4 },
-  { left: 62, midX: -4, travelX: -36, travelY: 41, spin: -910, flipX: 1260, flipY: -720, size: 30, duration: 15.8, delay: -9.6 },
-  { left: 68, midX: -20, travelX: -64, travelY: 50, spin: 690, flipX: -540, flipY: 1080, size: 15, duration: 16.8, delay: -5.2 },
-  { left: 74, midX: -11, travelX: -49, travelY: 39, spin: -480, flipX: 810, flipY: 630, size: 36, duration: 14.2, delay: -12.5 },
-  { left: 81, midX: -24, travelX: -68, travelY: 47, spin: 940, flipX: -1080, flipY: -450, size: 20, duration: 17.2, delay: -7.4 },
-  { left: 16, midX: -16, travelX: -57, travelY: 55, spin: 720, flipX: 630, flipY: -990, size: 25, duration: 18.1, delay: -16.2 },
-  { left: 29, midX: -6, travelX: -41, travelY: 36, spin: -660, flipX: -810, flipY: 540, size: 11, duration: 12.4, delay: -3.7 },
-  { left: 47, midX: -19, travelX: -59, travelY: 44, spin: 390, flipX: 990, flipY: -720, size: 32, duration: 16.6, delay: -10.9 },
-  { left: 59, midX: -12, travelX: -46, travelY: 52, spin: -840, flipX: -1260, flipY: 810, size: 17, duration: 17.6, delay: -14.6 },
-  { left: 72, midX: -26, travelX: -71, travelY: 42, spin: 570, flipX: 720, flipY: 1260, size: 28, duration: 15.4, delay: -1.9 },
-  { left: 86, midX: -9, travelX: -43, travelY: 49, spin: -730, flipX: -900, flipY: -630, size: 14, duration: 16.9, delay: -8.1 },
+  { left: 12, midX: -7, travelX: -34, travelY: 32, spin: -420, flipX: 540, flipY: -360, size: 10, duration: 8.8, delay: -1.1 },
+  { left: 19, midX: -13, travelX: -44, travelY: 43, spin: 610, flipX: -720, flipY: 540, size: 16, duration: 19.6, delay: -8.7 },
+  { left: 25, midX: -5, travelX: -38, travelY: 51, spin: -760, flipX: 900, flipY: 360, size: 27, duration: 14.8, delay: -4.4 },
+  { left: 32, midX: -18, travelX: -52, travelY: 37, spin: 530, flipX: 450, flipY: -810, size: 13, duration: 10.4, delay: -11.8 },
+  { left: 38, midX: -10, travelX: -47, travelY: 48, spin: -350, flipX: -630, flipY: 720, size: 72, duration: 22.4, delay: -6.3 },
+  { left: 44, midX: -22, travelX: -61, travelY: 45, spin: 820, flipX: 1080, flipY: -540, size: 19, duration: 16.2, delay: -13.7 },
+  { left: 50, midX: -8, travelX: -42, travelY: 35, spin: -580, flipX: 720, flipY: 450, size: 23, duration: 9.6, delay: -2.9 },
+  { left: 56, midX: -15, travelX: -55, travelY: 53, spin: 460, flipX: -900, flipY: 810, size: 12, duration: 20.8, delay: -15.4 },
+  { left: 62, midX: -4, travelX: -36, travelY: 41, spin: -910, flipX: 1260, flipY: -720, size: 30, duration: 13.1, delay: -9.6 },
+  { left: 68, midX: -20, travelX: -64, travelY: 50, spin: 690, flipX: -540, flipY: 1080, size: 15, duration: 18.6, delay: -5.2 },
+  { left: 74, midX: -11, travelX: -49, travelY: 39, spin: -480, flipX: 810, flipY: 630, size: 108, duration: 11.2, delay: -12.5 },
+  { left: 81, midX: -24, travelX: -68, travelY: 47, spin: 940, flipX: -1080, flipY: -450, size: 20, duration: 21.5, delay: -7.4 },
+  { left: 16, midX: -16, travelX: -57, travelY: 55, spin: 720, flipX: 630, flipY: -990, size: 25, duration: 17.8, delay: -16.2 },
+  { left: 29, midX: -6, travelX: -41, travelY: 36, spin: -660, flipX: -810, flipY: 540, size: 11, duration: 8.5, delay: -3.7 },
+  { left: 47, midX: -19, travelX: -59, travelY: 44, spin: 390, flipX: 990, flipY: -720, size: 84, duration: 15.4, delay: -10.9 },
+  { left: 59, midX: -12, travelX: -46, travelY: 52, spin: -840, flipX: -1260, flipY: 810, size: 17, duration: 23.2, delay: -14.6 },
+  { left: 72, midX: -26, travelX: -71, travelY: 42, spin: 570, flipX: 720, flipY: 1260, size: 28, duration: 12.5, delay: -1.9 },
+  { left: 86, midX: -9, travelX: -43, travelY: 49, spin: -730, flipX: -900, flipY: -630, size: 14, duration: 19.9, delay: -8.1 },
 ] as const;
 
 type IntakeAnswer = { prompt: string; answer: string };
@@ -600,6 +600,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
   const [action, setAction] = useState(`我准备这样做：${initialAction}`);
   const [reviewOn, setReviewOn] = useState(defaultReviewDate());
+  const [readingStarted, setReadingStarted] = useState(false);
   if (!result) return null;
   const report = result.clarity_report;
   const cultural = result.cultural_reading;
@@ -618,23 +619,32 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     source: "《周易·系辞下》",
   };
 
+  function openDetailedReading() {
+    setReadingStarted(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("why-reading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.querySelector<HTMLElement>("#why-reading h2")?.focus({ preventScroll: true });
+    }));
+  }
+
   return <section id="result" className="result-shell" aria-labelledby="result-title">
     <section className="result-overview scroll-section" data-reveal>
       <VerticalBrand />
-      <p className="result-question">所问：{question}</p>
       <div className="result-verdict">
-        <p className="eyebrow">本次所得之卦</p>
+        <p className="eyebrow">观象之法 · 肆</p>
         <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>第 {result.base_hexagram.king_wen_number} 卦</span><h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2></div>
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b>{baseClassic.canonical_text}</blockquote>}
       </div>
       <aside className="result-aside">
-        <span>先不急着得到结论</span><p>接下来从本卦、互卦和变卦开始，看清这个卦怎样形成，又怎样落回你所问的事情。</p><a href="#why-reading">开始解读此卦</a>
+        <span>本次所得之卦</span><p>卦象已成。先静观片刻，再决定是否展开其意。</p><button type="button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>详细解卦</button>
       </aside>
     </section>
 
+    <div id="result-reading" hidden={!readingStarted}>
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
-      <header className="section-heading"><p className="eyebrow">第一章 · 读卦</p><h2>本卦、互卦与变卦</h2><p>本卦看眼下的主要局面，互卦看内部怎样发展，变卦看变化之后重点转向哪里。先把三者逐一看清，再谈这件事应当如何判断。</p></header>
+      <header className="section-heading"><p className="eyebrow">第一章 · 读卦</p><h2 tabIndex={-1}>本卦、互卦与变卦</h2><p>本卦看眼下的主要局面，互卦看内部怎样发展，变卦看变化之后重点转向哪里。先把三者逐一看清，再谈这件事应当如何判断。</p></header>
       {cultural ? <div className="canonical-grid">{cultural.hexagrams.map((item) => <article key={item.role} className="canonical-card">
         <header><span>{item.role}</span><strong>{item.symbol}</strong><div><small>第 {item.king_wen_number} 卦</small><h3>{item.name}</h3></div></header>
         <p className="reading-role">{item.reading_role}</p>
@@ -680,6 +690,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <div className="result-actions"><button type="button" className="restart-button secondary" onClick={() => downloadReadingHtml(response)}>导出本次 HTML</button><a className="restart-button secondary" href="/journal">打开观事簿</a><button type="button" className="restart-button secondary" onClick={onEdit}>回到本题修改</button><button type="button" className="restart-button" onClick={onClear}>清空并再问一事</button></div>
       <blockquote className="classic-counsel"><p>{counsel.quote}</p><cite>{counsel.source}</cite></blockquote>
     </section>
+    </div>
   </section>;
 }
 
@@ -1112,6 +1123,10 @@ export function GuanxiangApp() {
   }
 
   const emphasizedMethodLine = activeMethodLine ?? previewMethodLine;
+  const numbersReady = numbers.every((value) => {
+    const parsed = Number(value);
+    return value !== "" && Number.isInteger(parsed) && parsed >= 1 && parsed <= 999;
+  });
 
   return <>
     <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden={!homeNavigationVisible}>
@@ -1203,42 +1218,49 @@ export function GuanxiangApp() {
               {PEONY_BREATHS.map((breath, index) => <span
                 className={`peony-bloom peony-bloom-scene-${index + 1}`}
                 key={breath.numeral}
-                style={{ "--breath-delay": `${index * -1.6}s` } as CSSProperties}
               >
                 <img className="peony-bloom-image" src={breath.flower} alt="" />
-                {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
-                  className="peony-falling-petal"
-                  src="/casting-peony-petal-v1.png"
-                  alt=""
-                  key={`${breath.numeral}-${petalIndex}`}
-                  style={{
-                    "--petal-delay": `${motion.delay}s`,
-                    "--petal-left": `${motion.left}%`,
-                    "--petal-quarter-x": `${motion.midX * .45}vw`,
-                    "--petal-mid-x": `${motion.midX}vw`,
-                    "--petal-late-x": `${motion.travelX * .62}vw`,
-                    "--petal-travel-x": `${motion.travelX}vw`,
-                    "--petal-quarter-y": `${motion.travelY * .17}vh`,
-                    "--petal-mid-y": `${motion.travelY * .4}vh`,
-                    "--petal-late-y": `${motion.travelY * .7}vh`,
-                    "--petal-travel-y": `${motion.travelY}vh`,
-                    "--petal-quarter-spin": `${motion.spin * .18}deg`,
-                    "--petal-mid-spin": `${motion.spin * .43}deg`,
-                    "--petal-late-spin": `${motion.spin * .72}deg`,
-                    "--petal-spin": `${motion.spin}deg`,
-                    "--petal-quarter-flip-x": `${motion.flipX * .23}deg`,
-                    "--petal-mid-flip-x": `${motion.flipX * .48}deg`,
-                    "--petal-late-flip-x": `${motion.flipX * .76}deg`,
-                    "--petal-flip-x": `${motion.flipX}deg`,
-                    "--petal-quarter-flip-y": `${motion.flipY * .2}deg`,
-                    "--petal-mid-flip-y": `${motion.flipY * .46}deg`,
-                    "--petal-late-flip-y": `${motion.flipY * .74}deg`,
-                    "--petal-flip-y": `${motion.flipY}deg`,
-                    "--petal-size": `${motion.size}px`,
-                    "--petal-duration": `${motion.duration}s`,
-                  } as CSSProperties}
-                />)}
               </span>)}
+              <div className="peony-petal-layer">
+                {PEONY_BREATHS.map((breath, index) => <span
+                  className={`peony-petal-origin peony-bloom-scene-${index + 1}`}
+                  key={`petals-${breath.numeral}`}
+                  style={{ "--breath-delay": `${index * -1.6}s` } as CSSProperties}
+                >
+                  {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
+                    className="peony-falling-petal"
+                    src="/casting-peony-petal-v1.png"
+                    alt=""
+                    key={`${breath.numeral}-${petalIndex}`}
+                    style={{
+                      "--petal-delay": `${motion.delay}s`,
+                      "--petal-left": `${motion.left}%`,
+                      "--petal-quarter-x": `${motion.midX * .45}vw`,
+                      "--petal-mid-x": `${motion.midX}vw`,
+                      "--petal-late-x": `${motion.travelX * .62}vw`,
+                      "--petal-travel-x": `${motion.travelX}vw`,
+                      "--petal-quarter-y": `${motion.travelY * .17}vh`,
+                      "--petal-mid-y": `${motion.travelY * .4}vh`,
+                      "--petal-late-y": `${motion.travelY * .7}vh`,
+                      "--petal-travel-y": `${motion.travelY}vh`,
+                      "--petal-quarter-spin": `${motion.spin * .18}deg`,
+                      "--petal-mid-spin": `${motion.spin * .43}deg`,
+                      "--petal-late-spin": `${motion.spin * .72}deg`,
+                      "--petal-spin": `${motion.spin}deg`,
+                      "--petal-quarter-flip-x": `${motion.flipX * .23}deg`,
+                      "--petal-mid-flip-x": `${motion.flipX * .48}deg`,
+                      "--petal-late-flip-x": `${motion.flipX * .76}deg`,
+                      "--petal-flip-x": `${motion.flipX}deg`,
+                      "--petal-quarter-flip-y": `${motion.flipY * .2}deg`,
+                      "--petal-mid-flip-y": `${motion.flipY * .46}deg`,
+                      "--petal-late-flip-y": `${motion.flipY * .74}deg`,
+                      "--petal-flip-y": `${motion.flipY}deg`,
+                      "--petal-size": `${motion.size}px`,
+                      "--petal-duration": `${motion.duration}s`,
+                    } as CSSProperties}
+                  />)}
+                </span>)}
+              </div>
             </div>
             <header className="final-question-heading casting-heading">
               <p className="eyebrow">观象之法 · 肆</p>
@@ -1248,9 +1270,7 @@ export function GuanxiangApp() {
                 <span>三息之间，收束心念</span>
                 <span>凭当下所感，取三个数</span>
               </p>
-            </header>
-
-            <div className="casting-number-workspace">
+              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入下方文字右侧</p>
               <fieldset className="peony-number-field">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
                 {PEONY_BREATHS.map((breath, index) => <label
@@ -1258,19 +1278,25 @@ export function GuanxiangApp() {
                   key={breath.numeral}
                 >
                   <span className="peony-number-copy"><b>{breath.numeral}</b><small>{breath.guidance}</small></span>
-                  <input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
+                  <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
+              <div className="casting-submit">
+                <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象，不替代专业意见。</span></label>
+                {progress && <p className="generation-progress" role="status">{progress}</p>}
+                {error && <p className="error" role="alert">{error}</p>}
+                <button className="cast-button" disabled={loading || !numbersReady || !acknowledged}><BaguaMark />{loading ? "正在观卦" : "观卦"}</button>
+                {loading && <CastingLoader />}
+              </div>
+            </header>
+
+            <div className="casting-number-workspace" aria-hidden="true">
+              <img className="peony-number-petal peony-number-petal-1" src="/casting-peony-petal-v1.png" alt="" />
+              <img className="peony-number-petal peony-number-petal-2" src="/casting-peony-petal-v1.png" alt="" />
+              <img className="peony-number-petal peony-number-petal-3" src="/casting-peony-petal-v1.png" alt="" />
             </div>
           </section>
 
-          <section className="inquiry-step inquiry-panel cast-step" hidden={!finalQuestionConfirmed}><div className="step-heading"><span>伍</span><div><h3>观卦</h3><p>确认边界后，程序先独立完成确定性排盘，再结合你在辨识中提供的现实信息生成解释。</p></div></div>
-            <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象；它不替代医疗、法律、财务等专业意见。生成失败不会自动重新生成；只有我主动保存时，结果才会进入观事簿。</span></label>
-            {progress && <p className="generation-progress" role="status">{progress}</p>}
-            {error && <p className="error" role="alert">{error}</p>}
-            <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在生成解读" : "观卦"}</button>
-            {loading && <CastingLoader />}
-          </section>
           </div>
         </form>
       </section>

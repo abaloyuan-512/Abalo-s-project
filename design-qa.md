@@ -480,3 +480,239 @@ final result: passed
 - 未修改确定性排盘引擎、规则版本、旧版入口或首页已收口资源。
 
 final result: passed
+
+---
+
+# 成卦页视觉 QA
+
+## 对照对象
+
+- source visual truth: `C:\Users\27622\.codex\generated_images\019fb34f-2804-7d23-8369-4a4c228b1aac\exec-05cf9805-604d-4066-96e5-1c1e016335d1.png`
+- implementation screenshot: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-desktop-final5.png`
+- mobile arrival screenshot: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-mobile-arrival.png`
+- combined comparison evidence: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-comparison-final.png`
+
+## 归一化信息
+
+- source pixels: 1723 × 913，包含浏览器外壳。
+- desktop implementation CSS viewport: 1280 × 720，devicePixelRatio 1.25；浏览器截图传输为 987 × 712，仅包含应用画面。
+- mobile implementation CSS viewport: 390 × 844；截图为点击“开始卜卦”后自动到达成卦页的空值状态。
+- combined comparison: 两张图保持原始宽高比并统一到 800px 高，中间留 24px 分隔；未拉伸或裁剪设计主体。
+- state: 第六页首次进入，三个输入为空；落瓣动画运行中。
+
+## 全画面对照
+
+- 宋画长卷、宣纸、墨色、朱砂、书法与大面积留白保持现有设计系统。
+- 选定方案的“散瓣 + 一笔风势”已经作为真实位图资产进入取数区，没有使用 CSS 绘图或 SVG 近似。
+- 根据用户本轮明确修订，生成参考中的 `1—999` 已从三个输入中移除；范围说明改到左侧说明文字下方。
+- 三处取数继续保持同一基线，遵循用户此前明确要求，不采用生成参考中的错落高度。
+- 三朵牡丹分别以背景花托的锚点定位：44.3% / 66.8%、59.5% / 33.8%、78.5% / 51%，花头与花托在桌面和手机画面均连续。
+
+## 聚焦区域对照
+
+- 取数区：桌面 DOM 实测三组边界为 x=466.6–685.7、711.3–930.4、956.0–1175.2，bottom=652.6，均在 1280 × 720 CSS 视口内。
+- 手机取数区：三组边界为 x=20–129.7、132.7–242.5、245.5–355.2，点击跳转后的 bottom=618.7，均在 390 × 844 首屏内。
+- 范围提示：桌面为 11px 楷体、单行、244px 宽；手机为 9px、单行，没有继承上方 25.6px 书法正文。
+- 输入交互：三个 number input 的 placeholder 均为 null，min=1、max=999，aria-describedby 均指向范围说明；实测可输入 17、24、37。
+
+## 必查表面
+
+- Fonts and typography: 标题继续使用刘建毛草，正文继续使用既有书法/楷体栈；新增说明使用较轻楷体，不与主文案争夺层级。
+- Spacing and layout rhythm: 桌面与手机三处取数对齐；桌面底部留出至少约 67px 的 CSS 视口余量，手机完整进入首屏。
+- Colors and visual tokens: 沿用 `--ink`、`--ink-soft`、`--mist`、`--cinnabar-dark`；新资产为低饱和暖灰飞白，不引入新色系。
+- Image quality and asset fidelity: 风痕为 OpenAI 图像生成后色键去底的透明 PNG；牡丹和花瓣继续使用现有高分辨率透明资产，无方块、白边或额外底图边缘。
+- Copy and content: 左侧范围说明为“取1-999之间的数字，填入右侧文字下方”；三处仍为“一息 / 上卦取数”“二息 / 下卦取数”“三息 / 动爻取数”。
+
+## 对照迭代历史
+
+1. iteration 1
+   - finding [P1]: 范围提示被 `.final-question-heading > p:last-child` 覆盖，实际为 25.6px 并折成两行。
+   - finding [P1]: 桌面三组取数 bottom=745，低于 720px 首屏。
+   - fixes: 提高选择器优先级，提示改为 11px 单行；统一取数组的纵向偏移。
+2. iteration 2
+   - post-fix evidence: 提示实测 11px、244px、单行；取数组 bottom 降至 695.8。
+   - finding [P2]: 飞白风痕处于负层级，视觉存在感不足。
+   - fix: 取数 field 建立独立堆叠上下文，风痕改为 z-index 0，取数组改为 z-index 1；取数组进一步上移。
+3. final
+   - post-fix evidence: 桌面三组 bottom=652.6；手机跳转后三组 bottom=618.7；桌面与手机均完整进入首屏。
+   - 浏览器控制台 errors/warnings: 0。
+   - 未发现仍需处理的 P0/P1/P2。
+
+## 交互与响应式验证
+
+- 实际浏览器完整走通：了解观象之法 → 开始正问 → 填写问题 → 继续辨识 → 提前结束 → 继续定问 → 开始卜卦。
+- 桌面和手机均验证了跳转落点。
+- 三个数字输入均实际填写并读回；空状态不显示 `1—999`。
+- `prefers-reduced-motion` 仍沿用现有成卦页降级规则，没有改变确定性排盘或任何算法。
+
+## Follow-up Polish
+
+- 无阻断项。风痕的浓淡与静态散瓣密度属于后续用户主观审美微调范围。
+
+final result: passed
+
+---
+
+# 第六页成卦：取数移至左侧、花区净空 QA（2026-07-31）
+
+## 对照材料
+
+- source visual truth: `C:\Users\27622\AppData\Local\Temp\codex-clipboard-7f0ab26e-7ac8-4375-840d-867a34255f74.png`
+- desktop implementation: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-left-inputs-medium.png`
+- wide-screen DOM verification: 1920 × 1080 CSS viewport，三朵牡丹和取数区均在视口边界内。
+- mobile implementation: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-left-inputs-mobile.png`
+- full-view comparison: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-left-inputs-comparison.png`
+- focused comparison: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-left-inputs-focus-comparison.png`
+
+## 归一化与状态
+
+- source pixels: 1896 × 1018，包含 Chrome 外壳；对照时从 y=108px 裁去浏览器外壳，保留页面主体。
+- desktop visual capture: 988 × 891 CSS viewport / 972 × 882 browser-rendered pixels，devicePixelRatio 1；状态为成卦页，输入值 3 / 6 / 9，落瓣动画运行中。
+- wide desktop verification: 1920 × 1080 CSS viewport，成卦段顶部 y=67.7px，取数区 bottom=616.4px；三朵牡丹最右边界分别为 1037.7px、1320.1px、1689.5px，均完整入画。
+- mobile visual capture: 390 × 844 CSS viewport / 375 × 811 browser-rendered pixels；从首页完整走到“开始卜卦”后的到达状态，再填写 3 / 6 / 9。
+- full comparison 将裁去浏览器外壳后的 source 与 desktop implementation 等高并排；focused comparison 单独放大标题、三行说明和三组取数。
+
+## Findings
+
+- 第一轮 source 中三组“一息 / 二息 / 三息”侵入牡丹枝叶，花区与表单争夺视觉焦点，属于 P1。
+- 第一轮右侧 S 形飞白风痕在取数移走后失去功能依据，继续保留会形成额外装饰层，属于 P2。
+- 修复后取数 fieldset 已整体移入 `.casting-heading`，位于范围说明下方；`.casting-number-workspace` 只保留装饰花瓣，风痕图片与对应 CSS 完全移除。
+- 修复后未发现仍需处理的 P0 / P1 / P2；花丛成为独立画面，左侧仍保持清楚的题字—说明—范围—取数阅读顺序。
+
+## 必查表面
+
+- Fonts and typography: “成卦”、三行书法说明、“一息 / 二息 / 三息”和楷体小字继续沿用既有字体变量；取数行字号收紧但未改变字重和色彩。桌面与手机均无异常断行、截断或豆腐块式大段文字。
+- Spacing and layout rhythm: 桌面取数采用三等分横排，三组基线齐平；花区从左侧表单中解放。1920 宽屏中左栏 x=321.4–731.3px，右侧花区 x=833.3–1665.4px，二者无重叠。手机到达时取数区 y=223.2–266.2px，三朵花 y=378.2–526.5px，均在 844px 首屏内。
+- Colors and visual tokens: 继续使用既有宣纸、墨色、朱砂和雾灰 token；未引入新色块、边框、卡片或阴影。
+- Image quality and asset fidelity: 三朵牡丹、枝叶和花瓣仍使用原有 PNG / WebP 资产，单花锚点与动画参数未改；只对整幅场景在桌面做统一轻微右移，手机恢复居中。风痕位图已删除，不存在透明方块或遗留边缘。
+- Copy and content: 左侧范围说明保持用户指定文字“取1-999之间的数字，填入右侧文字下方”；三组说明保持“一息 / 上卦取数”“二息 / 下卦取数”“三息 / 动爻取数”。
+
+## 交互、响应式与无障碍
+
+- 实际浏览器完整走通：首页 → 了解观象之法 → 开始正问 → 填写问题 → 继续辨识 → 提前结束 → 继续定问 → 开始卜卦 → 成卦。
+- 三个 number input 在桌面和手机均可触达、填写和读回；保留 min=1、max=999、inputMode=numeric、可访问标签和范围说明关联。
+- 手机 390 × 844 的自动到达位置完整呈现标题、说明、范围提示和三组取数，花丛从其下方展开，没有横向溢出或文字压花。
+- 1920 × 1080、988 × 891、390 × 844 三个断点均验证三朵牡丹完整入画；花瓣数量仍为 54（每朵 18），风痕元素数量为 0。
+- `prefers-reduced-motion` 继续沿用既有成卦页降级规则；本轮未改动画轨迹、大小、颜色、透明度或快慢参数。
+- 浏览器控制台 errors / warnings: 0。
+
+## 工程验证
+
+- Vinext production build: passed。
+- Node rendered/interaction tests: 26 / 26 passed。
+- ESLint: 0 errors，11 个既有 warning（`<img>` 优化提示与既有 ARIA 提示）；未新增 lint error。
+- `git diff --check`: passed。
+- 未修改确定性排盘、规则版本、Python 引擎或第 7 页以后内容；本轮未发布。
+
+## 对照迭代历史
+
+1. iteration 1: source 显示取数文字覆盖花丛，S 形风痕承担取数区装饰。
+2. iteration 2: 取数整体移到左栏，花区净空；删除风痕资产与样式；桌面花景作为一个整体轻微右移。
+3. final: desktop focused comparison 显示左侧层级清楚、三组取数齐平；mobile arrival 显示全部取数首屏入画；1920 宽屏 DOM 证实三朵牡丹完整入画且与表单无重叠。
+
+## Follow-up Polish
+
+- 无阻断项；后续如继续微调，应保持花朵锚点、花托衔接、落瓣大小颜色与现有动画参数冻结。
+
+final result: passed
+
+---
+
+# 第六页成卦：取数横排与花瓣速度分层 QA（2026-07-31）
+
+## 对照材料
+
+- source visual truth: `C:\Users\27622\AppData\Local\Temp\codex-clipboard-73238fb6-a887-47e8-99e7-319c79eae288.png`
+- desktop implementation: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-desktop-input-right-final.png`
+- mobile arrival implementation: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-mobile-input-right.png`
+- full comparison: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-comparison-input-right.png`
+- focused comparison: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-comparison-input-right-detail.png`
+
+## 归一化信息
+
+- source pixels: 1917 × 1017，含 Chrome 外壳；用户提供的桌面成卦页，取数值为 3 / 6 / 9。
+- desktop CSS viewport: 1280 × 720，devicePixelRatio 1.25；浏览器截图传输为 987 × 712，取数值为 3 / 6 / 9。
+- mobile CSS viewport: 390 × 844；浏览器截图传输为 375 × 811；状态为点击“开始卜卦”后自动到达成卦页、三个输入为空。
+- full comparison 将三张图等高归一到 720px，不拉伸画面；focused comparison 仅比较牡丹、文字与取数关系。
+- 桌面截图传输右侧裁切来自浏览器传输宽度与 CSS 视口不一致；DOM 实测第三组右边界为 1175.2px，仍在 1280px CSS 视口内，因此不作为布局缺陷。
+
+## Findings
+
+- [P1] 一息文字与第一朵牡丹重叠。
+  - Location: `.peony-number-1` 与第一朵牡丹下缘。
+  - Evidence: source detail 中“一息”覆盖花瓣；修订后第一朵牡丹 bottom=531.2px，三组文字顶部 y=552.8px，留有 21.6px 间距。
+  - Impact: 原布局破坏花朵完整性，也让取数层级不清。
+  - Fix: 三组取数统一下移，并改为文字在左、输入在右的横排结构。
+
+- [P2] 第一轮横排后文字与数字间距偏松。
+  - Location: `.peony-number` 的第一列最小宽度与 column gap。
+  - Evidence: 首轮桌面实测间距 28.9px；收紧后为 9.7px，手机为 2px。
+  - Impact: 间距过大会让数字像独立元素，削弱“每一息对应一个数”的关系。
+  - Fix: 桌面第一列改为 `minmax(60px, auto)`，间距改为 `clamp(4px, .55vw, 8px)`；手机保持紧凑双列。
+
+## 必查表面
+
+- Fonts and typography: 保留现有书法标题、朱砂“一息 / 二息 / 三息”和楷体说明；数字仍使用现有书法字体，仅改变位置，不改变大小、颜色或字重。
+- Spacing and layout rhythm: 桌面三组底部均为 610.8px，完整位于 720px 首屏；手机三组底部均为 594.2px，完整位于 844px 首屏。三组基线齐平，文字与数字形成一一对应的横向节奏。
+- Colors and visual tokens: 花瓣、牡丹、墨色、朱砂及飞白风痕未改；本轮没有引入新色值或新表面。
+- Image quality and asset fidelity: 牡丹、花瓣与风痕继续使用既有真实 PNG / WebP 资产；未增加 CSS 图形、SVG 近似或占位图。
+- Copy and content: 左侧提示严格保持“取1-999之间的数字，填入右侧文字下方”。
+
+## 动画与交互验证
+
+- 18 条花瓣轨迹的大小、颜色、旋转、翻滚与路径参数未改。
+- 时长从原先较接近的 11.8–18.1 秒扩展为 8.5–23.2 秒，形成明显的快、中、慢层次。
+- 所有轨迹继续使用 `linear` 计时、GPU `translate3d` 与连续关键帧；没有加入停顿、步进或突变。
+- `prefers-reduced-motion` 仍关闭落花动画。
+- 三个数字输入在桌面和手机均实际填写并读回 3 / 6 / 9；输入保持 min=1、max=999 与无占位符。
+- 实际浏览器完整走通：首页 → 正问 → 辨识提前结束 → 定问 → 开始卜卦 → 成卦。
+- 当前成卦页浏览器控制台 errors / warnings: 0。
+
+## 对照迭代历史
+
+1. iteration 1: 发现 source 中“一息”覆盖花瓣，横排初稿的文字数字间距为 28.9px。
+2. iteration 2: 三组统一下移，输入改到文字右侧；桌面间距收紧到 9.7px，手机间距为 2px。
+3. final: 桌面三组 bottom=610.8px；手机跳转后 bottom=594.2px；未发现仍需处理的 P0/P1/P2。
+
+## Follow-up Polish
+
+- 无阻断项。后续只需根据用户主观观感微调快慢比例，不需再改变花瓣大小、颜色或轨迹。
+
+final result: passed
+
+---
+
+# 第六页成卦：大花瓣离花透明度与提示语复检（2026-07-31）
+
+- implementation screenshot: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-petal-opacity-fix.png`
+- 花瓣 PNG 本体为 217 × 220；透明像素仅在图外，花瓣主体为不透明纹理，问题来源确认是动画在尚未离开花朵时已经开始降低整图 opacity。
+- 修复后 0% / 10% / 24% / 47% 均保持 opacity=1；花瓣越过花朵范围后才在 47%–100% 之间缓慢淡出。大小、色彩、路径、旋转、翻滚和快慢时长全部未改。
+- 连续 20 次浏览器采样共捕获 94 个仍在花朵图像范围内的大花瓣状态，opacity 最小值与最大值均为 1；最终画面同时捕获两枚 108px 大花瓣，opacity 均为 1。
+- 提示语已改为“取1-999之间的数字，填入下方文字右侧”，与三组文字右侧的实际输入位置一致。
+- 真实浏览器复检：54 枚动态花瓣、0 个风痕元素；控制台 errors / warnings 为 0。
+- Vinext production build passed；Node tests 26 / 26 passed；ESLint 0 errors（11 个既有 warning）。
+- 未修改牡丹位置、花托衔接、花瓣资产、确定性排盘或后续页面；本轮未发布。
+
+final result: passed
+
+---
+
+# 第六页成卦：动态花瓣独立顶层修复（2026-07-31）
+
+- implementation screenshot: `C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-petal-layer-fix.png`
+- 根因复核：此前每组动态花瓣嵌套在各自 `.peony-bloom` 内；牡丹容器因定位 transform 形成独立 stacking context。花瓣的局部 z-index 只能在本朵牡丹内部生效，无法越过后渲染的其他牡丹容器，因此跨花重叠时会被另一朵半透明牡丹图像压住，产生“只有重叠部分变透明”的现象。上一轮仅调整 opacity 的诊断不完整。
+- 修复：三朵牡丹图像统一保留在 z-index 1；54 枚动态花瓣移出三个牡丹 stacking context，进入覆盖整幅画面的 `.peony-petal-layer`，该层为 z-index 2。牡丹内部动态花瓣数量由 54 降为 0，顶层动态花瓣数量为 54。
+- 三个 `.peony-petal-origin` 与三朵牡丹的 x / y / width / height 实测逐项完全一致，因此花瓣脱落起点、花托衔接、运动路径、旋转、翻滚、大小、色彩和时长均未改变。
+- 连续采样捕获 35 个动态花瓣与非所属牡丹的交叠状态；所有交叠均发生在统一顶层，不再被任何牡丹图片覆盖。
+- 浏览器控制台 errors / warnings: 0。
+- Vinext production build passed；Node tests 26 / 26 passed；ESLint 0 errors（11 个既有 warning）。
+- 未修改确定性排盘、规则版本、前五页或第七页以后内容；本轮未发布。
+
+final result: passed
+# 第七页「观卦」与进入动作 QA（2026-07-31）
+
+- 第六页沿用已定稿的牡丹长卷、三数组和落瓣图层；仅在取数区内补入边界确认与“观卦”按钮，不再要求滚动到独立的第五步区块。
+- 第七页首屏只呈现卦象、卦名、卦序、卦辞和一句极短引导，不显示用户原问题。
+- 第八页及后续解读默认隐藏；只有点击“详细解卦”后才展开，并将焦点移到“本卦、互卦与变卦”。
+- “详细解卦”提供 `aria-controls` 与 `aria-expanded`；键盘焦点样式可见；滚动行为遵守 `prefers-reduced-motion`。
+- 确定性排盘请求结构、版本与算法未改动；现实信息仍只用于后续个性化解读，不作为卦象证据。

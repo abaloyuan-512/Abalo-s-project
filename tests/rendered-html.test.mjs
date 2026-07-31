@@ -76,7 +76,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /开始卜卦/);
   assert.doesNotMatch(html, /最终问卦题目/);
   assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step casting-number-step"[^>]+hidden/);
-  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel cast-step"[^>]+hidden/);
+  assert.doesNotMatch(html, /class="inquiry-step inquiry-panel cast-step"/);
   assert.match(html, /<h3[^>]+id="casting-title"[^>]*>成卦<\/h3>/);
   assert.match(html, /casting-peony-bloom-1-v1\.png/);
   assert.match(html, /casting-peony-bloom-2-v1\.png/);
@@ -84,8 +84,10 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /casting-peony-petal-v1\.png/);
   assert.match(html, /心中再默念一遍所问之事/);
   assert.match(html, /三息之间，收束心念/);
+  assert.match(html, /取1-999之间的数字，填入下方文字右侧/);
+  assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
-  assert.match(html, /<h3>观卦<\/h3>/);
+  assert.match(html, /<button[^>]+class="cast-button"[^>]+disabled[^>]*>[\s\S]*观卦<\/button>/);
   assert.doesNotMatch(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
@@ -228,10 +230,23 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(appSource, /casting-peony-petal-v1\.png/);
   assert.equal((petalMotionSource.match(/\{ left:/g) ?? []).length, 18);
   assert.match(petalMotionSource, /size: 10/);
-  assert.match(petalMotionSource, /size: 36/);
+  assert.match(petalMotionSource, /size: 108/);
+  assert.match(petalMotionSource, /duration: 8\.5/);
+  assert.match(petalMotionSource, /duration: 23\.2/);
   assert.match(appSource, /心中再默念一遍所问之事/);
   assert.match(appSource, /三息之间，收束心念/);
+  assert.match(appSource, /取1-999之间的数字，填入下方文字右侧/);
+  assert.doesNotMatch(appSource, /placeholder="1—999"/);
+  assert.match(appSource, /aria-describedby="casting-range-note"/);
+  assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
+  assert.match(appSource, /casting-range-note[\s\S]+peony-number-field[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-submit[\s\S]+className="cast-button"/);
+  assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
+  assert.match(appSource, /peony-bloom-image[\s\S]+peony-petal-layer[\s\S]+peony-petal-origin[\s\S]+peony-falling-petal/);
   assert.match(appSource, /凭当下所感，取三个数/);
+  assert.match(appSource, /guidance: "上卦取数"/);
+  assert.match(appSource, /guidance: "下卦取数"/);
+  assert.match(appSource, /guidance: "动爻取数"/);
   assert.doesNotMatch(appSource, /闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题/);
   assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
   assert.doesNotMatch(appSource, /三个数字只交给程序/);
@@ -242,12 +257,37 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
+  assert.match(cssSource, /peony-number \{[^}]+grid-template-columns:[^}]+align-items: center/);
+  assert.match(cssSource, /peony-petal-layer \{[^}]+z-index: 2/);
+  assert.match(cssSource, /peony-bloom \{[^}]+z-index: 1/);
+  assert.match(cssSource, /casting-heading \.peony-number-field[^}]+grid-template-columns: repeat\(3/);
+  assert.doesNotMatch(cssSource, /peony-number-wind/);
+  assert.match(cssSource, /peony-falling-petal[^}]+mix-blend-mode: normal/);
   assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+rotateX\([^)]+\)[\s\S]+rotateY\([^)]+\)/);
-  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+0% \{ opacity: \.96;/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+0% \{ opacity: 1;/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+24% \{ opacity: 1;/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+47% \{ opacity: 1;/);
   assert.doesNotMatch(cssSource, /casting-contemplation span:nth-child\(1\)[^{]*\{[^}]*border-bottom/);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+peony-falling-petal[^}]+display: none/);
   assert.doesNotMatch(cssSource, /discernment-step::before[^}]+content:/);
   assert.doesNotMatch(cssSource, /final-question-step::before[^}]+content:/);
+});
+
+test("sixth page submits directly and seventh page gates detailed reading", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /const numbersReady = numbers\.every/);
+  assert.match(appSource, /disabled=\{loading \|\| !numbersReady \|\| !acknowledged\}/);
+  assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
+  assert.match(appSource, /className="eyebrow">观象之法 · 肆/);
+  assert.match(appSource, /className="result-canonical"><b>卦辞<\/b>/);
+  assert.doesNotMatch(appSource, /className="result-question"/);
+  assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
+  assert.match(appSource, />详细解卦<\/button>/);
+  assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
+  assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
+  assert.match(cssSource, /result-overview[^}]+min-height: 100svh/);
+  assert.match(cssSource, /result-aside button:focus-visible/);
 });
 
 test("AI guided intake fails safely until the Python engine is configured", async () => {
