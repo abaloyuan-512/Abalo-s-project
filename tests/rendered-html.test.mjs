@@ -220,6 +220,9 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /className="final-question-backdrop" aria-hidden="true"/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
   assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v1\.webp/);
+  assert.match(cssSource, /final-question-backdrop[^}]+left: calc\(50% - 30px\)[^}]+width: calc\(100vw \+ 4px\)/);
+  assert.match(cssSource, /final-question-backdrop::before[^}]+background-position: calc\(50% - 38px\) center/);
+  assert.match(cssSource, /final-question-backdrop::after[^}]+background-position: calc\(50% \+ 44px\) center/);
   assert.match(cssSource, /final-question-backdrop::before[^}]+final-question-reed-sway-near/);
   assert.match(cssSource, /final-question-backdrop::after[^}]+final-question-reed-sway-mid/);
   assert.match(cssSource, /@keyframes final-question-reed-sway-near/);
