@@ -233,8 +233,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(appSource, /三息之间，收束心念/);
   assert.match(appSource, /凭当下所感，取三个数/);
   assert.doesNotMatch(appSource, /闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题/);
-  assert.match(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
-  assert.match(appSource, /三个数字只交给程序/);
+  assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
+  assert.doesNotMatch(appSource, /三个数字只交给程序/);
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
   assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v1\.webp/);
   assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
@@ -243,6 +243,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
   assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+rotateX\([^)]+\)[\s\S]+rotateY\([^)]+\)/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+0% \{ opacity: \.96;/);
+  assert.doesNotMatch(cssSource, /casting-contemplation span:nth-child\(1\)[^{]*\{[^}]*border-bottom/);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+peony-falling-petal[^}]+display: none/);
   assert.doesNotMatch(cssSource, /discernment-step::before[^}]+content:/);
   assert.doesNotMatch(cssSource, /final-question-step::before[^}]+content:/);

@@ -1251,7 +1251,7 @@ export function GuanxiangApp() {
             </header>
 
             <div className="casting-number-workspace">
-              <fieldset className="peony-number-field" aria-describedby="number-rule-note">
+              <fieldset className="peony-number-field">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
                 {PEONY_BREATHS.map((breath, index) => <label
                   className={`peony-number peony-number-${index + 1}`}
@@ -1261,7 +1261,6 @@ export function GuanxiangApp() {
                   <input aria-label={`第${index + 1}个数字`} placeholder="1—999" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
-              <p id="number-rule-note" className="number-note">第一数定上卦，第二数定下卦，第三数定动爻。三个数字只交给程序，随后依既定规则排定本卦、互卦与变卦。</p>
             </div>
           </section>
 

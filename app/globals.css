@@ -345,29 +345,28 @@ a { color: inherit; }
 .number-step .numbers-slip label span { font-size: 24px; }
 .number-note { margin: 22px 0 0; color: var(--mist); font-size: 14px; line-height: 1.7; }
 .casting-number-step { position: relative; isolation: isolate; min-height: calc(100svh - 68px); padding: clamp(48px, 6vh, 68px) 0 clamp(38px, 5vh, 56px); display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: start; overflow: visible; }
-.casting-peony-scene { position: absolute; z-index: -2; top: -32px; left: 50%; width: 100vw; aspect-ratio: 16 / 9; transform: translateX(-50%); pointer-events: none; perspective: 760px; }
+.casting-peony-scene { position: absolute; z-index: -2; top: -68px; left: 50%; width: 100vw; aspect-ratio: 16 / 9; transform: translateX(-50%); pointer-events: none; perspective: 760px; }
 .casting-peony-backdrop { position: absolute; inset: -1px; background: url("/casting-peony-background-v1.webp") center / 100% 100% no-repeat; opacity: .69; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); }
 .casting-number-step::after { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: linear-gradient(90deg, rgba(246,239,225,.12), transparent 16%, transparent 84%, rgba(246,239,225,.12)), rgba(246,239,225,.08); pointer-events: none; }
 .casting-heading, .casting-number-workspace { position: relative; z-index: 1; }
 .casting-heading { align-self: start; padding-top: clamp(6px, 2vh, 24px); }
 .casting-heading h3 { font-family: var(--brush); }
-.casting-heading .casting-contemplation { max-width: 12em; margin: clamp(28px,4vh,48px) 0 0; display: grid; gap: 8px; color: var(--ink-soft); font: 400 clamp(21px,1.8vw,29px)/1.48 var(--brush); letter-spacing: .08em; }
-.casting-contemplation span { display: block; width: fit-content; }
-.casting-contemplation span:nth-child(1) { padding-bottom: 5px; border-bottom: 1px solid rgba(150,59,40,.34); }
-.casting-contemplation span:nth-child(2) { margin-left: 1.25em; color: var(--ink); }
-.casting-contemplation span:nth-child(3) { margin-left: .4em; }
+.casting-heading .casting-contemplation { max-width: 16em; margin: clamp(28px,4vh,48px) 0 0; display: grid; gap: 13px; color: var(--ink-soft); font: 400 clamp(20px,1.55vw,27px)/1.34 var(--brush); letter-spacing: .055em; }
+.casting-contemplation span { display: block; width: fit-content; white-space: nowrap; }
+.casting-contemplation span:nth-child(2) { margin-left: 1.15em; color: var(--ink); }
+.casting-contemplation span:nth-child(3) { margin-left: .45em; }
 .casting-number-workspace { width: 100%; max-width: 980px; justify-self: end; }
 .peony-number-field { min-height: 460px; margin: 0; padding: clamp(360px,38vh,420px) 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px,2vw,32px); align-items: start; border: 0; }
 .peony-number { position: relative; min-width: 0; display: grid; grid-template-rows: auto auto; justify-items: center; color: var(--ink); cursor: text; }
-.peony-number-1 { transform: translateY(26px) rotate(-.8deg); }
+.peony-number-1 { transform: translateY(clamp(150px, 20vh, 216px)) rotate(-.8deg); }
 .peony-number-2 { transform: translateY(4px) rotate(.5deg); }
 .peony-number-3 { transform: translateY(34px) rotate(-.4deg); }
 .peony-bloom { position: absolute; width: clamp(88px, 13vw, 220px); aspect-ratio: 1; pointer-events: none; transform-style: preserve-3d; }
-.peony-bloom-scene-1 { left: 44.4%; top: 58%; transform: translate(-50%, -72%) rotate(-2deg); }
+.peony-bloom-scene-1 { left: 44.4%; top: 62.5%; transform: translate(-50%, -72%) rotate(-2deg); }
 .peony-bloom-scene-2 { left: 59.5%; top: 27%; width: clamp(82px, 12.2vw, 205px); transform: translate(-50%, -72%) rotate(1deg); }
 .peony-bloom-scene-3 { left: 78.9%; top: 43.5%; width: clamp(86px, 12.7vw, 214px); transform: translate(-50%, -72%) rotate(-1deg); }
 .peony-bloom-image { width: 100%; height: 100%; display: block; object-fit: contain; opacity: .96; filter: saturate(.72) contrast(.92); mix-blend-mode: multiply; }
-.peony-falling-petal { position: absolute; z-index: 2; top: 48%; left: var(--petal-left); width: var(--petal-size); height: auto; display: block; opacity: 0; mix-blend-mode: multiply; filter: drop-shadow(0 2px 2px rgba(80,55,42,.08)); transform: translate3d(-50%, -5px, 0) rotateZ(0) rotateX(0) rotateY(0); transform-style: preserve-3d; backface-visibility: visible; will-change: transform, opacity; animation: peony-petal-fall var(--petal-duration) linear infinite; animation-delay: calc(var(--breath-delay) + var(--petal-delay)); }
+.peony-falling-petal { position: absolute; z-index: 2; top: 48%; left: var(--petal-left); width: var(--petal-size); height: auto; display: block; opacity: .96; mix-blend-mode: multiply; filter: drop-shadow(0 2px 2px rgba(80,55,42,.08)); transform: translate3d(-50%, -5px, 0) rotateZ(0) rotateX(0) rotateY(0); transform-style: preserve-3d; backface-visibility: visible; will-change: transform, opacity; animation: peony-petal-fall var(--petal-duration) linear infinite; animation-delay: calc(var(--breath-delay) + var(--petal-delay)); }
 .peony-number-copy { display: grid; justify-items: center; gap: 4px; text-align: center; }
 .peony-number-copy b { color: var(--cinnabar-dark); font: 400 clamp(24px,2vw,32px)/1.1 var(--brush); letter-spacing: .12em; }
 .peony-number-copy small { color: var(--ink-soft); font-size: 12px; letter-spacing: .12em; }
@@ -375,7 +374,6 @@ a { color: inherit; }
 .peony-number input:focus { color: var(--cinnabar-dark); border-bottom-color: var(--cinnabar); }
 .peony-number input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 .peony-number input::-webkit-inner-spin-button, .peony-number input::-webkit-outer-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
-.casting-number-workspace .number-note { max-width: 800px; margin: 32px 0 0 auto; padding-top: 17px; border-top: 1px solid rgba(53,55,48,.13); }
 .cast-step { min-height: 78vh; }
 .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 .ack { max-width: 900px; margin: 44px auto 0; display: flex; align-items: flex-start; gap: 13px; color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
@@ -656,12 +654,12 @@ a { color: inherit; }
 @keyframes discernment-question-arrive { from { opacity: 0; transform: translateY(18px); filter: blur(2px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 @keyframes discernment-echo-away { 0% { opacity: .42; transform: translateY(0); filter: blur(0); } 58% { opacity: .18; } 100% { opacity: 0; transform: translateY(-34px); filter: blur(2px); } }
 @keyframes peony-petal-fall {
-  0% { opacity: 0; transform: translate3d(-50%, -5px, 0) rotateZ(0) rotateX(0) rotateY(0) scale(.76); }
-  8% { opacity: .78; }
-  24% { opacity: .72; transform: translate3d(calc(-50% + var(--petal-quarter-x)), var(--petal-quarter-y), 22px) rotateZ(var(--petal-quarter-spin)) rotateX(var(--petal-quarter-flip-x)) rotateY(var(--petal-quarter-flip-y)) scale(.92); }
-  47% { opacity: .66; transform: translate3d(calc(-50% + var(--petal-mid-x)), var(--petal-mid-y), -12px) rotateZ(var(--petal-mid-spin)) rotateX(var(--petal-mid-flip-x)) rotateY(var(--petal-mid-flip-y)) scale(1); }
-  71% { opacity: .46; transform: translate3d(calc(-50% + var(--petal-late-x)), var(--petal-late-y), 18px) rotateZ(var(--petal-late-spin)) rotateX(var(--petal-late-flip-x)) rotateY(var(--petal-late-flip-y)) scale(.9); }
-  91% { opacity: .18; }
+  0% { opacity: .96; transform: translate3d(-50%, -5px, 0) rotateZ(0) rotateX(0) rotateY(0) scale(.76); }
+  10% { opacity: .94; }
+  24% { opacity: .84; transform: translate3d(calc(-50% + var(--petal-quarter-x)), var(--petal-quarter-y), 22px) rotateZ(var(--petal-quarter-spin)) rotateX(var(--petal-quarter-flip-x)) rotateY(var(--petal-quarter-flip-y)) scale(.92); }
+  47% { opacity: .68; transform: translate3d(calc(-50% + var(--petal-mid-x)), var(--petal-mid-y), -12px) rotateZ(var(--petal-mid-spin)) rotateX(var(--petal-mid-flip-x)) rotateY(var(--petal-mid-flip-y)) scale(1); }
+  71% { opacity: .43; transform: translate3d(calc(-50% + var(--petal-late-x)), var(--petal-late-y), 18px) rotateZ(var(--petal-late-spin)) rotateX(var(--petal-late-flip-x)) rotateY(var(--petal-late-flip-y)) scale(.9); }
+  91% { opacity: .14; }
   100% { opacity: 0; transform: translate3d(calc(-50% + var(--petal-travel-x)), var(--petal-travel-y), -8px) rotateZ(var(--petal-spin)) rotateX(var(--petal-flip-x)) rotateY(var(--petal-flip-y)) scale(.72); }
 }
 
@@ -916,7 +914,7 @@ a { color: inherit; }
   .casting-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 4px; font-size: 11px; }
   .casting-heading h3 { margin: 0; font-size: clamp(58px,18vw,72px); }
   .casting-heading .casting-contemplation { max-width: none; margin: 0 0 2px; gap: 2px; font-size: 14px; line-height: 1.36; }
-  .casting-contemplation span:nth-child(n) { margin-left: 0; padding-bottom: 0; border-bottom: 0; }
+  .casting-contemplation span:nth-child(n) { margin-left: 0; padding-bottom: 0; border-bottom: 0; white-space: normal; }
   .casting-contemplation span:nth-child(2) { margin-left: .8em; }
   .casting-contemplation span:nth-child(3) { margin-left: .25em; }
   .peony-number-field { min-height: 276px; padding-top: 146px; gap: 3px; }
@@ -925,6 +923,7 @@ a { color: inherit; }
   .peony-number-2 { transform: translateY(2px) rotate(.5deg); }
   .peony-number-3 { transform: translateY(17px) rotate(-.4deg); }
   .peony-bloom { width: clamp(68px, 20vw, 92px); }
+  .peony-bloom-scene-1 { top: 58%; }
   .peony-bloom-scene-2 { width: clamp(64px, 18.5vw, 86px); }
   .peony-bloom-scene-3 { width: clamp(66px, 19vw, 90px); }
   .peony-number-copy { margin-top: -3px; gap: 2px; }
@@ -932,7 +931,6 @@ a { color: inherit; }
   .peony-number-copy small { font-size: 9px; letter-spacing: .08em; }
   .peony-number input { width: 86%; min-height: 45px; margin-top: 4px; padding: 4px 0 7px; font-size: 24px; }
   .peony-falling-petal { width: calc(var(--petal-size) * .68); }
-  .casting-number-workspace .number-note { margin-top: 18px; padding-top: 11px; font-size: 10px; line-height: 1.65; }
   .step-heading { grid-template-columns: 42px 1fr; }
   .step-heading h3 { font-size: 30px; }
   .number-step .numbers-slip { gap: 22px; }
