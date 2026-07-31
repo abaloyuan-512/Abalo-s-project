@@ -1270,7 +1270,6 @@ export function GuanxiangApp() {
                 <span>三息之间，收束心念</span>
                 <span>凭当下所感，取三个数</span>
               </p>
-              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入下方文字右侧</p>
               <fieldset className="peony-number-field">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
                 {PEONY_BREATHS.map((breath, index) => <label
@@ -1281,6 +1280,7 @@ export function GuanxiangApp() {
                   <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
+              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入上方文字右侧</p>
               <div className="casting-submit">
                 <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象，不替代专业意见。</span></label>
                 {progress && <p className="generation-progress" role="status">{progress}</p>}

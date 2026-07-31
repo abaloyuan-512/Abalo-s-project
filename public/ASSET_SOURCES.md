@@ -20,3 +20,7 @@
 
 - `audio/guqin-zheng-diao.ogg`：Wikimedia Commons `File:Zheng diao.ogg`，Charlie Huang，古琴正调定弦录音，作者释放至公有领域。
 - 来源页：https://commons.wikimedia.org/wiki/File:Zheng_diao.ogg
+
+## 成卦牡丹背景
+
+- `casting-peony-background-v2.webp`：以当前成卦页三朵工笔淡彩牡丹为风格与色彩基准，由 OpenAI 图像生成能力生成。画面保留左侧宣纸留白，右侧仅使用低对比度牡丹花叶气韵；明确排除竹子、树线、山石、建筑、桥梁、人物与文字，用于替换旧成卦背景。

@@ -84,7 +84,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /casting-peony-petal-v1\.png/);
   assert.match(html, /心中再默念一遍所问之事/);
   assert.match(html, /三息之间，收束心念/);
-  assert.match(html, /取1-999之间的数字，填入下方文字右侧/);
+  assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
   assert.match(html, /<button[^>]+class="cast-button"[^>]+disabled[^>]*>[\s\S]*观卦<\/button>/);
@@ -235,12 +235,11 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(petalMotionSource, /duration: 23\.2/);
   assert.match(appSource, /心中再默念一遍所问之事/);
   assert.match(appSource, /三息之间，收束心念/);
-  assert.match(appSource, /取1-999之间的数字，填入下方文字右侧/);
+  assert.match(appSource, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(appSource, /placeholder="1—999"/);
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
-  assert.match(appSource, /casting-range-note[\s\S]+peony-number-field[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
-  assert.match(appSource, /peony-number-field[\s\S]+casting-submit[\s\S]+className="cast-button"/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+casting-submit[\s\S]+className="cast-button"/);
   assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
   assert.match(appSource, /peony-bloom-image[\s\S]+peony-petal-layer[\s\S]+peony-petal-origin[\s\S]+peony-falling-petal/);
   assert.match(appSource, /凭当下所感，取三个数/);
@@ -251,9 +250,10 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
   assert.doesNotMatch(appSource, /三个数字只交给程序/);
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
-  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v1\.webp/);
+  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v2\.webp/);
   assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
+  assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f6efe1/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
@@ -261,6 +261,11 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /peony-petal-layer \{[^}]+z-index: 2/);
   assert.match(cssSource, /peony-bloom \{[^}]+z-index: 1/);
   assert.match(cssSource, /casting-heading \.peony-number-field[^}]+grid-template-columns: repeat\(3/);
+  assert.match(cssSource, /casting-contemplation span:nth-child\(2\)[^}]+margin-left: 0/);
+  assert.match(cssSource, /peony-number-copy[^}]+justify-items: start[^}]+text-align: left/);
+  assert.match(cssSource, /casting-submit \.cast-button[^}]+margin: 10px auto 0 0[^}]+justify-content: flex-start/);
+  assert.match(cssSource, /casting-submit \.cast-button::after[^}]+content: none/);
+  assert.match(cssSource, /@media \(max-width: 760px\)[\s\S]+\.casting-heading \{[^}]+display: block/);
   assert.doesNotMatch(cssSource, /peony-number-wind/);
   assert.match(cssSource, /peony-falling-petal[^}]+mix-blend-mode: normal/);
   assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+rotateX\([^)]+\)[\s\S]+rotateY\([^)]+\)/);
