@@ -205,6 +205,7 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
 test("final question offers a concise user-controlled question decision", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  await fs.access(new URL("../public/final-question-sunset-reeds-v1.webp", import.meta.url));
   assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
   assert.match(appSource, /采取建议/);
   assert.match(appSource, /保持原题/);
@@ -216,7 +217,13 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
   assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
+  assert.match(appSource, /className="final-question-backdrop" aria-hidden="true"/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
+  assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v1\.webp/);
+  assert.match(cssSource, /final-question-backdrop::before[^}]+final-question-reed-sway-near/);
+  assert.match(cssSource, /final-question-backdrop::after[^}]+final-question-reed-sway-mid/);
+  assert.match(cssSource, /@keyframes final-question-reed-sway-near/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+final-question-backdrop::before[^}]+animation: none/);
   assert.match(cssSource, /final-question-cta/);
 });
 

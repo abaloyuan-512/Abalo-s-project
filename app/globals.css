@@ -270,8 +270,14 @@ a { color: inherit; }
 .dialogue-prerequisite { max-width: 740px; margin: 36px 0 0 76px; padding-left: 20px; color: var(--mist); border-left: 1px solid var(--cinnabar); line-height: 1.8; }
 .text-button { padding: 3px 0; color: var(--ink-soft); background: transparent; border: 0; border-bottom: 1px solid var(--rule); cursor: pointer; font-size: 14px; }
 .text-button:hover, .text-button:focus-visible { color: var(--cinnabar-dark); border-bottom-color: var(--cinnabar); }
-.final-question-step { position: relative; min-height: 100svh; padding: clamp(72px, 9vh, 108px) 0; display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: center; overflow: hidden; }
-.final-question-heading, .final-question-workspace { position: relative; z-index: 1; }
+.final-question-step { position: relative; min-height: 100svh; padding: clamp(72px, 9vh, 108px) 0; display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: center; isolation: isolate; overflow: visible; }
+.final-question-backdrop { position: absolute; inset-block: 0; left: 50%; z-index: 0; width: 100vw; overflow: hidden; transform: translateX(-50%); pointer-events: none; background: rgba(246,239,225,.08) url("/final-question-sunset-reeds-v1.webp") center center / cover no-repeat; background-blend-mode: screen; opacity: .94; contain: paint; }
+.final-question-backdrop::before, .final-question-backdrop::after { content: ""; position: absolute; inset: 0; background: inherit; background-blend-mode: inherit; will-change: transform; pointer-events: none; }
+.final-question-backdrop::before { transform-origin: 8% 100%; -webkit-mask-image: radial-gradient(ellipse 40% 68% at 8% 91%, #000 0 48%, rgba(0,0,0,.86) 61%, transparent 79%); mask-image: radial-gradient(ellipse 40% 68% at 8% 91%, #000 0 48%, rgba(0,0,0,.86) 61%, transparent 79%); animation: final-question-reed-sway-near 5.2s ease-in-out infinite; }
+.final-question-backdrop::after { transform-origin: 31% 100%; -webkit-mask-image: radial-gradient(ellipse 46% 54% at 31% 88%, #000 0 39%, rgba(0,0,0,.78) 57%, transparent 76%); mask-image: radial-gradient(ellipse 46% 54% at 31% 88%, #000 0 39%, rgba(0,0,0,.78) 57%, transparent 76%); animation: final-question-reed-sway-mid 6.8s ease-in-out -2.1s infinite; }
+@keyframes final-question-reed-sway-near { 0%, 100% { transform: scale(1.012) rotate(-.58deg) skewX(-.16deg); } 50% { transform: scale(1.012) rotate(.72deg) skewX(.22deg); } }
+@keyframes final-question-reed-sway-mid { 0%, 100% { transform: scale(1.009) rotate(.42deg) skewX(.12deg); } 50% { transform: scale(1.009) rotate(-.5deg) skewX(-.16deg); } }
+.final-question-heading, .final-question-workspace { position: relative; z-index: 2; }
 .final-question-heading { align-self: start; padding-top: clamp(6px, 2vh, 24px); }
 .final-question-heading h3 { margin: 15px 0 22px; color: var(--ink); font: 400 clamp(82px, 8vw, 126px)/.9 "Liu Jian Mao Cao Local", var(--brush); letter-spacing: .08em; }
 .final-question-heading > p:last-child { margin: 0; color: var(--ink-soft); font: 400 clamp(23px, 2vw, 31px)/1.65 var(--brush); letter-spacing: .08em; }
@@ -893,6 +899,7 @@ a { color: inherit; }
   .hanging-slips fieldset { min-height: 0; }
   .inquiry-step { padding: 42px 0 54px; }
   .final-question-step { min-height: 100svh; padding: 54px 0 46px; display: grid; grid-template-columns: 1fr; gap: 22px; align-items: start; overflow: visible; }
+  .final-question-backdrop { background-position: 28% center; opacity: .86; }
   .final-question-heading { padding: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: end; }
   .final-question-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 4px; font-size: 11px; }
   .final-question-heading h3 { margin: 0; font-size: clamp(58px,18vw,72px); }
@@ -1006,6 +1013,7 @@ a { color: inherit; }
   .hero.is-visible .hero-ink-whispers { animation: none; opacity: .5; transform: scale(.96); filter: grayscale(1) contrast(.86); }
   .entry-hero-final { animation: none !important; opacity: 1; clip-path: none; filter: none; }
   .entry-mist-scene { display: none; }
+  .final-question-backdrop::before, .final-question-backdrop::after { animation: none !important; transform: none; }
   .entry-boat-life, .entry-bird-flock { animation: none !important; opacity: .58; transform: translate(-50%, -50%); }
   .entry-bird { animation: none !important; background-position-x: var(--bird-frame); }
   .hero-title-hotspot, .hero-scroll-cue { animation: none !important; pointer-events: auto; }
