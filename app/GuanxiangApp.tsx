@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -974,6 +974,35 @@ export function GuanxiangApp() {
   const entryMistImageRef = useRef<HTMLImageElement | null>(null);
   const methodAdvanceTimerRef = useRef<number | null>(null);
 
+  useLayoutEffect(() => {
+    if (!finalQuestionConfirmed) return;
+    const casting = document.getElementById("casting");
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!casting) return;
+
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+
+    const alignCastingBelowHeader = () => {
+      const headerHeight = header?.getBoundingClientRect().height ?? 0;
+      const targetTop = window.scrollY + casting.getBoundingClientRect().top - headerHeight;
+      window.scrollTo({ top: Math.max(0, targetTop), left: 0, behavior: "auto" });
+    };
+
+    alignCastingBelowHeader();
+    const correctionFrame = window.requestAnimationFrame(() => {
+      alignCastingBelowHeader();
+      root.style.scrollBehavior = previousScrollBehavior;
+      document.getElementById("casting-title")?.focus({ preventScroll: true });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(correctionFrame);
+      root.style.scrollBehavior = previousScrollBehavior;
+    };
+  }, [finalQuestionConfirmed]);
+
   useEffect(() => {
     const openingSavedReading = Boolean(sessionStorage.getItem(JOURNAL_OPEN_KEY));
     if (!openingSavedReading) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -1161,10 +1190,6 @@ export function GuanxiangApp() {
     setQuestion(value);
     setFinalQuestionDraft(value);
     setFinalQuestionConfirmed(true);
-    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("casting")?.scrollIntoView({ behavior: "auto", block: "start" });
-      document.getElementById("casting-title")?.focus({ preventScroll: true });
-    }));
   }
 
   function finishPersonalizedRequest(payload: ApiResponse): void {

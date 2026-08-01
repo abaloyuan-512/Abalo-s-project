@@ -307,7 +307,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
   assert.match(cssSource, /inquiry\.has-casting-step[^}]+padding-bottom: 0/);
   assert.match(cssSource, /viewport-page[^}]+min-height: calc\(100svh - 68px\)/);
-  assert.match(appSource, /getElementById\("casting"\)\?\.scrollIntoView\(\{ behavior: "auto", block: "start" \}\)/);
+  assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]+if \(!finalQuestionConfirmed\) return;[\s\S]+getBoundingClientRect\(\)\.top - headerHeight[\s\S]+window\.scrollTo\(\{ top: Math\.max\(0, targetTop\), left: 0, behavior: "auto" \}\)/);
+  assert.doesNotMatch(appSource, /getElementById\("casting"\)\?\.scrollIntoView/);
   assert.match(appSource, /className="version-note" hidden=\{!response\}/);
   assert.match(appSource, /className="site-footer" hidden=\{!response\}/);
   assert.match(cssSource, /casting-peony-scene[^}]+translateX\(calc\(-50% - var\(--casting-viewport-shift\)\)\)/);
