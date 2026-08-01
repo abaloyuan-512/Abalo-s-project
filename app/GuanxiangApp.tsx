@@ -610,6 +610,186 @@ export function JournalSection({ records, loading, message, hasUnsavedResult, on
   </section>;
 }
 
+type KoiMotion = {
+  x: number;
+  y: number;
+  heading: number;
+  speed: number;
+  baseSpeed: number;
+  turnRate: number;
+  targetX: number;
+  targetY: number;
+  retargetAt: number;
+  phase: number;
+  phaseRate: number;
+  scale: number;
+  alpha: number;
+};
+
+function ResultKoiPond() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    let frame = 0;
+    let lastTime = performance.now();
+    let visible = true;
+    let width = 1;
+    let height = 1;
+    let redraw: (() => void) | null = null;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = src;
+    });
+
+    const randomTarget = (motion: KoiMotion, now: number) => {
+      const marginX = Math.max(70, width * .08);
+      const marginY = Math.max(60, height * .1);
+      motion.targetX = marginX + Math.random() * Math.max(1, width - marginX * 2);
+      motion.targetY = marginY + Math.random() * Math.max(1, height - marginY * 2);
+      motion.retargetAt = now + 5200 + Math.random() * 6200;
+    };
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      const deviceScale = Math.min(window.devicePixelRatio || 1, 1.75);
+      canvas.width = Math.round(width * deviceScale);
+      canvas.height = Math.round(height * deviceScale);
+      context.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+      redraw?.();
+    };
+
+    const normalizeAngle = (angle: number) => {
+      let value = angle;
+      while (value > Math.PI) value -= Math.PI * 2;
+      while (value < -Math.PI) value += Math.PI * 2;
+      return value;
+    };
+
+    const drawKoi = (image: HTMLImageElement, motion: KoiMotion) => {
+      const compact = width < 760;
+      const drawWidth = (compact ? Math.min(138, width * .37) : Math.min(258, width * .15)) * motion.scale;
+      const drawHeight = drawWidth * image.height / image.width;
+      const slices = compact ? 22 : 30;
+      const sourceSlice = image.width / slices;
+      const destinationSlice = drawWidth / slices + 1.25;
+      const tailAmplitude = drawWidth * (compact ? .052 : .045);
+      const breath = 1 + Math.sin(motion.phase * .45) * .012;
+
+      context.save();
+      context.translate(motion.x, motion.y);
+      context.rotate(motion.heading + Math.sin(motion.phase * .34) * .018);
+      context.scale(breath, 1 / breath);
+      context.globalAlpha = motion.alpha;
+
+      for (let index = 0; index < slices; index += 1) {
+        const progress = (index + .5) / slices;
+        const tailWeight = .14 + Math.pow(1 - progress, 1.75) * .86;
+        const wave = Math.sin(motion.phase - progress * 5.2);
+        const localY = wave * tailAmplitude * tailWeight;
+        const nextProgress = Math.min(1, progress + 1 / slices);
+        const nextTailWeight = .14 + Math.pow(1 - nextProgress, 1.75) * .86;
+        const nextY = Math.sin(motion.phase - nextProgress * 5.2) * tailAmplitude * nextTailWeight;
+        const localAngle = Math.atan2(nextY - localY, destinationSlice);
+        const localX = -drawWidth / 2 + (index + .5) * drawWidth / slices;
+
+        context.save();
+        context.translate(localX, localY);
+        context.rotate(localAngle);
+        context.drawImage(image, index * sourceSlice, 0, sourceSlice + 1, image.height, -destinationSlice / 2, -drawHeight / 2, destinationSlice, drawHeight);
+        context.restore();
+      }
+      context.restore();
+    };
+
+    const updateMotion = (motion: KoiMotion, now: number, delta: number) => {
+      const distance = Math.hypot(motion.targetX - motion.x, motion.targetY - motion.y);
+      const edge = Math.max(42, Math.min(width, height) * .055);
+      const nearEdge = motion.x < edge || motion.x > width - edge || motion.y < edge || motion.y > height - edge;
+      if (now >= motion.retargetAt || distance < Math.max(70, width * .055) || nearEdge) randomTarget(motion, now);
+
+      const desiredHeading = Math.atan2(motion.targetY - motion.y, motion.targetX - motion.x);
+      const headingDelta = normalizeAngle(desiredHeading - motion.heading);
+      const turn = Math.max(-motion.turnRate * delta, Math.min(motion.turnRate * delta, headingDelta));
+      motion.heading += turn;
+      const glide = motion.baseSpeed * (.9 + Math.sin(motion.phase * .24) * .1);
+      motion.speed += (glide - motion.speed) * Math.min(1, delta * .55);
+      motion.x += Math.cos(motion.heading) * motion.speed * delta;
+      motion.y += Math.sin(motion.heading) * motion.speed * delta;
+      motion.phase += motion.phaseRate * delta;
+    };
+
+    resize();
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvas);
+    const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "12%" });
+    visibilityObserver.observe(canvas);
+
+    let disposed = false;
+    Promise.all([
+      loadImage("/page7-koi-cinnabar-v1.png"),
+      loadImage("/page7-koi-ink-v1.png"),
+    ]).then(([cinnabarKoi, inkKoi]) => {
+      if (disposed) return;
+      const now = performance.now();
+      const motions: KoiMotion[] = [
+        { x: width * .23, y: height * .78, heading: -.12, speed: 24, baseSpeed: 27, turnRate: .33, targetX: width * .7, targetY: height * .62, retargetAt: now + 4300, phase: .8, phaseRate: 3.35, scale: 1, alpha: .64 },
+        { x: width * .78, y: height * .24, heading: Math.PI + .1, speed: 21, baseSpeed: 24, turnRate: .29, targetX: width * .34, targetY: height * .35, retargetAt: now + 6600, phase: 3.7, phaseRate: 3.05, scale: .88, alpha: .57 },
+      ];
+
+      redraw = () => {
+        context.clearRect(0, 0, width, height);
+        drawKoi(cinnabarKoi, motions[0]);
+        drawKoi(inkKoi, motions[1]);
+      };
+
+      const draw = (time: number) => {
+        if (disposed) return;
+        const delta = Math.min(.04, Math.max(0, (time - lastTime) / 1000));
+        lastTime = time;
+        if (visible && !document.hidden) {
+          if (!reducedMotion.matches) motions.forEach((motion) => updateMotion(motion, time, delta));
+          redraw?.();
+        }
+        if (!reducedMotion.matches) frame = window.requestAnimationFrame(draw);
+      };
+
+      if (reducedMotion.matches) {
+        motions[0].x = width * .2;
+        motions[0].y = height * .78;
+        motions[0].heading = -.1;
+        motions[1].x = width * .8;
+        motions[1].y = height * .25;
+        motions[1].heading = Math.PI - .12;
+        draw(now);
+      } else {
+        frame = window.requestAnimationFrame(draw);
+      }
+    }).catch(() => context.clearRect(0, 0, width, height));
+
+    return () => {
+      disposed = true;
+      redraw = null;
+      window.cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      visibilityObserver.disconnect();
+    };
+  }, []);
+
+  return <div className="result-koi-layer" aria-hidden="true"><canvas ref={canvasRef} className="result-koi-pond" /></div>;
+}
+
 function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
   const result = response.deterministic_result;
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
@@ -645,15 +825,16 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
 
   return <section id="result" className="result-shell" aria-labelledby="result-title">
     <section className="result-overview scroll-section" data-reveal>
-      <VerticalBrand />
+      <ResultKoiPond />
       <div className="result-verdict">
-        <p className="eyebrow">观象之法 · 肆</p>
-        <div className="hexagram-title"><strong>{result.base_hexagram.symbol}</strong><span>第 {result.base_hexagram.king_wen_number} 卦</span><h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2></div>
-        {baseClassic && <blockquote className="result-canonical"><b>卦辞</b>{baseClassic.canonical_text}</blockquote>}
+        <strong className="result-hexagram-symbol" aria-label={`${result.base_hexagram.name}卦象`}>{result.base_hexagram.symbol}</strong>
       </div>
-      <aside className="result-aside">
-        <span>本次所得之卦</span><p>卦象已成。先静观片刻，再决定是否展开其意。</p><button type="button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>详细解卦</button>
-      </aside>
+      <div className="result-summary">
+        <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
+        <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
+        {baseClassic && <blockquote className="result-canonical"><b>卦辞</b><span>{baseClassic.canonical_text}</span></blockquote>}
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>详细解卦</button>
+      </div>
     </section>
 
     <div id="result-reading" hidden={!readingStarted}>

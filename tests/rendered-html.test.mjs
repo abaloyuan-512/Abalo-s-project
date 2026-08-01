@@ -331,8 +331,17 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.match(appSource, /const numbersReady = numbers\.every/);
   assert.match(appSource, /disabled=\{loading \|\| !numbersReady \|\| !acknowledged\}/);
   assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
-  assert.match(appSource, /className="eyebrow">观象之法 · 肆/);
-  assert.match(appSource, /className="result-canonical"><b>卦辞<\/b>/);
+  assert.match(appSource, /function ResultKoiPond\(\)/);
+  assert.match(appSource, /page7-koi-cinnabar-v1\.png/);
+  assert.match(appSource, /page7-koi-ink-v1\.png/);
+  assert.match(appSource, /Math\.random\(\)/);
+  assert.match(appSource, /requestAnimationFrame\(draw\)/);
+  assert.match(appSource, /tailWeight/);
+  assert.match(appSource, /context\.rotate\(localAngle\)/);
+  assert.match(appSource, /className="result-hexagram-symbol"/);
+  assert.match(appSource, /className="result-number">第 \{result\.base_hexagram\.king_wen_number\} 卦/);
+  assert.match(appSource, /className="result-canonical"><b>卦辞<\/b><span>/);
+  assert.doesNotMatch(appSource, /<aside className="result-aside">/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
   assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
@@ -342,8 +351,10 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.match(appSource, />详细解卦<\/button>/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
-  assert.match(cssSource, /result-overview[^}]+min-height: 100svh/);
-  assert.match(cssSource, /result-aside button:focus-visible/);
+  assert.match(cssSource, /result-overview[^}]+grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/);
+  assert.match(cssSource, /page7-taiji-bg-v1\.png/);
+  assert.match(cssSource, /result-koi-layer[^}]+pointer-events: none/);
+  assert.match(cssSource, /result-detail-button:hover, \.result-detail-button:focus-visible/);
 });
 
 test("AI guided intake fails safely until the Python engine is configured", async () => {
