@@ -58,8 +58,12 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /question-pine-cloud-base-v2\.webp/);
   assert.match(html, /question-mountain-occluder-v3\.png/);
   assert.match(html, /question-pine-tree-v2\.png/);
-  assert.match(html, /inquiry-cloud-stream-far/);
-  assert.match(html, /inquiry-cloud-stream-near/);
+  assert.match(html, /question-cloud-veil-v4\.png/);
+  assert.match(html, /question-cloud-fork-v4\.png/);
+  assert.match(html, /question-cloud-bank-v4\.png/);
+  assert.match(html, /inquiry-cloud-path-veil/);
+  assert.match(html, /inquiry-cloud-path-fork/);
+  assert.match(html, /inquiry-cloud-path-bank/);
   assert.match(html, /你真正想问的问题/);
   assert.doesNotMatch(html, /写下一件<br\/>真实具体的事/);
   assert.match(html, /把心里的这一问，写在这里/);
@@ -172,14 +176,16 @@ test("question scene keeps cloud and pine motion accessible", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(appSource, /function InquiryInkScene/);
-  assert.match(cssSource, /question-cloud-stream-v3-tile\.png/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-stream-far/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-stream-near/);
-  assert.match(cssSource, /--cloud-cycle: 100vw/);
-  assert.match(cssSource, /background-position: calc\(0px - var\(--cloud-cycle\)\)/);
-  assert.match(cssSource, /100%[^}]+background-position: 0/s);
+  assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
+  assert.doesNotMatch(cssSource, /repeat-x|background-position: calc\(0px - var\(--cloud-cycle\)\)/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-path-veil/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-path-fork/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-path-bank/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-billow-fork/);
+  assert.match(cssSource, /translate3d\(143vw, 15vh, 0\)/);
+  assert.match(cssSource, /inquiry-cloud-shape-fork[^}]+--cloud-opacity: \.22/);
   assert.match(cssSource, /@keyframes inquiry-pine-breeze/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-cloud-stream, \.inquiry-pine-tree[^}]+animation: none/s);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-cloud-path, \.inquiry-cloud-shape, \.inquiry-pine-tree[^}]+animation: none/s);
 });
 
 test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {

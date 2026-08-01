@@ -22,6 +22,7 @@
 - `question-pine-tree-v2.png`：由同一审定画面提取的完整孤松透明层，以树根为固定轴进行轻微风摆。
 - `question-cloud-stream-v3-tile.png`：参照已审定云海笔触，由 OpenAI 图像生成能力重构为横贯画面的流线型云河；经品红色键去底、暖灰化与左右边缘周期融合后成为无缝循环透明 PNG，始终从左向右流动。
 - `question-mountain-occluder-v3.png`：从无松树底板确定性提取的前景山体透明遮挡层；置于远云前方，使云河在山峰处自然分流、穿谷和时隐时现。
+- `question-cloud-veil-v4.png`、`question-cloud-fork-v4.png`、`question-cloud-bank-v4.png`：依据本页宋代水墨画面分别生成的斜向薄云、绕峰分流云与近景翻涌云，经品红色键去底、暖灰去色与透明边缘校正。三张云图沿不同曲线独立穿越画面，完整离场后才重置，不再首尾拼接或复用同一接缝。
 
 ## 声音
 

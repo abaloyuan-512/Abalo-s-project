@@ -721,9 +721,16 @@ function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | nu
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
     <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
-    <div className="inquiry-cloud-stream inquiry-cloud-stream-far" />
+    <span className="inquiry-cloud-path inquiry-cloud-path-veil">
+      <img className="inquiry-cloud-shape inquiry-cloud-shape-veil" src="/question-cloud-veil-v4.png" alt="" loading="eager" decoding="async" />
+    </span>
     <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
-    <div className="inquiry-cloud-stream inquiry-cloud-stream-near" />
+    <span className="inquiry-cloud-path inquiry-cloud-path-fork">
+      <img className="inquiry-cloud-shape inquiry-cloud-shape-fork" src="/question-cloud-fork-v4.png" alt="" loading="eager" decoding="async" />
+    </span>
+    <span className="inquiry-cloud-path inquiry-cloud-path-bank">
+      <img className="inquiry-cloud-shape inquiry-cloud-shape-bank" src="/question-cloud-bank-v4.png" alt="" loading="eager" decoding="async" />
+    </span>
     <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
   </div>;
 }

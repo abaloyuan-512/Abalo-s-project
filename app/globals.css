@@ -171,10 +171,15 @@ a { color: inherit; }
 .inquiry-ink-scene { position: absolute; top: 0; left: 50%; z-index: 0; width: 100vw; height: 100svh; overflow: hidden; pointer-events: none; background: var(--paper); transform: translateX(-50%); }
 .inquiry-ink-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
 .inquiry-ink-base { z-index: 0; opacity: .97; transform: scale(1.012); }
-.inquiry-cloud-stream { --cloud-cycle: 100vw; position: absolute; inset: -4% 0; width: 100%; height: 108%; background: url("/question-cloud-stream-v3-tile.png") repeat-x; background-size: var(--cloud-cycle) auto; will-change: background-position, transform, opacity; }
-.inquiry-cloud-stream-far { z-index: 1; opacity: .31; background-position: calc(0px - var(--cloud-cycle)) 48%; animation: inquiry-cloud-stream-far 31s linear infinite; }
+.inquiry-cloud-path { position: absolute; display: block; opacity: 0; will-change: transform, opacity; }
+.inquiry-cloud-path-veil { left: -118vw; top: 8%; z-index: 1; width: 108vw; animation: inquiry-cloud-path-veil 47s linear -18s infinite; }
+.inquiry-cloud-path-fork { left: -105vw; top: 21%; z-index: 3; width: 96vw; animation: inquiry-cloud-path-fork 41s linear -5s infinite; }
+.inquiry-cloud-path-bank { left: -128vw; top: 44%; z-index: 3; width: 122vw; animation: inquiry-cloud-path-bank 56s linear -36s infinite; }
+.inquiry-cloud-shape { width: 100%; height: auto; display: block; opacity: var(--cloud-opacity); filter: sepia(.12) saturate(.34) contrast(.84) brightness(1.035); transform-origin: center; will-change: transform, opacity; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%); }
+.inquiry-cloud-shape-veil { --cloud-opacity: .18; animation: inquiry-cloud-billow-veil 12.5s ease-in-out infinite alternate; }
+.inquiry-cloud-shape-fork { --cloud-opacity: .22; animation: inquiry-cloud-billow-fork 9.8s ease-in-out -3.6s infinite alternate; }
+.inquiry-cloud-shape-bank { --cloud-opacity: .17; animation: inquiry-cloud-billow-bank 15.2s ease-in-out -7.1s infinite alternate; }
 .inquiry-mountain-occluder { z-index: 2; opacity: .88; transform: scale(1.012); }
-.inquiry-cloud-stream-near { z-index: 3; opacity: .4; background-position: calc(0px - var(--cloud-cycle)) 71%; filter: blur(.35px); animation: inquiry-cloud-stream-near 19s linear infinite; }
 .inquiry-pine-tree { z-index: 4; opacity: .96; transform-origin: 10.5% 82%; will-change: transform; animation: inquiry-pine-breeze 6.8s ease-in-out infinite alternate; }
 .inquiry form { position: relative; z-index: 1; width: min(1320px, 100%); margin: 0 auto; }
 .inquiry-stage { display: grid; grid-template-columns: minmax(260px, .68fr) minmax(560px, 1.32fr); gap: clamp(58px, 7vw, 124px); align-items: center; }
@@ -685,18 +690,45 @@ a { color: inherit; }
 @keyframes method-cite-arrive { to { opacity: 1; } }
 @keyframes method-rule-draw { to { transform: scaleX(1); } }
 @keyframes inquiry-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes inquiry-cloud-stream-far {
-  0% { opacity: .28; background-position: calc(0px - var(--cloud-cycle)) 48%; transform: translateY(1.2%) scaleY(.94); }
-  36% { opacity: .39; transform: translateY(-1.1%) scaleY(1.055); }
-  68% { opacity: .34; transform: translateY(.5%) scaleY(.975); }
-  100% { opacity: .28; background-position: 0 48%; transform: translateY(1.2%) scaleY(.94); }
+@keyframes inquiry-cloud-path-veil {
+  0% { opacity: 0; transform: translate3d(0, -3vh, 0) rotate(-1deg); }
+  9% { opacity: 1; }
+  29% { transform: translate3d(68vw, 5vh, 0) rotate(-.25deg); }
+  57% { transform: translate3d(143vw, 15vh, 0) rotate(.7deg); }
+  84% { opacity: 1; transform: translate3d(209vw, 20vh, 0) rotate(.2deg); }
+  100% { opacity: 0; transform: translate3d(238vw, 24vh, 0) rotate(.85deg); }
 }
-@keyframes inquiry-cloud-stream-near {
-  0% { opacity: .34; background-position: calc(0px - var(--cloud-cycle)) 71%; transform: translateY(1.5%) scaleY(.96); }
-  24% { opacity: .43; transform: translateY(-.4%) scaleY(1.025); }
-  57% { opacity: .51; transform: translateY(-2.1%) scaleY(1.09); }
-  78% { opacity: .4; transform: translateY(.2%) scaleY(1.015); }
-  100% { opacity: .34; background-position: 0 71%; transform: translateY(1.5%) scaleY(.96); }
+@keyframes inquiry-cloud-path-fork {
+  0% { opacity: 0; transform: translate3d(0, -4vh, 0) rotate(-1.4deg); }
+  11% { opacity: 1; }
+  31% { transform: translate3d(62vw, 7vh, 0) rotate(-.45deg); }
+  63% { transform: translate3d(142vw, 18vh, 0) rotate(.9deg); }
+  87% { opacity: 1; transform: translate3d(196vw, 25vh, 0) rotate(.1deg); }
+  100% { opacity: 0; transform: translate3d(220vw, 29vh, 0) rotate(.65deg); }
+}
+@keyframes inquiry-cloud-path-bank {
+  0% { opacity: 0; transform: translate3d(0, 1vh, 0) rotate(-.7deg); }
+  8% { opacity: 1; }
+  36% { transform: translate3d(88vw, 5vh, 0) rotate(.35deg); }
+  67% { transform: translate3d(172vw, 14vh, 0) rotate(-.3deg); }
+  90% { opacity: 1; transform: translate3d(224vw, 18vh, 0) rotate(.45deg); }
+  100% { opacity: 0; transform: translate3d(250vw, 20vh, 0) rotate(.8deg); }
+}
+@keyframes inquiry-cloud-billow-veil {
+  0% { opacity: .15; transform: translateY(1.5%) scale3d(.985, .94, 1); }
+  46% { opacity: .18; transform: translateY(-1.1%) scale3d(1.018, 1.055, 1); }
+  100% { opacity: .16; transform: translateY(.6%) scale3d(1.006, .98, 1); }
+}
+@keyframes inquiry-cloud-billow-fork {
+  0% { opacity: .17; transform: translate3d(-.7%, 1.8%, 0) scale3d(.975, .94, 1); }
+  54% { opacity: .22; transform: translate3d(.8%, -2.2%, 0) scale3d(1.025, 1.075, 1); }
+  100% { opacity: .19; transform: translate3d(-.2%, .4%, 0) scale3d(1.008, .985, 1); }
+}
+@keyframes inquiry-cloud-billow-bank {
+  0% { opacity: .14; transform: translateY(1.2%) scale3d(.99, .95, 1); }
+  41% { opacity: .17; transform: translateY(-1.6%) scale3d(1.012, 1.065, 1); }
+  73% { opacity: .15; transform: translateY(.3%) scale3d(1.022, .99, 1); }
+  100% { opacity: .14; transform: translateY(1.4%) scale3d(.995, .955, 1); }
 }
 @keyframes inquiry-pine-breeze {
   0% { transform: translate3d(-1px, 0, 0) rotate(-.22deg) skewX(-.08deg) scaleX(.998); }
@@ -901,7 +933,9 @@ a { color: inherit; }
   .dialogue-start, .dialogue-review, .guided-boundary { margin-left: 0; }
   .inquiry { min-height: 100svh; padding: 66px 20px 56px; display: block; overflow: hidden; }
   .inquiry-ink-layer { object-position: center; }
-  .inquiry-cloud-stream { --cloud-cycle: 760px; }
+  .inquiry-cloud-path-veil { left: -178vw; width: 165vw; top: 12%; }
+  .inquiry-cloud-path-fork { left: -164vw; width: 150vw; top: 28%; }
+  .inquiry-cloud-path-bank { left: -190vw; width: 176vw; top: 50%; }
   .inquiry-pine-tree { display: none; }
   .inquiry .vertical-brand { margin-bottom: 18px; }
   .inquiry-stage { display: grid; grid-template-columns: 1fr; gap: 22px; }
@@ -1066,9 +1100,11 @@ a { color: inherit; }
   .method .method-writing-layer i { animation: none !important; opacity: 1; filter: none; clip-path: none; }
   .method-cta { transition: none; }
   .inquiry .inquiry-heading, .inquiry .inquiry-writing { animation: none !important; opacity: 1; transform: none; }
-  .inquiry-cloud-stream, .inquiry-pine-tree { animation: none !important; }
-  .inquiry-cloud-stream-far { opacity: .28; background-position: 0 48%; transform: none; }
-  .inquiry-cloud-stream-near { opacity: .36; background-position: 0 69%; transform: none; }
+  .inquiry-cloud-path, .inquiry-cloud-shape, .inquiry-pine-tree { animation: none !important; }
+  .inquiry-cloud-path { opacity: .9; }
+  .inquiry-cloud-path-veil { transform: translate3d(104vw, 8vh, 0) rotate(0); }
+  .inquiry-cloud-path-fork { transform: translate3d(96vw, 13vh, 0) rotate(0); }
+  .inquiry-cloud-path-bank { transform: translate3d(112vw, 9vh, 0) rotate(0); }
   .inquiry-pine-tree { opacity: .96; transform: none; }
   .discernment-current { animation: none !important; opacity: 1; transform: none; filter: none; }
   .discernment-echo { display: none; animation: none !important; }
