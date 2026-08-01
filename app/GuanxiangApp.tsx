@@ -6,7 +6,6 @@ import {
   pollPersonalizedTask,
 } from "./personalized-reading-poll";
 import { resultSectionVisibility } from "./result-presentation.mjs";
-import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -134,6 +133,18 @@ const QUESTION_EXAMPLES = [
 ] as const;
 
 const METHOD_CLASSIC_LINES = ["在天成象", "在地成形", "变化见矣"] as const;
+
+// Presentation-only lookup copied from MEIHUA_HEXAGRAMS_V1; each string is bottom-up.
+const KING_WEN_LINES_BOTTOM_UP = [
+  "111111", "000000", "100010", "010001", "111010", "010111", "010000", "000010",
+  "111011", "110111", "111000", "000111", "101111", "111101", "001000", "000100",
+  "100110", "011001", "110000", "000011", "100101", "101001", "000001", "100000",
+  "100111", "111001", "100001", "011110", "010010", "101101", "001110", "011100",
+  "001111", "111100", "000101", "101000", "101011", "110101", "001010", "010100",
+  "110001", "100011", "111110", "011111", "000110", "011000", "010110", "011010",
+  "101110", "011101", "100100", "001001", "001011", "110100", "101100", "001101",
+  "011011", "110110", "010011", "110010", "110011", "001100", "101010", "010101",
+] as const;
 
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
@@ -270,6 +281,485 @@ function inferDomain(text: string): string {
   if (/项目|合作|客户|合同|方案|合伙|资源/.test(text)) return "PROJECT_COOPERATION";
   if (/工作|职业|岗位|公司|升职|离职|求职/.test(text)) return "WORK_CAREER";
   return "PERSONAL_PLANNING";
+}
+
+const METHOD_RIVER_VERTEX_SHADER = `
+  attribute vec2 a_position;
+  varying vec2 v_uv;
+
+  void main() {
+    v_uv = a_position * 0.5 + 0.5;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+const METHOD_RIVER_TUNING = Object.freeze({
+  mainFlowSpeed: 0.31,
+  fineFlowSpeed: 0.47,
+  foamSpeed: 0.39,
+  rollSpeed: 0.27,
+  foamAmount: 0.72,
+  rollStrength: 0.94,
+  opacity: 0.98,
+  turbulence: 0.66,
+  surgeStrength: 0.9,
+  waveWallStrength: 0.92,
+  breakerStrength: 0.96,
+});
+
+const METHOD_RIVER_FRAGMENT_SHADER = `
+  precision mediump float;
+
+  varying vec2 v_uv;
+  uniform sampler2D u_scene;
+  uniform vec2 u_resolution;
+  uniform vec2 u_texture_size;
+  uniform float u_time;
+  uniform vec4 u_flow_speeds;
+  uniform vec4 u_river_style;
+  uniform vec3 u_river_force;
+
+  float hash(vec2 point) {
+    point = fract(point * vec2(123.34, 456.21));
+    point += dot(point, point + 45.32);
+    return fract(point.x * point.y);
+  }
+
+  float noise(vec2 point) {
+    vec2 cell = floor(point);
+    vec2 local = fract(point);
+    local = local * local * (3.0 - 2.0 * local);
+    return mix(
+      mix(hash(cell), hash(cell + vec2(1.0, 0.0)), local.x),
+      mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), local.x),
+      local.y
+    );
+  }
+
+  float fbm(vec2 point) {
+    float value = 0.0;
+    float weight = 0.55;
+    for (int octave = 0; octave < 4; octave++) {
+      value += weight * noise(point);
+      point = point * 2.03 + vec2(8.1, 3.7);
+      weight *= 0.48;
+    }
+    return value;
+  }
+
+  float path_mix(float y, float y0, float y1, float a, float b) {
+    return mix(a, b, smoothstep(y0, y1, y));
+  }
+
+  // Hand-traced centerline for this exact painting. Screen y runs from the
+  // distant gorge (0.0) toward the foreground (1.0).
+  float river_center(float y) {
+    if (y < 0.24) return path_mix(y, 0.10, 0.24, 0.500, 0.512);
+    if (y < 0.38) return path_mix(y, 0.24, 0.38, 0.512, 0.486);
+    if (y < 0.52) return path_mix(y, 0.38, 0.52, 0.486, 0.516);
+    if (y < 0.66) return path_mix(y, 0.52, 0.66, 0.516, 0.472);
+    if (y < 0.82) return path_mix(y, 0.66, 0.82, 0.472, 0.520);
+    return path_mix(y, 0.82, 1.00, 0.520, 0.500);
+  }
+
+  // Matching hand-traced half-widths keep every animated sample inside the
+  // painted water and away from the mountain silhouettes.
+  float river_width(float y) {
+    if (y < 0.24) return path_mix(y, 0.10, 0.24, 0.030, 0.052);
+    if (y < 0.38) return path_mix(y, 0.24, 0.38, 0.052, 0.086);
+    if (y < 0.52) return path_mix(y, 0.38, 0.52, 0.086, 0.145);
+    if (y < 0.66) return path_mix(y, 0.52, 0.66, 0.145, 0.220);
+    if (y < 0.82) return path_mix(y, 0.66, 0.82, 0.220, 0.315);
+    return path_mix(y, 0.82, 1.00, 0.315, 0.405);
+  }
+
+  vec2 cover_uv(vec2 screen_uv) {
+    float viewport_aspect = u_resolution.x / max(u_resolution.y, 1.0);
+    float texture_aspect = u_texture_size.x / max(u_texture_size.y, 1.0);
+    vec2 result = screen_uv;
+    if (viewport_aspect > texture_aspect) {
+      float visible_height = texture_aspect / viewport_aspect;
+      result.y = 0.5 + (screen_uv.y - 0.5) * visible_height;
+    } else {
+      float visible_width = viewport_aspect / texture_aspect;
+      result.x = 0.5 + (screen_uv.x - 0.5) * visible_width;
+    }
+    return result;
+  }
+
+  void main() {
+    vec2 screen = vec2(v_uv.x, 1.0 - v_uv.y);
+    float center = river_center(screen.y);
+    float width = river_width(screen.y);
+    float lane = (screen.x - center) / max(width, 0.001);
+
+    // The soft edge is still well inside the hand-traced banks. This is the
+    // only region in which any animated layer is allowed to contribute.
+    float bank_fade = 1.0 - smoothstep(0.58, 0.80, abs(lane));
+    float source_fade = smoothstep(0.10, 0.22, screen.y);
+    float river = bank_fade * source_fade;
+
+    float depth = smoothstep(0.12, 1.0, screen.y);
+    vec2 scene_uv = cover_uv(v_uv);
+    vec3 base_color = texture2D(u_scene, scene_uv).rgb;
+    vec2 texel = 1.0 / max(u_texture_size, vec2(1.0));
+    float water_luma_base = dot(base_color, vec3(0.299, 0.587, 0.114));
+    float luma_left = dot(texture2D(u_scene, scene_uv - vec2(texel.x * 2.0, 0.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float luma_right = dot(texture2D(u_scene, scene_uv + vec2(texel.x * 2.0, 0.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float luma_up = dot(texture2D(u_scene, scene_uv - vec2(0.0, texel.y * 2.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float luma_down = dot(texture2D(u_scene, scene_uv + vec2(0.0, texel.y * 2.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float gradient_x = abs(luma_right - luma_left);
+    float gradient_y = abs(luma_down - luma_up);
+    float horizontal_water_detail = smoothstep(-0.016, 0.034, gradient_y - gradient_x * 0.56);
+    float vertical_terrain_ink = smoothstep(0.020, 0.068, gradient_x - gradient_y * 0.28);
+    float pale_water_wash = smoothstep(0.48, 0.78, water_luma_base);
+    float water_motion_guard = clamp(
+      (horizontal_water_detail * 0.72 + pale_water_wash * 0.42)
+      * (1.0 - vertical_terrain_ink),
+      0.0,
+      1.0
+    );
+    // The traced path is the final safety boundary. Keep a substantial motion
+    // floor inside it so the pale middle of the painted river does not make the
+    // current disappear, while the bank fade still leaves every mountain still.
+    float river_motion = river;
+
+    float main_speed = u_flow_speeds.x;
+    float fine_speed = u_flow_speeds.y;
+    float foam_speed = u_flow_speeds.z;
+    float roll_speed = u_flow_speeds.w;
+    float foam_amount = u_river_style.x;
+    float roll_strength = u_river_style.y;
+    float layer_opacity = u_river_style.z;
+    float turbulence = u_river_style.w;
+    float surge_strength = u_river_force.x;
+    float wave_wall_strength = u_river_force.y;
+    float breaker_strength = u_river_force.z;
+
+    // Follow the painted bend instead of translating a rectangular texture.
+    float next_center = river_center(min(screen.y + 0.012, 1.0));
+    float previous_center = river_center(max(screen.y - 0.012, 0.0));
+    float bend = (next_center - previous_center) * 16.0;
+    float longitudinal = screen.y
+      + lane * bend * 0.045
+      + sin(screen.y * 12.0 + lane * 2.4) * 0.006 * turbulence;
+    float depth_speed = mix(0.34, 1.76, pow(depth, 1.18));
+
+    // Layer 1: a few broad current corridors. These long ink masses carry the
+    // whole river downstream; they are intentionally much larger than surface
+    // texture so the motion reads as water volume instead of crawling noise.
+    float main_time = u_time * main_speed * depth_speed;
+    float main_warp = fbm(vec2(lane * 1.65, longitudinal * 1.45 - main_time * 0.74)) - 0.5;
+    float main_field_a = fbm(vec2(
+      lane * 2.15 + main_warp * 1.8,
+      (longitudinal - main_time) * 1.62 + lane * 0.34
+    ));
+    float main_field_b = fbm(vec2(
+      lane * 2.7 - main_warp * 1.45 + 9.3,
+      (longitudinal - main_time * 0.72) * 2.18 - lane * 0.26
+    ));
+    float main_ribbon = pow(1.0 - abs(main_field_a * 2.0 - 1.0), 1.55);
+    float main_shadow = smoothstep(0.50, 0.82, 1.0 - main_field_b);
+
+    // Broad white-water masses travel down the gorge on oblique coordinates.
+    // There is deliberately no periodic front here: nested fields make each
+    // surge fork, collide and rejoin instead of forming horizontal rows.
+    float wall_warp = fbm(vec2(
+      lane * 1.42 + 17.0,
+      longitudinal * 1.78 - main_time * 0.48
+    )) - 0.5;
+    float wall_cluster = smoothstep(0.32, 0.68, fbm(vec2(
+      lane * 2.25 - 5.0,
+      longitudinal * 2.32 - main_time * 0.64
+    )));
+    float wall_fracture = fbm(vec2(
+      lane * 4.1 + longitudinal * 2.6 + wall_warp * 2.8,
+      (longitudinal - main_time * 1.12) * 3.25 - lane * 1.35
+    ));
+    float wall_field = fbm(vec2(
+      lane * 2.8 + longitudinal * 2.25 + wall_warp * 2.15,
+      (longitudinal - main_time * 1.18) * 2.42 - lane * 1.42 + wall_fracture * 1.65
+    ));
+    float wall_ridge = 1.0 - abs(wall_field * 2.0 - 1.0);
+    float wave_wall = smoothstep(0.54, 0.88, wall_ridge)
+      * smoothstep(0.38, 0.72, wall_cluster * 0.68 + wall_fracture * 0.46);
+    float undertow_field = fbm(vec2(
+      lane * 2.35 - longitudinal * 1.55 + 8.0,
+      (longitudinal - main_time * 0.92) * 2.05 + lane * 1.18
+    ));
+    float wall_undertow = smoothstep(0.57, 0.82, undertow_field) * wall_cluster;
+
+    // Layer 2: finer secondary current. It stays subordinate to the broad
+    // surge and travels faster, making the river feel deep rather than busy.
+    float fine_time = u_time * fine_speed * depth_speed;
+    float fine_warp = fbm(vec2(lane * 7.4 + 12.0, longitudinal * 4.0 - fine_time * 1.7));
+    float fine_field = noise(vec2(
+      lane * 13.8 + fine_warp * 3.1 + sin(longitudinal * 13.0) * 0.46,
+      (longitudinal - fine_time) * 7.8 + lane * 0.72
+    ));
+    float fine_ribbon = pow(1.0 - abs(fine_field * 2.0 - 1.0), 3.8);
+    fine_ribbon *= smoothstep(0.34, 0.81, fbm(vec2(lane * 8.2, longitudinal * 4.4 - fine_time * 2.1)));
+
+    // Layer 3: broken white foam clusters. Density changes the threshold, not
+    // the shape, so the foam stays irregular and never becomes oval particles.
+    float foam_time = u_time * foam_speed * depth_speed;
+    float foam_warp = fbm(vec2(lane * 2.8 - 7.0, longitudinal * 5.2 - foam_time * 1.6));
+    float foam_field = fbm(vec2(
+      lane * 8.4 + foam_warp * 3.0,
+      (longitudinal - foam_time) * 7.2 + lane * 0.58
+    ));
+    float foam_ridge = 1.0 - abs(foam_field * 2.0 - 1.0);
+    float foam_breakup = fbm(vec2(
+      lane * 12.4 + sin(longitudinal * 16.0) * 0.78,
+      (longitudinal - foam_time * 1.12) * 10.0
+    ));
+    float foam_threshold = mix(0.87, 0.62, foam_amount);
+    float travelling_foam = smoothstep(foam_threshold, 0.96, foam_ridge)
+      * smoothstep(0.47, 0.79, foam_breakup);
+
+    // Foam trains are shed from the large surge itself. Their oblique ridges
+    // stretch, split and dissolve without ever becoming circles or stripes.
+    float foam_train_breakup = smoothstep(0.37, 0.72, fbm(vec2(
+      lane * 6.8 + longitudinal * 3.1 + wall_warp * 3.6,
+      (longitudinal - foam_time * 1.34) * 4.6 - lane * 1.85
+    )));
+    float foam_train_ridge = 1.0 - abs(fbm(vec2(
+      lane * 5.6 - longitudinal * 2.8 + 2.0,
+      (longitudinal - foam_time * 1.22) * 4.1 + lane * 1.65
+    )) * 2.0 - 1.0);
+    float foam_train = smoothstep(0.56, 0.88, foam_train_ridge)
+      * foam_train_breakup
+      * mix(0.34, 1.0, wave_wall);
+
+    // Layer 4: localized rolling crests with a darker underside. Their phase
+    // follows the path and their cluster envelope appears, breaks and reforms.
+    float roll_time = u_time * roll_speed * depth_speed;
+    float roll_noise = fbm(vec2(lane * 2.65 + 4.0, longitudinal * 5.0 - roll_time * 1.4));
+    float roll_clusters = smoothstep(0.44, 0.74, fbm(vec2(
+      lane * 3.1 - 11.0,
+      longitudinal * 6.4 - roll_time * 2.1
+    )));
+    float roll_field = fbm(vec2(
+      lane * 3.75 + longitudinal * 3.25 + roll_noise * 2.5,
+      (longitudinal - roll_time * 1.16) * 3.05 - lane * 2.15
+    ));
+    float roll_ridge = 1.0 - abs(roll_field * 2.0 - 1.0);
+    float rolling_crest = smoothstep(0.55, 0.88, roll_ridge) * roll_clusters;
+    float rolling_shadow = smoothstep(0.58, 0.84, fbm(vec2(
+      lane * 3.15 - longitudinal * 2.1 + 19.0,
+      (longitudinal - roll_time * 0.84) * 2.75 + lane * 1.7
+    ))) * roll_clusters;
+
+    // Near-field breakers rise out of the broad fronts instead of appearing as
+    // separate oval particles. The crest grows, overturns, fragments, then its
+    // shadow closes behind it as the wave falls back into the river.
+    float near_field = smoothstep(0.46, 0.98, depth);
+    float breaker_noise = fbm(vec2(
+      lane * 4.8 + roll_noise * 2.1,
+      longitudinal * 4.6 - roll_time * 2.0
+    ));
+    float breaker_cluster = smoothstep(0.42, 0.73, breaker_noise);
+    float breaker_lift = wave_wall * breaker_cluster * near_field;
+    float breaker_fragment = breaker_lift * smoothstep(0.46, 0.82, foam_breakup);
+    float breaker_shadow = wall_undertow * breaker_cluster * near_field;
+
+    float source_foam = smoothstep(0.57, 0.80, water_luma_base);
+    float motion_mask = river_motion * mix(0.52, 1.0, depth);
+    vec3 warm_foam = vec3(0.978, 0.952, 0.890);
+    vec3 water_color = base_color;
+
+    float dark_energy = (
+      main_shadow * 0.25 * surge_strength
+      + wall_undertow * 0.22 * wave_wall_strength
+      + rolling_shadow * 0.13 * roll_strength
+      + breaker_shadow * 0.18 * breaker_strength
+    )
+      * motion_mask * layer_opacity;
+    water_color *= 1.0 - dark_energy;
+
+    float main_light = main_ribbon * 0.31 * surge_strength;
+    float wall_light = wave_wall * 0.48 * wave_wall_strength;
+    float fine_light = fine_ribbon * 0.045;
+    float foam_light = travelling_foam * mix(0.20, 0.52, source_foam);
+    float foam_train_light = foam_train * 0.48 * mix(0.64, 1.0, source_foam);
+    float roll_light = rolling_crest * 0.50 * roll_strength * mix(0.52, 1.0, source_foam);
+    float breaker_light = (breaker_lift * 0.58 + breaker_fragment * 0.38)
+      * breaker_strength
+      * mix(0.70, 1.0, source_foam);
+    float light_energy = clamp(
+      (main_light + wall_light + fine_light + foam_light + foam_train_light + roll_light + breaker_light)
+      * motion_mask
+      * layer_opacity,
+      0.0,
+      0.82
+    );
+    water_color = mix(water_color, warm_foam, light_energy);
+
+    gl_FragColor = vec4(water_color, 1.0);
+  }
+`;
+
+function compileMethodRiverShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return shader;
+  gl.deleteShader(shader);
+  return null;
+}
+
+function MethodRiverFlow() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!canvas || motionQuery.matches) return;
+
+    const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
+    if (!gl) return;
+
+    const vertexShader = compileMethodRiverShader(gl, gl.VERTEX_SHADER, METHOD_RIVER_VERTEX_SHADER);
+    const fragmentShader = compileMethodRiverShader(gl, gl.FRAGMENT_SHADER, METHOD_RIVER_FRAGMENT_SHADER);
+    if (!vertexShader || !fragmentShader) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+
+    const positionLocation = gl.getAttribLocation(program, "a_position");
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const textureSizeLocation = gl.getUniformLocation(program, "u_texture_size");
+    const timeLocation = gl.getUniformLocation(program, "u_time");
+    const flowSpeedsLocation = gl.getUniformLocation(program, "u_flow_speeds");
+    const riverStyleLocation = gl.getUniformLocation(program, "u_river_style");
+    const riverForceLocation = gl.getUniformLocation(program, "u_river_force");
+    const sceneLocation = gl.getUniformLocation(program, "u_scene");
+    const buffer = gl.createBuffer();
+    const texture = gl.createTexture();
+    if (!buffer || !texture || positionLocation < 0) return;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    gl.useProgram(program);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.uniform1i(sceneLocation, 0);
+    gl.uniform4f(
+      flowSpeedsLocation,
+      METHOD_RIVER_TUNING.mainFlowSpeed,
+      METHOD_RIVER_TUNING.fineFlowSpeed,
+      METHOD_RIVER_TUNING.foamSpeed,
+      METHOD_RIVER_TUNING.rollSpeed,
+    );
+    gl.uniform4f(
+      riverStyleLocation,
+      METHOD_RIVER_TUNING.foamAmount,
+      METHOD_RIVER_TUNING.rollStrength,
+      METHOD_RIVER_TUNING.opacity,
+      METHOD_RIVER_TUNING.turbulence,
+    );
+    gl.uniform3f(
+      riverForceLocation,
+      METHOD_RIVER_TUNING.surgeStrength,
+      METHOD_RIVER_TUNING.waveWallStrength,
+      METHOD_RIVER_TUNING.breakerStrength,
+    );
+
+    let animationFrame = 0;
+    let textureReady = false;
+    let visible = false;
+    let accumulatedTime = 0;
+    let lastFrameAt = performance.now();
+    const mobileQuery = window.matchMedia("(max-width: 900px)");
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+      const width = Math.max(1, Math.round(bounds.width * pixelRatio));
+      const height = Math.max(1, Math.round(bounds.height * pixelRatio));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        gl.viewport(0, 0, width, height);
+      }
+    };
+
+    const draw = (now: number) => {
+      if (!textureReady || !visible || document.hidden) {
+        animationFrame = window.requestAnimationFrame(draw);
+        lastFrameAt = now;
+        return;
+      }
+      const elapsed = Math.min((now - lastFrameAt) / 1000, 0.05);
+      accumulatedTime += elapsed;
+      lastFrameAt = now;
+      resize();
+      gl.useProgram(program);
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+      gl.uniform1f(timeLocation, accumulatedTime);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      animationFrame = window.requestAnimationFrame(draw);
+    };
+
+    let activeImage: HTMLImageElement | null = null;
+    const loadScene = () => {
+      const image = new Image();
+      activeImage = image;
+      textureReady = false;
+      canvas.classList.remove("is-ready");
+      image.onload = () => {
+        if (activeImage !== image) return;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.uniform2f(textureSizeLocation, image.naturalWidth, image.naturalHeight);
+        textureReady = true;
+        resize();
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, accumulatedTime);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        canvas.classList.add("is-ready");
+      };
+      image.src = mobileQuery.matches ? "/method-river-mobile-v2.webp" : "/method-river-wide-v2.webp";
+    };
+
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "12%" });
+    const resizeObserver = new ResizeObserver(resize);
+    observer.observe(canvas);
+    resizeObserver.observe(canvas);
+    mobileQuery.addEventListener("change", loadScene);
+    loadScene();
+    animationFrame = window.requestAnimationFrame((now) => {
+      lastFrameAt = now;
+      draw(now);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+      resizeObserver.disconnect();
+      mobileQuery.removeEventListener("change", loadScene);
+      activeImage = null;
+      gl.deleteTexture(texture);
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="method-river-flow" aria-hidden="true" />;
 }
 
 function inferGoal(text: string): keyof typeof GOALS {
@@ -682,9 +1172,8 @@ function ResultKoiPond() {
       const compact = width < 760;
       const drawWidth = (compact ? Math.min(138, width * .37) : Math.min(258, width * .15)) * motion.scale;
       const drawHeight = drawWidth * image.height / image.width;
-      const slices = compact ? 22 : 30;
-      const sourceSlice = image.width / slices;
-      const destinationSlice = drawWidth / slices + 1.25;
+      const slices = compact ? 36 : 52;
+      const destinationSlice = drawWidth / slices;
       const tailAmplitude = drawWidth * (compact ? .052 : .045);
       const breath = 1 + Math.sin(motion.phase * .45) * .012;
 
@@ -702,13 +1191,18 @@ function ResultKoiPond() {
         const nextProgress = Math.min(1, progress + 1 / slices);
         const nextTailWeight = .14 + Math.pow(1 - nextProgress, 1.75) * .86;
         const nextY = Math.sin(motion.phase - nextProgress * 5.2) * tailAmplitude * nextTailWeight;
-        const localAngle = Math.atan2(nextY - localY, destinationSlice);
+        const localAngle = Math.atan2(nextY - localY, destinationSlice) * .72;
         const localX = -drawWidth / 2 + (index + .5) * drawWidth / slices;
+        const clipX = -drawWidth / 2 + index * destinationSlice;
 
         context.save();
+        context.beginPath();
+        context.rect(clipX - .08, -drawHeight * 1.35, destinationSlice + .16, drawHeight * 2.7);
+        context.clip();
         context.translate(localX, localY);
         context.rotate(localAngle);
-        context.drawImage(image, index * sourceSlice, 0, sourceSlice + 1, image.height, -destinationSlice / 2, -drawHeight / 2, destinationSlice, drawHeight);
+        context.translate(-localX, 0);
+        context.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
         context.restore();
       }
       context.restore();
@@ -791,6 +1285,18 @@ function ResultKoiPond() {
   return <div className="result-koi-layer" aria-hidden="true"><canvas ref={canvasRef} className="result-koi-pond" /></div>;
 }
 
+function BrushHexagram({ hexagram }: { hexagram: Hexagram }) {
+  const bottomUp = KING_WEN_LINES_BOTTOM_UP[hexagram.king_wen_number - 1] ?? KING_WEN_LINES_BOTTOM_UP[0];
+  const topDown = [...bottomUp].reverse();
+  return <div className="brush-hexagram" role="img" aria-label={`${hexagram.name}卦象`}>
+    {topDown.map((line, index) => <span key={`${hexagram.king_wen_number}-${index}`} className={`brush-yao ${line === "1" ? "is-yang" : "is-yin"}`} aria-hidden="true">
+      {line === "1"
+        ? <img src="/page7-yao-brush-v1.png" alt="" />
+        : <><img src="/page7-yao-brush-short-v1.png" alt="" /><img src="/page7-yao-brush-short-v1.png" alt="" /></>}
+    </span>)}
+  </div>;
+}
+
 function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
   const result = response.deterministic_result;
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
@@ -824,11 +1330,11 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     }));
   }
 
-  return <section id="result" className="result-shell" aria-labelledby="result-title">
+  return <section id="result" className="result-shell flow-lock-screen" aria-labelledby="result-title">
     <section className="result-overview scroll-section viewport-page" data-reveal>
       <ResultKoiPond />
       <div className="result-verdict">
-        <strong className="result-hexagram-symbol" aria-label={`${result.base_hexagram.name}卦象`}>{result.base_hexagram.symbol}</strong>
+        <BrushHexagram hexagram={result.base_hexagram} />
       </div>
       <div className="result-summary">
         <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
@@ -893,26 +1399,302 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
 
 function EntryArtwork({ className, imgRef }: { className: string; imgRef?: RefObject<HTMLImageElement | null> }) {
   return <picture className={className}>
-    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v6.webp" />
-    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v6.webp" />
-    <img ref={imgRef} src="/hero-entry-wide-v6.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v7.webp" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v7.webp" />
+    <img ref={imgRef} src="/hero-entry-wide-v7.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
   </picture>;
 }
 
-function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | null> }) {
-  return <picture className="entry-mist-scene" aria-hidden="true">
-    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mist-mobile-v2.webp" />
-    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-mist-square-v2.webp" />
-    <img ref={imgRef} src="/hero-entry-mist-wide-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
-  </picture>;
+function EntrySideButterfly({ className = "" }: { className?: string }) {
+  const rigClassName = `entry-side-butterfly${className ? ` ${className}` : ""}`;
+  return <span className={rigClassName}>
+    <img className="entry-side-butterfly-wing" src="/hero-butterfly-perched-v3.png" alt="" />
+    <img className="entry-side-butterfly-body" src="/hero-butterfly-perched-v3.png" alt="" />
+  </span>;
+}
+
+function EntryButterflyFlight({ sequenceStarted }: { sequenceStarted: boolean }) {
+  const cameraRef = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    if (!sequenceStarted || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const camera = cameraRef.current;
+    const wing = camera?.querySelector<HTMLElement>(".entry-side-butterfly-wing");
+    if (!camera || !wing) return;
+    let animationFrame = 0;
+    let startTimer = 0;
+    let previous = 0;
+    let wingPhase = 0;
+    const duration = 6600;
+
+    const animate = (now: number) => {
+      if (!previous) previous = now;
+      const delta = Math.min(.034, (now - previous) / 1000);
+      previous = now;
+      const started = Number(camera.dataset.started || now);
+      if (!camera.dataset.started) camera.dataset.started = String(now);
+      const t = Math.min(1, (now - started) / duration);
+      const eased = Math.min(1, t + .13 * Math.sin(Math.PI * t));
+      const paced = Math.min(1, Math.max(0, eased + .022 * Math.sin(Math.PI * 2 * eased) * Math.sin(Math.PI * eased)));
+      const parent = camera.offsetParent as HTMLElement | null;
+      const width = parent?.clientWidth || window.innerWidth;
+      const height = parent?.clientHeight || window.innerHeight;
+      const endX = camera.offsetLeft;
+      const endY = camera.offsetTop;
+      const p0 = { x: width + Math.max(24, width * .018), y: height * .22 };
+      const p1 = { x: width * .88, y: height * .56 };
+      const p2 = { x: width * .63, y: height * .17 };
+      const p3 = { x: endX, y: endY };
+      const inv = 1 - paced;
+      const x = inv ** 3 * p0.x + 3 * inv ** 2 * paced * p1.x + 3 * inv * paced ** 2 * p2.x + paced ** 3 * p3.x;
+      const y = inv ** 3 * p0.y + 3 * inv ** 2 * paced * p1.y + 3 * inv * paced ** 2 * p2.y + paced ** 3 * p3.y;
+      const dx = 3 * inv ** 2 * (p1.x - p0.x) + 6 * inv * paced * (p2.x - p1.x) + 3 * paced ** 2 * (p3.x - p2.x);
+      const dy = 3 * inv ** 2 * (p1.y - p0.y) + 6 * inv * paced * (p2.y - p1.y) + 3 * paced ** 2 * (p3.y - p2.y);
+      const spatialSpeed = Math.hypot(dx, dy) / Math.max(width, height);
+      const flapRate = 2.25 + Math.min(2.7, spatialSpeed * 3.35);
+      wingPhase += delta * flapRate * Math.PI * 2;
+      const wingAngle = -32 - 32 * Math.sin(wingPhase);
+      const heading = Math.max(-5.5, Math.min(5.5, Math.atan2(dy, Math.abs(dx)) * 180 / Math.PI * .22));
+      const scale = .9 + paced * .1;
+      const opacity = Math.min(1, t / .075) * (t < .965 ? 1 : Math.max(0, (1 - t) / .035));
+      camera.style.opacity = String(opacity);
+      camera.style.filter = `blur(${Math.max(0, .42 - paced * .42)}px)`;
+      camera.style.transform = `translate3d(${x - endX}px, ${y - endY}px, 0) translate(-24%, -100%) scale(${scale}) rotate(${heading - 2}deg)`;
+      wing.style.transform = `perspective(160px) rotateY(${wingAngle}deg)`;
+      wing.style.filter = `brightness(${.82 + (wingAngle + 64) / 178})`;
+      if (t < 1) animationFrame = window.requestAnimationFrame(animate);
+      else camera.style.opacity = "0";
+    };
+
+    startTimer = window.setTimeout(() => {
+      delete camera.dataset.started;
+      previous = 0;
+      animationFrame = window.requestAnimationFrame(animate);
+    }, 800);
+    return () => {
+      window.clearTimeout(startTimer);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [sequenceStarted]);
+
+  return <span ref={cameraRef} className="entry-butterfly-camera"><EntrySideButterfly className="entry-butterfly-flight" /></span>;
+}
+
+type DissolveParticle = {
+  x: number;
+  y: number;
+  r: number;
+  g: number;
+  b: number;
+  alpha: number;
+  size: number;
+  velocityX: number;
+  velocityY: number;
+  sway: number;
+  trail: number;
+  stretch: number;
+  phase: number;
+  trigger: number;
+  life: number;
+};
+
+function EntryWindDissolve({ sequenceStarted }: { sequenceStarted: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!sequenceStarted || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+
+    let timer = 0;
+    let animationFrame = 0;
+    let dissolveLayer: HTMLElement | null = null;
+    const duration = 5600;
+
+    const begin = () => {
+      const hero = canvas.closest<HTMLElement>(".entry-hero");
+      dissolveLayer = hero?.querySelector<HTMLElement>(".entry-dissolve-layer") || null;
+      const paper = hero?.querySelector<HTMLElement>(".entry-paper-surface");
+      const branch = hero?.querySelector<HTMLImageElement>(".entry-plum-branch");
+      const butterfly = hero?.querySelector<HTMLElement>(".entry-butterfly-perched");
+      const butterflyImage = butterfly?.querySelector<HTMLImageElement>(".entry-side-butterfly-wing");
+      if (!hero || !dissolveLayer || !paper || !branch || !butterfly || !butterflyImage || !branch.complete || !butterflyImage.complete) return;
+
+      const heroRect = hero.getBoundingClientRect();
+      const branchRect = branch.getBoundingClientRect();
+      const butterflyRect = butterfly.getBoundingClientRect();
+      const width = Math.max(1, heroRect.width);
+      const height = Math.max(1, heroRect.height);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+      const sampleScale = .35;
+      const sampleCanvas = document.createElement("canvas");
+      sampleCanvas.width = Math.max(1, Math.round(width * sampleScale));
+      sampleCanvas.height = Math.max(1, Math.round(height * sampleScale));
+      const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
+      if (!sampleContext) return;
+      sampleContext.fillStyle = getComputedStyle(paper).backgroundColor || "#e8ddca";
+      sampleContext.fillRect(0, 0, sampleCanvas.width, sampleCanvas.height);
+      const drawSource = (image: HTMLImageElement, rect: DOMRect) => {
+        sampleContext.drawImage(
+          image,
+          (rect.left - heroRect.left) * sampleScale,
+          (rect.top - heroRect.top) * sampleScale,
+          rect.width * sampleScale,
+          rect.height * sampleScale,
+        );
+      };
+      drawSource(branch, branchRect);
+      drawSource(butterflyImage, butterflyRect);
+
+      const pixels = sampleContext.getImageData(0, 0, sampleCanvas.width, sampleCanvas.height).data;
+      const maxParticles = Math.max(2600, Math.min(7600, Math.round(width * 3.8)));
+      const particles: DissolveParticle[] = [];
+      let seed = 0x7a4f2d;
+      let seen = 0;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+
+      for (let originY = 3; originY < height; originY += 7) {
+        for (let originX = 3; originX < width; originX += 7) {
+          if (random() > .5) continue;
+          const sampleX = Math.min(sampleCanvas.width - 1, Math.max(0, Math.round(originX * sampleScale)));
+          const sampleY = Math.min(sampleCanvas.height - 1, Math.max(0, Math.round(originY * sampleScale)));
+          const index = (sampleY * sampleCanvas.width + sampleX) * 4;
+          const normalizedX = originX / width;
+          const normalizedY = originY / height;
+          const erosionNoise =
+            Math.sin(normalizedX * 19.7 + normalizedY * 8.3 + .4) * .055
+            + Math.sin(normalizedX * 47.3 - normalizedY * 23.1 + 1.8) * .027
+            + (random() - .5) * .052;
+          const surfaceScore = normalizedX + normalizedY + erosionNoise;
+          const timeProgress = Math.max(0, Math.min(1, (2.045 - surfaceScore) / 2.12));
+          const fragmentScale = random() < .1 ? 1.45 : 1;
+          const toneShift = 7 + random() * 18;
+          const particle: DissolveParticle = {
+            x: originX + (random() - .5) * 8,
+            y: originY + (random() - .5) * 8,
+            r: Math.max(0, pixels[index] - toneShift),
+            g: Math.max(0, pixels[index + 1] - toneShift * .84),
+            b: Math.max(0, pixels[index + 2] - toneShift * .62),
+            alpha: .42 + random() * .4,
+            size: (.9 + random() * 3.1) * fragmentScale,
+            velocityX: 52 + random() * 110,
+            velocityY: -46 + random() * 62,
+            sway: 4 + random() * 15,
+            trail: random() < .38 ? 6 + random() * 16 : 0,
+            stretch: .65 + random() * 1.08,
+            phase: random() * Math.PI * 2,
+            trigger: Math.max(0, timeProgress * duration + (random() - .5) * 240),
+            life: 1080 + random() * 880,
+          };
+          seen += 1;
+          if (particles.length < maxParticles) particles.push(particle);
+          else {
+            const replacement = Math.floor(random() * seen);
+            if (replacement < maxParticles) particles[replacement] = particle;
+          }
+        }
+      }
+
+      const startedAt = performance.now();
+      const draw = (now: number) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(1, elapsed / duration);
+        const sceneFade = elapsed <= duration ? 1 : Math.max(0, 1 - (elapsed - duration) / 650);
+        const smooth = progress * progress * (3 - 2 * progress);
+        const eased = progress * .7 + smooth * .3;
+        const threshold = 2.055 - eased * 2.15;
+        const boundaryPoints: string[] = ["0% 0%", "100% 0%"];
+        for (let index = 120; index >= 0; index -= 1) {
+          const normalizedX = index / 120;
+          const staticErosion =
+            Math.sin(normalizedX * 7.6 + .45) * .055
+            + Math.sin(normalizedX * 17.9 + 1.9) * .03
+            + Math.sin(normalizedX * 39.3 + 3.2) * .014
+            + Math.sin(normalizedX * 83.7 + .7) * .006;
+          const movingErosion =
+            (Math.sin(normalizedX * 29 - progress * 7.2) * .016
+              + Math.sin(normalizedX * 53 + progress * 4.6) * .007)
+            * Math.sin(Math.PI * progress);
+          const normalizedY = Math.max(0, Math.min(1, threshold - normalizedX + staticErosion + movingErosion));
+          boundaryPoints.push(`${(normalizedX * 100).toFixed(2)}% ${(normalizedY * 100).toFixed(2)}%`);
+        }
+        dissolveLayer?.style.setProperty("clip-path", `polygon(${boundaryPoints.join(", ")})`);
+
+        context.clearRect(0, 0, width, height);
+        for (const particle of particles) {
+          const age = elapsed - particle.trigger;
+          if (age < 0 || age > particle.life) continue;
+          const lifeProgress = age / particle.life;
+          const driftX = particle.velocityX * age / 1000 + 42 * lifeProgress * lifeProgress;
+          const driftY = particle.velocityY * age / 1000 + Math.sin(particle.phase + lifeProgress * 7) * particle.sway;
+          const opacity = Math.sin(Math.PI * Math.min(1, lifeProgress * 1.18)) * (1 - lifeProgress * .42) * particle.alpha * sceneFade;
+          const size = particle.size * (1 + lifeProgress * .58);
+          const particleX = particle.x + driftX;
+          const particleY = particle.y + driftY;
+          if (particle.trail > 0) {
+            context.beginPath();
+            context.strokeStyle = `rgba(${particle.r},${particle.g},${particle.b},${opacity * .42})`;
+            context.lineWidth = Math.max(.55, size * .42);
+            context.moveTo(particleX - particle.trail * (.42 + lifeProgress), particleY + particle.trail * .08);
+            context.lineTo(particleX, particleY);
+            context.stroke();
+          }
+          context.beginPath();
+          context.fillStyle = `rgba(${particle.r},${particle.g},${particle.b},${opacity})`;
+          context.ellipse(particleX, particleY, size * particle.stretch, Math.max(.5, size * .56), Math.sin(particle.phase) * .34, 0, Math.PI * 2);
+          context.fill();
+        }
+
+        if (elapsed < duration + 680) animationFrame = window.requestAnimationFrame(draw);
+        else context.clearRect(0, 0, width, height);
+      };
+      animationFrame = window.requestAnimationFrame(draw);
+    };
+
+    timer = window.setTimeout(begin, 9300);
+    return () => {
+      window.clearTimeout(timer);
+      window.cancelAnimationFrame(animationFrame);
+      dissolveLayer?.style.removeProperty("clip-path");
+    };
+  }, [sequenceStarted]);
+
+  return <canvas ref={canvasRef} className="entry-wind-dissolve" />;
+}
+
+function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
+  return <div className="entry-opening" aria-hidden="true">
+    <span className="entry-dissolve-layer">
+      <span className="entry-paper-surface" />
+      <span className="entry-dissolve-subject">
+        <img className="entry-plum-branch entry-critical-asset" src="/hero-plum-branch-cinematic-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+        <span className="entry-butterfly-perched">
+          <EntrySideButterfly className="entry-butterfly-perch-profile" />
+        </span>
+      </span>
+      <EntryButterflyFlight sequenceStarted={sequenceStarted} />
+    </span>
+    <img className="entry-vfx-preload entry-critical-asset" src="/hero-butterfly-perched-v3.png" alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <EntryWindDissolve sequenceStarted={sequenceStarted} />
+  </div>;
 }
 
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-cloudfall-base-v6.png" alt="" loading="eager" decoding="async" />
-    <span className="inquiry-cloud-breath" />
-    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
-    <InquiryCloudfallCanvas layer="front" />
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-cloud-stream inquiry-cloud-stream-far" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-cloud-stream inquiry-cloud-stream-near" />
     <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
   </div>;
 }
@@ -966,7 +1748,6 @@ export function GuanxiangApp() {
   const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
-  const entryMistImageRef = useRef<HTMLImageElement | null>(null);
   const methodAdvanceTimerRef = useRef<number | null>(null);
   const flowPageRef = useRef(1);
 
@@ -1015,9 +1796,11 @@ export function GuanxiangApp() {
     let cancelled = false;
     let frame = 0;
     let fallbackTimer = 0;
-    const criticalArtworkReady = Promise.all(
-      [entryHeroImageRef.current, entryMistImageRef.current].map((image) => image?.decode().catch(() => undefined)),
-    );
+    const criticalImages = [
+      entryHeroImageRef.current,
+      ...Array.from(document.querySelectorAll<HTMLImageElement>(".entry-critical-asset")),
+    ];
+    const criticalArtworkReady = Promise.all(criticalImages.map((image) => image?.decode().catch(() => undefined)));
     const fallbackReady = new Promise<void>((resolve) => {
       fallbackTimer = window.setTimeout(resolve, 1800);
     });
@@ -1378,23 +2161,26 @@ export function GuanxiangApp() {
     <main id="top" className="scroll-canvas flow-shell" data-flow-page={flowPage}>
       <section className={`hero entry-hero scroll-section flow-lock-screen${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} hidden={flowPage !== 1} aria-labelledby="hero-title">
         <EntryArtwork className="entry-hero-final" imgRef={entryHeroImageRef} />
-        <EntryMistArtwork imgRef={entryMistImageRef} />
+        <EntryOpening sequenceStarted={entrySequenceStarted} />
         <EntryArtwork className="entry-title-focus" />
-        <img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" />
-        <div className="entry-bird-flock" aria-hidden="true">
-          {ENTRY_BIRDS.map((bird, index) => <span
-            className="entry-bird"
-            key={index}
-            style={{
-              "--bird-left": bird.left,
-              "--bird-top": bird.top,
-              "--bird-scale": bird.scale,
-              "--bird-flap": bird.flap,
-              "--bird-delay": bird.delay,
-              "--bird-drift": bird.drift,
-              "--bird-frame": bird.frame,
-            } as CSSProperties}
-          />)}
+        <img className="entry-name-seal" src="/hero-yuanshuai-seal-v1.webp" alt="" aria-hidden="true" />
+        <img className="entry-classic-calligraphy" src="/hero-classic-calligraphy-v1.webp" alt="" aria-hidden="true" />
+        <div className="entry-birds-life" aria-hidden="true">
+          {["a", "b"].map((flock) => <div className={`entry-bird-flock entry-bird-flock-${flock}`} key={flock}>
+            {ENTRY_BIRDS.map((bird, index) => <span
+              className="entry-bird"
+              key={index}
+              style={{
+                "--bird-left": bird.left,
+                "--bird-top": bird.top,
+                "--bird-scale": bird.scale,
+                "--bird-flap": bird.flap,
+                "--bird-delay": bird.delay,
+                "--bird-drift": bird.drift,
+                "--bird-frame": bird.frame,
+              } as CSSProperties}
+            />)}
+          </div>)}
         </div>
         <h1 id="hero-title" className="sr-only">观象</h1>
         <p className="sr-only">心有所问 静观其象</p>
@@ -1402,11 +2188,16 @@ export function GuanxiangApp() {
         <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
         <span className="sr-only">《周易·系辞上》</span>
         <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
-        <button type="button" className="hero-sound-control" aria-pressed={soundOn} onClick={toggleSound}><span aria-hidden="true">{soundOn ? "静" : "琴"}</span><b>{soundOn ? "静音" : "闻琴"}</b></button>
-        <button type="button" className="hero-scroll-cue" onClick={enterMethod}><span className="sr-only">了解观象之法</span></button>
+        <button type="button" className="hero-sound-control" aria-pressed={soundOn} aria-label={soundOn ? "暂停古琴音乐" : "播放古琴音乐"} onClick={toggleSound}><img src="/hero-guqin-horizontal-v2.webp" alt="" aria-hidden="true" /><span className="sr-only">{soundOn ? "暂停古琴音乐" : "播放古琴音乐"}</span></button>
+        <button type="button" className="hero-scroll-cue" aria-label="进入观象之法" onClick={enterMethod}><img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" /><img className="entry-down-cue" src="/hero-down-cue-v1.png" alt="" aria-hidden="true" /></button>
       </section>
 
       <section id="method" className={`method scroll-section flow-lock-screen${methodReady ? " is-ready" : ""}`} hidden={flowPage !== 2} data-reveal aria-labelledby="method-title">
+        <MethodRiverFlow />
+        <picture className="method-landscape">
+          <source media="(max-width: 900px)" srcSet="/method-river-mobile-v2.webp" />
+          <img src="/method-river-wide-v2.webp" alt="" />
+        </picture>
         <VerticalBrand />
         <div className="method-stage">
           <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
@@ -1440,16 +2231,43 @@ export function GuanxiangApp() {
           </div>
 
           <div className="inquiry-future-flow" hidden={!questionConfirmed || flowPage < 4 || flowPage > 6}>
-          <section id="discernment" className="inquiry-step inquiry-panel discernment-step flow-lock-screen" hidden={flowPage !== 4}>
-            <header className="discernment-heading">
-              <p className="eyebrow">观象之法 · 贰</p>
-              <h3>辨识</h3>
-              <p>为了能结合卦象，给你更具实际意义的建议，我还有几个问题请你回答。</p>
-            </header>
-            <div className="discernment-workspace">
-              {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
+          <section id="discernment" className="discernment scroll-section flow-lock-screen" hidden={flowPage !== 4} aria-labelledby="discernment-title">
+            <div className="discernment-artwork" aria-hidden="true">
+              <img src="/discernment-chrysanthemum-mountains-v2.png" alt="" />
+            </div>
+            <VerticalBrand />
+            <div className="discernment-stage">
+              <header className="discernment-heading">
+                <p className="eyebrow">观象之法 · 贰</p>
+                <h2 id="discernment-title" tabIndex={-1}>辨识</h2>
+                <p>卜卦之前，<br />让我们一起梳理思路</p>
+              </header>
+              <div className="discernment-dialogue">
+                <div className="discernment-cranes" aria-hidden="true">
+                  <span className="discernment-crane discernment-crane-leading">
+                    <i className="discernment-crane-bank">
+                      <span className="discernment-crane-facing discernment-crane-facing-right" />
+                      <span className="discernment-crane-facing discernment-crane-facing-left" />
+                      <span className="discernment-crane-turn discernment-crane-turn-right" />
+                      <span className="discernment-crane-turn discernment-crane-turn-left" />
+                    </i>
+                  </span>
+                  <span className="discernment-crane discernment-crane-following">
+                    <i className="discernment-crane-bank">
+                      <span className="discernment-crane-facing discernment-crane-facing-right" />
+                      <span className="discernment-crane-facing discernment-crane-facing-left" />
+                      <span className="discernment-crane-turn discernment-crane-turn-right" />
+                      <span className="discernment-crane-turn discernment-crane-turn-left" />
+                    </i>
+                  </span>
+                </div>
+                <div className="discernment-dialogue-head"><span>一问一答</span><small>文字回答</small></div>
+                {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
+              </div>
             </div>
           </section>
+
+
 
           <FinalQuestion hidden={!intakeComplete || flowPage !== 5} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
