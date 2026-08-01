@@ -275,8 +275,10 @@ a { color: inherit; }
 .final-question-backdrop::before, .final-question-backdrop::after { content: ""; position: absolute; inset: 0; background-image: url("/final-question-sunset-reeds-v1.webp"); background-size: cover; background-repeat: no-repeat; will-change: transform; pointer-events: none; }
 .final-question-backdrop::before { background-position: calc(50% - 38px) center; opacity: .68; transform-origin: 8% 100%; -webkit-mask-image: radial-gradient(ellipse 48% 74% at 9% 94%, #000 0 51%, rgba(0,0,0,.88) 63%, transparent 81%); mask-image: radial-gradient(ellipse 48% 74% at 9% 94%, #000 0 51%, rgba(0,0,0,.88) 63%, transparent 81%); animation: final-question-reed-sway-near 5.2s ease-in-out infinite; }
 .final-question-backdrop::after { background-position: calc(50% + 44px) center; opacity: .5; transform-origin: 31% 100%; -webkit-mask-image: radial-gradient(ellipse 58% 62% at 31% 92%, #000 0 42%, rgba(0,0,0,.8) 59%, transparent 78%); mask-image: radial-gradient(ellipse 58% 62% at 31% 92%, #000 0 42%, rgba(0,0,0,.8) 59%, transparent 78%); animation: final-question-reed-sway-mid 6.8s ease-in-out -2.1s infinite; }
+.final-question-sky-drift { position: absolute; inset: -2%; background: url("/final-question-sunset-reeds-v1.webp") center center / cover no-repeat; opacity: .32; transform-origin: 82% 17%; will-change: transform, background-position, opacity; -webkit-mask-image: radial-gradient(ellipse 45% 32% at 82% 18%, #000 0 45%, rgba(0,0,0,.76) 62%, transparent 82%); mask-image: radial-gradient(ellipse 45% 32% at 82% 18%, #000 0 45%, rgba(0,0,0,.76) 62%, transparent 82%); animation: final-question-sky-flow 11.5s ease-in-out infinite; }
 @keyframes final-question-reed-sway-near { 0%, 100% { transform: scale(1.018) rotate(-1.05deg) skewX(-.28deg); } 50% { transform: scale(1.018) rotate(1.32deg) skewX(.36deg); } }
 @keyframes final-question-reed-sway-mid { 0%, 100% { transform: scale(1.014) rotate(.78deg) skewX(.2deg); } 50% { transform: scale(1.014) rotate(-1.08deg) skewX(-.28deg); } }
+@keyframes final-question-sky-flow { 0%, 100% { background-position: center center; opacity: .24; transform: scale(1.012) translate3d(-7px, 2px, 0); } 50% { background-position: calc(50% + 14px) calc(50% - 3px); opacity: .4; transform: scale(1.024) translate3d(8px, -2px, 0); } }
 .final-question-heading, .final-question-workspace { position: relative; z-index: 2; }
 .final-question-heading { align-self: start; padding-top: clamp(6px, 2vh, 24px); }
 .final-question-heading h3 { margin: 15px 0 22px; color: var(--ink); font: 400 clamp(82px, 8vw, 126px)/.9 "Liu Jian Mao Cao Local", var(--brush); letter-spacing: .08em; }
@@ -288,11 +290,12 @@ a { color: inherit; }
 .question-change-proposal small { display: block; margin: 0 0 22px 30px; color: var(--mist); font-size: 12px; line-height: 1.75; }
 .question-change-proposal > div { margin-top: 26px; display: flex; align-items: center; gap: 30px; }
 .question-change-proposal > div > button:first-child { min-height: 50px; padding: 9px 24px; color: var(--paper); background: var(--cinnabar-dark); border: 1px solid var(--cinnabar-dark); cursor: pointer; font: 400 18px/1.2 var(--brush); letter-spacing: .08em; }
-.final-question-ready { max-width: 780px; margin-left: auto; padding: clamp(38px,6vh,64px) 0 34px; text-align: center; border-top: 1px solid rgba(150,59,40,.5); border-bottom: 1px solid rgba(53,55,48,.14); }
+.final-question-ready { max-width: 780px; margin-left: auto; padding: clamp(38px,6vh,64px) 0 34px; text-align: center; border: 0; }
 .final-question-ready p { margin: 0; color: var(--ink-soft); font-size: clamp(17px,1.45vw,21px); line-height: 1.8; }
 .final-question-ready strong { display: block; margin-top: 18px; color: var(--ink); font: 400 clamp(30px,3vw,46px)/1.55 var(--brush); letter-spacing: .06em; }
 .final-question-readiness { max-width: 780px; margin: clamp(34px,5vh,56px) 0 0 auto; display: grid; justify-items: center; }
-.final-question-cta { min-width: 148px; height: 54px; font-size: 20px; }
+.final-question-cta { min-width: 188px; height: 58px; gap: 11px; padding-inline: 14px; font-size: 20px; }
+.final-question-cta .final-question-bagua { width: 34px; height: 34px; opacity: .74; background: transparent; border: 0; box-shadow: none; }
 .question-compare { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 3vw, 48px); }
 .question-compare article { position: relative; min-height: 238px; padding: 24px 4px 22px; display: flex; flex-direction: column; border-top: 1px solid rgba(53,55,48,.2); border-bottom: 1px solid rgba(53,55,48,.13); transition: border-color .3s ease, background-color .3s ease, padding .3s ease; }
 .question-compare article.is-selected { padding-inline: 20px; background: linear-gradient(105deg, rgba(150,59,40,.07), rgba(246,239,225,.12) 70%); border-top-color: rgba(150,59,40,.68); border-bottom-color: rgba(150,59,40,.3); }
@@ -916,7 +919,8 @@ a { color: inherit; }
   .final-question-ready p { font-size: 14px; }
   .final-question-ready strong { margin-top: 14px; font-size: 28px; line-height: 1.5; }
   .final-question-readiness { margin-top: 26px; }
-  .final-question-cta { min-width: 136px; height: 50px; font-size: 18px; }
+  .final-question-cta { min-width: 166px; height: 52px; gap: 9px; font-size: 18px; }
+  .final-question-cta .final-question-bagua { width: 30px; height: 30px; }
   .question-compare { grid-template-columns: 1fr; gap: 12px; }
   .question-compare article { min-height: 0; padding: 14px 2px 13px; }
   .question-compare article.is-selected { padding-inline: 13px; }
@@ -1015,7 +1019,7 @@ a { color: inherit; }
   .hero.is-visible .hero-ink-whispers { animation: none; opacity: .5; transform: scale(.96); filter: grayscale(1) contrast(.86); }
   .entry-hero-final { animation: none !important; opacity: 1; clip-path: none; filter: none; }
   .entry-mist-scene { display: none; }
-  .final-question-backdrop::before, .final-question-backdrop::after { animation: none !important; transform: none; }
+  .final-question-backdrop::before, .final-question-backdrop::after, .final-question-sky-drift { animation: none !important; transform: none; }
   .entry-boat-life, .entry-bird-flock { animation: none !important; opacity: .58; transform: translate(-50%, -50%); }
   .entry-bird { animation: none !important; background-position-x: var(--bird-frame); }
   .hero-title-hotspot, .hero-scroll-cue { animation: none !important; pointer-events: auto; }

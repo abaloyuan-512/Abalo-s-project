@@ -217,7 +217,9 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
   assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
-  assert.match(appSource, /className="final-question-backdrop" aria-hidden="true"/);
+  assert.match(appSource, /className="final-question-backdrop" aria-hidden="true"><span className="final-question-sky-drift"/);
+  assert.match(appSource, /理清脉络之后<br \/>确认最终问题/);
+  assert.match(appSource, /<BaguaMark className="final-question-bagua" \/><span className="method-cta-label">/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
   assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v1\.webp/);
   assert.match(cssSource, /final-question-backdrop[^}]+left: calc\(50% - 30px\)[^}]+width: calc\(100vw \+ 4px\)/);
@@ -226,6 +228,9 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(cssSource, /final-question-backdrop::before[^}]+final-question-reed-sway-near/);
   assert.match(cssSource, /final-question-backdrop::after[^}]+final-question-reed-sway-mid/);
   assert.match(cssSource, /@keyframes final-question-reed-sway-near/);
+  assert.match(cssSource, /final-question-sky-drift[^}]+final-question-sky-flow/);
+  assert.match(cssSource, /@keyframes final-question-sky-flow/);
+  assert.match(cssSource, /final-question-ready[^}]+border: 0/);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+final-question-backdrop::before[^}]+animation: none/);
   assert.match(cssSource, /final-question-cta/);
 });

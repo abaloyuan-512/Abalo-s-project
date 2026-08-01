@@ -515,11 +515,11 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
   return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
-    <div className="final-question-backdrop" aria-hidden="true" />
+    <div className="final-question-backdrop" aria-hidden="true"><span className="final-question-sky-drift" /></div>
     <div className="final-question-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>
-      <p>看过现实脉络之后<br />由你定下最后这一问</p>
+      <p>理清脉络之后<br />确认最终问题</p>
     </div>
 
     <div className="final-question-workspace">
@@ -537,7 +537,7 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
       </div>}
 
       {ready && <div className="final-question-readiness">
-        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
+        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><BaguaMark className="final-question-bagua" /><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
       </div>}
     </div>
   </section>;
