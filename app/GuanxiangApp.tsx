@@ -526,10 +526,14 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
   return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
+    <div className="final-question-backdrop" aria-hidden="true">
+      <span className="final-question-sky-drift" />
+      <span className="final-question-bird" />
+    </div>
     <div className="final-question-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>
-      <p>看过现实脉络之后<br />由你定下最后这一问</p>
+      <p>理清脉络之后<br />确认最终问题</p>
     </div>
 
     <div className="final-question-workspace">
@@ -547,7 +551,7 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
       </div>}
 
       {ready && <div className="final-question-readiness">
-        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
+        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><BaguaMark className="final-question-bagua" /><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
       </div>}
     </div>
   </section>;
@@ -723,6 +727,23 @@ function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | nu
     <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-mist-square-v2.webp" />
     <img ref={imgRef} src="/hero-entry-mist-wide-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
   </picture>;
+}
+
+function InquiryInkScene() {
+  return <div className="inquiry-ink-scene" aria-hidden="true">
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
+    <span className="inquiry-cloud-path inquiry-cloud-path-veil">
+      <img className="inquiry-cloud-shape inquiry-cloud-shape-veil" src="/question-cloud-veil-v4.png" alt="" loading="eager" decoding="async" />
+    </span>
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
+    <span className="inquiry-cloud-path inquiry-cloud-path-fork">
+      <img className="inquiry-cloud-shape inquiry-cloud-shape-fork" src="/question-cloud-fork-v4.png" alt="" loading="eager" decoding="async" />
+    </span>
+    <span className="inquiry-cloud-path inquiry-cloud-path-bank">
+      <img className="inquiry-cloud-shape inquiry-cloud-shape-bank" src="/question-cloud-bank-v4.png" alt="" loading="eager" decoding="async" />
+    </span>
+    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+  </div>;
 }
 
 const ENTRY_BIRDS = [
@@ -1219,13 +1240,13 @@ export function GuanxiangApp() {
       </section>
 
       <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
+        <InquiryInkScene />
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
           <div className="inquiry-stage">
             <header className="inquiry-heading">
               <p className="eyebrow">观象之法 · 壹</p>
               <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
-              <p>写下一件<br />真实具体的事</p>
             </header>
 
             <div className="inquiry-writing">

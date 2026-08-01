@@ -16,6 +16,14 @@
 - `hero-taiji-breath-v2.png`：由 OpenAI 图像生成能力生成的淡墨太极，经绿色色键处理为透明 PNG，用于题字背后的低透明度呼吸显隐。
 - `hero-birds-v1.png`、`hero-boat-v1.png`、`hero-waterfall-v1.png`：由 OpenAI 图像生成能力生成并经绿色色键处理的独立透明环境素材，分别用于飞行、漂移和错相位下落动画。
 
+## 第三页「正问」资产
+
+- `question-pine-cloud-base-v2.webp`：以用户选定的孤松云海画面为基础，由 OpenAI 图像编辑能力移除松树，保留宣纸、远山、近石与原始云雾，作为满屏山水底板。
+- `question-pine-tree-v2.png`：由同一审定画面提取的完整孤松透明层，以树根为固定轴进行轻微风摆。
+- `question-cloud-stream-v3-tile.png`：参照已审定云海笔触，由 OpenAI 图像生成能力重构为横贯画面的流线型云河；经品红色键去底、暖灰化与左右边缘周期融合后成为无缝循环透明 PNG，始终从左向右流动。
+- `question-mountain-occluder-v3.png`：从无松树底板确定性提取的前景山体透明遮挡层；置于远云前方，使云河在山峰处自然分流、穿谷和时隐时现。
+- `question-cloud-veil-v4.png`、`question-cloud-fork-v4.png`、`question-cloud-bank-v4.png`：依据本页宋代水墨画面分别生成的斜向薄云、绕峰分流云与近景翻涌云，经品红色键去底、暖灰去色与透明边缘校正。三张云图沿不同曲线独立穿越画面，完整离场后才重置，不再首尾拼接或复用同一接缝。
+
 ## 声音
 
 - `audio/guqin-zheng-diao.ogg`：Wikimedia Commons `File:Zheng diao.ogg`，Charlie Huang，古琴正调定弦录音，作者释放至公有领域。
@@ -24,3 +32,9 @@
 ## 成卦牡丹背景
 
 - `casting-peony-background-v3.webp`：以第一版牡丹枝条背景为编辑目标、以当前成卦页三朵花的实际叠加位置为校准，由 OpenAI 图像生成能力编辑。原位保留并增强三条承接花朵的枝干、花托与牡丹叶，移除竹子、树冠、山石、建筑、桥船与人物；底色调整为与前序长卷一致的冷灰米白宣纸。
+
+## 定问落霞秋水背景
+
+- `final-question-sunset-reeds-v1.webp`：以“落霞与孤鹜齐飞，秋水共长天一色”为主题，由 OpenAI 图像生成能力创作并经用户最终选定。近景为芦苇荡，远景保留秋水、远山、飞鸟与精细亭子；网页复用同一真实位图分出近景、中景芦苇与右上红霞的局部动效层，不使用代码绘制芦苇或云霞。
+- `final-question-sunset-reeds-v2.png`：以上一版定问背景为编辑目标，由 OpenAI 图像生成能力仅移除原图中静止飞鸟，并重建对应的落霞天空，用于将红霞与飞鸟拆分成独立动画层；其余构图、色调、芦苇、秋水、远山与亭子保持一致。
+- `final-question-bird-sprite-v1.png`：由 OpenAI 图像生成能力创作的四帧水墨白鹭振翅序列，经绿色色键处理为透明 PNG；网页逐帧切换真实位图形成振翅，并仅在原位置附近轻微浮动。
