@@ -84,7 +84,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /请心中再次默念你的问题，深呼吸/);
   assert.match(html, /开始卜卦/);
   assert.doesNotMatch(html, /最终问卦题目/);
-  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step casting-number-step"[^>]+hidden/);
+  assert.match(html, /<section[^>]+id="casting"[^>]+class="inquiry-step inquiry-panel number-step casting-number-step viewport-page"[^>]+hidden/);
   assert.doesNotMatch(html, /class="inquiry-step inquiry-panel cast-step"/);
   assert.match(html, /<h3[^>]+id="casting-title"[^>]*>成卦<\/h3>/);
   assert.match(html, /casting-peony-bloom-1-v1\.png/);
@@ -241,7 +241,7 @@ test("final question offers a concise user-controlled question decision", async 
   assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
-  assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
+  assert.match(appSource, /id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page" hidden=\{!finalQuestionConfirmed\}/);
   assert.match(appSource, /className="final-question-sky-drift"/);
   assert.match(appSource, /className="final-question-bird"/);
   assert.match(appSource, /理清脉络之后<br \/>确认最终问题/);
@@ -305,6 +305,11 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
+  assert.match(cssSource, /inquiry\.has-casting-step[^}]+padding-bottom: 0/);
+  assert.match(cssSource, /viewport-page[^}]+min-height: calc\(100svh - 68px\)/);
+  assert.match(appSource, /getElementById\("casting"\)\?\.scrollIntoView\(\{ behavior: "auto", block: "start" \}\)/);
+  assert.match(appSource, /className="version-note" hidden=\{!response\}/);
+  assert.match(appSource, /className="site-footer" hidden=\{!response\}/);
   assert.match(cssSource, /casting-peony-scene[^}]+translateX\(calc\(-50% - var\(--casting-viewport-shift\)\)\)/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);

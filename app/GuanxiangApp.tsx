@@ -525,7 +525,7 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
   const hasSuggestion = suggestedQuestion.trim().length >= 6;
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
-  return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
+  return <section id="final-question" className="inquiry-step inquiry-panel final-question-step viewport-page" hidden={hidden} aria-labelledby="final-question-title">
     <div className="final-question-backdrop" aria-hidden="true">
       <span className="final-question-sky-drift" />
       <span className="final-question-bird" />
@@ -824,7 +824,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
   }
 
   return <section id="result" className="result-shell" aria-labelledby="result-title">
-    <section className="result-overview scroll-section" data-reveal>
+    <section className="result-overview scroll-section viewport-page" data-reveal>
       <ResultKoiPond />
       <div className="result-verdict">
         <strong className="result-hexagram-symbol" aria-label={`${result.base_hexagram.name}卦象`}>{result.base_hexagram.symbol}</strong>
@@ -1161,9 +1161,9 @@ export function GuanxiangApp() {
     setQuestion(value);
     setFinalQuestionDraft(value);
     setFinalQuestionConfirmed(true);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>(".number-step")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.getElementById("casting")?.scrollIntoView({ behavior: "auto", block: "start" });
+      document.getElementById("casting-title")?.focus({ preventScroll: true });
     }));
   }
 
@@ -1410,7 +1410,7 @@ export function GuanxiangApp() {
         <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label={methodReady ? "已定心，进入正问" : "开始正问"} aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">{methodReady ? "已定心" : "开始正问"}</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
       </section>
 
-      <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
+      <section id="inquiry" className={`inquiry scroll-section${finalQuestionConfirmed ? " has-casting-step" : ""}`} data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
         <InquiryInkScene />
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
@@ -1445,7 +1445,7 @@ export function GuanxiangApp() {
 
           <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
-          <section className="inquiry-step inquiry-panel number-step casting-number-step" hidden={!finalQuestionConfirmed} aria-labelledby="casting-title">
+          <section id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page" hidden={!finalQuestionConfirmed} aria-labelledby="casting-title">
             <div className="casting-peony-scene" aria-hidden="true">
               <div className="casting-peony-backdrop" />
               {PEONY_BREATHS.map((breath, index) => <span
@@ -1531,8 +1531,8 @@ export function GuanxiangApp() {
       </section>
 
       {response && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
-      <aside className="version-note">卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
+      <aside className="version-note" hidden={!response}>卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
     </main>
-    <footer className="site-footer"><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>
+    <footer className="site-footer" hidden={!response}><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>
   </>;
 }
