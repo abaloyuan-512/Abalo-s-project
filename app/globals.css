@@ -409,14 +409,9 @@ a { color: inherit; }
 .peony-number input:focus { color: var(--cinnabar-dark); text-shadow: 0 0 18px rgba(150,59,40,.12); }
 .peony-number input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 .peony-number input::-webkit-inner-spin-button, .peony-number input::-webkit-outer-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
-.casting-submit { margin-top: clamp(14px, 2vh, 22px); }
-.casting-submit .ack { max-width: 470px; margin: 0; gap: 9px; font-size: 11px; line-height: 1.55; }
-.casting-submit .ack input { width: 16px; height: 16px; margin-top: 1px; flex: 0 0 auto; }
-.casting-submit .cast-button { min-width: 132px; min-height: 46px; margin: 10px auto 0 0; padding: 6px 12px 6px 0; justify-content: flex-start; font-size: 20px; }
-.casting-submit .cast-button::after { content: none; }
-.casting-submit .cast-button .bagua-mark { width: 32px; height: 32px; }
-.casting-submit .generation-progress, .casting-submit .error { max-width: 470px; margin: 9px 0 0; font-size: 11px; text-align: left; }
-.casting-submit .casting { margin: 10px 0 0; justify-content: flex-start; }
+.casting-heading .casting-submit { margin: clamp(24px, 3vh, 34px) 0 0; }
+.casting-heading .casting-submit::after { content: none; }
+.casting-submit-error { margin: 16px 0 0; padding: 8px 0 8px 12px; font-size: 13px; line-height: 1.7; }
 .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 .ack { max-width: 900px; margin: 44px auto 0; display: flex; align-items: flex-start; gap: 13px; color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
 .ack input { width: 18px; height: 18px; margin-top: 4px; appearance: none; border: 1px solid rgba(150, 59, 40, .68); border-radius: 50%; background: rgba(242, 234, 217, .7); }
@@ -1041,9 +1036,9 @@ a { color: inherit; }
   .peony-number-petal-2 { left: 47%; bottom: -2px; width: 32px; }
   .peony-number-petal-3 { right: 3%; bottom: 18px; width: 27px; }
   .peony-falling-petal { width: calc(var(--petal-size) * .68); }
-  .casting-submit { margin-top: 12px; }
-  .casting-submit .ack { max-width: none; font-size: 10px; }
-  .casting-submit .cast-button { margin: 8px auto 0 0; }
+  .casting-heading .casting-submit, .casting-submit-error { grid-column: 1 / -1; justify-self: start; }
+  .casting-heading .casting-submit { min-width: 150px; min-height: 52px; margin: 18px 0 0; font-size: 22px; }
+  .casting-submit-error { margin: 10px 0 0; }
   .step-heading { grid-template-columns: 42px 1fr; }
   .step-heading h3 { font-size: 30px; }
   .number-step .numbers-slip { gap: 22px; }

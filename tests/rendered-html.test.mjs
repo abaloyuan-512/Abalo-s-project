@@ -96,7 +96,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
-  assert.match(html, /<button[^>]+class="cast-button"[^>]+disabled[^>]*>[\s\S]*观卦<\/button>/);
+  assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>成卦<\/button>/);
   assert.doesNotMatch(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
@@ -284,7 +284,10 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /placeholder="1—999"/);
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
-  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+casting-submit[\s\S]+className="cast-button"/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.doesNotMatch(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark/);
+  assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
+  assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
   assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
   assert.match(appSource, /peony-bloom-image[\s\S]+peony-petal-layer[\s\S]+peony-petal-origin[\s\S]+peony-falling-petal/);
   assert.match(appSource, /凭当下所感，取三个数/);
@@ -310,8 +313,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-heading \.peony-number-field[^}]+grid-template-columns: repeat\(3/);
   assert.match(cssSource, /casting-contemplation span:nth-child\(2\)[^}]+margin-left: 0/);
   assert.match(cssSource, /peony-number-copy[^}]+justify-items: start[^}]+text-align: left/);
-  assert.match(cssSource, /casting-submit \.cast-button[^}]+margin: 10px auto 0 0[^}]+justify-content: flex-start/);
-  assert.match(cssSource, /casting-submit \.cast-button::after[^}]+content: none/);
+  assert.match(cssSource, /casting-heading \.casting-submit::after[^}]+content: none/);
   assert.match(cssSource, /@media \(max-width: 760px\)[\s\S]+\.casting-heading \{[^}]+display: block/);
   assert.doesNotMatch(cssSource, /peony-number-wind/);
   assert.match(cssSource, /peony-falling-petal[^}]+mix-blend-mode: normal/);
@@ -328,8 +330,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
 test("sixth page submits directly and seventh page gates detailed reading", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(appSource, /const numbersReady = numbers\.every/);
-  assert.match(appSource, /disabled=\{loading \|\| !numbersReady \|\| !acknowledged\}/);
+  assert.doesNotMatch(appSource, /const numbersReady = numbers\.every|acknowledged/);
+  assert.match(appSource, /className="cast-button casting-submit" disabled=\{loading\}/);
   assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
   assert.match(appSource, /function ResultKoiPond\(\)/);
   assert.match(appSource, /page7-koi-cinnabar-v1\.png/);

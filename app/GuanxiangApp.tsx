@@ -890,10 +890,6 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
   </section>;
 }
 
-function CastingLoader() {
-  return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 分清事实与未知 · 生成现实解读</span></p></div>;
-}
-
 function EntryArtwork({ className, imgRef }: { className: string; imgRef?: RefObject<HTMLImageElement | null> }) {
   return <picture className={className}>
     <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v6.webp" />
@@ -957,7 +953,6 @@ export function GuanxiangApp() {
   const [discernmentCompletionReason, setDiscernmentCompletionReason] = useState<DiscernmentCompletionReason>("ENOUGH");
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
-  const [acknowledged, setAcknowledged] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState("");
@@ -1235,7 +1230,7 @@ export function GuanxiangApp() {
       record = JSON.parse(saved) as JournalRecord;
     } catch { return; }
     const timer = window.setTimeout(() => {
-      setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setDiscernmentCompletionReason("ENOUGH"); setIntakeComplete(true); setAcknowledged(true); setSavedRecordId(record.id);
+      setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setDiscernmentCompletionReason("ENOUGH"); setIntakeComplete(true); setSavedRecordId(record.id);
       setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
     }, 0);
     return () => window.clearTimeout(timer);
@@ -1258,7 +1253,7 @@ export function GuanxiangApp() {
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setAcknowledged(false); setResponse(null); setError(""); setSavedRecordId(null);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -1300,8 +1295,8 @@ export function GuanxiangApp() {
     const textLists = [factLines, unknownLines, actionLines, responseLines];
     const earlyExit = discernmentCompletionReason === "USER_EARLY";
     const realityContextInvalid = !earlyExit && (factLines.length < 1 || unknownLines.length < 1);
-    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || realityContextInvalid || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
-      setError("请先完成正问与辨识，再静心填写三个 1–999 的整数，并确认使用边界。"); return;
+    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || realityContextInvalid || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
+      setError("请先完成正问与辨识，并填写三个 1–999 的整数。"); return;
     }
     if (earlyExit) {
       setLoading(true); setProgress("正在按三数成卦……");
@@ -1366,11 +1361,6 @@ export function GuanxiangApp() {
   }
 
   const emphasizedMethodLine = activeMethodLine ?? previewMethodLine;
-  const numbersReady = numbers.every((value) => {
-    const parsed = Number(value);
-    return value !== "" && Number.isInteger(parsed) && parsed >= 1 && parsed <= 999;
-  });
-
   return <>
     <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden={!homeNavigationVisible}>
       <a className="wordmark" href="#top" tabIndex={homeNavigationVisible ? undefined : -1}>观象</a>
@@ -1524,13 +1514,9 @@ export function GuanxiangApp() {
                 </label>)}
               </fieldset>
               <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入上方文字右侧</p>
-              <div className="casting-submit">
-                <label className="ack"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} /><span>我理解：卦象提供一种观察角度，个性化文字只使用我写下的事实、未知项和程序排出的卦象，不替代专业意见。</span></label>
-                {progress && <p className="generation-progress" role="status">{progress}</p>}
-                {error && <p className="error" role="alert">{error}</p>}
-                <button className="cast-button" disabled={loading || !numbersReady || !acknowledged}><BaguaMark />{loading ? "正在观卦" : "观卦"}</button>
-                {loading && <CastingLoader />}
-              </div>
+              {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
+              {error && <p className="error casting-submit-error" role="alert">{error}</p>}
+              <button type="submit" className="cast-button casting-submit" disabled={loading}>{loading ? "正在成卦" : "成卦"}</button>
             </header>
 
             <div className="casting-number-workspace" aria-hidden="true">
