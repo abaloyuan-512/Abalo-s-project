@@ -51,6 +51,10 @@ export default defineConfig(async () => {
       vinext(),
       sites(),
       cloudflare({
+        // The local page preview does not need the Workers inspector. Disabling
+        // it avoids inspector-port collisions that can terminate Vinext with a
+        // `write EOF` before the HTTP server starts.
+        inspectorPort: false,
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         config: localBindingConfig,
       }),

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -132,6 +132,8 @@ const QUESTION_EXAMPLES = [
   { topic: "规划", domain: "PERSONAL_PLANNING", text: "我现在开始这项长期计划，最需要先准备什么？" },
 ] as const;
 
+const METHOD_CLASSIC_LINES = ["在天成象", "在地成形", "变化见矣"] as const;
+
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
 const JOURNAL_OPEN_KEY = "guanxiang-open-journal-record-v1";
@@ -236,6 +238,285 @@ function inferDomain(text: string): string {
   if (/项目|合作|客户|合同|方案|合伙|资源/.test(text)) return "PROJECT_COOPERATION";
   if (/工作|职业|岗位|公司|升职|离职|求职/.test(text)) return "WORK_CAREER";
   return "PERSONAL_PLANNING";
+}
+
+const METHOD_RIVER_VERTEX_SHADER = `
+  attribute vec2 a_position;
+  varying vec2 v_uv;
+
+  void main() {
+    v_uv = a_position * 0.5 + 0.5;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+const METHOD_RIVER_FRAGMENT_SHADER = `
+  precision mediump float;
+
+  varying vec2 v_uv;
+  uniform sampler2D u_scene;
+  uniform vec2 u_resolution;
+  uniform vec2 u_texture_size;
+  uniform float u_time;
+
+  float hash(vec2 point) {
+    point = fract(point * vec2(123.34, 456.21));
+    point += dot(point, point + 45.32);
+    return fract(point.x * point.y);
+  }
+
+  float noise(vec2 point) {
+    vec2 cell = floor(point);
+    vec2 local = fract(point);
+    local = local * local * (3.0 - 2.0 * local);
+    return mix(
+      mix(hash(cell), hash(cell + vec2(1.0, 0.0)), local.x),
+      mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), local.x),
+      local.y
+    );
+  }
+
+  float fbm(vec2 point) {
+    float value = 0.0;
+    float weight = 0.55;
+    for (int octave = 0; octave < 4; octave++) {
+      value += weight * noise(point);
+      point = point * 2.03 + vec2(8.1, 3.7);
+      weight *= 0.48;
+    }
+    return value;
+  }
+
+  float river_center(float y) {
+    float depth = smoothstep(0.10, 1.0, y);
+    return 0.505
+      + sin(y * 8.25 + 0.45) * mix(0.012, 0.070, depth)
+      + sin(y * 17.2 - 0.75) * mix(0.004, 0.017, depth);
+  }
+
+  float river_width(float y) {
+    float depth = clamp((y - 0.08) / 0.92, 0.0, 1.0);
+    return mix(0.045, 0.39, pow(depth, 1.24));
+  }
+
+  vec2 cover_uv(vec2 screen_uv) {
+    float viewport_aspect = u_resolution.x / max(u_resolution.y, 1.0);
+    float texture_aspect = u_texture_size.x / max(u_texture_size.y, 1.0);
+    vec2 result = screen_uv;
+    if (viewport_aspect > texture_aspect) {
+      float visible_height = texture_aspect / viewport_aspect;
+      result.y = 0.5 + (screen_uv.y - 0.5) * visible_height;
+    } else {
+      float visible_width = viewport_aspect / texture_aspect;
+      result.x = 0.5 + (screen_uv.x - 0.5) * visible_width;
+    }
+    return result;
+  }
+
+  void main() {
+    vec2 screen = vec2(v_uv.x, 1.0 - v_uv.y);
+    float center = river_center(screen.y);
+    float width = river_width(screen.y);
+    float lane = (screen.x - center) / max(width, 0.001);
+    float bank_fade = 1.0 - smoothstep(0.68, 0.98, abs(lane));
+    float source_fade = smoothstep(0.11, 0.24, screen.y);
+    float river = bank_fade * source_fade;
+
+    float depth = smoothstep(0.12, 1.0, screen.y);
+    float downstream = screen.y - u_time * mix(0.068, 0.152, depth);
+    float broad = fbm(vec2(lane * 1.8 + downstream * 0.45, downstream * 8.0));
+    float cross_current = fbm(vec2(lane * 4.7 - downstream * 0.75, downstream * 17.0 - u_time * 0.13));
+    float quick_ripples = fbm(vec2(lane * 8.2 + broad * 1.4, downstream * 31.0 - u_time * 0.24));
+    float rapid_belt = pow(0.5 + 0.5 * sin((downstream * 6.4 + broad * 0.72 + lane * 0.34) * 6.28318), 4.4);
+    float belt_breakup = smoothstep(0.32, 0.76, broad * 0.58 + cross_current * 0.54);
+    float diagonal_chop = smoothstep(0.42, 0.82, 0.5 + 0.5 * sin((downstream * 12.8 + lane * 1.72 + broad * 0.84) * 3.14159));
+    float rapid_break = smoothstep(0.52, 0.78, quick_ripples + cross_current * 0.26)
+      * rapid_belt
+      * mix(0.22, 1.0, belt_breakup)
+      * mix(0.68, 1.0, diagonal_chop);
+    float midstream = 1.0 - smoothstep(0.46, 0.82, abs(lane));
+
+    float next_center = river_center(min(screen.y + 0.004, 1.0));
+    vec2 tangent = normalize(vec2((next_center - center) / 0.004, 1.0));
+    vec2 normal = vec2(tangent.y, -tangent.x);
+    float surge = (broad - 0.5) * mix(0.006, 0.022, depth);
+    float shear = (cross_current - 0.5) * mix(0.004, 0.015, depth);
+    float shimmer = (quick_ripples - 0.5) * mix(0.002, 0.007, depth);
+    float rapid_chop = rapid_break * midstream * mix(0.004, 0.018, depth);
+    vec2 screen_offset = (tangent * (surge + shimmer) + normal * (shear + rapid_chop)) * river;
+
+    vec2 displaced_screen = clamp(screen + screen_offset, vec2(0.001), vec2(0.999));
+    vec2 displaced_uv = vec2(displaced_screen.x, 1.0 - displaced_screen.y);
+    vec3 base_color = texture2D(u_scene, cover_uv(v_uv)).rgb;
+    vec3 moved_color = texture2D(u_scene, cover_uv(displaced_uv)).rgb;
+
+    float ridge = smoothstep(0.62, 0.88, quick_ripples + 0.14 * sin((downstream * 54.0 + lane * 4.0) * 3.14159));
+    float broken_crest = ridge * smoothstep(0.30, 0.74, cross_current) * river * mix(0.24, 0.74, depth);
+
+    float shore_band = smoothstep(0.48, 0.70, abs(lane)) * (1.0 - smoothstep(0.76, 0.96, abs(lane)));
+    float bank_segment = floor(screen.y * 7.0);
+    float bank_local = fract(screen.y * 7.0);
+    float bank_seed = hash(vec2(bank_segment, 4.17));
+    float bank_age = fract(u_time * mix(0.16, 0.23, depth) + bank_seed);
+    float bank_envelope = smoothstep(0.0, 0.13, bank_age) * (1.0 - smoothstep(0.22, 0.68, bank_age));
+    float bank_location = 1.0 - smoothstep(0.06, 0.30, abs(bank_local - mix(0.28, 0.72, bank_seed)));
+    float bank_side = step(0.5, bank_seed);
+    float selected_bank = mix(1.0 - smoothstep(-0.04, 0.30, lane), smoothstep(-0.30, 0.04, lane), bank_side);
+    float impact_texture = smoothstep(0.31, 0.74, cross_current + quick_ripples * 0.38);
+    float bank_impact = shore_band * bank_envelope * bank_location * selected_bank * impact_texture * river;
+
+    float whitewater = clamp(
+      broken_crest * 0.34
+      + rapid_break * midstream * river * mix(0.36, 0.94, depth)
+      + bank_impact * 1.38,
+      0.0,
+      0.88
+    );
+    vec3 water_color = mix(moved_color, vec3(0.965, 0.945, 0.875), whitewater);
+    water_color *= 1.0 - (1.0 - ridge) * river * 0.012;
+
+    gl_FragColor = vec4(mix(base_color, water_color, river), 1.0);
+  }
+`;
+
+function compileMethodRiverShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return shader;
+  gl.deleteShader(shader);
+  return null;
+}
+
+function MethodRiverFlow() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!canvas || motionQuery.matches) return;
+
+    const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
+    if (!gl) return;
+
+    const vertexShader = compileMethodRiverShader(gl, gl.VERTEX_SHADER, METHOD_RIVER_VERTEX_SHADER);
+    const fragmentShader = compileMethodRiverShader(gl, gl.FRAGMENT_SHADER, METHOD_RIVER_FRAGMENT_SHADER);
+    if (!vertexShader || !fragmentShader) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+
+    const positionLocation = gl.getAttribLocation(program, "a_position");
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const textureSizeLocation = gl.getUniformLocation(program, "u_texture_size");
+    const timeLocation = gl.getUniformLocation(program, "u_time");
+    const sceneLocation = gl.getUniformLocation(program, "u_scene");
+    const buffer = gl.createBuffer();
+    const texture = gl.createTexture();
+    if (!buffer || !texture || positionLocation < 0) return;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    gl.useProgram(program);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.uniform1i(sceneLocation, 0);
+
+    let animationFrame = 0;
+    let textureReady = false;
+    let visible = false;
+    let accumulatedTime = 0;
+    let lastFrameAt = performance.now();
+    const mobileQuery = window.matchMedia("(max-width: 900px)");
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+      const width = Math.max(1, Math.round(bounds.width * pixelRatio));
+      const height = Math.max(1, Math.round(bounds.height * pixelRatio));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        gl.viewport(0, 0, width, height);
+      }
+    };
+
+    const draw = (now: number) => {
+      if (!textureReady || !visible || document.hidden) {
+        animationFrame = window.requestAnimationFrame(draw);
+        lastFrameAt = now;
+        return;
+      }
+      const elapsed = Math.min((now - lastFrameAt) / 1000, 0.05);
+      accumulatedTime += elapsed;
+      lastFrameAt = now;
+      resize();
+      gl.useProgram(program);
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+      gl.uniform1f(timeLocation, accumulatedTime);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      animationFrame = window.requestAnimationFrame(draw);
+    };
+
+    let activeImage: HTMLImageElement | null = null;
+    const loadScene = () => {
+      const image = new Image();
+      activeImage = image;
+      textureReady = false;
+      canvas.classList.remove("is-ready");
+      image.onload = () => {
+        if (activeImage !== image) return;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.uniform2f(textureSizeLocation, image.naturalWidth, image.naturalHeight);
+        textureReady = true;
+        resize();
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, accumulatedTime);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        canvas.classList.add("is-ready");
+      };
+      image.src = mobileQuery.matches ? "/method-river-mobile-v1.webp" : "/method-river-wide-v1.webp";
+    };
+
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "12%" });
+    const resizeObserver = new ResizeObserver(resize);
+    observer.observe(canvas);
+    resizeObserver.observe(canvas);
+    mobileQuery.addEventListener("change", loadScene);
+    loadScene();
+    animationFrame = window.requestAnimationFrame((now) => {
+      lastFrameAt = now;
+      draw(now);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+      resizeObserver.disconnect();
+      mobileQuery.removeEventListener("change", loadScene);
+      activeImage = null;
+      gl.deleteTexture(texture);
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="method-river-flow" aria-hidden="true" />;
 }
 
 function inferGoal(text: string): keyof typeof GOALS {
@@ -558,13 +839,49 @@ function CastingLoader() {
   return <div className="casting" role="status"><BaguaMark /><p><b>正在观象</b><span>排定本卦 · 分清事实与未知 · 生成现实解读</span></p></div>;
 }
 
-function EntryArtwork({ className }: { className: string }) {
+function EntryArtwork({ className, imgRef }: { className: string; imgRef?: RefObject<HTMLImageElement | null> }) {
   return <picture className={className}>
-    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v3.png" />
-    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v3.png" />
-    <img src="/hero-entry-wide-v3.png" alt="" />
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v7.webp" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v7.webp" />
+    <img ref={imgRef} src="/hero-entry-wide-v7.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
   </picture>;
 }
+
+function EntryOpening() {
+  return <div className="entry-opening" aria-hidden="true">
+    <img className="entry-plum-branch entry-critical-asset" src="/hero-plum-branch-cinematic-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <img className="entry-vfx-preload entry-critical-asset" src="/hero-butterfly-film-sprite-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <img className="entry-vfx-preload entry-critical-asset" src="/hero-plum-petal-sprite-v2.webp" alt="" loading="eager" decoding="async" />
+    <span className="entry-plum-petal entry-plum-petal-a" />
+    <span className="entry-plum-petal entry-plum-petal-b" />
+    <span className="entry-butterfly-camera">
+      <span className="entry-butterfly-drift">
+        <span className="entry-butterfly-flight" />
+      </span>
+    </span>
+    <span className="entry-butterfly-perched" />
+    <img className="entry-butterfly-dissolve entry-critical-asset" src="/hero-butterfly-ink-dissolve-v2.webp" alt="" loading="eager" decoding="async" />
+  </div>;
+}
+
+function InquiryInkScene() {
+  return <div className="inquiry-ink-scene" aria-hidden="true">
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-cloud-stream inquiry-cloud-stream-far" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-cloud-stream inquiry-cloud-stream-near" />
+    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+  </div>;
+}
+
+const ENTRY_BIRDS = [
+  { left: "4%", top: "58%", scale: ".72", flap: ".74s", delay: "-.16s", drift: "7.2s", frame: "0%" },
+  { left: "19%", top: "42%", scale: ".56", flap: ".81s", delay: "-.48s", drift: "8.4s", frame: "33.333%" },
+  { left: "36%", top: "66%", scale: ".82", flap: ".69s", delay: "-.31s", drift: "6.8s", frame: "66.666%" },
+  { left: "53%", top: "31%", scale: ".62", flap: ".77s", delay: "-.62s", drift: "8.9s", frame: "100%" },
+  { left: "69%", top: "51%", scale: ".76", flap: ".72s", delay: "-.27s", drift: "7.8s", frame: "33.333%" },
+  { left: "84%", top: "23%", scale: ".51", flap: ".86s", delay: "-.55s", drift: "9.3s", frame: "66.666%" },
+] as const;
 
 export function GuanxiangApp() {
   const [question, setQuestion] = useState("");
@@ -590,23 +907,79 @@ export function GuanxiangApp() {
   const [homeNavigationVisible, setHomeNavigationVisible] = useState(false);
   const [entrySequenceStarted, setEntrySequenceStarted] = useState(false);
   const [entryReleased, setEntryReleased] = useState(false);
+  const [methodReady, setMethodReady] = useState(false);
+  const [questionConfirmed, setQuestionConfirmed] = useState(false);
+  const [activeMethodLine, setActiveMethodLine] = useState<number | null>(null);
+  const [previewMethodLine, setPreviewMethodLine] = useState<number | null>(null);
+  const [methodWritingRun, setMethodWritingRun] = useState(0);
   const [titleAwake, setTitleAwake] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
+  const methodAdvanceTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const openingSavedReading = Boolean(sessionStorage.getItem(JOURNAL_OPEN_KEY));
     if (!openingSavedReading) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    const frame = window.requestAnimationFrame(() => {
-      setEntrySequenceStarted(true);
-      if (openingSavedReading) setEntryReleased(true);
+    let cancelled = false;
+    let frame = 0;
+    let fallbackTimer = 0;
+    const criticalImages = [
+      entryHeroImageRef.current,
+      ...Array.from(document.querySelectorAll<HTMLImageElement>(".entry-critical-asset")),
+    ];
+    const criticalArtworkReady = Promise.all(criticalImages.map((image) => image?.decode().catch(() => undefined)));
+    const fallbackReady = new Promise<void>((resolve) => {
+      fallbackTimer = window.setTimeout(resolve, 1800);
     });
-    return () => window.cancelAnimationFrame(frame);
+    void Promise.race([criticalArtworkReady, fallbackReady]).then(() => {
+      if (cancelled) return;
+      frame = window.requestAnimationFrame(() => {
+        setEntrySequenceStarted(true);
+        if (openingSavedReading) {
+          setEntryReleased(true);
+          setMethodReady(true);
+        }
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(fallbackTimer);
+      window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("entry-locked", !entryReleased);
     document.body.classList.toggle("entry-locked", !entryReleased);
-    return () => document.body.classList.remove("entry-locked");
+    return () => {
+      document.documentElement.classList.remove("entry-locked");
+      document.body.classList.remove("entry-locked");
+    };
+  }, [entryReleased]);
+
+  useEffect(() => {
+    if (entryReleased) return;
+    const blockScroll = (event: Event) => event.preventDefault();
+    const blockScrollKeys = (event: KeyboardEvent) => {
+      if (["ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp", " "].includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+    const holdEntryPosition = () => {
+      if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.addEventListener("wheel", blockScroll, { passive: false });
+    window.addEventListener("touchmove", blockScroll, { passive: false });
+    window.addEventListener("keydown", blockScrollKeys);
+    window.addEventListener("scroll", holdEntryPosition, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", blockScroll);
+      window.removeEventListener("touchmove", blockScroll);
+      window.removeEventListener("keydown", blockScrollKeys);
+      window.removeEventListener("scroll", holdEntryPosition);
+    };
   }, [entryReleased]);
 
   useEffect(() => {
@@ -625,6 +998,7 @@ export function GuanxiangApp() {
 
   useEffect(() => () => {
     audioRef.current?.pause();
+    if (methodAdvanceTimerRef.current !== null) window.clearTimeout(methodAdvanceTimerRef.current);
   }, []);
 
   async function toggleSound() {
@@ -652,10 +1026,37 @@ export function GuanxiangApp() {
     }));
   }
 
+  function confirmMethodReady() {
+    if (methodReady) return;
+    setMethodReady(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    methodAdvanceTimerRef.current = window.setTimeout(() => {
+      document.getElementById("inquiry")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      window.requestAnimationFrame(() => document.getElementById("inquiry-title")?.focus({ preventScroll: true }));
+      methodAdvanceTimerRef.current = null;
+    }, reducedMotion ? 0 : 780);
+  }
+
+  function writeMethodLine(index: number) {
+    setPreviewMethodLine(null);
+    setActiveMethodLine(index);
+    setMethodWritingRun((run) => run + 1);
+  }
+
   function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
     setQuestion(example.text);
     setDomain(example.domain);
     setGoal("");
+    setQuestionConfirmed(false);
+  }
+
+  function confirmQuestion() {
+    if (question.trim().length < 6) return;
+    setQuestionConfirmed(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("discernment")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    }));
   }
 
   function finishPersonalizedRequest(payload: ApiResponse): void {
@@ -821,55 +1222,89 @@ export function GuanxiangApp() {
     finally { setLoading(false); setProgress(""); }
   }
 
+  const emphasizedMethodLine = activeMethodLine ?? previewMethodLine;
+
   return <>
     <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden={!homeNavigationVisible}>
       <a className="wordmark" href="#top" tabIndex={homeNavigationVisible ? undefined : -1}>观象</a>
-      <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>如何观</a><a href="#inquiry" tabIndex={homeNavigationVisible ? undefined : -1}>开始问</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>观事簿</a></nav>
+      <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>如何观</a><a href={methodReady ? "#inquiry" : "#method"} onClick={(event) => { if (!methodReady) { event.preventDefault(); document.getElementById("method-ready")?.focus(); } }} tabIndex={homeNavigationVisible ? undefined : -1}>开始问</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>观事簿</a></nav>
       <small>确定性排盘 · 个性化解读</small>
     </header>
     <main id="top" className="scroll-canvas">
       <section className={`hero entry-hero scroll-section${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} aria-labelledby="hero-title">
-        <EntryArtwork className="entry-hero-final" />
+        <EntryArtwork className="entry-hero-final" imgRef={entryHeroImageRef} />
+        <EntryArtwork className="entry-ink-reveal" />
+        <EntryOpening />
         <EntryArtwork className="entry-title-focus" />
-        <img className="entry-taiji-breath" src="/hero-taiji-breath-v2.png" alt="" aria-hidden="true" />
-        <img className="entry-waterfall entry-waterfall-a" src="/hero-waterfall-v1.png" alt="" aria-hidden="true" />
-        <img className="entry-waterfall entry-waterfall-b" src="/hero-waterfall-v1.png" alt="" aria-hidden="true" />
-        <img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" />
-        <img className="entry-bird-life" src="/hero-birds-v1.png" alt="" aria-hidden="true" />
-        <div className="entry-ripple-stage" aria-hidden="true"><img className="entry-ripple entry-ripple-one" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-two" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-three" src="/hero-ripple-ring-v1.png" alt="" /><img className="entry-ripple entry-ripple-four" src="/hero-ripple-ring-v1.png" alt="" /></div>
-        <img className="entry-ink-drop" src="/hero-ink-drop-v2.png" alt="" aria-hidden="true" />
+        <img className="entry-name-seal" src="/hero-yuanshuai-seal-v1.webp" alt="" aria-hidden="true" />
+        <img className="entry-classic-calligraphy" src="/hero-classic-calligraphy-v1.webp" alt="" aria-hidden="true" />
+        <div className="entry-birds-life" aria-hidden="true">
+          {["a", "b"].map((flock) => <div className={`entry-bird-flock entry-bird-flock-${flock}`} key={flock}>
+            {ENTRY_BIRDS.map((bird, index) => <span
+              className="entry-bird"
+              key={index}
+              style={{
+                "--bird-left": bird.left,
+                "--bird-top": bird.top,
+                "--bird-scale": bird.scale,
+                "--bird-flap": bird.flap,
+                "--bird-delay": bird.delay,
+                "--bird-drift": bird.drift,
+                "--bird-frame": bird.frame,
+              } as CSSProperties}
+            />)}
+          </div>)}
+        </div>
         <h1 id="hero-title" className="sr-only">观象</h1>
         <p className="sr-only">心有所问 静观其象</p>
         <button type="button" className="hero-title-hotspot" aria-pressed={titleAwake} aria-label="让观象题字与水墨太极浮现" onPointerEnter={() => setTitleAwake(true)} onPointerLeave={() => setTitleAwake(false)} onFocus={() => setTitleAwake(true)} onBlur={() => setTitleAwake(false)} onClick={() => setTitleAwake((current) => !current)}><span className="sr-only">观象</span></button>
         <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
         <span className="sr-only">《周易·系辞上》</span>
         <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
-        <button type="button" className="hero-sound-control" aria-pressed={soundOn} onClick={toggleSound}><span aria-hidden="true">{soundOn ? "静" : "琴"}</span><b>{soundOn ? "静音" : "闻琴"}</b></button>
-        <button type="button" className="hero-scroll-cue" onClick={enterMethod}><span className="sr-only">了解观象之法</span></button>
+        <button type="button" className="hero-sound-control" aria-pressed={soundOn} aria-label={soundOn ? "暂停古琴音乐" : "播放古琴音乐"} onClick={toggleSound}><img src="/hero-guqin-horizontal-v2.webp" alt="" aria-hidden="true" /><span className="sr-only">{soundOn ? "暂停古琴音乐" : "播放古琴音乐"}</span></button>
+        <button type="button" className="hero-scroll-cue" aria-label="进入观象之法" onClick={enterMethod}><img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" /><img className="entry-down-cue" src="/hero-down-cue-v1.png" alt="" aria-hidden="true" /></button>
       </section>
 
-      <section id="method" className="method scroll-section" data-reveal aria-labelledby="method-title">
+      <section id="method" className={`method scroll-section${methodReady ? " is-ready" : ""}`} data-reveal aria-labelledby="method-title">
+        <MethodRiverFlow />
+        <picture className="method-landscape">
+          <source media="(max-width: 900px)" srcSet="/method-river-mobile-v1.webp" />
+          <img src="/method-river-wide-v1.webp" alt="" />
+        </picture>
         <VerticalBrand />
-        <div className="method-quote"><p className="eyebrow">观象之法</p><h2 id="method-title"><span className="sr-only">在天成象，在地成形，变化见矣。</span><span aria-hidden="true">在天成象，</span><span aria-hidden="true">在地成形，</span><span aria-hidden="true">变化见矣。</span></h2><cite>《周易·系辞上》</cite></div>
-        <div className="method-explainer">
-          <p className="method-lead">用三分钟，把一件拿不准的事理清方向，也看清下一步该留意什么。</p>
-          <p>观象不会替你决定，也不会预先写好结果。我们会陪你写清所问、辨明事实与未知，再依三数成卦，把卦象的结构、变化与现实中值得观察的条件一层层展开。</p>
-          <ol><li><span>壹</span><b>正问</b><p>写下一件具体而真实的事。</p></li><li><span>贰</span><b>辨识</b><p>在逐步对话中，找到真正想问的核心。</p></li><li><span>叁</span><b>成卦</b><p>静心取三数，程序依规则完成排盘。</p></li><li><span>肆</span><b>观卦</b><p>从本卦到变化，最后回到自己的处境。</p></li></ol>
-          <div className="method-readiness"><p>如果你已经准备好了，请闭上眼睛，缓缓数过三个呼吸。再睁开眼时，我们从心中那件事开始。</p><a className="method-cta" href="#inquiry">我已准备好</a></div>
+        <div className="method-stage">
+          <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
+          <div className="method-explainer">
+            <p className="method-lead">接下来<br />我们尝试观象</p>
+            <p className="method-breath"><span>请闭上眼睛</span><b>做三个呼吸</b></p>
+          </div>
         </div>
+        <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label={methodReady ? "已定心，进入正问" : "开始正问"} aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">{methodReady ? "已定心" : "开始正问"}</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
       </section>
 
-      <section id="inquiry" className="inquiry scroll-section" data-reveal>
+      <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
+        <InquiryInkScene />
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
-          <header className="inquiry-heading"><p className="eyebrow">观象之法 · 四步</p><h2>从心中所问，走到眼前可行</h2><p>每次只处理一件具体的事。页面会按正问、辨识、成卦、观卦的顺序陪你完成，不需要一次填完一张问卷。</p></header>
+          <div className="inquiry-stage">
+            <header className="inquiry-heading">
+              <p className="eyebrow">观象之法 · 壹</p>
+              <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
+            </header>
 
-          <section className="inquiry-step inquiry-panel"><div className="step-heading"><span>壹</span><div><h3>正问</h3><p>写下一件具体而真实的事。先按此刻最自然的方式写，后面还有机会重新确认。</p></div></div>
-            <label className="question-label"><span>你真正想问的问题 *</span><textarea aria-label="你真正想问的问题" placeholder="例如：这次合作，我还应该继续投入吗？" value={question} maxLength={160} onChange={(event) => setQuestion(event.target.value)} /><small>{question.trim().length} / 160 · 请用清晰具体的文字说出你想弄明白的事，这会帮助我们把抽象的卦意落到现实处境中。</small></label>
-            <div className="question-examples"><header><span>不知怎样开口，可以从这些问题开始</span><small>点击任意一句，会自动填入上方</small></header><div>{QUESTION_EXAMPLES.map((example) => <button type="button" key={example.text} onClick={() => applyQuestionExample(example)}><span>{example.topic}</span><b>{example.text}</b></button>)}</div></div>
-          </section>
+            <div className="inquiry-writing">
+              <label className="question-label" htmlFor="primary-question"><span>此刻，你真正想问的是什么？</span></label>
+              <textarea id="primary-question" aria-label="你真正想问的问题" aria-describedby="question-guidance question-count" placeholder="把心里的这一问，写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); }} />
+              <div className="question-meta"><p id="question-guidance">先照此刻最自然的方式写。下一步，我们会陪你慢慢辨清事实、未知与真正的需要。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
 
-          <section className="inquiry-step inquiry-panel"><div className="step-heading"><span>贰</span><div><h3>辨识</h3><p>一次只回答一问。我们把事实与未知分开，也帮助你辨认最初写下的问题是否真的问到了心里。</p></div></div>
+              <div className="question-examples"><header><span>若一时不知怎样开口</span><small>轻点一句，放入上方继续修改</small></header><div>{QUESTION_EXAMPLES.map((example, index) => <button type="button" key={example.text} aria-label={`参考${example.topic}例句：${example.text}`} onClick={() => applyQuestionExample(example)}><span>{String(index + 1).padStart(2, "0")} · {example.topic}</span><b>{example.text}</b></button>)}</div></div>
+
+              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "这一问已写下" : "写好了，继续辨识"}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "再写具体一些，至少六个字。" : ""}</p></div>
+            </div>
+          </div>
+
+          <div className="inquiry-future-flow" hidden={!questionConfirmed}>
+          <section id="discernment" className="inquiry-step inquiry-panel"><div className="step-heading"><span>贰</span><div><h3>辨识</h3><p>一次只回答一问。我们把事实与未知分开，也帮助你辨认最初写下的问题是否真的问到了心里。</p></div></div>
             {question.trim().length >= 6 ? <GuidedIntake question={question} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onQuestion={setQuestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onComplete={setIntakeComplete} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
           </section>
 
@@ -886,6 +1321,7 @@ export function GuanxiangApp() {
             <button className="cast-button" disabled={loading}><BaguaMark />{loading ? "正在生成解读" : "观卦"}</button>
             {loading && <CastingLoader />}
           </section>
+          </div>
         </form>
       </section>
 

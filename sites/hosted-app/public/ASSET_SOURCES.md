@@ -16,6 +16,20 @@
 - `hero-taiji-breath-v2.png`：由 OpenAI 图像生成能力生成的淡墨太极，经绿色色键处理为透明 PNG，用于题字背后的低透明度呼吸显隐。
 - `hero-birds-v1.png`、`hero-boat-v1.png`、`hero-waterfall-v1.png`：由 OpenAI 图像生成能力生成并经绿色色键处理的独立透明环境素材，分别用于飞行、漂移和错相位下落动画。
 
+## 第二页「明法」资产
+
+- `method-river-wide-v1.webp`：依据用户最终确认的第二页视觉稿，由 OpenAI 图像生成能力拆出的桌面无字山河底图；保留两岸重山与中央奔流大江，不含界面文字、人物或船只。
+- `method-river-mobile-v1.webp`：沿用同一美术方向重新构图的移动端竖屏山河底图，确保窄屏仍能完整看见两岸山势与贯穿画面的蜿蜒江流。
+- `method-current-cue-v1.png`：由 OpenAI 图像生成能力生成的飞白墨色水痕，经绿色色键处理为透明 PNG，用于“开始正问”下方的克制水意提示。
+- `method-river-current-flow-v2.png`：早期江流覆盖层，现仅保留为历史方案资产，页面已不再引用。用户验收认为整张 S 形覆盖层位移不符合真实水流，因此改由 WebGL 对已审定山河底图的河道内部纹理做多尺度下游位移、剪切与浪脊明暗变化；两岸与河形保持静止，也未引入新的可见图片资产。
+
+## 第三页「正问」资产
+
+- `question-pine-cloud-base-v2.webp`：以用户选定的孤松云海画面为基础，由 OpenAI 图像编辑能力移除松树，保留宣纸、远山、近石与原始云雾，作为满屏山水底板。
+- `question-pine-tree-v2.png`：由同一审定画面提取的完整孤松透明层，以树根为固定轴进行轻微风摆。
+- `question-cloud-stream-v3-tile.png`：参照已审定云海笔触，由 OpenAI 图像生成能力重构为横贯画面的流线型云河；经品红色键去底、暖灰化与左右边缘周期融合后成为无缝循环透明 PNG，始终从左向右流动。
+- `question-mountain-occluder-v3.png`：从无松树底板确定性提取的前景山体透明遮挡层；置于远云前方，使云河在山峰处自然分流、穿谷和时隐时现。
+
 ## 声音
 
 - `audio/guqin-zheng-diao.ogg`：Wikimedia Commons `File:Zheng diao.ogg`，Charlie Huang，古琴正调定弦录音，作者释放至公有领域。
