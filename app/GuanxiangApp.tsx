@@ -515,7 +515,6 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
   return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
-    <div className="final-question-backdrop" aria-hidden="true" />
     <div className="final-question-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>

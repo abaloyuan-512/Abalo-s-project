@@ -270,14 +270,8 @@ a { color: inherit; }
 .dialogue-prerequisite { max-width: 740px; margin: 36px 0 0 76px; padding-left: 20px; color: var(--mist); border-left: 1px solid var(--cinnabar); line-height: 1.8; }
 .text-button { padding: 3px 0; color: var(--ink-soft); background: transparent; border: 0; border-bottom: 1px solid var(--rule); cursor: pointer; font-size: 14px; }
 .text-button:hover, .text-button:focus-visible { color: var(--cinnabar-dark); border-bottom-color: var(--cinnabar); }
-.final-question-step { position: relative; min-height: 100svh; padding: clamp(72px, 9vh, 108px) 0; display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: center; isolation: isolate; overflow: visible; }
-.final-question-backdrop { position: absolute; inset-block: 0; left: calc(50% - 30px); z-index: 0; width: calc(100vw + 4px); overflow: hidden; transform: translateX(-50%); pointer-events: none; background: #f6efe1 url("/final-question-sunset-reeds-v1.webp") center center / cover no-repeat; opacity: 1; contain: paint; }
-.final-question-backdrop::before, .final-question-backdrop::after { content: ""; position: absolute; inset: 0; background-image: url("/final-question-sunset-reeds-v1.webp"); background-size: cover; background-repeat: no-repeat; will-change: transform; pointer-events: none; }
-.final-question-backdrop::before { background-position: calc(50% - 38px) center; opacity: .68; transform-origin: 8% 100%; -webkit-mask-image: radial-gradient(ellipse 48% 74% at 9% 94%, #000 0 51%, rgba(0,0,0,.88) 63%, transparent 81%); mask-image: radial-gradient(ellipse 48% 74% at 9% 94%, #000 0 51%, rgba(0,0,0,.88) 63%, transparent 81%); animation: final-question-reed-sway-near 5.2s ease-in-out infinite; }
-.final-question-backdrop::after { background-position: calc(50% + 44px) center; opacity: .5; transform-origin: 31% 100%; -webkit-mask-image: radial-gradient(ellipse 58% 62% at 31% 92%, #000 0 42%, rgba(0,0,0,.8) 59%, transparent 78%); mask-image: radial-gradient(ellipse 58% 62% at 31% 92%, #000 0 42%, rgba(0,0,0,.8) 59%, transparent 78%); animation: final-question-reed-sway-mid 6.8s ease-in-out -2.1s infinite; }
-@keyframes final-question-reed-sway-near { 0%, 100% { transform: scale(1.018) rotate(-1.05deg) skewX(-.28deg); } 50% { transform: scale(1.018) rotate(1.32deg) skewX(.36deg); } }
-@keyframes final-question-reed-sway-mid { 0%, 100% { transform: scale(1.014) rotate(.78deg) skewX(.2deg); } 50% { transform: scale(1.014) rotate(-1.08deg) skewX(-.28deg); } }
-.final-question-heading, .final-question-workspace { position: relative; z-index: 2; }
+.final-question-step { position: relative; min-height: 100svh; padding: clamp(72px, 9vh, 108px) 0; display: grid; grid-template-columns: minmax(220px, .52fr) minmax(620px, 1.48fr); gap: clamp(54px, 7vw, 118px); align-items: center; overflow: hidden; }
+.final-question-heading, .final-question-workspace { position: relative; z-index: 1; }
 .final-question-heading { align-self: start; padding-top: clamp(6px, 2vh, 24px); }
 .final-question-heading h3 { margin: 15px 0 22px; color: var(--ink); font: 400 clamp(82px, 8vw, 126px)/.9 "Liu Jian Mao Cao Local", var(--brush); letter-spacing: .08em; }
 .final-question-heading > p:last-child { margin: 0; color: var(--ink-soft); font: 400 clamp(23px, 2vw, 31px)/1.65 var(--brush); letter-spacing: .08em; }
@@ -351,9 +345,9 @@ a { color: inherit; }
 .number-step .numbers-slip label span { font-size: 24px; }
 .number-note { margin: 22px 0 0; color: var(--mist); font-size: 14px; line-height: 1.7; }
 .casting-number-step { position: relative; isolation: isolate; min-height: calc(100svh - 68px); padding: clamp(48px, 6vh, 68px) 0 clamp(38px, 5vh, 56px); display: grid; grid-template-columns: minmax(330px, .66fr) minmax(560px, 1.34fr); gap: clamp(38px, 4.6vw, 78px); align-items: start; overflow: visible; }
-.casting-number-step::before { content: ""; position: absolute; z-index: -3; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: #f6efe1; pointer-events: none; }
+.casting-number-step::before { content: ""; position: absolute; z-index: -3; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: #f1ede5; pointer-events: none; }
 .casting-peony-scene { position: absolute; z-index: -2; top: -68px; left: 50%; width: 100vw; aspect-ratio: 16 / 9; transform: translateX(calc(-50% + clamp(18px, 3vw, 52px))); pointer-events: none; perspective: 760px; }
-.casting-peony-backdrop { position: absolute; inset: -1px; background: url("/casting-peony-background-v2.webp") center / cover no-repeat; opacity: .82; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); }
+.casting-peony-backdrop { position: absolute; inset: -1px; background: url("/casting-peony-background-v3.webp") center / cover no-repeat; opacity: .9; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.58) 10%, #000 24%, #000 88%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.58) 10%, #000 24%, #000 88%, transparent 100%); }
 .casting-number-step::after { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: linear-gradient(90deg, rgba(246,239,225,.12), transparent 16%, transparent 84%, rgba(246,239,225,.12)), rgba(246,239,225,.08); pointer-events: none; }
 .casting-heading, .casting-number-workspace { position: relative; z-index: 1; }
 .casting-heading { width: 100%; max-width: 470px; align-self: start; padding-top: clamp(6px, 2vh, 24px); }
@@ -899,9 +893,6 @@ a { color: inherit; }
   .hanging-slips fieldset { min-height: 0; }
   .inquiry-step { padding: 42px 0 54px; }
   .final-question-step { min-height: 100svh; padding: 54px 0 46px; display: grid; grid-template-columns: 1fr; gap: 22px; align-items: start; overflow: visible; }
-  .final-question-backdrop { left: 50%; background-position: 28% center; opacity: 1; }
-  .final-question-backdrop::before { background-position: calc(28% - 24px) center; opacity: .62; }
-  .final-question-backdrop::after { background-position: calc(28% + 30px) center; opacity: .46; }
   .final-question-heading { padding: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: end; }
   .final-question-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 4px; font-size: 11px; }
   .final-question-heading h3 { margin: 0; font-size: clamp(58px,18vw,72px); }
@@ -936,7 +927,7 @@ a { color: inherit; }
   .final-question-status { min-height: 15px; margin-top: 3px; font-size: 10px; }
   .casting-number-step { min-height: calc(100svh - 56px); padding: 42px 0 34px; display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start; overflow: visible; }
   .casting-peony-scene { top: auto; bottom: clamp(236px, 32vh, 278px); transform: translateX(-50%); }
-  .casting-peony-backdrop { opacity: .5; }
+  .casting-peony-backdrop { opacity: .82; }
   .casting-heading { max-width: none; padding: 0; display: block; }
   .casting-heading .eyebrow { margin-bottom: 4px; font-size: 11px; }
   .casting-heading h3 { margin: 0; font-size: clamp(58px,18vw,72px); }
@@ -1015,7 +1006,6 @@ a { color: inherit; }
   .hero.is-visible .hero-ink-whispers { animation: none; opacity: .5; transform: scale(.96); filter: grayscale(1) contrast(.86); }
   .entry-hero-final { animation: none !important; opacity: 1; clip-path: none; filter: none; }
   .entry-mist-scene { display: none; }
-  .final-question-backdrop::before, .final-question-backdrop::after { animation: none !important; transform: none; }
   .entry-boat-life, .entry-bird-flock { animation: none !important; opacity: .58; transform: translate(-50%, -50%); }
   .entry-bird { animation: none !important; background-position-x: var(--bird-frame); }
   .hero-title-hotspot, .hero-scroll-cue { animation: none !important; pointer-events: auto; }

@@ -205,7 +205,6 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
 test("final question offers a concise user-controlled question decision", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  await fs.access(new URL("../public/final-question-sunset-reeds-v1.webp", import.meta.url));
   assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
   assert.match(appSource, /采取建议/);
   assert.match(appSource, /保持原题/);
@@ -217,16 +216,7 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
   assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
-  assert.match(appSource, /className="final-question-backdrop" aria-hidden="true"/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
-  assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v1\.webp/);
-  assert.match(cssSource, /final-question-backdrop[^}]+left: calc\(50% - 30px\)[^}]+width: calc\(100vw \+ 4px\)/);
-  assert.match(cssSource, /final-question-backdrop::before[^}]+background-position: calc\(50% - 38px\) center/);
-  assert.match(cssSource, /final-question-backdrop::after[^}]+background-position: calc\(50% \+ 44px\) center/);
-  assert.match(cssSource, /final-question-backdrop::before[^}]+final-question-reed-sway-near/);
-  assert.match(cssSource, /final-question-backdrop::after[^}]+final-question-reed-sway-mid/);
-  assert.match(cssSource, /@keyframes final-question-reed-sway-near/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+final-question-backdrop::before[^}]+animation: none/);
   assert.match(cssSource, /final-question-cta/);
 });
 
@@ -260,10 +250,10 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
   assert.doesNotMatch(appSource, /三个数字只交给程序/);
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
-  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v2\.webp/);
+  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v3\.webp/);
   assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
-  assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f6efe1/);
+  assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
