@@ -82,7 +82,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /请心中再次默念你的问题，深呼吸/);
   assert.match(html, /开始卜卦/);
   assert.doesNotMatch(html, /最终问卦题目/);
-  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step casting-number-step flow-lock-screen"[^>]+hidden/);
+  assert.match(html, /<section[^>]+id="casting"[^>]+class="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen"[^>]+hidden/);
   assert.doesNotMatch(html, /class="inquiry-step inquiry-panel cast-step"/);
   assert.match(html, /<h3[^>]+id="casting-title"[^>]*>成卦<\/h3>/);
   assert.match(html, /casting-peony-bloom-1-v1\.png/);
@@ -94,7 +94,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
-  assert.match(html, /<button[^>]+class="cast-button"[^>]+disabled[^>]*>[\s\S]*观卦<\/button>/);
+  assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>[\s\S]*成卦<\/button>/);
   assert.doesNotMatch(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
@@ -249,7 +249,7 @@ test("final question offers a concise user-controlled question decision", async 
   assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete \|\| flowPage !== 5\}/);
-  assert.match(appSource, /number-step casting-number-step flow-lock-screen" hidden=\{!finalQuestionConfirmed \|\| flowPage !== 6\}/);
+  assert.match(appSource, /id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen" hidden=\{!finalQuestionConfirmed \|\| flowPage !== 6\}/);
   assert.match(appSource, /className="final-question-sky-drift"/);
   assert.match(appSource, /className="final-question-bird"/);
   assert.match(appSource, /理清脉络之后<br \/>确认最终问题/);
@@ -292,7 +292,10 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /placeholder="1—999"/);
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
-  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+casting-submit[\s\S]+className="cast-button"/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
+  assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
+  assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
   assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
   assert.match(appSource, /peony-bloom-image[\s\S]+peony-petal-layer[\s\S]+peony-petal-origin[\s\S]+peony-falling-petal/);
   assert.match(appSource, /凭当下所感，取三个数/);
@@ -305,10 +308,17 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
   assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v3\.webp/);
   assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
+  assert.match(cssSource, /casting-heading \.casting-submit \.bagua-mark[^}]+width: 30px[^}]+height: 30px/);
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
   assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
+  assert.match(cssSource, /inquiry\.has-casting-step[^}]+padding-bottom: 0/);
+  assert.match(cssSource, /viewport-page[^}]+min-height: calc\(100svh - 68px\)/);
+  assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]+if \(!finalQuestionConfirmed\) return;[\s\S]+getBoundingClientRect\(\)\.top - headerHeight[\s\S]+window\.scrollTo\(\{ top: Math\.max\(0, targetTop\), left: 0, behavior: "auto" \}\)/);
+  assert.doesNotMatch(appSource, /getElementById\("casting"\)\?\.scrollIntoView/);
+  assert.match(appSource, /className="version-note" hidden/);
+  assert.match(appSource, /className="site-footer" hidden/);
   assert.match(cssSource, /casting-peony-scene[^}]+translateX\(calc\(-50% - var\(--casting-viewport-shift\)\)\)/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
@@ -318,8 +328,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-heading \.peony-number-field[^}]+grid-template-columns: repeat\(3/);
   assert.match(cssSource, /casting-contemplation span:nth-child\(2\)[^}]+margin-left: 0/);
   assert.match(cssSource, /peony-number-copy[^}]+justify-items: start[^}]+text-align: left/);
-  assert.match(cssSource, /casting-submit \.cast-button[^}]+margin: 10px auto 0 0[^}]+justify-content: flex-start/);
-  assert.match(cssSource, /casting-submit \.cast-button::after[^}]+content: none/);
+  assert.match(cssSource, /casting-heading \.casting-submit::after[^}]+content: none/);
   assert.match(cssSource, /@media \(max-width: 760px\)[\s\S]+\.casting-heading \{[^}]+display: block/);
   assert.doesNotMatch(cssSource, /peony-number-wind/);
   assert.match(cssSource, /peony-falling-petal[^}]+mix-blend-mode: normal/);
@@ -336,11 +345,20 @@ test("casting uses a borderless windblown peony scene without changing number ro
 test("sixth page submits directly and seventh page gates detailed reading", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(appSource, /const numbersReady = numbers\.every/);
-  assert.match(appSource, /disabled=\{loading \|\| !numbersReady \|\| !acknowledged\}/);
+  assert.doesNotMatch(appSource, /const numbersReady = numbers\.every|acknowledged/);
+  assert.match(appSource, /className="cast-button casting-submit" disabled=\{loading\}/);
   assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
-  assert.match(appSource, /className="eyebrow">观象之法 · 肆/);
-  assert.match(appSource, /className="result-canonical"><b>卦辞<\/b>/);
+  assert.match(appSource, /function ResultKoiPond\(\)/);
+  assert.match(appSource, /page7-koi-cinnabar-v1\.png/);
+  assert.match(appSource, /page7-koi-ink-v1\.png/);
+  assert.match(appSource, /Math\.random\(\)/);
+  assert.match(appSource, /requestAnimationFrame\(draw\)/);
+  assert.match(appSource, /tailWeight/);
+  assert.match(appSource, /context\.rotate\(localAngle\)/);
+  assert.match(appSource, /className="result-hexagram-symbol"/);
+  assert.match(appSource, /className="result-number">第 \{result\.base_hexagram\.king_wen_number\} 卦/);
+  assert.match(appSource, /className="result-canonical"><b>卦辞<\/b><span>/);
+  assert.doesNotMatch(appSource, /<aside className="result-aside">/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
   assert.match(appSource, /aria-disabled="true" disabled>第八页待验收后开放<\/button>/);
@@ -350,8 +368,10 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
-  assert.match(cssSource, /result-overview[^}]+min-height: 100svh/);
-  assert.match(cssSource, /result-aside button:focus-visible/);
+  assert.match(cssSource, /result-overview[^}]+grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/);
+  assert.match(cssSource, /page7-taiji-bg-v1\.png/);
+  assert.match(cssSource, /result-koi-layer[^}]+pointer-events: none/);
+  assert.match(cssSource, /result-detail-button:hover, \.result-detail-button:focus-visible/);
 });
 
 test("first seven pages are single-screen, forward-only and scroll locked", async () => {
