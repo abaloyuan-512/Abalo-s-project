@@ -265,10 +265,10 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
   assert.doesNotMatch(appSource, /三个数字只交给程序/);
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
-  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v2\.webp/);
+  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v3\.webp/);
   assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
-  assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f6efe1/);
+  assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);

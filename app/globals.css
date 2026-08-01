@@ -354,9 +354,9 @@ a { color: inherit; }
 .number-step .numbers-slip label span { font-size: 24px; }
 .number-note { margin: 22px 0 0; color: var(--mist); font-size: 14px; line-height: 1.7; }
 .casting-number-step { position: relative; isolation: isolate; min-height: calc(100svh - 68px); padding: clamp(48px, 6vh, 68px) 0 clamp(38px, 5vh, 56px); display: grid; grid-template-columns: minmax(330px, .66fr) minmax(560px, 1.34fr); gap: clamp(38px, 4.6vw, 78px); align-items: start; overflow: visible; }
-.casting-number-step::before { content: ""; position: absolute; z-index: -3; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: #f6efe1; pointer-events: none; }
+.casting-number-step::before { content: ""; position: absolute; z-index: -3; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: #f1ede5; pointer-events: none; }
 .casting-peony-scene { position: absolute; z-index: -2; top: -68px; left: 50%; width: 100vw; aspect-ratio: 16 / 9; transform: translateX(calc(-50% + clamp(18px, 3vw, 52px))); pointer-events: none; perspective: 760px; }
-.casting-peony-backdrop { position: absolute; inset: -1px; background: url("/casting-peony-background-v2.webp") center / cover no-repeat; opacity: .82; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.42) 12%, #000 28%, #000 84%, transparent 100%); }
+.casting-peony-backdrop { position: absolute; inset: -1px; background: url("/casting-peony-background-v3.webp") center / cover no-repeat; opacity: .9; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.58) 10%, #000 24%, #000 88%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.58) 10%, #000 24%, #000 88%, transparent 100%); }
 .casting-number-step::after { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: linear-gradient(90deg, rgba(246,239,225,.12), transparent 16%, transparent 84%, rgba(246,239,225,.12)), rgba(246,239,225,.08); pointer-events: none; }
 .casting-heading, .casting-number-workspace { position: relative; z-index: 1; }
 .casting-heading { width: 100%; max-width: 470px; align-self: start; padding-top: clamp(6px, 2vh, 24px); }
@@ -940,7 +940,7 @@ a { color: inherit; }
   .final-question-status { min-height: 15px; margin-top: 3px; font-size: 10px; }
   .casting-number-step { min-height: calc(100svh - 56px); padding: 42px 0 34px; display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start; overflow: visible; }
   .casting-peony-scene { top: auto; bottom: clamp(236px, 32vh, 278px); transform: translateX(-50%); }
-  .casting-peony-backdrop { opacity: .5; }
+  .casting-peony-backdrop { opacity: .82; }
   .casting-heading { max-width: none; padding: 0; display: block; }
   .casting-heading .eyebrow { margin-bottom: 4px; font-size: 11px; }
   .casting-heading h3 { margin: 0; font-size: clamp(58px,18vw,72px); }
