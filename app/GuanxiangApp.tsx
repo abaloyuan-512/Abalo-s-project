@@ -448,6 +448,17 @@ function GuidedIntake(props: GuidedIntakeProps) {
   }
 
   function finishWithoutSuggestion() {
+    const combined = `${question}\n${turns.map((item) => item.answer).join("\n")}`;
+    const domain = inferDomain(combined);
+    const desiredGoal = inferGoal(turns[turns.length - 1]?.answer ?? question);
+    const allowed = GOALS_BY_DOMAIN[domain] ?? [];
+    onStructured({
+      domain,
+      goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+      horizon: "CURRENT",
+      stage: "EXPLORING",
+      uncertainty: inferUncertainty(combined),
+    });
     onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
     onSuggestion(null);
     onCompletionReason("USER_EARLY");
@@ -1085,8 +1096,38 @@ export function GuanxiangApp() {
     const responseLines = nonemptyLines(observableResponses);
     const parsed = numbers.map(Number);
     const textLists = [factLines, unknownLines, actionLines, responseLines];
-    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
+    const earlyExit = discernmentCompletionReason === "USER_EARLY";
+    const realityContextInvalid = !earlyExit && (factLines.length < 1 || unknownLines.length < 1);
+    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || realityContextInvalid || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
       setError("请先完成正问与辨识，再静心填写三个 1–999 的整数，并确认使用边界。"); return;
+    }
+    if (earlyExit) {
+      setLoading(true); setProgress("正在按三数成卦……");
+      try {
+        const request = await fetch("/api/v3/meihua", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({
+            contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
+            request_id: `sites-${crypto.randomUUID()}`,
+            question_text: question.trim(), question_domain: domain, decision_goal: goal,
+            time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+            numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+            user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
+          }),
+        });
+        const payload = await request.json() as ApiResponse;
+        if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
+          throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
+        }
+        setResponse(payload); setProgress("");
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "本次未能完成排盘。");
+      } finally {
+        setLoading(false); setProgress("");
+      }
+      return;
     }
     setLoading(true); setProgress("正在提交本次观象任务……");
     const requestId = `sites-${crypto.randomUUID()}`;

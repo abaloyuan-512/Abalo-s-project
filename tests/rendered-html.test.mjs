@@ -308,6 +308,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
   assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
+  assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
+  assert.match(cssSource, /casting-peony-scene[^}]+translateX\(calc\(-50% - var\(--casting-viewport-shift\)\)\)/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
   assert.match(cssSource, /peony-number \{[^}]+grid-template-columns:[^}]+align-items: center/);
@@ -342,6 +344,10 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
   assert.match(appSource, /aria-disabled="true" disabled>第八页待验收后开放<\/button>/);
+  assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
+  assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
+  assert.match(appSource, /if \(earlyExit\) \{[\s\S]+fetch\("\/api\/v3\/meihua"/);
+  assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
   assert.match(cssSource, /result-overview[^}]+min-height: 100svh/);
