@@ -1,3 +1,87 @@
+# Design QA — 第三页「正问」顶部云层横向修正版 v11（2026-08-01）
+
+## 对照依据
+
+- 用户截图：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-a9659138-81ce-4f4d-867a-aee0669a165a.png`。
+- 实现帧：`qa/inquiry-cloud-horizontal-v11-final-t1.png`、`qa/inquiry-cloud-horizontal-v11-final-t2.png`。
+- 动态差异与组合对照：`qa/inquiry-cloud-horizontal-v11-final-diff-x8.png`、`qa/inquiry-cloud-horizontal-v11-final-comparison.png`。
+- 验证环境：1280 × 720 CSS viewport，DevicePixelRatio 1.25。
+
+## 修正结果
+
+- 顶部云层只沿水平方向轻微往复；关键帧的 Y 位移固定为 0，纵向缩放固定为 1，不再产生上下漂浮或呼吸式升降。
+- 顶部动态云层增加硬边界裁切，只覆盖左上至中部云区，不再包含右侧山峰。
+- 两个最终帧的右上山峰区域逐像素差为 0；山体本身保持静止。
+- 顶部云区平均通道差约 3.55–3.90，肉眼可感知但幅度接近松树的舒缓节奏。
+- 前景流云、松树和页面排版保持原有实现，不受本次顶部云层修正影响。
+
+## Comparison History
+
+1. v10：透明度和缩放变化可见，但纵向缩放与位移造成云层上下运动的错觉，且局部遮罩仍纳入山峰。
+2. v11：改为纯 X 轴位移，锁定 `scaleY(1)` 与 Y=0；使用多边形裁切排除山峰区域。
+
+## 工程验证
+
+- Vinext production build：passed。
+- Node rendered/interaction tests：28 / 28 passed。
+- ESLint：0 errors；14 个既有 warnings。
+- `git diff --check`：passed。
+
+final result: passed
+
+---
+
+# Design QA — 第三页「正问」可见云海动效 v7（2026-08-01）
+
+## 对照依据
+
+- source visual truth：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-9d06dc28-1b60-48dd-88e6-d5a72a32d191.png`（用户指定的左上云海区域），以及此前选定的第二张云瀑概念图 `C:\Users\27622\.codex\generated_images\019fa5e9-2a61-7f92-813b-b9d609ccb12c\exec-04c25898-61ae-4837-92eb-6bbe9106ac01.png`。
+- implementation screenshots：`qa/inquiry-cloudfall-v7-motion-iab-t1.png`、`qa/inquiry-cloudfall-v7-motion-iab-t2.png`，相隔 1.7 秒。
+- full-view comparison：`qa/inquiry-cloudfall-v7-full-comparison.png`。
+- focused comparison：`qa/inquiry-cloudfall-v7-focused-comparison.png`。
+- motion evidence：`qa/inquiry-cloudfall-v7-motion-diff.png`。
+- 浏览器状态：Codex in-app Browser；CSS viewport 1280 × 720；devicePixelRatio 1.25；截图传输像素 1265 × 712；`#inquiry`；问题为空。
+- 归一化：focused comparison 将用户截图和浏览器截图中的顶部云海区域等比裁切并统一到 1265px 宽；full-view comparison 将概念图与实现等比统一到 632 × 356。
+
+## Findings
+
+- 无剩余 P0 / P1 / P2 问题。
+- 用户提出的第五页落霞动效方法已部分采纳：第三页新增基于同一真实水墨底板的两个软边局部重采样层，只作用于左上迎风云海与峰顶云脊；通过背景位置、缩放、轻微形变与明暗起伏形成肉眼可见的连续推进，不复制第五页的红霞颜色和具体轨迹。
+- 原有两层 WebGL 云继续负责峰顶分流、宽瀑与窄瀑的下泄；速度、明暗跨度、内部脉动和阴影对比均已增强。没有平铺、首尾拼接、硬边图片或三角形接缝。
+- 相隔 1.7 秒的两帧中，左上云海区域亮度差大于 5 的像素占 56.97%，大于 10 的像素占 26.79%；峰顶与下泄云瀑区域对应比例为 21.72% 和 9.69%。变化已达到肉眼可辨，同时没有把整张背景作为一个图层平移。
+
+## Required Fidelity Surfaces
+
+- Fonts and typography：书法标题、楷体输入、例句与导航字号、字重、行距和字间距未改变；动画层始终位于正文后方。
+- Spacing and layout rhythm：用户截图中的顶部云海、标题、问题输入关系保持不变；背景满框，未引入新的卡片、边界或布局位移。
+- Colors and visual tokens：沿用宣纸米白、淡墨与朱砂；云层仅调整亮度与墨色对比，没有引入第五页的红霞色。
+- Image quality and asset fidelity：继续使用 `question-cloudfall-base-v6.png`、`question-cloudfall-mountain-v5.png` 和独立松树真实位图；新增层只是对真实底板的软边局部重采样，未使用占位图、SVG 或代码绘画替代水墨资产。
+- Copy and content：页面文字、四个例句、输入提示与按钮文案均未改变。
+
+## Interaction And Engineering Verification
+
+- 输入“我是否应该继续投入这次合作？”后，“写好了，继续辨识”按钮可用；清空后恢复原状态。
+- 浏览器 console errors：0；两个 WebGL canvas 和一个局部云海重采样层均存在并可见。
+- `prefers-reduced-motion` 下新增重采样层停止动画，现有 WebGL 固定为静态时刻。
+- Vinext production build：passed。
+- Node rendered/interaction tests：28 / 28 passed。
+- ESLint：0 errors；14 个既有 `<img>` / ARIA warnings。
+- `git diff --check`：passed。
+
+## Comparison History
+
+1. v6：两层 WebGL 实际运行，但静态云海底板占主导；用户和浏览器连续观察均只能明显看到松树，云层肉眼几乎不可辨，判定为 P1。
+2. v7 iteration 1：引入第五页落霞的软边局部重采样方法并提高 WebGL 速度与不透明度；顶部云海已明显变化，但峰顶下泄仍偏弱。
+3. v7 final：继续提高下泄云瀑的连续体密度、细节明暗和阴影跨度；1.7 秒两帧在顶部与下泄区域均达到可辨变化，组合对照未发现重影、硬边或接缝。
+
+## Follow-up Polish
+
+- 仅保留用户主观速度偏好的微调空间；当前无阻断项。
+
+final result: passed
+
+---
+
 # Design QA — 第 4–5 页结束状态与问数节奏修复 v4
 
 ## 用户反馈与根因
@@ -725,3 +809,130 @@ final result: passed
 - 新背景 `casting-peony-background-v3.webp` 原位保留与三朵花一一对应的枝干、花托与牡丹叶，仅清除竹、树线、山石、桥船和建筑；宣纸底由暖黄调整为冷灰米白，并继续隔离旧问卦长卷。
 - 实际浏览器复核：桌面 1440×900 与手机 390×844 均无横向溢出；三句引导左边线、标题左边线及手机端按钮左边线一致；`prefers-reduced-motion` 仍沿用既有落瓣停用规则。
 - 验证：部署构建通过；前端回归 21/21；完整 Python 回归 951/951。
+# Design QA — 第三页「正问」静山流云修正 v8（2026-08-01）
+
+## 对照依据
+
+- 用户问题截图：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-5be9f048-c082-4886-af48-6d5be66eeed3.png`。
+- 本地实机帧：`qa/inquiry-cloudfall-v8-final2-t1.png`、`qa/inquiry-cloudfall-v8-final2-t2.png`，相隔 3.2 秒。
+- 运动差异图：`qa/inquiry-cloudfall-v8-final2-diff-x8.png`。
+- Codex in-app Browser：CSS viewport 1280 × 720，devicePixelRatio 1.25，传输截图 1265 × 712，页面 `#inquiry`。
+
+## Findings
+
+- 已移除 v7 中复用整张背景图并移动的 `.inquiry-cloud-sky-drift` 图层；基础山水图和山体遮挡图均无动画，计算样式 `animation-name: none`，固定缩放矩阵在两帧间不变。山峰轮廓和岩石纹理不再发生位移。
+- 上方云海只在固定空间遮罩内部缓慢翻涌，不再移动遮罩或底图；速度与亮度起伏已收窄到接近松树、肉眼可感但不抢画面的程度。
+- 山顶下泄云改为两条明确路径：一条宽云幕沿主峰左侧下落，一条窄云流穿过右侧山谷。云体使用沿路径推进的暖白半透明体积与向下平流的分形纹理，只有云的透明度和内部纹理变化，山体像素始终静止。
+- 动画像素全部采用暖白色，不再用移动的深灰阴影刻画云，因此不会把云的明暗误读为山石纹理平移；山体只会随云遮挡短暂时隐时现。
+- 3.2 秒对比中：顶部云海区域平均通道差约 0.25，明显小于松树区域约 4.31；下泄流云区域平均通道差约 1.30，形成肉眼可感的下行变化，同时没有整幅背景位移。
+- 页面文字、输入区、四个例句和松树动效均未改变。
+
+## Interaction And Engineering Verification
+
+- 输入“我现在是否应该继续推进这个计划？”后，“写好了，继续辨识”正常启用；清空后恢复初始状态。
+- DOM 中 `.inquiry-cloud-sky-drift` 数量为 0；两层 WebGL canvas 均为 1600 × 900，浏览器 console errors 为 0。
+- Vinext production build：passed。
+- Node rendered/interaction tests：28 / 28 passed。
+- ESLint：0 errors；14 个既有 `<img>` / ARIA warnings。
+- `git diff --check`：passed。
+
+## Comparison History
+
+1. v7：移动整张背景图的局部重采样层仍含山峰像素，导致用户看到“整座山在动”；顶部云海幅度也过大，判定为 P1。
+2. v8 iteration 1：彻底删除整图重采样层，山体恢复完全静止；只保留固定遮罩内的程序云。
+3. v8 final：下泄云由平直条带改成沿两条山势路径推进的连续云体，并将所有移动像素改为暖白云雾，增强从峰顶流下来的可读性。
+
+final result: passed
+
+---
+# Design QA — 第三页顶部云层原位舒展 v9（2026-08-01）
+
+## 对照依据
+
+- source visual truth：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-a9659138-81ce-4f4d-867a-aee0669a165a.png`（1132 × 271），用户明确指定页头下方的顶部云层。
+- 既有动效参照：第五页 `.final-question-sky-drift` 的双层软遮罩、8.4 秒 / 11.8 秒错峰节奏与明暗舒展方式。
+- implementation screenshots：`qa/inquiry-cloud-breath-v9-final-t1.png`、`qa/inquiry-cloud-breath-v9-final-t2.png`（1265 × 712），相隔 4.2 秒。
+- focused comparison：`qa/inquiry-cloud-breath-v9-final-comparison.png`；源图与实现顶部区域均归一化为 1132 × 271 后同图上下对照。
+- motion evidence：`qa/inquiry-cloud-breath-v9-final-diff-x10.png`。
+- 浏览器状态：Codex in-app Browser，CSS viewport 1280 × 720，devicePixelRatio 1.25，页面 `#inquiry`，问题为空。
+
+## Findings
+
+- 无剩余 P0 / P1 / P2 问题。
+- 顶部云层已从“水平流动”改为原位舒展：两层真实水墨底图局部软遮罩只做纵向 6px 内的轻微起伏、1.008–1.020 的缓慢呼吸缩放，以及亮度和透明度渐变；没有横向位移，也没有首尾拼接。
+- 动效节奏直接沿用第五页右上落霞的 8.4 秒主层、11.8 秒次层和 -3.2 秒错峰方式，但为云层去掉了落霞的横向 `background-position` 推进，因此视觉是云气在原地张弛，不是流走。
+- 动态遮罩集中在顶部左中部云区。4.2 秒对比中，目标云区平均通道差约 1.97；右上山体区域仅约 0.25。山体计算样式仍为 `animation-name: none`，固定矩阵不变。
+- 峰顶下泄云仍由唯一的前景 WebGL 层负责，顶部不再挂载旧的后景流动 canvas，避免两种动线互相干扰。
+
+## Required Fidelity Surfaces
+
+- Fonts and typography：未修改；标题、导航、输入及例句字体层级与用户截图一致。
+- Spacing and layout rhythm：未修改页面布局、裁切、边距或输入区位置。
+- Colors and visual tokens：沿用宣纸米白、淡墨与既有图片色阶；呼吸层只调整真实云图的亮度、对比度和透明度。
+- Image quality and asset fidelity：继续使用 `question-cloudfall-base-v6.png` 的真实水墨云纹，没有 CSS 绘制云朵、占位图或新造山体像素。
+- Copy and content：页面文案完全未改。
+
+## Interaction And Engineering Verification
+
+- `.inquiry-cloud-breath` 数量为 1；主层动画 `inquiry-cloud-breathe-near` 为 8.4 秒，次层 `inquiry-cloud-breathe-soft` 为 11.8 秒。
+- 页面只保留一个前景流云 canvas；山体动画为 `none`。
+- 输入测试问题后，“写好了，继续辨识”正常启用；清空后恢复。
+- 浏览器 console errors：0。
+- Vinext production build：passed。
+- Node rendered/interaction tests：28 / 28 passed。
+- ESLint：0 errors；14 个既有 `<img>` / ARIA warnings。
+- `git diff --check`：passed。
+
+## Comparison History
+
+1. v8：顶部云海使用程序纹理缓慢横向推进，虽然幅度较小，但不符合用户本轮提出的“像落霞一样原位动，而不是流动”。
+2. v9 iteration 1：改用第五页双层软遮罩节奏，初版云区变化可测但肉眼偏弱，记录为 P2。
+3. v9 final：扩大明暗舒展范围和纵向呼吸幅度，同时保持横向位移为 0；目标云区变化提升约一倍，右上山体仍近乎静止。
+
+final result: passed
+
+---
+# Design QA — 第三页顶部云层肉眼可见增强 v10（2026-08-01）
+
+## 对照依据
+
+- source visual truth：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-a9659138-81ce-4f4d-867a-aee0669a165a.png`（1132 × 271），用户指定页头下方顶部云区。
+- implementation screenshots：`qa/inquiry-cloud-breath-v10-visible-t1.png`、`qa/inquiry-cloud-breath-v10-visible-t2.png`（1265 × 712），相隔 4.2 秒。
+- focused comparison：`qa/inquiry-cloud-breath-v10-visible-comparison.png`，源图与实现顶部区域归一化为 1132 × 271 后同图对照。
+- motion evidence：`qa/inquiry-cloud-breath-v10-visible-diff-x7.png`。
+- 浏览器状态：Codex in-app Browser，CSS viewport 1280 × 720，devicePixelRatio 1.25，`#inquiry`，问题为空，`prefers-reduced-motion: false`。
+
+## Findings
+
+- 无剩余 P0 / P1 / P2 问题。
+- v9 的技术动画虽运行，但两帧平均变化不足以让用户肉眼识别，按用户反馈重新定级为 P1，而不是继续视作已完成。
+- v10 将第五页落霞的可见明暗跨度和舒展幅度真正迁移到顶部云层：主层透明度在 .32–.68 之间变化，缩放 1.018–1.040，纵向起伏 13px；次层以 11.8 秒错峰补充较慢的张弛。所有水平位移仍为 0，因此不是横向流云。
+- 4.2 秒两帧中，目标顶部云区平均通道差约 3.73，较 v9 的约 1.97 提升近一倍；实际并列帧中，左上至中部云纹的聚散和明暗已经能直接看出。
+- 右上山体区域平均通道差仅约 0.28；山体计算样式保持 `animation-name: none` 和固定矩阵，增强没有扩散到山峰。
+
+## Required Fidelity Surfaces
+
+- Fonts and typography：未改。
+- Spacing and layout rhythm：未改页面布局、裁切或输入区域。
+- Colors and visual tokens：仍为宣纸米白与淡墨，仅提高顶部真实云纹图层的局部对比和亮度呼吸。
+- Image quality and asset fidelity：继续复用 `question-cloudfall-base-v6.png` 的真实水墨云纹，软遮罩边缘无矩形或接缝。
+- Copy and content：未改。
+
+## Interaction And Engineering Verification
+
+- 浏览器确认主动画 `inquiry-cloud-breathe-near` 正在以 8.4 秒运行，系统未启用减少动态效果。
+- 山体 `animation-name: none`；输入测试问题后，“写好了，继续辨识”正常启用。
+- 浏览器 console errors：0。
+- Vinext production build：passed。
+- Node rendered/interaction tests：28 / 28 passed。
+- ESLint：0 errors；14 个既有 warnings。
+- `git diff --check`：passed。
+
+## Comparison History
+
+1. v9：动画范围正确、山体静止，但肉眼可见度不足；用户实际检查后仍看不出改变，判定为 P1。
+2. v10：按第五页落霞的真实幅度增强透明度、缩放、纵向张弛和局部对比；两帧可见差异近乎翻倍，且山峰区域仍近乎静止。
+
+final result: passed
+
+---

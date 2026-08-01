@@ -55,15 +55,13 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /程序依规则完成排盘/);
   assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
-  assert.match(html, /question-pine-cloud-base-v2\.webp/);
-  assert.match(html, /question-mountain-occluder-v3\.png/);
   assert.match(html, /question-pine-tree-v2\.png/);
-  assert.match(html, /question-cloud-veil-v4\.png/);
-  assert.match(html, /question-cloud-fork-v4\.png/);
-  assert.match(html, /question-cloud-bank-v4\.png/);
-  assert.match(html, /inquiry-cloud-path-veil/);
-  assert.match(html, /inquiry-cloud-path-fork/);
-  assert.match(html, /inquiry-cloud-path-bank/);
+  assert.match(html, /question-cloudfall-base-v6\.png/);
+  assert.match(html, /question-cloudfall-mountain-v5\.png/);
+  assert.match(html, /inquiry-cloud-breath/);
+  assert.doesNotMatch(html, /inquiry-cloudfall-canvas-back/);
+  assert.match(html, /inquiry-cloudfall-canvas-front/);
+  assert.doesNotMatch(html, /inquiry-cloud-sky-drift/);
   assert.match(html, /你真正想问的问题/);
   assert.doesNotMatch(html, /写下一件<br\/>真实具体的事/);
   assert.match(html, /把心里的这一问，写在这里/);
@@ -84,7 +82,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /请心中再次默念你的问题，深呼吸/);
   assert.match(html, /开始卜卦/);
   assert.doesNotMatch(html, /最终问卦题目/);
-  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step casting-number-step"[^>]+hidden/);
+  assert.match(html, /<section[^>]+class="inquiry-step inquiry-panel number-step casting-number-step flow-lock-screen"[^>]+hidden/);
   assert.doesNotMatch(html, /class="inquiry-step inquiry-panel cast-step"/);
   assert.match(html, /<h3[^>]+id="casting-title"[^>]*>成卦<\/h3>/);
   assert.match(html, /casting-peony-bloom-1-v1\.png/);
@@ -174,24 +172,34 @@ test("method lines retain the replayable writing interaction", async () => {
 
 test("question scene keeps cloud and pine motion accessible", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cloudfallSource = await fs.readFile(new URL("../app/InquiryCloudfallCanvas.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(appSource, /function InquiryInkScene/);
-  assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
-  assert.doesNotMatch(cssSource, /repeat-x|background-position: calc\(0px - var\(--cloud-cycle\)\)/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-path-veil/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-path-fork/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-path-bank/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-billow-fork/);
-  assert.match(cssSource, /translate3d\(143vw, 15vh, 0\)/);
-  assert.match(cssSource, /inquiry-cloud-shape-fork[^}]+--cloud-opacity: \.22/);
+  assert.doesNotMatch(appSource, /question-cloud-(?:stream|veil|fork|bank)/);
+  assert.doesNotMatch(cssSource, /repeat-x|inquiry-cloud-path|inquiry-cloud-billow/);
+  assert.match(cloudfallSource, /InquiryCloudfallCanvas/);
+  assert.match(cloudfallSource, /segmentDistance/);
+  assert.match(cloudfallSource, /segmentProgress/);
+  assert.match(cloudfallSource, /cascadeFlow/);
+  assert.match(cloudfallSource, /cascadeRidges/);
+  assert.match(cloudfallSource, /Windward reservoir and crest flow/);
+  assert.match(cloudfallSource, /Leeward fall/);
+  assert.match(cloudfallSource, /u_layer/);
+  assert.match(cloudfallSource, /prefers-reduced-motion: reduce/);
+  assert.match(cloudfallSource, /IntersectionObserver/);
   assert.match(cssSource, /@keyframes inquiry-pine-breeze/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-cloud-path, \.inquiry-cloud-shape, \.inquiry-pine-tree[^}]+animation: none/s);
+  assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-breathe-soft/);
+  assert.match(cssSource, /\.inquiry-cloud-breath[^}]+clip-path: polygon/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near[^}]+translate3d\(-12px, 0, 0\)[\s\S]+translate3d\(14px, 0, 0\)/);
+  assert.doesNotMatch(cssSource, /inquiry-cloud-sky-drift|inquiry-cloud-reservoir-flow|inquiry-cloud-crest-flow/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-pine-tree[^}]+animation: none/s);
 });
 
 test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(appSource, /className="inquiry-step inquiry-panel discernment-step"/);
+  assert.match(appSource, /className="inquiry-step inquiry-panel discernment-step flow-lock-screen"/);
   assert.match(appSource, /className="eyebrow">观象之法 · 贰/);
   assert.doesNotMatch(appSource, /<div className="step-heading"><span>贰<\/span>/);
   assert.doesNotMatch(appSource, /className="dialogue-history"/);
@@ -240,8 +248,8 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /开始卜卦/);
   assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
-  assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
-  assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
+  assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete \|\| flowPage !== 5\}/);
+  assert.match(appSource, /number-step casting-number-step flow-lock-screen" hidden=\{!finalQuestionConfirmed \|\| flowPage !== 6\}/);
   assert.match(appSource, /className="final-question-sky-drift"/);
   assert.match(appSource, /className="final-question-bird"/);
   assert.match(appSource, /理清脉络之后<br \/>确认最终问题/);
@@ -333,11 +341,30 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.match(appSource, /className="result-canonical"><b>卦辞<\/b>/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
-  assert.match(appSource, />详细解卦<\/button>/);
+  assert.match(appSource, /aria-disabled="true" disabled>第八页待验收后开放<\/button>/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
   assert.match(cssSource, /result-overview[^}]+min-height: 100svh/);
   assert.match(cssSource, /result-aside button:focus-visible/);
+});
+
+test("first seven pages are single-screen, forward-only and scroll locked", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /const \[flowPage, setFlowPage\] = useState\(1\)/);
+  assert.match(appSource, /if \(nextPage <= flowPageRef\.current \|\| nextPage > 7\) return/);
+  assert.match(appSource, /window\.addEventListener\("wheel", blockScroll, \{ passive: false \}\)/);
+  assert.match(appSource, /window\.addEventListener\("touchmove", blockScroll, \{ passive: false \}\)/);
+  assert.match(appSource, /data-flow-page=\{flowPage\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 1\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 2\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 3\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 4\}/);
+  assert.match(appSource, /flowPage !== 5/);
+  assert.match(appSource, /flowPage !== 6/);
+  assert.match(appSource, /response && flowPage === 7/);
+  assert.match(cssSource, /flow-scroll-locked[^}]+overflow: hidden !important/);
+  assert.match(cssSource, /flow-lock-screen[^}]+height: 100svh !important[^}]+max-height: 100svh !important/);
 });
 
 test("AI guided intake fails safely until the Python engine is configured", async () => {

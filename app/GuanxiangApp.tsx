@@ -6,6 +6,7 @@ import {
   pollPersonalizedTask,
 } from "./personalized-reading-poll";
 import { resultSectionVisibility } from "./result-presentation.mjs";
+import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -514,7 +515,7 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
   const hasSuggestion = suggestedQuestion.trim().length >= 6;
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
-  return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
+  return <section id="final-question" className="inquiry-step inquiry-panel final-question-step flow-lock-screen" hidden={hidden} aria-labelledby="final-question-title">
     <div className="final-question-backdrop" aria-hidden="true">
       <span className="final-question-sky-drift" />
       <span className="final-question-bird" />
@@ -641,7 +642,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b>{baseClassic.canonical_text}</blockquote>}
       </div>
       <aside className="result-aside">
-        <span>本次所得之卦</span><p>卦象已成。先静观片刻，再决定是否展开其意。</p><button type="button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>详细解卦</button>
+        <span>本次所得之卦</span><p>卦象已成。前七页验收完成前，详细解读暂不开放。</p><button type="button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled="true" disabled>第八页待验收后开放</button>
       </aside>
     </section>
 
@@ -720,17 +721,10 @@ function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | nu
 
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
-    <span className="inquiry-cloud-path inquiry-cloud-path-veil">
-      <img className="inquiry-cloud-shape inquiry-cloud-shape-veil" src="/question-cloud-veil-v4.png" alt="" loading="eager" decoding="async" />
-    </span>
-    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
-    <span className="inquiry-cloud-path inquiry-cloud-path-fork">
-      <img className="inquiry-cloud-shape inquiry-cloud-shape-fork" src="/question-cloud-fork-v4.png" alt="" loading="eager" decoding="async" />
-    </span>
-    <span className="inquiry-cloud-path inquiry-cloud-path-bank">
-      <img className="inquiry-cloud-shape inquiry-cloud-shape-bank" src="/question-cloud-bank-v4.png" alt="" loading="eager" decoding="async" />
-    </span>
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-cloudfall-base-v6.png" alt="" loading="eager" decoding="async" />
+    <span className="inquiry-cloud-breath" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
+    <InquiryCloudfallCanvas layer="front" />
     <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
   </div>;
 }
@@ -745,6 +739,7 @@ const ENTRY_BIRDS = [
 ] as const;
 
 export function GuanxiangApp() {
+  const [flowPage, setFlowPage] = useState(1);
   const [question, setQuestion] = useState("");
   const [domain, setDomain] = useState("");
   const [goal, setGoal] = useState("");
@@ -786,6 +781,17 @@ export function GuanxiangApp() {
   const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
   const entryMistImageRef = useRef<HTMLImageElement | null>(null);
   const methodAdvanceTimerRef = useRef<number | null>(null);
+  const flowPageRef = useRef(1);
+
+  function advanceFlow(nextPage: number, focusId?: string) {
+    if (nextPage <= flowPageRef.current || nextPage > 7) return;
+    flowPageRef.current = nextPage;
+    setFlowPage(nextPage);
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    if (focusId) {
+      window.requestAnimationFrame(() => document.getElementById(focusId)?.focus({ preventScroll: true }));
+    }
+  }
 
   useEffect(() => {
     const openingSavedReading = Boolean(sessionStorage.getItem(JOURNAL_OPEN_KEY));
@@ -817,49 +823,37 @@ export function GuanxiangApp() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("entry-locked", !entryReleased);
-    document.body.classList.toggle("entry-locked", !entryReleased);
-    return () => {
-      document.documentElement.classList.remove("entry-locked");
-      document.body.classList.remove("entry-locked");
-    };
-  }, [entryReleased]);
+    const root = document.documentElement;
+    const body = document.body;
+    const previousRestoration = window.history.scrollRestoration;
+    root.classList.add("flow-scroll-locked");
+    body.classList.add("flow-scroll-locked");
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-  useEffect(() => {
-    if (entryReleased) return;
     const blockScroll = (event: Event) => event.preventDefault();
     const blockScrollKeys = (event: KeyboardEvent) => {
-      if (["ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp", " "].includes(event.key)) {
+      const target = event.target as HTMLElement | null;
+      const isInteractive = Boolean(target?.closest("input, textarea, select, button, [contenteditable='true']"));
+      if (!isInteractive && ["ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp", " "].includes(event.key)) {
         event.preventDefault();
       }
     };
-    const holdEntryPosition = () => {
+    const holdFlowPosition = () => {
       if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     };
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     window.addEventListener("wheel", blockScroll, { passive: false });
     window.addEventListener("touchmove", blockScroll, { passive: false });
     window.addEventListener("keydown", blockScrollKeys);
-    window.addEventListener("scroll", holdEntryPosition, { passive: true });
+    window.addEventListener("scroll", holdFlowPosition, { passive: true });
     return () => {
+      root.classList.remove("flow-scroll-locked");
+      body.classList.remove("flow-scroll-locked");
+      window.history.scrollRestoration = previousRestoration;
       window.removeEventListener("wheel", blockScroll);
       window.removeEventListener("touchmove", blockScroll);
       window.removeEventListener("keydown", blockScrollKeys);
-      window.removeEventListener("scroll", holdEntryPosition);
-    };
-  }, [entryReleased]);
-
-  useEffect(() => {
-    const updateNavigation = () => {
-      const revealAt = Math.max(120, window.innerHeight * .62);
-      setHomeNavigationVisible(window.scrollY >= revealAt);
-    };
-    updateNavigation();
-    window.addEventListener("scroll", updateNavigation, { passive: true });
-    window.addEventListener("resize", updateNavigation);
-    return () => {
-      window.removeEventListener("scroll", updateNavigation);
-      window.removeEventListener("resize", updateNavigation);
+      window.removeEventListener("scroll", holdFlowPosition);
     };
   }, []);
 
@@ -887,10 +881,7 @@ export function GuanxiangApp() {
 
   function enterMethod() {
     setEntryReleased(true);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("method")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-    }));
+    advanceFlow(2, "method-title");
   }
 
   function confirmMethodReady() {
@@ -898,8 +889,7 @@ export function GuanxiangApp() {
     setMethodReady(true);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     methodAdvanceTimerRef.current = window.setTimeout(() => {
-      document.getElementById("inquiry")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-      window.requestAnimationFrame(() => document.getElementById("inquiry-title")?.focus({ preventScroll: true }));
+      advanceFlow(3, "inquiry-title");
       methodAdvanceTimerRef.current = null;
     }, reducedMotion ? 0 : 780);
   }
@@ -933,18 +923,11 @@ export function GuanxiangApp() {
     setFinalQuestionDecisionMade(false);
     setFinalQuestionConfirmed(false);
     setQuestionConfirmed(true);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("discernment")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-    }));
+    advanceFlow(4);
   }
 
   function continueToFinalQuestion() {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("final-question")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-      document.getElementById("final-question-title")?.focus({ preventScroll: true });
-    }));
+    advanceFlow(5, "final-question-title");
   }
 
   function receiveQuestionSuggestion(value: { question: string; reason: string } | null) {
@@ -974,10 +957,7 @@ export function GuanxiangApp() {
     setQuestion(value);
     setFinalQuestionDraft(value);
     setFinalQuestionConfirmed(true);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>(".number-step")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-    }));
+    advanceFlow(6, "casting-title");
   }
 
   function finishPersonalizedRequest(payload: ApiResponse): void {
@@ -1052,8 +1032,7 @@ export function GuanxiangApp() {
   useEffect(() => {
     if (!response) return;
     const frame = window.requestAnimationFrame(() => {
-      document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      document.getElementById("result-title")?.focus({ preventScroll: true });
+      advanceFlow(7, "result-title");
     });
     return () => window.cancelAnimationFrame(frame);
   }, [response]);
@@ -1150,13 +1129,13 @@ export function GuanxiangApp() {
   });
 
   return <>
-    <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden={!homeNavigationVisible}>
+    <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden="true" hidden>
       <a className="wordmark" href="#top" tabIndex={homeNavigationVisible ? undefined : -1}>观象</a>
       <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>如何观</a><a href={methodReady ? "#inquiry" : "#method"} onClick={(event) => { if (!methodReady) { event.preventDefault(); document.getElementById("method-ready")?.focus(); } }} tabIndex={homeNavigationVisible ? undefined : -1}>开始问</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>观事簿</a></nav>
       <small>确定性排盘 · 个性化解读</small>
     </header>
-    <main id="top" className="scroll-canvas">
-      <section className={`hero entry-hero scroll-section${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} aria-labelledby="hero-title">
+    <main id="top" className="scroll-canvas flow-shell" data-flow-page={flowPage}>
+      <section className={`hero entry-hero scroll-section flow-lock-screen${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} hidden={flowPage !== 1} aria-labelledby="hero-title">
         <EntryArtwork className="entry-hero-final" imgRef={entryHeroImageRef} />
         <EntryMistArtwork imgRef={entryMistImageRef} />
         <EntryArtwork className="entry-title-focus" />
@@ -1186,7 +1165,7 @@ export function GuanxiangApp() {
         <button type="button" className="hero-scroll-cue" onClick={enterMethod}><span className="sr-only">了解观象之法</span></button>
       </section>
 
-      <section id="method" className={`method scroll-section${methodReady ? " is-ready" : ""}`} data-reveal aria-labelledby="method-title">
+      <section id="method" className={`method scroll-section flow-lock-screen${methodReady ? " is-ready" : ""}`} hidden={flowPage !== 2} data-reveal aria-labelledby="method-title">
         <VerticalBrand />
         <div className="method-stage">
           <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
@@ -1198,11 +1177,11 @@ export function GuanxiangApp() {
         <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label={methodReady ? "已定心，进入正问" : "开始正问"} aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">{methodReady ? "已定心" : "开始正问"}</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
       </section>
 
-      <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
+      <section id="inquiry" className={`inquiry scroll-section flow-lock-screen${flowPage >= 4 ? " is-nested-flow-page" : ""}`} data-reveal hidden={!methodReady || flowPage < 3 || flowPage > 6} aria-labelledby="inquiry-title">
         <InquiryInkScene />
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
-          <div className="inquiry-stage">
+          <div className="inquiry-stage" hidden={flowPage !== 3}>
             <header className="inquiry-heading">
               <p className="eyebrow">观象之法 · 壹</p>
               <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
@@ -1219,8 +1198,8 @@ export function GuanxiangApp() {
             </div>
           </div>
 
-          <div className="inquiry-future-flow" hidden={!questionConfirmed}>
-          <section id="discernment" className="inquiry-step inquiry-panel discernment-step">
+          <div className="inquiry-future-flow" hidden={!questionConfirmed || flowPage < 4 || flowPage > 6}>
+          <section id="discernment" className="inquiry-step inquiry-panel discernment-step flow-lock-screen" hidden={flowPage !== 4}>
             <header className="discernment-heading">
               <p className="eyebrow">观象之法 · 贰</p>
               <h3>辨识</h3>
@@ -1231,9 +1210,9 @@ export function GuanxiangApp() {
             </div>
           </section>
 
-          <FinalQuestion hidden={!intakeComplete} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
+          <FinalQuestion hidden={!intakeComplete || flowPage !== 5} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
-          <section className="inquiry-step inquiry-panel number-step casting-number-step" hidden={!finalQuestionConfirmed} aria-labelledby="casting-title">
+          <section className="inquiry-step inquiry-panel number-step casting-number-step flow-lock-screen" hidden={!finalQuestionConfirmed || flowPage !== 6} aria-labelledby="casting-title">
             <div className="casting-peony-scene" aria-hidden="true">
               <div className="casting-peony-backdrop" />
               {PEONY_BREATHS.map((breath, index) => <span
@@ -1322,9 +1301,9 @@ export function GuanxiangApp() {
         </form>
       </section>
 
-      {response && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
-      <aside className="version-note">卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
+      {response && flowPage === 7 && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
+      <aside className="version-note" hidden>卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
     </main>
-    <footer className="site-footer"><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>
+    <footer className="site-footer" hidden><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>
   </>;
 }
