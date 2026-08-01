@@ -411,6 +411,7 @@ a { color: inherit; }
 .peony-number input::-webkit-inner-spin-button, .peony-number input::-webkit-outer-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
 .casting-heading .casting-submit { margin: clamp(24px, 3vh, 34px) 0 0; }
 .casting-heading .casting-submit::after { content: none; }
+.casting-heading .casting-submit .bagua-mark { width: 30px; height: 30px; }
 .casting-submit-error { margin: 16px 0 0; padding: 8px 0 8px 12px; font-size: 13px; line-height: 1.7; }
 .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 .ack { max-width: 900px; margin: 44px auto 0; display: flex; align-items: flex-start; gap: 13px; color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
@@ -1038,6 +1039,7 @@ a { color: inherit; }
   .peony-falling-petal { width: calc(var(--petal-size) * .68); }
   .casting-heading .casting-submit, .casting-submit-error { grid-column: 1 / -1; justify-self: start; }
   .casting-heading .casting-submit { min-width: 150px; min-height: 52px; margin: 18px 0 0; font-size: 22px; }
+  .casting-heading .casting-submit .bagua-mark { width: 28px; height: 28px; }
   .casting-submit-error { margin: 10px 0 0; }
   .step-heading { grid-template-columns: 42px 1fr; }
   .step-heading h3 { font-size: 30px; }

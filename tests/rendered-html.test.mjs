@@ -96,7 +96,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
-  assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>成卦<\/button>/);
+  assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>[\s\S]*成卦<\/button>/);
   assert.doesNotMatch(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
@@ -285,7 +285,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
   assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
-  assert.doesNotMatch(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark/);
+  assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
   assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
   assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
   assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
@@ -300,6 +300,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /className="breath-ritual"/);
   assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v3\.webp/);
   assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
+  assert.match(cssSource, /casting-heading \.casting-submit \.bagua-mark[^}]+width: 30px[^}]+height: 30px/);
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
   assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);

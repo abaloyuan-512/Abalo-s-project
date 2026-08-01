@@ -1516,7 +1516,7 @@ export function GuanxiangApp() {
               <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入上方文字右侧</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
-              <button type="submit" className="cast-button casting-submit" disabled={loading}>{loading ? "正在成卦" : "成卦"}</button>
+              <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? "正在成卦" : "成卦"}</button>
             </header>
 
             <div className="casting-number-workspace" aria-hidden="true">
