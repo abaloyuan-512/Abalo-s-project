@@ -447,6 +447,17 @@ function GuidedIntake(props: GuidedIntakeProps) {
   }
 
   function finishWithoutSuggestion() {
+    const combined = `${question}\n${turns.map((item) => item.answer).join("\n")}`;
+    const domain = inferDomain(combined);
+    const desiredGoal = inferGoal(turns[turns.length - 1]?.answer ?? question);
+    const allowed = GOALS_BY_DOMAIN[domain] ?? [];
+    onStructured({
+      domain,
+      goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+      horizon: "CURRENT",
+      stage: "EXPLORING",
+      uncertainty: inferUncertainty(combined),
+    });
     onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
     onSuggestion(null);
     onCompletionReason("USER_EARLY");
@@ -515,14 +526,10 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
   return <section id="final-question" className="inquiry-step inquiry-panel final-question-step" hidden={hidden} aria-labelledby="final-question-title">
-    <div className="final-question-backdrop" aria-hidden="true">
-      <span className="final-question-sky-drift" />
-      <span className="final-question-bird" />
-    </div>
     <div className="final-question-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>
-      <p>理清脉络之后<br />确认最终问题</p>
+      <p>看过现实脉络之后<br />由你定下最后这一问</p>
     </div>
 
     <div className="final-question-workspace">
@@ -540,7 +547,7 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
       </div>}
 
       {ready && <div className="final-question-readiness">
-        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><BaguaMark className="final-question-bagua" /><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
+        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
       </div>}
     </div>
   </section>;
@@ -716,23 +723,6 @@ function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | nu
     <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-mist-square-v2.webp" />
     <img ref={imgRef} src="/hero-entry-mist-wide-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
   </picture>;
-}
-
-function InquiryInkScene() {
-  return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
-    <span className="inquiry-cloud-path inquiry-cloud-path-veil">
-      <img className="inquiry-cloud-shape inquiry-cloud-shape-veil" src="/question-cloud-veil-v4.png" alt="" loading="eager" decoding="async" />
-    </span>
-    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
-    <span className="inquiry-cloud-path inquiry-cloud-path-fork">
-      <img className="inquiry-cloud-shape inquiry-cloud-shape-fork" src="/question-cloud-fork-v4.png" alt="" loading="eager" decoding="async" />
-    </span>
-    <span className="inquiry-cloud-path inquiry-cloud-path-bank">
-      <img className="inquiry-cloud-shape inquiry-cloud-shape-bank" src="/question-cloud-bank-v4.png" alt="" loading="eager" decoding="async" />
-    </span>
-    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
-  </div>;
 }
 
 const ENTRY_BIRDS = [
@@ -1106,8 +1096,38 @@ export function GuanxiangApp() {
     const responseLines = nonemptyLines(observableResponses);
     const parsed = numbers.map(Number);
     const textLists = [factLines, unknownLines, actionLines, responseLines];
-    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length < 1 || factLines.length > 8 || unknownLines.length < 1 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
+    const earlyExit = discernmentCompletionReason === "USER_EARLY";
+    const realityContextInvalid = !earlyExit && (factLines.length < 1 || unknownLines.length < 1);
+    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || realityContextInvalid || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999) || !acknowledged) {
       setError("请先完成正问与辨识，再静心填写三个 1–999 的整数，并确认使用边界。"); return;
+    }
+    if (earlyExit) {
+      setLoading(true); setProgress("正在按三数成卦……");
+      try {
+        const request = await fetch("/api/v3/meihua", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({
+            contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
+            request_id: `sites-${crypto.randomUUID()}`,
+            question_text: question.trim(), question_domain: domain, decision_goal: goal,
+            time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+            numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+            user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
+          }),
+        });
+        const payload = await request.json() as ApiResponse;
+        if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
+          throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
+        }
+        setResponse(payload); setProgress("");
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "本次未能完成排盘。");
+      } finally {
+        setLoading(false); setProgress("");
+      }
+      return;
     }
     setLoading(true); setProgress("正在提交本次观象任务……");
     const requestId = `sites-${crypto.randomUUID()}`;
@@ -1199,13 +1219,13 @@ export function GuanxiangApp() {
       </section>
 
       <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
-        <InquiryInkScene />
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
           <div className="inquiry-stage">
             <header className="inquiry-heading">
               <p className="eyebrow">观象之法 · 壹</p>
               <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
+              <p>写下一件<br />真实具体的事</p>
             </header>
 
             <div className="inquiry-writing">

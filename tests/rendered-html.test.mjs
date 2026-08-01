@@ -55,17 +55,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /程序依规则完成排盘/);
   assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
-  assert.match(html, /question-pine-cloud-base-v2\.webp/);
-  assert.match(html, /question-mountain-occluder-v3\.png/);
-  assert.match(html, /question-pine-tree-v2\.png/);
-  assert.match(html, /question-cloud-veil-v4\.png/);
-  assert.match(html, /question-cloud-fork-v4\.png/);
-  assert.match(html, /question-cloud-bank-v4\.png/);
-  assert.match(html, /inquiry-cloud-path-veil/);
-  assert.match(html, /inquiry-cloud-path-fork/);
-  assert.match(html, /inquiry-cloud-path-bank/);
   assert.match(html, /你真正想问的问题/);
-  assert.doesNotMatch(html, /写下一件<br\/>真实具体的事/);
+  assert.match(html, /写下一件<br\/>真实具体的事/);
   assert.match(html, /把心里的这一问，写在这里/);
   assert.match(html, /下一步，我们会陪你慢慢辨清事实、未知与真正的需要/);
   assert.match(html, /确定性排盘 · 个性化解读/);
@@ -172,22 +163,6 @@ test("method lines retain the replayable writing interaction", async () => {
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+method-writing-layer i/);
 });
 
-test("question scene keeps cloud and pine motion accessible", async () => {
-  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
-  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(appSource, /function InquiryInkScene/);
-  assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
-  assert.doesNotMatch(cssSource, /repeat-x|background-position: calc\(0px - var\(--cloud-cycle\)\)/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-path-veil/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-path-fork/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-path-bank/);
-  assert.match(cssSource, /@keyframes inquiry-cloud-billow-fork/);
-  assert.match(cssSource, /translate3d\(143vw, 15vh, 0\)/);
-  assert.match(cssSource, /inquiry-cloud-shape-fork[^}]+--cloud-opacity: \.22/);
-  assert.match(cssSource, /@keyframes inquiry-pine-breeze/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-cloud-path, \.inquiry-cloud-shape, \.inquiry-pine-tree[^}]+animation: none/s);
-});
-
 test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -230,7 +205,6 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
 test("final question offers a concise user-controlled question decision", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  await fs.access(new URL("../public/final-question-sunset-reeds-v1.webp", import.meta.url));
   assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
   assert.match(appSource, /采取建议/);
   assert.match(appSource, /保持原题/);
@@ -242,26 +216,7 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
   assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete\}/);
   assert.match(appSource, /number-step casting-number-step" hidden=\{!finalQuestionConfirmed\}/);
-  assert.match(appSource, /className="final-question-sky-drift"/);
-  assert.match(appSource, /className="final-question-bird"/);
-  assert.match(appSource, /理清脉络之后<br \/>确认最终问题/);
-  assert.match(appSource, /<BaguaMark className="final-question-bagua" \/><span className="method-cta-label">/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
-  assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v2\.png/);
-  assert.match(cssSource, /final-question-backdrop[^}]+left: calc\(50% - 30px\)[^}]+width: calc\(100vw \+ 4px\)/);
-  assert.match(cssSource, /final-question-backdrop::before[^}]+background-position: calc\(50% - 38px\) center/);
-  assert.match(cssSource, /final-question-backdrop::after[^}]+background-position: calc\(50% \+ 44px\) center/);
-  assert.match(cssSource, /final-question-backdrop::before[^}]+final-question-reed-sway-near/);
-  assert.match(cssSource, /final-question-backdrop::after[^}]+final-question-reed-sway-mid/);
-  assert.match(cssSource, /@keyframes final-question-reed-sway-near/);
-  assert.match(cssSource, /final-question-sky-drift::before[^}]+final-question-sky-flow/);
-  assert.match(cssSource, /@keyframes final-question-sky-flow/);
-  assert.match(cssSource, /@keyframes final-question-sky-flow-soft/);
-  assert.match(cssSource, /final-question-bird[^}]+final-question-bird-sprite-v1\.png/);
-  assert.match(cssSource, /@keyframes final-question-bird-flap/);
-  assert.match(cssSource, /final-question-cta::after[^}]+content: none/);
-  assert.match(cssSource, /final-question-ready[^}]+border: 0/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+final-question-backdrop::before[^}]+animation: none/);
   assert.match(cssSource, /final-question-cta/);
 });
 
@@ -300,6 +255,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
   assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
+  assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
+  assert.match(cssSource, /casting-peony-scene[^}]+translateX\(calc\(-50% - var\(--casting-viewport-shift\)\)\)/);
   assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
   assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
   assert.match(cssSource, /peony-number \{[^}]+grid-template-columns:[^}]+align-items: center/);
@@ -333,6 +290,10 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.match(appSource, /className="result-canonical"><b>卦辞<\/b>/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
+  assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
+  assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
+  assert.match(appSource, /if \(earlyExit\) \{[\s\S]+fetch\("\/api\/v3\/meihua"/);
+  assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
   assert.match(appSource, />详细解卦<\/button>/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
