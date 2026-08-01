@@ -167,13 +167,19 @@ a { color: inherit; }
 .input-roles p b { color: var(--cinnabar-dark); font-weight: 400; }
 .input-roles a { margin-top: 14px; display: inline-block; color: var(--cinnabar-dark); font-size: 14px; text-underline-offset: 5px; }
 
-.inquiry { min-height: 100svh; padding: clamp(86px, 9vh, 112px) clamp(38px, 7vw, 126px) clamp(66px, 8vh, 94px) clamp(116px, 10vw, 184px); display: grid; align-items: center; overflow: hidden; }
-.inquiry::before { content: ""; position: absolute; right: -7%; top: 4%; width: min(48vw, 720px); aspect-ratio: 1; pointer-events: none; background: radial-gradient(circle at 47% 48%, rgba(57, 62, 53, .095), rgba(57, 62, 53, .035) 38%, transparent 69%); filter: blur(26px); mix-blend-mode: multiply; opacity: .72; }
-.inquiry::after { content: "壹"; position: absolute; right: clamp(38px, 6vw, 104px); bottom: clamp(34px, 5vh, 62px); pointer-events: none; color: rgba(80, 84, 75, .055); font: 400 clamp(150px, 18vw, 290px)/.8 "Liu Jian Mao Cao Local", var(--brush); transform: rotate(-7deg); }
+.inquiry { min-height: 100svh; padding: clamp(86px, 9vh, 112px) clamp(38px, 7vw, 126px) clamp(66px, 8vh, 94px) clamp(116px, 10vw, 184px); display: grid; align-items: center; overflow: hidden; isolation: isolate; background: var(--paper); }
+.inquiry-ink-scene { position: absolute; top: 0; left: 50%; z-index: 0; width: 100vw; height: 100svh; overflow: hidden; pointer-events: none; background: var(--paper); transform: translateX(-50%); }
+.inquiry-ink-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
+.inquiry-ink-base { z-index: 0; opacity: .97; transform: scale(1.012); }
+.inquiry-cloud-stream { --cloud-cycle: 100vw; position: absolute; inset: -4% 0; width: 100%; height: 108%; background: url("/question-cloud-stream-v3-tile.png") repeat-x; background-size: var(--cloud-cycle) auto; will-change: background-position, transform, opacity; }
+.inquiry-cloud-stream-far { z-index: 1; opacity: .31; background-position: calc(0px - var(--cloud-cycle)) 48%; animation: inquiry-cloud-stream-far 31s linear infinite; }
+.inquiry-mountain-occluder { z-index: 2; opacity: .88; transform: scale(1.012); }
+.inquiry-cloud-stream-near { z-index: 3; opacity: .4; background-position: calc(0px - var(--cloud-cycle)) 71%; filter: blur(.35px); animation: inquiry-cloud-stream-near 19s linear infinite; }
+.inquiry-pine-tree { z-index: 4; opacity: .96; transform-origin: 10.5% 82%; will-change: transform; animation: inquiry-pine-breeze 6.8s ease-in-out infinite alternate; }
 .inquiry form { position: relative; z-index: 1; width: min(1320px, 100%); margin: 0 auto; }
 .inquiry-stage { display: grid; grid-template-columns: minmax(260px, .68fr) minmax(560px, 1.32fr); gap: clamp(58px, 7vw, 124px); align-items: center; }
 .inquiry-heading { align-self: start; padding-top: clamp(8px, 2vh, 28px); }
-.inquiry-heading h2 { margin: 16px 0 24px; font: 400 clamp(88px, 8.3vw, 132px)/.92 "Liu Jian Mao Cao Local", var(--brush); letter-spacing: .08em; }
+.inquiry-heading h2 { margin: 16px 0 0; font: 400 clamp(88px, 8.3vw, 132px)/.92 "Liu Jian Mao Cao Local", var(--brush); letter-spacing: .08em; }
 .inquiry-heading > p:last-child { margin: 0; color: var(--ink-soft); font: 400 clamp(25px, 2.15vw, 34px)/1.6 var(--brush); letter-spacing: .1em; }
 .inquiry-writing { width: 100%; max-width: 860px; justify-self: end; }
 .inquiry-step { padding: 52px 0 66px; border-top: 1px solid rgba(150, 59, 40, .5); }
@@ -679,6 +685,25 @@ a { color: inherit; }
 @keyframes method-cite-arrive { to { opacity: 1; } }
 @keyframes method-rule-draw { to { transform: scaleX(1); } }
 @keyframes inquiry-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes inquiry-cloud-stream-far {
+  0% { opacity: .28; background-position: calc(0px - var(--cloud-cycle)) 48%; transform: translateY(1.2%) scaleY(.94); }
+  36% { opacity: .39; transform: translateY(-1.1%) scaleY(1.055); }
+  68% { opacity: .34; transform: translateY(.5%) scaleY(.975); }
+  100% { opacity: .28; background-position: 0 48%; transform: translateY(1.2%) scaleY(.94); }
+}
+@keyframes inquiry-cloud-stream-near {
+  0% { opacity: .34; background-position: calc(0px - var(--cloud-cycle)) 71%; transform: translateY(1.5%) scaleY(.96); }
+  24% { opacity: .43; transform: translateY(-.4%) scaleY(1.025); }
+  57% { opacity: .51; transform: translateY(-2.1%) scaleY(1.09); }
+  78% { opacity: .4; transform: translateY(.2%) scaleY(1.015); }
+  100% { opacity: .34; background-position: 0 71%; transform: translateY(1.5%) scaleY(.96); }
+}
+@keyframes inquiry-pine-breeze {
+  0% { transform: translate3d(-1px, 0, 0) rotate(-.22deg) skewX(-.08deg) scaleX(.998); }
+  44% { transform: translate3d(2px, -.4px, 0) rotate(.38deg) skewX(.18deg) scaleX(1.004); }
+  72% { transform: translate3d(.5px, .2px, 0) rotate(.08deg) skewX(.04deg) scaleX(1.001); }
+  100% { transform: translate3d(3px, -.65px, 0) rotate(.54deg) skewX(.24deg) scaleX(1.006); }
+}
 @keyframes discernment-mist-pass {
   0% { clip-path: inset(0 100% 0 0); opacity: .18; transform: translateX(-8px); }
   38% { clip-path: inset(0 0 0 0); opacity: .78; transform: translateX(0); }
@@ -875,8 +900,9 @@ a { color: inherit; }
   .discernment-controls button { font-size: 12px; }
   .dialogue-start, .dialogue-review, .guided-boundary { margin-left: 0; }
   .inquiry { min-height: 100svh; padding: 66px 20px 56px; display: block; overflow: hidden; }
-  .inquiry::before { right: -42%; top: 1%; width: 125vw; }
-  .inquiry::after { right: -18px; bottom: 18px; font-size: 158px; }
+  .inquiry-ink-layer { object-position: center; }
+  .inquiry-cloud-stream { --cloud-cycle: 760px; }
+  .inquiry-pine-tree { display: none; }
   .inquiry .vertical-brand { margin-bottom: 18px; }
   .inquiry-stage { display: grid; grid-template-columns: 1fr; gap: 22px; }
   .inquiry-heading { padding: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 20px; align-items: end; }
@@ -1040,6 +1066,10 @@ a { color: inherit; }
   .method .method-writing-layer i { animation: none !important; opacity: 1; filter: none; clip-path: none; }
   .method-cta { transition: none; }
   .inquiry .inquiry-heading, .inquiry .inquiry-writing { animation: none !important; opacity: 1; transform: none; }
+  .inquiry-cloud-stream, .inquiry-pine-tree { animation: none !important; }
+  .inquiry-cloud-stream-far { opacity: .28; background-position: 0 48%; transform: none; }
+  .inquiry-cloud-stream-near { opacity: .36; background-position: 0 69%; transform: none; }
+  .inquiry-pine-tree { opacity: .96; transform: none; }
   .discernment-current { animation: none !important; opacity: 1; transform: none; filter: none; }
   .discernment-echo { display: none; animation: none !important; }
   .discernment-mist-scroll img { animation: none !important; clip-path: none; opacity: .66; transform: none; }

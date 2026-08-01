@@ -55,8 +55,13 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /程序依规则完成排盘/);
   assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
+  assert.match(html, /question-pine-cloud-base-v2\.webp/);
+  assert.match(html, /question-mountain-occluder-v3\.png/);
+  assert.match(html, /question-pine-tree-v2\.png/);
+  assert.match(html, /inquiry-cloud-stream-far/);
+  assert.match(html, /inquiry-cloud-stream-near/);
   assert.match(html, /你真正想问的问题/);
-  assert.match(html, /写下一件<br\/>真实具体的事/);
+  assert.doesNotMatch(html, /写下一件<br\/>真实具体的事/);
   assert.match(html, /把心里的这一问，写在这里/);
   assert.match(html, /下一步，我们会陪你慢慢辨清事实、未知与真正的需要/);
   assert.match(html, /确定性排盘 · 个性化解读/);
@@ -161,6 +166,20 @@ test("method lines retain the replayable writing interaction", async () => {
   assert.match(cssSource, /method-ink-line\.is-writing[^}]+scale\(2\)/s);
   assert.match(cssSource, /method-ink-line:focus-visible:not\(\.is-writing\)[^}]+font-weight: 700[^}]+scale\(1\.34\)/s);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+method-writing-layer i/);
+});
+
+test("question scene keeps cloud and pine motion accessible", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /function InquiryInkScene/);
+  assert.match(cssSource, /question-cloud-stream-v3-tile\.png/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-stream-far/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-stream-near/);
+  assert.match(cssSource, /--cloud-cycle: 100vw/);
+  assert.match(cssSource, /background-position: calc\(0px - var\(--cloud-cycle\)\)/);
+  assert.match(cssSource, /100%[^}]+background-position: 0/s);
+  assert.match(cssSource, /@keyframes inquiry-pine-breeze/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-cloud-stream, \.inquiry-pine-tree[^}]+animation: none/s);
 });
 
 test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {

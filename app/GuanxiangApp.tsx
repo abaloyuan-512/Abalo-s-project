@@ -718,6 +718,16 @@ function EntryMistArtwork({ imgRef }: { imgRef?: RefObject<HTMLImageElement | nu
   </picture>;
 }
 
+function InquiryInkScene() {
+  return <div className="inquiry-ink-scene" aria-hidden="true">
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-cloud-stream inquiry-cloud-stream-far" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-cloud-stream inquiry-cloud-stream-near" />
+    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+  </div>;
+}
+
 const ENTRY_BIRDS = [
   { left: "4%", top: "58%", scale: ".72", flap: ".74s", delay: "-.16s", drift: "7.2s", frame: "0%" },
   { left: "19%", top: "42%", scale: ".56", flap: ".81s", delay: "-.48s", drift: "8.4s", frame: "33.333%" },
@@ -1182,13 +1192,13 @@ export function GuanxiangApp() {
       </section>
 
       <section id="inquiry" className="inquiry scroll-section" data-reveal hidden={!methodReady} aria-labelledby="inquiry-title">
+        <InquiryInkScene />
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
           <div className="inquiry-stage">
             <header className="inquiry-heading">
               <p className="eyebrow">观象之法 · 壹</p>
               <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
-              <p>写下一件<br />真实具体的事</p>
             </header>
 
             <div className="inquiry-writing">
