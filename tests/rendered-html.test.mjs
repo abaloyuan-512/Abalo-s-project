@@ -187,7 +187,7 @@ test("question scene preserves anchored ground while separating mountain, pine a
   assert.doesNotMatch(appSource, /inquiry-pine-ground/);
   assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
   assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-base-v6\.png/);
-  assert.match(cssSource, /inquiry-mountain-occluder[^}]+translate3d\(0, 7\.5%, 0\)/);
+  assert.match(cssSource, /inquiry-mountain-occluder[^}]+translate3d\(0, 13\.5%, 0\)/);
   assert.match(cssSource, /inquiry-cloudfall-canvas-front[^}]+z-index: 3/);
   assert.match(cssSource, /inquiry-pine-tree[^}]+animation: inquiry-pine-breeze 6\.8s/);
   assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near/);
