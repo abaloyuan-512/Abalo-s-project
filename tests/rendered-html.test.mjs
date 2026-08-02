@@ -229,6 +229,7 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.doesNotMatch(appSource, /你刚才的回答已经记下|正在从这句话里分清已知与未知/);
   assert.match(cssSource, /\.discernment \.discernment-turn \{ border-top: 0; border-bottom: 0; \}/);
   assert.match(cssSource, /\.discernment \.discernment-working \{ border-top: 0; \}/);
+  assert.match(cssSource, /\.discernment \.discernment-classic \{ border-top: 0; border-bottom: 0; \}/);
   assert.doesNotMatch(appSource, /开始 AI 辨识|重新连接 AI 辨识|正在静心听你所问/);
   assert.match(cssSource, /\.discernment \{[^}]+min-height: 100svh[^}]+overflow: hidden/s);
   assert.match(cssSource, /discernment-heading h2[^}]+clamp\(88px, 8\.3vw, 132px\)/);
@@ -302,6 +303,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
   assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
   assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
+  assert.match(cssSource, /\.casting-heading \.casting-contemplation \{[^}]+font-size: clamp\(22px, 1\.7vw, 29px\)/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-field \{ margin-top: clamp\(46px, 6vh, 68px\); \}/);
   assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
   assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
   assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
