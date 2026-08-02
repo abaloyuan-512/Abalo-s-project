@@ -1034,7 +1034,8 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
       <span className="final-question-sky-drift" />
       <span className="final-question-bird" />
     </div>
-    <div className="final-question-heading">
+    <VerticalBrand />
+    <div className="final-question-heading flow-title-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>
       <p>理清脉络之后<br />确认最终问题</p>
@@ -1704,7 +1705,6 @@ function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
     <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
-    <span className="inquiry-cloud-breath" />
     <InquiryCloudfallCanvas layer="back" />
     <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
     <InquiryCloudfallCanvas layer="front" />
@@ -2199,7 +2199,7 @@ export function GuanxiangApp() {
         <VerticalBrand />
         <form onSubmit={submit} noValidate>
           <div className="inquiry-stage" hidden={flowPage !== 3}>
-            <header className="inquiry-heading">
+            <header className="inquiry-heading flow-title-heading">
               <p className="eyebrow">观象之法 · 壹</p>
               <h2 id="inquiry-title" tabIndex={-1}>正问</h2>
             </header>
@@ -2222,7 +2222,7 @@ export function GuanxiangApp() {
             </div>
             <VerticalBrand />
             <div className="discernment-stage">
-              <header className="discernment-heading">
+              <header className="discernment-heading flow-title-heading">
                 <p className="eyebrow">观象之法 · 贰</p>
                 <h2 id="discernment-title" tabIndex={-1}>辨识</h2>
                 <p>卜卦之前，<br />让我们一起梳理思路</p>
@@ -2305,7 +2305,8 @@ export function GuanxiangApp() {
                 </span>)}
               </div>
             </div>
-            <header className="final-question-heading casting-heading">
+            <VerticalBrand />
+            <header className="final-question-heading casting-heading flow-title-heading">
               <p className="eyebrow">观象之法 · 肆</p>
               <h3 id="casting-title" tabIndex={-1}>成卦</h3>
               <p className="casting-contemplation">
