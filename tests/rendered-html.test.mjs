@@ -57,9 +57,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /程序依规则完成排盘/);
   assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
-  assert.match(html, /question-pine-tree-v2\.png/);
-  assert.match(html, /question-cloudfall-base-v6\.png/);
-  assert.match(html, /question-cloudfall-mountain-v5\.png/);
+  assert.match(html, /question-cloudfall-final-v7\.png/);
+  assert.doesNotMatch(html, /question-pine-tree-v2\.png/);
   assert.match(html, /inquiry-cloudfall-canvas-front/);
   assert.doesNotMatch(html, /question-pine-cloud-base-v2\.webp/);
   assert.doesNotMatch(html, /inquiry-cloud-stream-far/);
@@ -177,17 +176,15 @@ test("question scene keeps cloud and pine motion accessible", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(appSource, /function InquiryInkScene/);
-  assert.match(appSource, /question-cloudfall-base-v6\.png/);
-  assert.match(appSource, /question-cloudfall-mountain-v5\.png/);
+  assert.match(appSource, /question-cloudfall-final-v7\.png/);
   assert.match(appSource, /<InquiryCloudfallCanvas layer="front"/);
-  assert.match(appSource, /question-pine-tree-v2\.png/);
+  assert.doesNotMatch(appSource, /question-pine-tree-v2\.png/);
   assert.doesNotMatch(appSource, /question-pine-cloud-base-v2\.webp/);
   assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
-  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-base-v6\.png/);
+  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-final-v7\.png/);
   assert.match(cssSource, /inquiry-cloudfall-canvas-front[^}]+z-index: 3/);
-  assert.match(cssSource, /@keyframes inquiry-pine-breeze/);
   assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near/);
-  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+inquiry-pine-tree[^}]+animation: none/s);
+  assert.match(cssSource, /inquiry-ink-final-art[^}]+object-position: center bottom/);
 });
 
 test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {
@@ -270,6 +267,7 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(cssSource, /final-question-ready[^}]+border: 0/);
   assert.match(cssSource, /question-change-proposal \{[^}]+border-top: 0[^}]+border-bottom: 0/s);
   assert.match(cssSource, /question-change-proposal blockquote \{[^}]+padding: 0[^}]+border: 0[^}]+var\(--brush\)/s);
+  assert.match(cssSource, /final-question-step > \.final-question-heading \{[^}]+position: absolute[^}]+left: clamp\(116px, 10vw, 184px\)/s);
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+final-question-backdrop::before[^}]+animation: none/);
   assert.match(cssSource, /final-question-cta/);
 });
@@ -314,6 +312,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
+  assert.match(cssSource, /casting-number-step > \.casting-heading \{[^}]+position: absolute[^}]+left: clamp\(116px, 10vw, 184px\)/s);
   assert.match(cssSource, /inquiry\.has-casting-step[^}]+padding-bottom: 0/);
   assert.match(cssSource, /viewport-page[^}]+min-height: calc\(100svh - 68px\)/);
   assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]+if \(!finalQuestionConfirmed\) return;[\s\S]+window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
