@@ -2355,7 +2355,10 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
  * The discernment page is the single source of truth for the shared title system.
  * Keep this block last so compact-height rules cannot silently override it.
  */
-.inquiry-ink-scene { --inquiry-pine-shift: 57px; }
+.inquiry-ink-scene {
+  --inquiry-pine-shift: 57px;
+  --inquiry-mountain-shift: 44px;
+}
 .inquiry-ink-base {
   top: calc(-1 * var(--inquiry-pine-shift));
   bottom: auto;
@@ -2364,6 +2367,13 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
 }
 .inquiry-pine-tree {
   animation-name: inquiry-pine-breeze-shifted;
+}
+.inquiry-ink-scene .inquiry-mountain-occluder {
+  object-position: center 43%;
+  transform: scale(1.008);
+}
+.inquiry-cloudfall-canvas {
+  transform: translate3d(0, var(--inquiry-mountain-shift), 0);
 }
 
 @keyframes inquiry-pine-breeze-shifted {
@@ -2374,6 +2384,10 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
 }
 
 @media (min-width: 761px) {
+  .inquiry-heading {
+    margin-top: -16px;
+  }
+
   .flow-title-heading {
     align-self: start;
     padding-top: clamp(8px, 2vh, 28px);
@@ -2437,7 +2451,12 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
 }
 
 @media (max-width: 760px) {
-  .inquiry-ink-scene { --inquiry-pine-shift: 0px; }
+  .inquiry-ink-scene {
+    --inquiry-pine-shift: 0px;
+    --inquiry-mountain-shift: 0px;
+  }
+  .inquiry-heading { margin-top: 0; }
+  .inquiry-ink-scene .inquiry-mountain-occluder { object-position: center 68%; }
   .inquiry-pine-tree { animation-name: inquiry-pine-breeze; }
   .final-question-step > .vertical-brand,
   .casting-number-step > .vertical-brand { position: absolute; top: 28px; left: 18px; margin: 0; }
