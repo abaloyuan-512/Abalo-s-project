@@ -41,6 +41,37 @@ final result: passed
 
 ---
 
+# Sites v58: inquiry-layer motion and casting-layout refinement (2026-08-02)
+
+## Source of truth
+
+- Page 3 baseline: `C:\Users\27622\AppData\Local\Temp\codex-clipboard-390e8572-a363-4f6b-b4d8-48fee9b781c0.png` plus the user's current-turn requirements: preserve the complete rock/grass base, animate only the pine, lower the mountain framing, separate the two waterfall-cloud branches, and warm their color.
+- Page 6 baseline: `C:\Users\27622\AppData\Local\Temp\codex-clipboard-ea64dca2-c67e-4900-8917-a1112f5f3526.png` plus the user's current-turn spacing and type-scale instructions.
+- Implementation evidence: `qa/v58-page3-live.png` and `qa/v58-page3-reference-comparison.png`.
+
+## Findings and fixes
+
+- Page 3 uses the established base, mountain, and pine raster assets as separate layers. The base remains fixed, so the rock, weeds, and root no longer acquire the earlier arc-shaped splice.
+- The pine runs `inquiry-pine-breeze`; two sampled computed transforms differed while the fixed ground remained unchanged.
+- The mountain is reframed with `object-position: 50% 68%` rather than translating the raster element. This reveals more summit/cloud space without exposing a rectangular image boundary.
+- The cloudfall remains two canvases. The left and right paths are farther apart, opacity is reduced, and the shader palette is warmed toward the surrounding cloud sea.
+- Page 6 uses one shared `--casting-copy-size` for the three contemplation lines and the three breath labels. The title-to-copy gap, copy-to-number gap, and submit-button offset are increased while remaining inside one viewport.
+
+## Interaction and engineering verification
+
+- Online Sites v58 inspection at the deployed owner-only URL reached Page 3 and Page 6 through the visible forward controls.
+- Page 3 online computed state: two cloudfall canvases; `inquiry-pine-breeze` active; mountain object position `50% 68%`; no visible hard image seam.
+- Page 6 online DOM exposed three usable number inputs and one submit button; the full forward flow remained click-driven and scroll-locked.
+- Vinext production build: passed.
+- Node rendered/interaction tests: 29 / 29 passed.
+- ESLint: 0 errors (pre-existing warnings only).
+- `git diff --check`: passed.
+- Sites deployment: v58, deployment `appgdep_6a6f39aa3a408191948cc4eb5e4de615`, status `succeeded`.
+
+final result: passed
+
+---
+
 # Sites v54：辨识文案、定问断行、成卦定稿版式与快速跳转（2026-08-02）
 
 ## Source of truth
