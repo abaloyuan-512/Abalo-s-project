@@ -1052,3 +1052,37 @@ final result: passed
 final result: passed
 
 ---
+
+# Sites v53：第三页连续原图与第六页输入遮挡修复（2026-08-02）
+
+## Source of truth
+
+- 第三页完整定稿原图：`public/question-cloudfall-final-v7.png`；本次用户指定缺陷局部：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-f602e27d-92aa-4b85-8886-c83d35920fb5.png`。
+- 第六页定稿版式证据：`C:\Users\27622\.codex\worktrees\4f6b\Abalo-s-project\sites\hosted-app\design-qa-casting-left-inputs-medium.png` 与 `design-qa-casting-left-inputs-focus-comparison.png`。
+- 本轮不生成新图片，不修改第一、二、四、五、七页，不进入第八页制作。
+
+## Same-state visual comparison
+
+- 验证视口：1917 × 909 CSS viewport，与用户桌面内容区一致。
+- 第三页修复实拍：`qa/v53-page3-local.png`；v52 / v53 同屏对照：`qa/v53-page3-v52-v53-comparison.png`。
+- 第六页空值与填值实拍：`qa/v53-page6-local-empty.png`、`qa/v53-page6-local-filled.png`；v52 / v53 同屏对照：`qa/v53-page6-v52-v53-comparison.png`。
+- 第三页结论：移除完整原图、左下裁片和独立松树的错误三层拼接；只保留完整定稿原图与定稿云海层。左下山石、杂草、树根共享同一原图坐标系，无圆弧接缝、色差或树干错位。
+- 第六页结论：三行提示恢复为与“一息 / 二息 / 三息”一致的视觉字号与定稿行距；数字说明恢复到三行提示和数字输入之间；数字行垂直间距恢复。
+
+## Interaction verification
+
+- 真实前进流程：第一页 → 第二页 → 正问 → 辨识提前结束 → 定问 → 成卦，所有入口均由可见按钮逐页到达。
+- 三个数字输入分别填入 41、44、49，DOM 值逐项确认成功。
+- 根因定位：装饰性的 `.casting-number-workspace` 与左侧标题同处 z-index 1，且后绘制，实际覆盖了三个输入与“成卦”按钮；`elementFromPoint` 在修复前命中该装饰层。
+- 修复后 `.casting-number-workspace` 为 `pointer-events: none`，标题交互层提升到 z-index 2；`elementFromPoint` 分别命中真实 INPUT 与 BUTTON。
+- 点击“成卦”后，本地未连接排盘引擎时正常进入提交处理并显示“排盘服务尚未连接，请稍后再试”，证明按钮不再无响应；线上部署后继续验证真实结果跳转。
+- 第六页向上滚轮 790px 后，`data-flow-page` 保持 6，`window.scrollY` 保持 0，不能回滚到上一屏。
+
+## Engineering verification
+
+- Vinext production build：passed。
+- Node rendered/interaction tests：29 / 29 passed。
+- ESLint：0 errors；26 个既有 warnings。
+- `git diff --check`：passed。
+
+final result: passed

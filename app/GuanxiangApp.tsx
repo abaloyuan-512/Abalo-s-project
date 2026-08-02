@@ -1704,12 +1704,9 @@ function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
 
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-cloudfall-base-v6.png" alt="" loading="eager" decoding="async" />
+    <img className="inquiry-ink-layer inquiry-ink-base inquiry-ink-final-art" src="/question-cloudfall-final-v7.png" alt="" loading="eager" decoding="async" />
     <span className="inquiry-cloud-breath" />
-    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
     <InquiryCloudfallCanvas layer="front" />
-    <img className="inquiry-ink-layer inquiry-pine-ground" src="/question-cloudfall-final-v7.png" alt="" loading="eager" decoding="async" />
-    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
   </div>;
 }
 
@@ -2322,6 +2319,7 @@ export function GuanxiangApp() {
                 <span>三息之间，收束心念</span>
                 <span>凭当下所感，取三个数</span>
               </p>
+              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入右侧文字下方</p>
               <fieldset className="peony-number-field">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
                 {PEONY_BREATHS.map((breath, index) => <label
@@ -2332,7 +2330,6 @@ export function GuanxiangApp() {
                   <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
-              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入上方文字右侧</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
               <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? "正在成卦" : "成卦"}</button>

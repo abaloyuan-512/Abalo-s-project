@@ -57,11 +57,10 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /程序依规则完成排盘/);
   assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
-  assert.match(html, /question-cloudfall-base-v6\.png/);
-  assert.match(html, /question-cloudfall-mountain-v5\.png/);
   assert.match(html, /question-cloudfall-final-v7\.png/);
-  assert.match(html, /question-pine-tree-v2\.png/);
   assert.match(html, /inquiry-cloudfall-canvas-front/);
+  assert.doesNotMatch(html, /inquiry-pine-ground/);
+  assert.doesNotMatch(html, /question-pine-tree-v2\.png/);
   assert.doesNotMatch(html, /question-pine-cloud-base-v2\.webp/);
   assert.doesNotMatch(html, /inquiry-cloud-stream-far/);
   assert.doesNotMatch(html, /inquiry-cloud-sky-drift/);
@@ -95,7 +94,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /casting-peony-petal-v1\.png/);
   assert.match(html, /心中再默念一遍所问之事/);
   assert.match(html, /三息之间，收束心念/);
-  assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
+  assert.match(html, /取1-999之间的数字，填入右侧文字下方/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
   assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>[\s\S]*成卦<\/button>/);
@@ -174,23 +173,21 @@ test("method lines retain the replayable writing interaction", async () => {
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+method-writing-layer i/);
 });
 
-test("question scene keeps cloud and pine motion accessible", async () => {
+test("question scene keeps the finalized painting continuous while preserving cloud motion", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(appSource, /function InquiryInkScene/);
-  assert.match(appSource, /question-cloudfall-base-v6\.png/);
-  assert.match(appSource, /question-cloudfall-mountain-v5\.png/);
   assert.match(appSource, /question-cloudfall-final-v7\.png/);
   assert.match(appSource, /<InquiryCloudfallCanvas layer="front"/);
-  assert.match(appSource, /question-pine-tree-v2\.png/);
+  assert.doesNotMatch(appSource, /question-pine-tree-v2\.png/);
+  assert.doesNotMatch(appSource, /inquiry-pine-ground/);
   assert.doesNotMatch(appSource, /question-pine-cloud-base-v2\.webp/);
   assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
-  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-base-v6\.png/);
+  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-final-v7\.png/);
   assert.match(cssSource, /inquiry-cloudfall-canvas-front[^}]+z-index: 3/);
   assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near/);
-  assert.match(cssSource, /inquiry-ink-scene \.inquiry-ink-layer[^}]+object-position: center bottom/);
-  assert.match(cssSource, /inquiry-pine-ground[^}]+clip-path/);
-  assert.match(cssSource, /inquiry-pine-tree[^}]+inquiry-pine-breeze/);
+  assert.match(cssSource, /inquiry-ink-final-art[^}]+object-position: center bottom/);
+  assert.doesNotMatch(cssSource, /inquiry-pine-ground[^}]+clip-path/);
 });
 
 test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {
@@ -293,11 +290,11 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(petalMotionSource, /duration: 23\.2/);
   assert.match(appSource, /心中再默念一遍所问之事/);
   assert.match(appSource, /三息之间，收束心念/);
-  assert.match(appSource, /取1-999之间的数字，填入上方文字右侧/);
+  assert.match(appSource, /取1-999之间的数字，填入右侧文字下方/);
   assert.doesNotMatch(appSource, /placeholder="1—999"/);
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
-  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.match(appSource, /casting-range-note[\s\S]+peony-number-field[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
   assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
   assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
   assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
@@ -319,6 +316,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
   assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
   assert.match(cssSource, /casting-number-step > \.casting-heading \{[^}]+position: absolute[^}]+left: clamp\(116px, 10vw, 184px\)/s);
+  assert.match(cssSource, /casting-number-step > \.casting-heading \{[^}]+z-index: 2/);
+  assert.match(cssSource, /casting-number-workspace \{[^}]+pointer-events: none/);
   assert.match(cssSource, /inquiry\.has-casting-step[^}]+padding-bottom: 0/);
   assert.match(cssSource, /viewport-page[^}]+min-height: calc\(100svh - 68px\)/);
   assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]+if \(!finalQuestionConfirmed\) return;[\s\S]+window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
