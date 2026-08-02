@@ -1018,3 +1018,37 @@ final result: passed
 - 第六页出现后，外层底部内边距归零；结果说明和站点页脚只在第七页结果生成后出现，使第六页末端与第七页起点直接相接。
 - 第五页进入第六页改为一次性定位，并在不触发二次滚动的前提下把焦点交给「成卦」标题，避免平滑滚动与动态内容插入叠加造成上下跳动。
 - 新增可复用的 `viewport-page` 页面约束：桌面为 `100svh - 68px`，手机为 `100svh - 58px`。第五页、第六页和第七页首屏已接入；后续第八至第十页及观事簿设计沿用这一规则。
+# Sites v52：第三、五、六页定稿版本恢复（2026-08-02）
+
+## Source of truth
+
+- 第三页：完整复核任务 `019fa5e9-2a61-7f92-813b-b9d609ccb12c`，以用户最后一次“这一页，定稿。非常好”对应的 v11 为准。
+- 第五页：完整复核任务 `019fadc2-e346-7343-9859-11ea17af676a`，以用户最后一次“这一页非常好，定稿”为准。
+- 第六页：完整复核任务 `019fb34f-2804-7d23-8369-4a4c228b1aac`，以用户最后一次“第六页定稿”为准。
+- 本次对话覆盖项：第三页松树根部必须保留指定原图中的山石、杂树与草木；第五、六页左上标题字号不得被矮屏规则再次缩小。
+
+## Same-state visual comparison
+
+- 指定原图：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-ff79534a-edfc-413d-afb1-67c20c7a1567.png`。
+- 线上实拍：`qa/page3-v52-live-894x698.png`，Sites v52，CSS viewport 894 × 698。
+- 同图对照：`qa/page3-v52-source-live-comparison.png`。
+- 对照结论：松树使用定稿树形，根部山石、坡体、杂树和草木完整进入画面；未重绘、未替换为新版本。
+
+## Motion and layout verification
+
+- 第三页线上计算样式：松树 `inquiry-pine-breeze` 运行；顶部云层 `inquiry-cloud-breathe-near` / `inquiry-cloud-breathe-soft` 运行；峰顶云瀑 canvas 存在；山体 `animation-name: none`。
+- 第三页资源均完成加载：`question-pine-tree-v2.png`、`question-cloudfall-final-v7.png`、`question-cloudfall-mountain-v5.png`。
+- 第五、六页在 894 × 698 线上视口的标题计算字号均为 82px；桌面宽屏继续使用定稿 `clamp(82px, 8vw, 126px)`，不再受矮屏媒体查询缩小。
+- 第五、六页继续使用既有一屏约束、左上定位和定稿美术资产；未进入或改动第八页。
+
+## Engineering verification
+
+- Vinext production build：passed。
+- Node rendered/interaction tests：29 / 29 passed。
+- ESLint：0 errors；29 个既有 warnings。
+- `git diff --check`：passed。
+- Sites deployment：v52，deployment `appgdep_6a6ec466eba081919b1da154159eb59a`，status `succeeded`。
+
+final result: passed
+
+---
