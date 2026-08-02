@@ -1,3 +1,46 @@
+# Design QA — 第三、第五、第六页定稿版式恢复（Sites v50，2026-08-02）
+
+## 对照依据
+
+- 第三页原始定稿背景：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-ff79534a-edfc-413d-afb1-67c20c7a1567.png`。
+- 第五页最后定稿版式参考：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-1d33a658-3a6c-4d27-9222-e39f417f1084.png`。
+- 第六页最后定稿版式参考：`C:\Users\27622\AppData\Local\Temp\codex-clipboard-875a9055-e914-4b5e-87a7-ba761ff2e881.png`。
+- 线上实现截图：`qa/v50-page3-final.png`、`qa/v50-page5.png`、`qa/v50-page6.png`。
+- 同屏组合对照：`qa/v50-comparison.png`。
+- 验证视口：1280 × 720 CSS viewport。
+
+## 可见修复结果
+
+- 第三页直接使用用户重新提供的完整原图，松树根部的岩石、小树、杂草与近景山体完整保留；移除原先分离叠加的松树与山体图层，消除根部虚浮。
+- 第五页“观象之法·叁 / 定问 / 理清脉络之后 / 确认最终问题”恢复到左上区域；正文和“开始卜卦”保持原定稿的中部交互区，不再把标题整体移到中间。
+- 第六页“观象之法·肆 / 成卦”、三段心念提示、三个取数输入和唯一“成卦”按钮恢复到左上区域；牡丹场景保持不变。
+- 第五页标题实测左上坐标约为 x=128、y=46；第六页标题约为 x=128、y=34。两页内容均完整落在单屏 720px 高度内。
+
+## Required Fidelity Surfaces
+
+- Fonts and typography：沿用既有书法字体与字号体系，未新增或替换字体。
+- Spacing and layout rhythm：只恢复定稿的左上锚点和既有内容尺度，没有重排为居中方案。
+- Colors and visual tokens：宣纸、淡墨、朱砂色保持原样。
+- Image quality and asset fidelity：第三页使用用户提供的原始位图，不重绘、不拼接、不以独立松树素材替代。
+- Copy and content：未在本轮主动改写页面文案。
+
+## 交互与工程验证
+
+- 首页 → 第二页 → 第三页 → 第四页 → 第五页 → 第六页的按钮流程在线可达。
+- 第五、六页实测无纵向溢出；标题和主要按钮均完整可见。
+- Vinext production build：passed。
+- Node rendered/interaction tests：29 / 29 passed。
+- `git diff --check`：passed。
+
+## Comparison History
+
+1. v49：第三页仍由底图、山体遮罩、独立松树三层组成，松树根部与原图不一致；第五、六页标题受响应式覆盖而居中或过小。
+2. v50：第三页换回完整原图；第五、六页在桌面视口明确锚定左上，并完成线上 1280 × 720 实画面对照。
+
+final result: passed
+
+---
+
 # Design QA — 第三页「正问」顶部云层横向修正版 v11（2026-08-01）
 
 ## 对照依据
