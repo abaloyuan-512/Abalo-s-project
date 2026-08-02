@@ -5,6 +5,7 @@ import {
   PersonalizedPollError,
   pollPersonalizedTask,
 } from "./personalized-reading-poll";
+import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
@@ -217,6 +218,16 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
     alt={decorative ? "" : "伏羲先天太极八卦图"}
     aria-hidden={decorative ? "true" : undefined}
   />;
+}
+
+function ChrysanthemumMark() {
+  return <svg viewBox="0 0 48 48" focusable="false" aria-hidden="true">
+    <g className="chrysanthemum-petals">
+      {Array.from({ length: 12 }, (_, index) => <ellipse key={index} cx="24" cy="10" rx="3.2" ry="8" transform={`rotate(${index * 30} 24 24)`} />)}
+    </g>
+    <circle cx="24" cy="24" r="6.2" />
+    <circle cx="24" cy="24" r="2.4" />
+  </svg>;
 }
 
 const PEONY_BREATHS = [
@@ -982,7 +993,9 @@ function GuidedIntake(props: GuidedIntakeProps) {
   return <div className="guided-intake ai-guided-intake">
     {mode === "ASKING" && <div className="discernment-turn" aria-live="polite">
       {previousTurn && <div className="discernment-echo" key={`ai-echo-${turns.length}`} aria-hidden="true"><span>{previousTurn.prompt}</span><p>{previousTurn.answer}</p></div>}
-      <div className="discernment-progress"><span>第 {Math.min(turns.length + 1, 8)} 问</span><small>信息足够即结束 · 最多 8 问</small></div>
+      <div className="discernment-chrysanthemum-progress" role="img" aria-label={`还剩 ${Math.max(0, 8 - turns.length)} 朵菊花`}>
+        {Array.from({ length: Math.max(0, 8 - turns.length) }, (_, index) => <span key={`chrysanthemum-${index}`} aria-hidden="true"><ChrysanthemumMark /></span>)}
+      </div>
       {!busy && !error && <p className="discernment-understanding">{assistantMessage}</p>}
       {currentPrompt && !busy && !error && <div className="discernment-current" key={currentPrompt}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>}
       {busy && <div className="discernment-working" role="status"><span>你刚才的回答已经记下</span><p>正在从这句话里分清已知与未知，下一问会接着你刚才所说的内容。</p><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
@@ -1691,10 +1704,10 @@ function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
 
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
-    <div className="inquiry-cloud-stream inquiry-cloud-stream-far" />
-    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-mountain-occluder-v3.png" alt="" loading="eager" decoding="async" />
-    <div className="inquiry-cloud-stream inquiry-cloud-stream-near" />
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-cloudfall-base-v6.png" alt="" loading="eager" decoding="async" />
+    <span className="inquiry-cloud-breath" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
+    <InquiryCloudfallCanvas layer="front" />
     <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
   </div>;
 }
@@ -1763,31 +1776,11 @@ export function GuanxiangApp() {
 
   useLayoutEffect(() => {
     if (!finalQuestionConfirmed) return;
-    const casting = document.getElementById("casting");
-    const header = document.querySelector<HTMLElement>(".site-header");
-    if (!casting) return;
-
-    const root = document.documentElement;
-    const previousScrollBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "auto";
-
-    const alignCastingBelowHeader = () => {
-      const headerHeight = header?.getBoundingClientRect().height ?? 0;
-      const targetTop = window.scrollY + casting.getBoundingClientRect().top - headerHeight;
-      window.scrollTo({ top: Math.max(0, targetTop), left: 0, behavior: "auto" });
-    };
-
-    alignCastingBelowHeader();
-    const correctionFrame = window.requestAnimationFrame(() => {
-      alignCastingBelowHeader();
-      root.style.scrollBehavior = previousScrollBehavior;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const focusFrame = window.requestAnimationFrame(() => {
       document.getElementById("casting-title")?.focus({ preventScroll: true });
     });
-
-    return () => {
-      window.cancelAnimationFrame(correctionFrame);
-      root.style.scrollBehavior = previousScrollBehavior;
-    };
+    return () => window.cancelAnimationFrame(focusFrame);
   }, [finalQuestionConfirmed]);
 
   useEffect(() => {
@@ -2085,11 +2078,11 @@ export function GuanxiangApp() {
     const parsed = numbers.map(Number);
     const textLists = [factLines, unknownLines, actionLines, responseLines];
     const earlyExit = discernmentCompletionReason === "USER_EARLY";
-    const realityContextInvalid = !earlyExit && (factLines.length < 1 || unknownLines.length < 1);
-    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || realityContextInvalid || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
+    const useDeterministicOnly = earlyExit || factLines.length < 1 || unknownLines.length < 1;
+    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
       setError("请先完成正问与辨识，并填写三个 1–999 的整数。"); return;
     }
-    if (earlyExit) {
+    if (useDeterministicOnly) {
       setLoading(true); setProgress("正在按三数成卦……");
       try {
         const request = await fetch("/api/v3/meihua", {
@@ -2188,7 +2181,7 @@ export function GuanxiangApp() {
         <blockquote className="sr-only">寂然不动，感而遂通天下之故。</blockquote>
         <span className="sr-only">《周易·系辞上》</span>
         <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
-        <button type="button" className="hero-sound-control" aria-pressed={soundOn} aria-label={soundOn ? "暂停古琴音乐" : "播放古琴音乐"} onClick={toggleSound}><img src="/hero-guqin-horizontal-v2.webp" alt="" aria-hidden="true" /><span className="sr-only">{soundOn ? "暂停古琴音乐" : "播放古琴音乐"}</span></button>
+        <button type="button" className="hero-sound-control" aria-pressed={soundOn} aria-label={soundOn ? "暂停古琴音乐" : "播放古琴音乐"} onClick={toggleSound}><span className="hero-sound-label" aria-hidden="true">闻琴</span><img src="/hero-guqin-horizontal-v2.webp" alt="" aria-hidden="true" /><span className="sr-only">{soundOn ? "暂停古琴音乐" : "播放古琴音乐"}</span></button>
         <button type="button" className="hero-scroll-cue" aria-label="进入观象之法" onClick={enterMethod}><img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" /><img className="entry-down-cue" src="/hero-down-cue-v1.png" alt="" aria-hidden="true" /></button>
       </section>
 
@@ -2261,7 +2254,6 @@ export function GuanxiangApp() {
                     </i>
                   </span>
                 </div>
-                <div className="discernment-dialogue-head"><span>一问一答</span><small>文字回答</small></div>
                 {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
               </div>
             </div>

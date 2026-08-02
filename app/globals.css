@@ -2179,3 +2179,140 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
 .discernment-cranes { display: none; }
 .discernment .dialogue-compose textarea, .dialogue-compose > button { transition: none; }
 }
+
+/* Finalized seven-screen acceptance fixes (v49). */
+.hero-sound-control {
+  width: auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(7px, .65vw, 11px);
+}
+.hero-sound-control .hero-sound-label {
+  color: rgba(44, 46, 40, .76);
+  font: 400 clamp(17px, 1.35vw, 22px)/1 "FZXiaoZhuanTi-S13T", "STLiti", "LiSu", var(--brush);
+  letter-spacing: .18em;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  text-shadow: 0 0 1px rgba(44, 46, 40, .14);
+}
+.hero-sound-control img { width: clamp(41px, 3.47vw, 57px); flex: 0 0 auto; }
+
+.inquiry-ink-base { z-index: 0; opacity: .99; filter: brightness(1.035) contrast(.92) saturate(.80); transform: scale(1.008); }
+.inquiry-cloud-breath { position: absolute; inset: -1%; z-index: 1; overflow: hidden; clip-path: polygon(0 0, 66% 0, 64% 10%, 61% 20%, 57% 29%, 0 35%); pointer-events: none; }
+.inquiry-cloud-breath::before, .inquiry-cloud-breath::after { content: ""; position: absolute; inset: 0; background: url("/question-cloudfall-base-v6.png") center center / cover no-repeat; transform-origin: 34% 12%; will-change: transform, opacity, filter; pointer-events: none; }
+.inquiry-cloud-breath::before { opacity: .45; filter: brightness(1.01) contrast(1.02) saturate(.82); -webkit-mask-image: radial-gradient(ellipse 49% 23% at 30% 11%, #000 0 44%, rgba(0,0,0,.82) 62%, transparent 84%); mask-image: radial-gradient(ellipse 49% 23% at 30% 11%, #000 0 44%, rgba(0,0,0,.82) 62%, transparent 84%); animation: inquiry-cloud-breathe-near 8.4s ease-in-out infinite; }
+.inquiry-cloud-breath::after { opacity: .25; filter: brightness(1.04) contrast(.96) saturate(.76); transform-origin: 45% 10%; -webkit-mask-image: radial-gradient(ellipse 31% 15% at 45% 9%, #000 0 38%, rgba(0,0,0,.7) 60%, transparent 84%); mask-image: radial-gradient(ellipse 31% 15% at 45% 9%, #000 0 38%, rgba(0,0,0,.7) 60%, transparent 84%); animation: inquiry-cloud-breathe-soft 11.8s ease-in-out -3.2s infinite; }
+.inquiry-cloudfall-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; filter: sepia(.08) saturate(.72) blur(.18px); will-change: contents; }
+.inquiry-cloudfall-canvas-back { z-index: 1; opacity: 1; }
+.inquiry-mountain-occluder { z-index: 2; opacity: .14; filter: brightness(1.16) contrast(.72) saturate(.70); transform: scale(1.008); }
+.inquiry-cloudfall-canvas-front { z-index: 3; opacity: 1; }
+.inquiry-pine-tree { z-index: 4; opacity: .96; transform-origin: 10.5% 82%; will-change: transform; animation: inquiry-pine-breeze 6.8s ease-in-out infinite alternate; }
+@keyframes inquiry-cloud-breathe-near { 0%, 100% { opacity: .34; transform: translate3d(-12px, 0, 0) scale3d(1.006, 1, 1); filter: brightness(1) contrast(1.03) saturate(.83); } 45% { opacity: .58; transform: translate3d(14px, 0, 0) scale3d(1.016, 1, 1); filter: brightness(1.07) contrast(.95) saturate(.77); } 72% { opacity: .46; transform: translate3d(5px, 0, 0) scale3d(1.01, 1, 1); filter: brightness(1.03) contrast(.99) saturate(.80); } }
+@keyframes inquiry-cloud-breathe-soft { 0%, 100% { opacity: .17; transform: translate3d(-8px, 0, 0) scale3d(1.004, 1, 1); filter: brightness(1.01) contrast(1.01) saturate(.78); } 50% { opacity: .38; transform: translate3d(10px, 0, 0) scale3d(1.012, 1, 1); filter: brightness(1.08) contrast(.93) saturate(.72); } }
+
+.discernment-chrysanthemum-progress {
+  min-height: 30px;
+  margin: 0 0 clamp(18px, 2.5vh, 28px) 60px;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, .85vw, 13px);
+  color: rgba(111, 42, 29, .72);
+}
+.discernment-chrysanthemum-progress span {
+  width: clamp(21px, 1.7vw, 28px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  filter: saturate(.7);
+}
+.discernment-chrysanthemum-progress svg { width: 100%; height: 100%; overflow: visible; fill: rgba(111, 42, 29, .1); stroke: currentColor; stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+.discernment-chrysanthemum-progress .chrysanthemum-petals { fill: rgba(111, 42, 29, .055); stroke-width: 1.05; }
+
+.final-question-step,
+.casting-number-step {
+  box-sizing: border-box;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+.final-question-step {
+  padding-top: clamp(34px, 4.8vh, 58px);
+  padding-bottom: clamp(30px, 4.2vh, 52px);
+  gap: clamp(42px, 5vw, 82px);
+  align-items: center;
+}
+.final-question-heading { align-self: center; padding-top: 0; }
+.final-question-heading h3 { margin: 10px 0 16px; font-size: clamp(72px, 7vw, 112px); }
+.final-question-heading > p:last-child { font-size: clamp(21px, 1.8vw, 28px); line-height: 1.52; }
+.final-question-workspace { min-width: 0; align-self: center; }
+.question-change-proposal {
+  padding: clamp(18px, 2.5vh, 28px) 0;
+  border-top: 0;
+  border-bottom: 0;
+}
+.question-change-proposal > p { font-size: clamp(15px, 1.15vw, 18px); line-height: 1.65; }
+.question-change-proposal blockquote {
+  margin: clamp(14px, 2vh, 20px) 0 10px;
+  padding: 0;
+  border: 0;
+  font: 400 clamp(27px, 2.35vw, 37px)/1.48 var(--brush);
+  letter-spacing: .06em;
+}
+.question-change-proposal > div { margin-top: clamp(16px, 2.2vh, 24px); }
+.final-question-ready { padding: clamp(24px, 3.8vh, 40px) 0 22px; }
+.final-question-readiness { margin-top: clamp(18px, 2.8vh, 30px); }
+
+.casting-number-step {
+  padding-top: clamp(28px, 4vh, 48px);
+  padding-bottom: clamp(24px, 3.2vh, 40px);
+  gap: clamp(28px, 3.6vw, 58px);
+  align-items: center;
+}
+.casting-heading { align-self: center; padding-top: 0; }
+.casting-heading h3 { margin-top: 8px; margin-bottom: 12px; font-size: clamp(70px, 7vw, 108px); }
+.casting-heading .casting-contemplation { margin-top: clamp(18px, 2.8vh, 30px); gap: 8px; font-size: clamp(18px, 1.4vw, 24px); line-height: 1.28; }
+.casting-heading .peony-number-field { margin-top: clamp(15px, 2.2vh, 24px); }
+.casting-heading .casting-submit { margin-top: clamp(16px, 2.3vh, 25px); }
+.casting-submit-error { margin-top: 8px; }
+.casting-number-workspace { min-height: 0; height: min(72vh, 680px); align-self: center; }
+.casting-peony-scene { top: 0; height: 100svh; aspect-ratio: auto; }
+
+@media (min-width: 761px) and (max-height: 760px) {
+  .final-question-step { padding-top: 24px; padding-bottom: 22px; }
+  .final-question-heading h3 { font-size: 74px; }
+  .question-change-proposal { padding: 10px 0; }
+  .question-change-proposal blockquote { margin-top: 10px; font-size: 28px; line-height: 1.35; }
+  .question-change-proposal > div { margin-top: 12px; }
+  .casting-number-step { padding-top: 20px; padding-bottom: 18px; }
+  .casting-heading h3 { font-size: 70px; }
+  .casting-heading .casting-contemplation { margin-top: 12px; gap: 5px; font-size: 18px; }
+  .casting-heading .peony-number-field { margin-top: 12px; }
+  .casting-heading .casting-submit { margin-top: 12px; }
+}
+
+@media (max-width: 760px) {
+  .hero-sound-control { right: 4%; width: auto; gap: 5px; }
+  .hero-sound-control .hero-sound-label { font-size: 15px; }
+  .hero-sound-control img { width: 45px; }
+  .discernment-chrysanthemum-progress { margin-left: 0; margin-bottom: 12px; gap: 6px; }
+  .discernment-chrysanthemum-progress span { width: 20px; font-size: 22px; }
+  .final-question-step,
+  .casting-number-step { height: 100svh; min-height: 100svh; max-height: 100svh; overflow: hidden; }
+  .final-question-step { padding-top: 28px; padding-bottom: 24px; align-content: center; gap: 18px; }
+  .final-question-heading { align-self: auto; }
+  .final-question-heading h3 { font-size: 58px; margin: 7px 0 10px; }
+  .final-question-heading > p:last-child { font-size: 18px; line-height: 1.42; }
+  .question-change-proposal { padding: 10px 0; }
+  .question-change-proposal > p { font-size: 13px; line-height: 1.55; }
+  .question-change-proposal blockquote { margin: 10px 0 8px; padding: 0; font-size: 22px; line-height: 1.36; }
+  .question-change-proposal > div { margin-top: 12px; }
+  .casting-number-step { padding-top: 24px; padding-bottom: 20px; gap: 6px; align-content: center; }
+  .casting-heading h3 { font-size: 58px; margin: 6px 0 8px; }
+  .casting-heading .casting-contemplation { margin-top: 10px; gap: 4px; font-size: 16px; }
+  .casting-heading .peony-number-field { margin-top: 10px; }
+  .casting-heading .casting-submit { margin-top: 10px; }
+  .casting-number-workspace { height: min(38vh, 310px); min-height: 0; }
+}
