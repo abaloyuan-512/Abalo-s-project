@@ -121,12 +121,12 @@ void main() {
   } else {
     // Leeward fall: the summit divides the cloud into one broad curtain and one
     // narrow ravine stream. Each branch has its own speed and dissolves downhill.
-    vec2 p1 = vec2(.605 * aspect, .315);
-    vec2 p2 = vec2(.565 * aspect, .475);
-    vec2 p3 = vec2(.505 * aspect, .790);
-    vec2 q1 = vec2(.675 * aspect, .365);
-    vec2 q2 = vec2(.705 * aspect, .545);
-    vec2 q3 = vec2(.725 * aspect, .795);
+    vec2 p1 = vec2(.575 * aspect, .315);
+    vec2 p2 = vec2(.525 * aspect, .475);
+    vec2 p3 = vec2(.465 * aspect, .790);
+    vec2 q1 = vec2(.715 * aspect, .365);
+    vec2 q2 = vec2(.755 * aspect, .545);
+    vec2 q3 = vec2(.785 * aspect, .795);
     float broadUpper = softTrail(metric, p1, p2, .045, .135);
     float broadLower = softTrail(metric, p2, p3, .055, .175);
     float narrowUpper = softTrail(metric, q1, q2, .022, .070);
@@ -145,7 +145,7 @@ void main() {
 
     float broadDetail = cloudDetail(metric, vec2(.006 * aspect, .052), time, 7.0);
     float narrowDetail = cloudDetail(metric + vec2(3.1, .0), vec2(.004 * aspect, .070), time, 8.7);
-    float branchMix = smoothstep(.665, .72, uv.x);
+    float branchMix = smoothstep(.64, .76, uv.x);
     detail = mix(broadDetail, narrowDetail, branchMix);
     float billow = cloudDetail(metric + vec2(.0, time * .012), vec2(.010 * aspect, .040), time, 3.5);
     detail = mix(detail, billow, .30);
@@ -207,6 +207,7 @@ void main() {
     opacity = shape * fallingBody;
     opacity += travellingBodies * mix(.18, .30, fineRidges);
     opacity *= downhillFade;
+    opacity *= .58;
   }
 
   float feather = smoothstep(.0, .055, uv.x) * (1.0 - smoothstep(.945, 1.0, uv.x));
@@ -214,8 +215,8 @@ void main() {
   opacity *= feather;
   // Keep every animated pixel pale. Dark moving texture can be mistaken for
   // shifting mountain ink, while a warm-white veil clearly reads as vapour.
-  vec3 cloudShadow = vec3(.986, .979, .952);
-  vec3 cloudLight = vec3(1.0, .997, .982);
+  vec3 cloudShadow = vec3(.885, .852, .790);
+  vec3 cloudLight = vec3(.955, .925, .865);
   vec3 cloudColor = mix(cloudShadow, cloudLight, smoothstep(.24, .70, detail));
   gl_FragColor = vec4(cloudColor * opacity, opacity);
 }

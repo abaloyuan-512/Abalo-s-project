@@ -57,11 +57,12 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /程序依规则完成排盘/);
   assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
-  assert.match(html, /question-cloudfall-final-v7\.png/);
+  assert.match(html, /question-pine-cloud-base-v2\.webp/);
+  assert.match(html, /question-cloudfall-mountain-v5\.png/);
+  assert.match(html, /question-pine-tree-v2\.png/);
+  assert.match(html, /inquiry-cloudfall-canvas-back/);
   assert.match(html, /inquiry-cloudfall-canvas-front/);
   assert.doesNotMatch(html, /inquiry-pine-ground/);
-  assert.doesNotMatch(html, /question-pine-tree-v2\.png/);
-  assert.doesNotMatch(html, /question-pine-cloud-base-v2\.webp/);
   assert.doesNotMatch(html, /inquiry-cloud-stream-far/);
   assert.doesNotMatch(html, /inquiry-cloud-sky-drift/);
   assert.match(html, /你真正想问的问题/);
@@ -174,20 +175,22 @@ test("method lines retain the replayable writing interaction", async () => {
   assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+method-writing-layer i/);
 });
 
-test("question scene keeps the finalized painting continuous while preserving cloud motion", async () => {
+test("question scene preserves anchored ground while separating mountain, pine and cloud motion", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(appSource, /function InquiryInkScene/);
-  assert.match(appSource, /question-cloudfall-final-v7\.png/);
+  assert.match(appSource, /question-pine-cloud-base-v2\.webp/);
+  assert.match(appSource, /question-cloudfall-mountain-v5\.png/);
+  assert.match(appSource, /question-pine-tree-v2\.png/);
+  assert.match(appSource, /<InquiryCloudfallCanvas layer="back"/);
   assert.match(appSource, /<InquiryCloudfallCanvas layer="front"/);
-  assert.doesNotMatch(appSource, /question-pine-tree-v2\.png/);
   assert.doesNotMatch(appSource, /inquiry-pine-ground/);
-  assert.doesNotMatch(appSource, /question-pine-cloud-base-v2\.webp/);
   assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
-  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-final-v7\.png/);
+  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-base-v6\.png/);
+  assert.match(cssSource, /inquiry-mountain-occluder[^}]+translate3d\(0, 7\.5%, 0\)/);
   assert.match(cssSource, /inquiry-cloudfall-canvas-front[^}]+z-index: 3/);
+  assert.match(cssSource, /inquiry-pine-tree[^}]+animation: inquiry-pine-breeze 6\.8s/);
   assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near/);
-  assert.match(cssSource, /inquiry-ink-final-art[^}]+object-position: center bottom/);
   assert.doesNotMatch(cssSource, /inquiry-pine-ground[^}]+clip-path/);
 });
 
@@ -303,8 +306,11 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
   assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
   assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
-  assert.match(cssSource, /\.casting-heading \.casting-contemplation \{[^}]+font-size: clamp\(22px, 1\.7vw, 29px\)/);
-  assert.match(cssSource, /\.casting-heading \.peony-number-field \{ margin-top: clamp\(46px, 6vh, 68px\); \}/);
+  assert.match(cssSource, /\.casting-heading \{ --casting-copy-size: clamp\(22px, 1\.7vw, 29px\)/);
+  assert.match(cssSource, /\.casting-heading \.casting-contemplation \{[^}]+font-size: var\(--casting-copy-size\)/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-copy b \{ font-size: var\(--casting-copy-size\); \}/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-field \{ margin-top: clamp\(72px, 8vh, 92px\); \}/);
+  assert.match(cssSource, /\.casting-heading \.casting-submit \{ margin-top: clamp\(72px, 9vh, 96px\); \}/);
   assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
   assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
   assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);

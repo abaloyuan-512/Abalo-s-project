@@ -1703,9 +1703,12 @@ function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
 
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base inquiry-ink-final-art" src="/question-cloudfall-final-v7.png" alt="" loading="eager" decoding="async" />
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
     <span className="inquiry-cloud-breath" />
+    <InquiryCloudfallCanvas layer="back" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
     <InquiryCloudfallCanvas layer="front" />
+    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
   </div>;
 }
 

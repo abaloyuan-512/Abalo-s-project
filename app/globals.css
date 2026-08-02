@@ -2201,15 +2201,17 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
 }
 .hero-sound-control img { width: clamp(41px, 3.47vw, 57px); flex: 0 0 auto; }
 
-.inquiry-ink-base { z-index: 0; opacity: .99; filter: brightness(1.035) contrast(.92) saturate(.80); transform: scale(1.008); }
+.inquiry-ink-base { z-index: 0; opacity: .99; filter: brightness(1.035) contrast(.92) saturate(.80); transform: none; }
 .inquiry-cloud-breath { position: absolute; inset: -1%; z-index: 1; overflow: hidden; clip-path: polygon(0 0, 66% 0, 64% 10%, 61% 20%, 57% 29%, 0 35%); pointer-events: none; }
-.inquiry-ink-final-art { object-position: center bottom; transform: none; }
-.inquiry-cloud-breath::before, .inquiry-cloud-breath::after { content: ""; position: absolute; inset: 0; background: url("/question-cloudfall-final-v7.png") center bottom / cover no-repeat; transform-origin: 34% 12%; will-change: transform, opacity, filter; pointer-events: none; }
+.inquiry-ink-scene .inquiry-ink-layer { object-position: center bottom; }
+.inquiry-cloud-breath::before, .inquiry-cloud-breath::after { content: ""; position: absolute; inset: 0; background: url("/question-cloudfall-base-v6.png") center bottom / cover no-repeat; transform-origin: 34% 12%; will-change: transform, opacity, filter; pointer-events: none; }
 .inquiry-cloud-breath::before { opacity: .45; filter: brightness(1.01) contrast(1.02) saturate(.82); -webkit-mask-image: radial-gradient(ellipse 49% 23% at 30% 11%, #000 0 44%, rgba(0,0,0,.82) 62%, transparent 84%); mask-image: radial-gradient(ellipse 49% 23% at 30% 11%, #000 0 44%, rgba(0,0,0,.82) 62%, transparent 84%); animation: inquiry-cloud-breathe-near 8.4s ease-in-out infinite; }
 .inquiry-cloud-breath::after { opacity: .25; filter: brightness(1.04) contrast(.96) saturate(.76); transform-origin: 45% 10%; -webkit-mask-image: radial-gradient(ellipse 31% 15% at 45% 9%, #000 0 38%, rgba(0,0,0,.7) 60%, transparent 84%); mask-image: radial-gradient(ellipse 31% 15% at 45% 9%, #000 0 38%, rgba(0,0,0,.7) 60%, transparent 84%); animation: inquiry-cloud-breathe-soft 11.8s ease-in-out -3.2s infinite; }
 .inquiry-cloudfall-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; filter: sepia(.08) saturate(.72) blur(.18px); will-change: contents; }
 .inquiry-cloudfall-canvas-back { z-index: 1; opacity: 1; }
+.inquiry-mountain-occluder { z-index: 2; opacity: .96; filter: brightness(1.04) contrast(.9) saturate(.76); transform: translate3d(0, 7.5%, 0) scale(1.008); transform-origin: center; }
 .inquiry-cloudfall-canvas-front { z-index: 3; opacity: 1; }
+.inquiry-pine-tree { z-index: 4; opacity: .96; transform-origin: 10.5% 82%; will-change: transform; animation: inquiry-pine-breeze 6.8s ease-in-out infinite alternate; }
 @keyframes inquiry-cloud-breathe-near { 0%, 100% { opacity: .34; transform: translate3d(-12px, 0, 0) scale3d(1.006, 1, 1); filter: brightness(1) contrast(1.03) saturate(.83); } 45% { opacity: .58; transform: translate3d(14px, 0, 0) scale3d(1.016, 1, 1); filter: brightness(1.07) contrast(.95) saturate(.77); } 72% { opacity: .46; transform: translate3d(5px, 0, 0) scale3d(1.01, 1, 1); filter: brightness(1.03) contrast(.99) saturate(.80); } }
 @keyframes inquiry-cloud-breathe-soft { 0%, 100% { opacity: .17; transform: translate3d(-8px, 0, 0) scale3d(1.004, 1, 1); filter: brightness(1.01) contrast(1.01) saturate(.78); } 50% { opacity: .38; transform: translate3d(10px, 0, 0) scale3d(1.012, 1, 1); filter: brightness(1.08) contrast(.93) saturate(.72); } }
 
@@ -2275,11 +2277,12 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
   gap: clamp(38px, 4.6vw, 78px);
   align-items: start;
 }
-.casting-heading { align-self: start; padding-top: 0; }
+.casting-heading { --casting-copy-size: clamp(22px, 1.7vw, 29px); align-self: start; padding-top: 0; }
 .casting-heading h3 { margin-top: 10px; margin-bottom: 14px; font-size: clamp(82px, 8vw, 126px); }
-.casting-heading .casting-contemplation { margin-top: clamp(28px, 4vh, 48px); gap: 11px; font-size: clamp(22px, 1.7vw, 29px); line-height: 1.34; }
-.casting-heading .peony-number-field { margin-top: clamp(46px, 6vh, 68px); }
-.casting-heading .casting-submit { margin-top: clamp(16px, 2.3vh, 25px); }
+.casting-heading .casting-contemplation { margin-top: clamp(52px, 6vh, 72px); gap: 11px; font-size: var(--casting-copy-size); line-height: 1.34; }
+.casting-heading .peony-number-field { margin-top: clamp(72px, 8vh, 92px); }
+.casting-heading .peony-number-copy b { font-size: var(--casting-copy-size); }
+.casting-heading .casting-submit { margin-top: clamp(72px, 9vh, 96px); }
 .casting-submit-error { margin-top: 8px; }
 .casting-number-workspace { min-height: 0; height: min(72vh, 680px); align-self: center; }
 .casting-peony-scene { top: 0; height: 100svh; aspect-ratio: auto; }
