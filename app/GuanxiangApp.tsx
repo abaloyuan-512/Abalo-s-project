@@ -998,7 +998,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
       </div>
       {!busy && !error && <p className="discernment-understanding">{assistantMessage}</p>}
       {currentPrompt && !busy && !error && <div className="discernment-current" key={currentPrompt}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>}
-      {busy && <div className="discernment-working" role="status"><span>你刚才的回答已经记下</span><p>正在从这句话里分清已知与未知，下一问会接着你刚才所说的内容。</p><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
+      {busy && <div className="discernment-working" role="status"><span>您的回答已被记录，请继续。</span><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
       {error && <div className="discernment-recovery" role="alert"><span>前 {turns.length} 个回答都还在</span><p>{error.replace(/[。！？]+$/, "")}。不需要从头再答，只要从这里继续。</p><div><button type="button" disabled={busy} onClick={retryTurn}>继续这一轮</button><button type="button" className="text-button" onClick={() => setMode("FALLBACK")}>改用基础引导</button></div></div>}
     </div>}
     {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "回答已记下" : "答完这一问"}</button></div>}
@@ -1049,9 +1049,8 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
       </div>}
 
       {ready && <div className="final-question-ready" role="status" aria-live="polite">
-        {earlyExit
-          ? <p>我感受到你想尽快进入取数卜卦的环节，现在请心中再次默念你的问题，深呼吸。</p>
-          : <><p>{decisionMade ? "那现在" : "现在"}已经更清晰你的现状，我们准备开始取数卜卦了。</p><strong>请心中再次默念你的问题，深呼吸。</strong></>}
+        <p>{earlyExit ? "我感受到你想尽快进入取数卜卦的环节。" : `${decisionMade ? "那现在" : "现在"}已经更清晰你的现状，我们准备开始取数卜卦了。`}</p>
+        <strong className="final-question-breathing"><span>请在心中再次默念你的问题</span><span>深呼吸</span></strong>
       </div>}
 
       {ready && <div className="final-question-readiness">
@@ -1760,6 +1759,7 @@ export function GuanxiangApp() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
   const methodAdvanceTimerRef = useRef<number | null>(null);
+  const activePersonalizedRequestRef = useRef<string | null>(null);
   const flowPageRef = useRef(1);
 
   function advanceFlow(nextPage: number, focusId?: string) {
@@ -1950,7 +1950,9 @@ export function GuanxiangApp() {
     advanceFlow(6, "casting-title");
   }
 
-  function finishPersonalizedRequest(payload: ApiResponse): void {
+  function finishPersonalizedRequest(payload: ApiResponse, requestId: string): void {
+    if (activePersonalizedRequestRef.current !== requestId) return;
+    activePersonalizedRequestRef.current = null;
     sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
     if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.deterministic_result?.clarity_report) {
       throw new Error(payload.error || "本次解读没有通过检查，也不会自动重新生成。");
@@ -1960,36 +1962,27 @@ export function GuanxiangApp() {
   }
 
   async function pollPersonalizedRequest(requestId: string, cancelled: () => boolean = () => false): Promise<void> {
-    setProgress("正在结合卦象与现实信息生成解读。页面会自动取得同一任务的结果，不会重复生成。");
     try {
       const payload = await pollPersonalizedTask(requestId, {
         fetchResult: () => fetch(`/api/v4/meihua?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" }),
         sleep,
         cancelled,
       });
-      if (payload) finishPersonalizedRequest(payload as ApiResponse);
+      if (payload) finishPersonalizedRequest(payload as ApiResponse, requestId);
     } catch (caught) {
       if (caught instanceof PersonalizedPollError && caught.terminal) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
       throw caught;
     }
   }
 
-  function personalizedErrorMessage(caught: unknown, requestId?: string): string {
-    const message = caught instanceof Error ? caught.message : "查询生成结果时出现异常。";
-    const taskId = caught instanceof PersonalizedPollError ? caught.requestId : requestId;
-    return taskId ? `${message}（任务编号：${taskId}）` : message;
-  }
-
   useEffect(() => {
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
+    activePersonalizedRequestRef.current = activeRequestId;
     let cancelled = false;
     const resumeTimer = window.setTimeout(() => {
-      setLoading(true);
-      setError("");
       void pollPersonalizedRequest(activeRequestId, () => cancelled)
-        .catch((caught) => { if (!cancelled) setError(personalizedErrorMessage(caught, activeRequestId)); })
-        .finally(() => { if (!cancelled) { setLoading(false); setProgress(""); } });
+        .catch(() => { if (!cancelled) sessionStorage.removeItem(ACTIVE_REQUEST_KEY); });
     }, 0);
     return () => { cancelled = true; window.clearTimeout(resumeTimer); };
   // An unfinished request is intentionally resumed only once when the formal page mounts.
@@ -2060,14 +2053,10 @@ export function GuanxiangApp() {
   async function submit(event: FormEvent) {
     event.preventDefault(); setError(""); setResponse(null); setSavedRecordId(null);
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
-    if (activeRequestId && /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) {
-      setLoading(true);
-      try { await pollPersonalizedRequest(activeRequestId); }
-      catch (caught) { setError(personalizedErrorMessage(caught, activeRequestId)); }
-      finally { setLoading(false); setProgress(""); }
-      return;
+    if (activeRequestId) {
+      activePersonalizedRequestRef.current = null;
+      sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
     }
-    if (activeRequestId) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
 
     const factLines = nonemptyLines(facts);
     const unknownLines = nonemptyLines(unknowns);
@@ -2080,37 +2069,24 @@ export function GuanxiangApp() {
     if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
       setError("请先完成正问与辨识，并填写三个 1–999 的整数。"); return;
     }
-    if (useDeterministicOnly) {
-      setLoading(true); setProgress("正在按三数成卦……");
-      try {
-        const request = await fetch("/api/v3/meihua", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          cache: "no-store",
-          body: JSON.stringify({
-            contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
-            request_id: `sites-${crypto.randomUUID()}`,
-            question_text: question.trim(), question_domain: domain, decision_goal: goal,
-            time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
-            numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-            user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
-          }),
-        });
-        const payload = await request.json() as ApiResponse;
-        if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
-          throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
-        }
-        setResponse(payload); setProgress("");
-      } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "本次未能完成排盘。");
-      } finally {
-        setLoading(false); setProgress("");
-      }
-      return;
-    }
-    setLoading(true); setProgress("正在提交本次观象任务……");
-    const requestId = `sites-${crypto.randomUUID()}`;
-    try {
+    setLoading(true); setProgress("正在按三数成卦……");
+    const deterministicRequest = fetch("/api/v3/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify({
+        contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
+        request_id: `sites-${crypto.randomUUID()}`,
+        question_text: question.trim(), question_domain: domain, decision_goal: goal,
+        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+        user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
+      }),
+    });
+
+    if (!useDeterministicOnly) {
+      const requestId = `sites-${crypto.randomUUID()}`;
+      activePersonalizedRequestRef.current = requestId;
       sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
       const body = JSON.stringify({
         contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId,
@@ -2121,24 +2097,39 @@ export function GuanxiangApp() {
         numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
         user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
       });
-      let accepted = false;
-      for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
+      void (async () => {
         try {
-          const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
-          const payload = await request.json() as ApiResponse;
-          if (request.status === 202) { accepted = true; break; }
-          if (request.ok) { finishPersonalizedRequest(payload); return; }
-          if (request.status !== 503) {
-            sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-            throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能生成结果。");
+          let accepted = false;
+          for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
+            try {
+              const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+              const payload = await request.json() as ApiResponse;
+              if (request.status === 202) { accepted = true; break; }
+              if (request.ok) { finishPersonalizedRequest(payload, requestId); return; }
+              if (request.status !== 503) {
+                sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+                return;
+              }
+            } catch (caught) {
+              if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) return;
+            }
+            await sleep(1_500);
           }
-        } catch (caught) {
-          if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) throw caught;
+          if (accepted) await pollPersonalizedRequest(requestId);
+        } catch {
+          sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
         }
-        await sleep(1_500);
+      })();
+    }
+
+    try {
+      const request = await deterministicRequest;
+      const payload = await request.json() as ApiResponse;
+      if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
+        throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
       }
-      await pollPersonalizedRequest(requestId);
-    } catch (caught) { setError(personalizedErrorMessage(caught, requestId)); }
+      setResponse(payload);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "本次未能完成排盘。"); }
     finally { setLoading(false); setProgress(""); }
   }
 
@@ -2319,7 +2310,6 @@ export function GuanxiangApp() {
                 <span>三息之间，收束心念</span>
                 <span>凭当下所感，取三个数</span>
               </p>
-              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入右侧文字下方</p>
               <fieldset className="peony-number-field">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
                 {PEONY_BREATHS.map((breath, index) => <label
@@ -2330,6 +2320,7 @@ export function GuanxiangApp() {
                   <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
+              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入上方文字右侧</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
               <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? "正在成卦" : "成卦"}</button>

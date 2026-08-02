@@ -41,6 +41,39 @@ final result: passed
 
 ---
 
+# Sites v54：辨识文案、定问断行、成卦定稿版式与快速跳转（2026-08-02）
+
+## Source of truth
+
+- 第四页以用户本轮截图 `codex-clipboard-14b60bdb-49cc-4a40-a546-0d693f54f56a.png` 为缺陷依据；只执行本轮指定的横线移除与反馈文案替换。
+- 第五页以用户本轮截图 `codex-clipboard-891d1dcd-719b-4b9d-8cd6-c20d43a846e2.png` 为版式依据，并以本轮明确的新断行和去标点要求覆盖截图中的旧文字。
+- 第六页以留存的定稿验收图 `qa/v50-page6.png` 为版式依据；恢复提示组、数字组、说明文字与按钮的定稿顺序，同时保留 v53 已验收的输入层点击修复。
+
+## Same-state visual comparison
+
+- 验证视口：1917 × 909 CSS viewport，与用户截图内容区一致。
+- 第五页本地实拍：`qa/v54-page5-local.png`；同屏对照：`qa/v54-page5-comparison.png`。
+- 第六页本地实拍：`qa/v54-page6-local.png`；同屏对照：`qa/v54-page6-comparison.png`。
+- 第五页结论：主提示居中显示两行，第一行为“请在心中再次默念你的问题”，第二行只保留“深呼吸”，逗号与句号均已移除。
+- 第六页结论：三行提示、三组取数、范围说明与成卦按钮恢复定稿排列；牡丹背景与花瓣特效未重绘、未替换。
+
+## Interaction and performance verification
+
+- 三个数字输入框逐一录入 13、14、520，DOM 值分别确认成功。
+- 原阻塞链路为：点击成卦后等待完整个性化解读任务结束，完成后才设置结果并进入第七页；模型任务耗时会直接变成页面等待时间。
+- 修复后链路为：先请求确定性排盘，成功即设置结果并进入第七页；个性化解读采用独立后台任务，完成后再无刷新补充，不再阻塞页面跳转。
+- 重新打开页面时，遗留的个性化任务不再把成卦按钮锁在“正在成卦”状态；新的确定性排盘可正常提交。
+
+## Engineering verification
+
+- Vinext production build：passed。
+- Node rendered/interaction tests：29 / 29 passed。
+- `git diff --check`：passed。
+
+final result: passed
+
+---
+
 # Design QA — 第三页「正问」顶部云层横向修正版 v11（2026-08-01）
 
 ## 对照依据

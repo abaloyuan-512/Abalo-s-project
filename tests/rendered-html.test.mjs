@@ -82,7 +82,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /discernment-chrysanthemum-mountains-v2\.png/);
   assert.match(html, /<section[^>]+id="final-question"[^>]+hidden/);
   assert.match(html, /id="final-question-title"[^>]*>定问<\/h3>/);
-  assert.match(html, /请心中再次默念你的问题，深呼吸/);
+  assert.match(html, /请在心中再次默念你的问题/);
+  assert.match(html, />深呼吸<\/span>/);
   assert.match(html, /开始卜卦/);
   assert.doesNotMatch(html, /最终问卦题目/);
   assert.match(html, /<section[^>]+id="casting"[^>]+class="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen"[^>]+hidden/);
@@ -94,7 +95,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /casting-peony-petal-v1\.png/);
   assert.match(html, /心中再默念一遍所问之事/);
   assert.match(html, /三息之间，收束心念/);
-  assert.match(html, /取1-999之间的数字，填入右侧文字下方/);
+  assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
   assert.match(html, /凭当下所感，取三个数/);
   assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>[\s\S]*成卦<\/button>/);
@@ -224,6 +225,10 @@ test("discernment mirrors the primary-question hierarchy and shows only the curr
   assert.match(appSource, /onClick=\{retryTurn\}>继续这一轮/);
   assert.match(appSource, /className="discernment-mist-scroll"/);
   assert.match(appSource, /discernment-mist-scroll-v1\.png/);
+  assert.match(appSource, /您的回答已被记录，请继续。/);
+  assert.doesNotMatch(appSource, /你刚才的回答已经记下|正在从这句话里分清已知与未知/);
+  assert.match(cssSource, /\.discernment \.discernment-turn \{ border-top: 0; border-bottom: 0; \}/);
+  assert.match(cssSource, /\.discernment \.discernment-working \{ border-top: 0; \}/);
   assert.doesNotMatch(appSource, /开始 AI 辨识|重新连接 AI 辨识|正在静心听你所问/);
   assert.match(cssSource, /\.discernment \{[^}]+min-height: 100svh[^}]+overflow: hidden/s);
   assert.match(cssSource, /discernment-heading h2[^}]+clamp\(88px, 8\.3vw, 132px\)/);
@@ -241,9 +246,10 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
   assert.match(appSource, /采取建议/);
   assert.match(appSource, /保持原题/);
-  assert.match(appSource, /\{decisionMade \? "那现在" : "现在"\}已经更清晰你的现状，我们准备开始取数卜卦了/);
-  assert.match(appSource, /我感受到你想尽快进入取数卜卦的环节，现在请心中再次默念你的问题，深呼吸/);
-  assert.match(appSource, /请心中再次默念你的问题，深呼吸/);
+  assert.match(appSource, /decisionMade \? "那现在" : "现在"/);
+  assert.match(appSource, /我感受到你想尽快进入取数卜卦的环节。/);
+  assert.match(appSource, /className="final-question-breathing"><span>请在心中再次默念你的问题<\/span><span>深呼吸<\/span>/);
+  assert.doesNotMatch(appSource, /请在心中再次默念你的问题[，,]|深呼吸[。\.]/);
   assert.match(appSource, /开始卜卦/);
   assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
   assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
@@ -290,11 +296,11 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(petalMotionSource, /duration: 23\.2/);
   assert.match(appSource, /心中再默念一遍所问之事/);
   assert.match(appSource, /三息之间，收束心念/);
-  assert.match(appSource, /取1-999之间的数字，填入右侧文字下方/);
+  assert.match(appSource, /取1-999之间的数字，填入上方文字右侧/);
   assert.doesNotMatch(appSource, /placeholder="1—999"/);
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
-  assert.match(appSource, /casting-range-note[\s\S]+peony-number-field[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
   assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
   assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
   assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
@@ -375,7 +381,9 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
   assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
   assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);
-  assert.match(appSource, /if \(useDeterministicOnly\) \{[\s\S]+fetch\("\/api\/v3\/meihua"/);
+  assert.match(appSource, /const deterministicRequest = fetch\("\/api\/v3\/meihua"/);
+  assert.match(appSource, /if \(!useDeterministicOnly\) \{[\s\S]+void \(async \(\) => \{/);
+  assert.match(appSource, /const request = await deterministicRequest;[\s\S]+setResponse\(payload\)/);
   assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
