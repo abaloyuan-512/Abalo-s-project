@@ -111,7 +111,11 @@ def test_provider_uses_stateless_structured_responses(monkeypatch) -> None:
     assert calls["text_format"] is GuidedIntakeModelOutput
     assert calls["store"] is False
     assert calls["tools"] == []
-    assert calls["reasoning"] == {"effort": "low"}
+    assert calls["reasoning"] == {"effort": "medium"}
+    assert "不是完成一张信息清单" in str(calls["input"])
+    assert "不得因为出现“对方”" in str(calls["input"])
+    assert "不要把用户原本的决策题" in str(calls["input"])
+    assert "不得把“暂停、继续、退出”等行动建议" in str(calls["input"])
     assert "numbers" not in str(calls["input"])
 
 

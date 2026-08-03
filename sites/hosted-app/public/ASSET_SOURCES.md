@@ -16,21 +16,29 @@
 - `hero-taiji-breath-v2.png`：由 OpenAI 图像生成能力生成的淡墨太极，经绿色色键处理为透明 PNG，用于题字背后的低透明度呼吸显隐。
 - `hero-birds-v1.png`、`hero-boat-v1.png`、`hero-waterfall-v1.png`：由 OpenAI 图像生成能力生成并经绿色色键处理的独立透明环境素材，分别用于飞行、漂移和错相位下落动画。
 
-## 第二页「明法」资产
-
-- `method-river-wide-v1.webp`：依据用户最终确认的第二页视觉稿，由 OpenAI 图像生成能力拆出的桌面无字山河底图；保留两岸重山与中央奔流大江，不含界面文字、人物或船只。
-- `method-river-mobile-v1.webp`：沿用同一美术方向重新构图的移动端竖屏山河底图，确保窄屏仍能完整看见两岸山势与贯穿画面的蜿蜒江流。
-- `method-current-cue-v1.png`：由 OpenAI 图像生成能力生成的飞白墨色水痕，经绿色色键处理为透明 PNG，用于“开始正问”下方的克制水意提示。
-- `method-river-current-flow-v2.png`：早期江流覆盖层，现仅保留为历史方案资产，页面已不再引用。用户验收认为整张 S 形覆盖层位移不符合真实水流，因此改由 WebGL 对已审定山河底图的河道内部纹理做多尺度下游位移、剪切与浪脊明暗变化；两岸与河形保持静止，也未引入新的可见图片资产。
-
 ## 第三页「正问」资产
 
 - `question-pine-cloud-base-v2.webp`：以用户选定的孤松云海画面为基础，由 OpenAI 图像编辑能力移除松树，保留宣纸、远山、近石与原始云雾，作为满屏山水底板。
 - `question-pine-tree-v2.png`：由同一审定画面提取的完整孤松透明层，以树根为固定轴进行轻微风摆。
 - `question-cloud-stream-v3-tile.png`：参照已审定云海笔触，由 OpenAI 图像生成能力重构为横贯画面的流线型云河；经品红色键去底、暖灰化与左右边缘周期融合后成为无缝循环透明 PNG，始终从左向右流动。
 - `question-mountain-occluder-v3.png`：从无松树底板确定性提取的前景山体透明遮挡层；置于远云前方，使云河在山峰处自然分流、穿谷和时隐时现。
+- `question-cloud-veil-v4.png`、`question-cloud-fork-v4.png`、`question-cloud-bank-v4.png`：依据本页宋代水墨画面分别生成的斜向薄云、绕峰分流云与近景翻涌云，经品红色键去底、暖灰去色与透明边缘校正。三张云图沿不同曲线独立穿越画面，完整离场后才重置，不再首尾拼接或复用同一接缝。
+- `question-cloudfall-base-v5.webp`：以用户选定的第二张云瀑概念图为视觉真值，由 OpenAI 图像编辑能力移除云雾和松树并补全山体，形成云海动效的静态山水底板。
+- `question-cloudfall-mountain-v5.png`：从同一底板按墨色明度机械提取的透明山体前景层，用于让程序生成的云在主峰后汇聚、受山峰遮挡后分流，并在背风坡前方下泄。
+- `question-cloudfall-base-v6.png`：最终采用的云海景深底板。基于用户选定的第二张概念图，仅移除左下前景松树与石基，完整保留迎风云海、主峰宽瀑、右侧窄瀑、远山与宣纸肌理；WebGL 动效只在其上生成不断变化的翻涌高光和游丝，因此没有平铺接缝。
+- `question-cloudfall-final-v7.png`：用户于前七页线上验收时重新提供的第三页原始定稿画面，完整保留左下孤松、承托山石、坡脚杂树草木、迎风云海、双瀑与远山；作为本页最终静态视觉真值，动态云瀑仅在其上叠加。
 
 ## 声音
 
 - `audio/guqin-zheng-diao.ogg`：Wikimedia Commons `File:Zheng diao.ogg`，Charlie Huang，古琴正调定弦录音，作者释放至公有领域。
 - 来源页：https://commons.wikimedia.org/wiki/File:Zheng_diao.ogg
+
+## 成卦牡丹背景
+
+- `casting-peony-background-v3.webp`：以第一版牡丹枝条背景为编辑目标、以当前成卦页三朵花的实际叠加位置为校准，由 OpenAI 图像生成能力编辑。原位保留并增强三条承接花朵的枝干、花托与牡丹叶，移除竹子、树冠、山石、建筑、桥船与人物；底色调整为与前序长卷一致的冷灰米白宣纸。
+
+## 定问落霞秋水背景
+
+- `final-question-sunset-reeds-v1.webp`：以“落霞与孤鹜齐飞，秋水共长天一色”为主题，由 OpenAI 图像生成能力创作并经用户最终选定。近景为芦苇荡，远景保留秋水、远山、飞鸟与精细亭子；网页复用同一真实位图分出近景、中景芦苇与右上红霞的局部动效层，不使用代码绘制芦苇或云霞。
+- `final-question-sunset-reeds-v2.png`：以上一版定问背景为编辑目标，由 OpenAI 图像生成能力仅移除原图中静止飞鸟，并重建对应的落霞天空，用于将红霞与飞鸟拆分成独立动画层；其余构图、色调、芦苇、秋水、远山与亭子保持一致。
+- `final-question-bird-sprite-v1.png`：由 OpenAI 图像生成能力创作的四帧水墨白鹭振翅序列，经绿色色键处理为透明 PNG；网页逐帧切换真实位图形成振翅，并仅在原位置附近轻微浮动。
