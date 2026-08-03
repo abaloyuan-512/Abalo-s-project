@@ -64,6 +64,45 @@ type PersonalizedReading = {
   switch_condition: string;
   question_responses?: { question_text: string; answer_text: string }[];
 };
+type Page8SceneId = "BASE_HEXAGRAM" | "MUTUAL_HEXAGRAM" | "CHANGED_HEXAGRAM" | "MOVING_LINE" | "BODY_USE_STRENGTH";
+type Page8LayerInterpretation = {
+  scene_id: Page8SceneId;
+  layer_summary: string;
+  reality_connection: string;
+  uncertainty_boundary: string;
+  reality_refs: string[];
+  evidence_refs: string[];
+  interpretation_hypothesis: true;
+};
+type Page8DeterministicContent = {
+  primary_name: string;
+  symbol?: string | null;
+  king_wen_number?: number | null;
+  formation: string;
+  reading_role: string;
+  canonical_label?: string | null;
+  canonical_text?: string | null;
+  plain_note?: string | null;
+  facts: { label: string; value: string }[];
+  source_name: string;
+  source_reference: string;
+};
+type Page8Scene = {
+  scene_id: Page8SceneId;
+  sequence: number;
+  title: string;
+  purpose: string;
+  deterministic: Page8DeterministicContent;
+  interpretation: Page8LayerInterpretation;
+};
+type Page8Reading = {
+  template_version: "SITES_PAGE8_READING_V1";
+  stage_title: "读卦";
+  user_question: string;
+  scenes: Page8Scene[];
+  epistemic_boundary: string;
+  page9_reserved: true;
+};
 type ProductResult = {
   input_numbers: number[];
   base_hexagram: Hexagram;
@@ -91,6 +130,7 @@ type ApiResponse = {
   structured_intake?: StructuredIntake;
   deterministic_result?: ProductResult | null;
   personalized_reading?: PersonalizedReading | null;
+  page8_reading?: Page8Reading | null;
   error?: string;
   errors?: { message?: string }[];
 };
@@ -1310,6 +1350,64 @@ function BrushHexagram({ hexagram }: { hexagram: Hexagram }) {
   </div>;
 }
 
+function Page8ModelReview({ reading }: { reading: Page8Reading }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const scene = reading.scenes[activeIndex];
+  const isLast = activeIndex === reading.scenes.length - 1;
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [reading.template_version, reading.user_question]);
+
+  useEffect(() => {
+    titleRef.current?.focus({ preventScroll: true });
+  }, [activeIndex]);
+
+  if (!scene) return <section className="page8-model-review viewport-page"><p>第八页数据模型不完整，本次不展示。</p></section>;
+
+  return <section id="page8-model-review" className="page8-model-review viewport-page" aria-labelledby="page8-model-review-title">
+    <div className="page8-model-progress" aria-label={`第八页数据模型，第 ${scene.sequence} 幕，共 ${reading.scenes.length} 幕`}>
+      <span>数据模型审核版</span>
+      <b>{String(scene.sequence).padStart(2, "0")} / {String(reading.scenes.length).padStart(2, "0")}</b>
+      <ol aria-hidden="true">{reading.scenes.map((item, index) => <li key={item.scene_id} className={index <= activeIndex ? "is-reached" : ""}>{item.title}</li>)}</ol>
+    </div>
+    <div className="page8-model-content">
+      <header>
+        <p className="eyebrow">第八页 · 读卦</p>
+        <h2 id="page8-model-review-title" ref={titleRef} tabIndex={-1}>{scene.title}</h2>
+        <p className="page8-model-purpose">{scene.purpose}</p>
+        <p className="page8-model-question"><b>本次所问</b>{reading.user_question}</p>
+      </header>
+      <div className="page8-model-columns">
+        <article className="page8-model-evidence">
+          <span>卦象依据</span>
+          <h3>{scene.deterministic.symbol && <i aria-hidden="true">{scene.deterministic.symbol}</i>}{scene.deterministic.king_wen_number ? `第 ${scene.deterministic.king_wen_number} 卦 · ` : ""}{scene.deterministic.primary_name}</h3>
+          <p><b>如何形成</b>{scene.deterministic.formation}</p>
+          <p><b>这一层看什么</b>{scene.deterministic.reading_role}</p>
+          {scene.deterministic.canonical_text && <blockquote><b>{scene.deterministic.canonical_label}</b>{scene.deterministic.canonical_text}</blockquote>}
+          {scene.deterministic.plain_note && <p className="page8-model-plain-note">{scene.deterministic.plain_note}</p>}
+          {scene.deterministic.facts.length > 0 && <dl>{scene.deterministic.facts.map((fact) => <div key={`${scene.scene_id}-${fact.label}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
+          <small>来源：{scene.deterministic.source_name} · {scene.deterministic.source_reference}</small>
+        </article>
+        <article className="page8-model-interpretation">
+          <span>结合所问</span>
+          <h3>{scene.interpretation.layer_summary}</h3>
+          <p>{scene.interpretation.reality_connection}</p>
+          <div className="page8-model-boundary"><b>仍不能据此断定</b><p>{scene.interpretation.uncertainty_boundary}</p></div>
+          <small>现实依据：{scene.interpretation.reality_refs.join("、")}　卦象依据：{scene.interpretation.evidence_refs.join("、")}</small>
+        </article>
+      </div>
+      <footer>
+        <p>{isLast ? "五幕数据已经展示完毕。此处停止，不进入第九页，也不展示行动建议。" : reading.epistemic_boundary}</p>
+        {isLast
+          ? <span className="page8-model-review-end">请审核五幕内容、顺序与解释边界</span>
+          : <button type="button" onClick={() => setActiveIndex((index) => Math.min(index + 1, reading.scenes.length - 1))}>继续看{reading.scenes[activeIndex + 1]?.title}</button>}
+      </footer>
+    </div>
+  </section>;
+}
+
 function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
   const result = response.deterministic_result;
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
@@ -1338,8 +1436,8 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     setReadingStarted(true);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("why-reading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-      document.querySelector<HTMLElement>("#why-reading h2")?.focus({ preventScroll: true });
+      document.getElementById("page8-model-review")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.querySelector<HTMLElement>("#page8-model-review h2")?.focus({ preventScroll: true });
     }));
   }
 
@@ -1353,11 +1451,13 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
         <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b><span>{baseClassic.canonical_text}</span></blockquote>}
-        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled="true" disabled>第八页待验收后开放</button>
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled={!response.page8_reading} disabled={!response.page8_reading} onClick={openDetailedReading}>{response.page8_reading ? "查看详细解卦" : "第八页数据模型未生成"}</button>
       </div>
     </section>
 
     <div id="result-reading" hidden={!readingStarted}>
+    {response.page8_reading ? <Page8ModelReview reading={response.page8_reading} /> : <section className="page8-model-review viewport-page"><p>第八页数据模型尚未生成，本次不展示。</p></section>}
+    <div className="future-result-sections" hidden aria-hidden="true">
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
       <header className="section-heading"><p className="eyebrow">第一章 · 读卦</p><h2 tabIndex={-1}>本卦、互卦与变卦</h2><p>本卦看眼下的主要局面，互卦看内部怎样发展，变卦看变化之后重点转向哪里。先把三者逐一看清，再谈这件事应当如何判断。</p></header>
@@ -1406,6 +1506,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
       <div className="result-actions"><button type="button" className="restart-button secondary" onClick={() => downloadReadingHtml(response)}>导出本次 HTML</button><a className="restart-button secondary" href="/journal">打开观事簿</a><button type="button" className="restart-button secondary" onClick={onEdit}>回到本题修改</button><button type="button" className="restart-button" onClick={onClear}>清空并再问一事</button></div>
       <blockquote className="classic-counsel"><p>{counsel.quote}</p><cite>{counsel.source}</cite></blockquote>
     </section>
+    </div>
     </div>
   </section>;
 }
@@ -1957,7 +2058,7 @@ export function GuanxiangApp() {
     if (activePersonalizedRequestRef.current !== requestId) return;
     activePersonalizedRequestRef.current = null;
     sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-    if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.deterministic_result?.clarity_report) {
+    if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.page8_reading || !payload.deterministic_result?.clarity_report) {
       throw new Error(payload.error || "本次解读没有通过检查，也不会自动重新生成。");
     }
     setResponse(payload);

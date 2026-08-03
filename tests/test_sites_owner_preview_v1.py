@@ -125,6 +125,53 @@ def valid_output(prompt):
                 "answer_text": "可以先取得明确回应，但不要在答复前追加投入。",
             }],
         },
+        "layered_reading": [
+            {
+                "scene_id": "BASE_HEXAGRAM",
+                "layer_summary": "本卦呈现眼下局面正在剥落旧条件，重点是先看清哪些基础已经不稳。",
+                "reality_connection": "用户明确说明合作反复推迟，这与当前基础条件仍在松动的观察角度相接，但这里只是在解释两类材料怎样相互映照。",
+                "uncertainty_boundary": "这不能证明合作一定失败，也不能替代最终负责人是否承诺资源的现实答复。",
+                "reality_refs": [rw_ref],
+                "evidence_refs": ["EV10"],
+                "interpretation_hypothesis": True,
+            },
+            {
+                "scene_id": "MUTUAL_HEXAGRAM",
+                "layer_summary": "互卦把注意力放在内部推进方式，显示过程仍需要容纳和整理多方条件。",
+                "reality_connection": "用户提供的事实显示已有沟通却没有明确时间，内部流程是否真正形成共识仍是本层要看的现实连接。",
+                "uncertainty_boundary": "这仍不能推断最终负责人已经看过方案，也不能虚构其真实态度。",
+                "reality_refs": [rw_ref],
+                "evidence_refs": ["EV11"],
+                "interpretation_hypothesis": True,
+            },
+            {
+                "scene_id": "CHANGED_HEXAGRAM",
+                "layer_summary": "变卦呈现变化后结构趋向停止与定界，重点从继续铺开转为确认边界。",
+                "reality_connection": "结合反复推迟这一已知事实，可以把它理解为局面变化后更需要明确范围，但它仍只是卦象与现实的解释接榫。",
+                "uncertainty_boundary": "这不等于现实中已经停止合作，也无法证明对方会作出哪一种选择。",
+                "reality_refs": [rw_ref],
+                "evidence_refs": ["EV12"],
+                "interpretation_hypothesis": True,
+            },
+            {
+                "scene_id": "MOVING_LINE",
+                "layer_summary": "动爻落在内部临界，说明本次结构变化集中在事情由内部准备转向外部表现之前。",
+                "reality_connection": "用户已经发送摘要但尚未取得明确安排，因此这一层连接的是内部条件是否已经足以支撑公开推进。",
+                "uncertainty_boundary": "爻位不能证明对方已经作出决定，相关信息仍属于未知。",
+                "reality_refs": [rw_ref],
+                "evidence_refs": ["EV13"],
+                "interpretation_hypothesis": True,
+            },
+            {
+                "scene_id": "BODY_USE_STRENGTH",
+                "layer_summary": "体用前后均为比和且体卦得旺，说明本层看到的是双方条件相近以及自身仍有余力。",
+                "reality_connection": "这与用户仍能预留资源的事实相接，但是否继续投入仍取决于现实中的负责人、资源和时间是否明确。",
+                "uncertainty_boundary": "旺衰不能给合作作吉凶总评，也不能据此断定对方会兑现安排。",
+                "reality_refs": [rw_ref],
+                "evidence_refs": ["EV02", "EV03", "EV06"],
+                "interpretation_hypothesis": True,
+            },
+        ],
     }
 
 
@@ -194,7 +241,7 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     assert "source_trace" not in response
     assert captured[0].input_payload["reality_context"]["data_classification"] == "OWNER_PROVIDED_PRIVATE_PREVIEW"
     assert "synthetic_only" not in str(captured[0].input_payload)
-    assert captured[0].prompt_version == "guanxiang_owner_preview_v7"
+    assert captured[0].prompt_version == "guanxiang_owner_preview_v8_page8_model"
     assert captured[0].input_payload["interpretation_packet"]["packet_version"] == "SITES_INTERPRETATION_PACKET_V1"
     assert captured[0].input_payload["interpretation_packet"]["epistemic_boundary"].startswith("PACKET_ITEMS_ARE_CHART")
     assert {item["ref"] for item in captured[0].input_payload["chart_context"]["evidence"]} >= {
@@ -205,9 +252,19 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
     }
     assert "判断优先与解释资料包使用约束" in captured[0].system_instructions
     assert "来源追踪闭合检查" in captured[0].system_instructions
+    assert "第八页“读卦”分层输出约束" in captured[0].system_instructions
     assert "每一个实际使用的 EVxx" in captured[0].system_instructions
     assert "source_kind=CHART_FACT" in captured[0].system_instructions
     assert "最小可逆、低成本验证、收集反馈、保留调整空间" in captured[0].system_instructions
+    assert response["page8_reading"]["template_version"] == "SITES_PAGE8_READING_V1"
+    assert [item["title"] for item in response["page8_reading"]["scenes"]] == [
+        "本卦",
+        "互卦",
+        "变卦",
+        "动爻",
+        "体用与旺衰",
+    ]
+    assert response["page8_reading"]["page9_reserved"] is True
     for field in (
         "judgment_signature.direction",
         "judgment_signature.method",
@@ -221,6 +278,50 @@ def test_owner_preview_generates_once_validates_and_returns_only_user_reading():
         "user_facing_reading.switch_condition",
     ):
         assert field in captured[0].system_instructions
+
+
+def test_page8_model_rejects_content_reserved_for_page9():
+    def generator(prompt):
+        output = valid_output(prompt)
+        output["layered_reading"][0]["reality_connection"] += "下一步建议你继续推进。"
+        return Gate2ProviderResult(
+            response_id="test-page8-page9-boundary",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=output,
+            cost_usd=0.01,
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "PREVIEW_FAILED"
+    assert "page8_base_hexagram_page9_content" in response["preview_meta"]["hard_failure_codes"]
+
+
+def test_page8_model_rejects_reality_refs_not_supplied_by_user():
+    def generator(prompt):
+        output = valid_output(prompt)
+        output["layered_reading"][2]["reality_refs"] = ["RW99"]
+        return Gate2ProviderResult(
+            response_id="test-page8-reality-ref",
+            provider_name="FAKE_OWNER_PREVIEW",
+            model="gpt-5.6-sol",
+            raw_output=output,
+            cost_usd=0.01,
+        )
+
+    response = process_sites_owner_preview_v1_request(
+        request(),
+        generator=generator,
+        clock=lambda: FIXED_NOW,
+    )
+
+    assert response["status"] == "PREVIEW_FAILED"
+    assert "page8_changed_hexagram_unknown_reality_ref" in response["preview_meta"]["hard_failure_codes"]
 
 
 def test_owner_preview_records_high_actual_cost_without_hard_block():
@@ -269,7 +370,7 @@ def test_owner_preview_allows_prohibited_phrase_only_inside_verbatim_unknown():
     )
 
     assert response["status"] == "SUCCESS"
-    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v6"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v7_page8_model"
 
 
 @pytest.mark.parametrize(
@@ -336,11 +437,11 @@ def test_owner_preview_accepts_exact_aggregate_source_trace_paths_from_live_outp
     )
 
     assert response["status"] == "SUCCESS"
-    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v7"
-    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v6"
+    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v8_page8_model"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v7_page8_model"
 
 
-def test_owner_preview_v7_keeps_rejecting_a_used_ev_without_chart_fact_trace():
+def test_owner_preview_v8_keeps_rejecting_a_used_ev_without_chart_fact_trace():
     def generator(prompt):
         output = valid_output(prompt)
         removed_ref = output["chart_signals"][1]["evidence_refs"][0]
@@ -368,8 +469,8 @@ def test_owner_preview_v7_keeps_rejecting_a_used_ev_without_chart_fact_trace():
 
     assert response["status"] == "PREVIEW_FAILED"
     assert "missing_chart_trace" in response["preview_meta"]["hard_failure_codes"]
-    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v7"
-    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v6"
+    assert response["preview_meta"]["prompt_version"] == "guanxiang_owner_preview_v8_page8_model"
+    assert response["preview_meta"]["validator_version"] == "guanxiang_owner_preview_validator_v7_page8_model"
 
 
 def test_owner_preview_rejects_output_that_ignores_interpretation_packet():

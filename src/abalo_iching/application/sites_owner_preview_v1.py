@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 from collections.abc import Callable
 from datetime import datetime
 from types import SimpleNamespace
@@ -45,11 +46,15 @@ from .interpretation_packet_v1 import (
     build_interpretation_packet_v1,
     interpretation_packet_evidence_v1,
 )
+from .sites_page8_reading_v1 import (
+    OwnerPreviewExperimentOutputPage8V1,
+    build_page8_reading_v1,
+)
 
 
 OWNER_PREVIEW_CONTRACT_VERSION = "SITES_OWNER_PREVIEW_CONTRACT_V1"
-OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v7"
-OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v6"
+OWNER_PREVIEW_PROMPT_VERSION = "guanxiang_owner_preview_v8_page8_model"
+OWNER_PREVIEW_VALIDATOR_VERSION = "guanxiang_owner_preview_validator_v7_page8_model"
 OWNER_PREVIEW_MODEL = "gpt-5.6-sol"
 OWNER_PREVIEW_REASONING_EFFORT = "medium"
 OWNER_PREVIEW_MAX_OUTPUT_TOKENS = 9_000
@@ -198,6 +203,16 @@ OWNER_PREVIEW_REFERENCE_CLOSURE_INSTRUCTIONS = """来源追踪闭合检查（输
 4. 先为选中的每条卦象证据创建 CHART_FACT 追踪行，再创建 INTERPRETIVE_LINK；不得用 INTERPRETIVE_LINK 代替事实追踪行，不得创建输入未提供的引用。
 5. 提交前再次比较“全部实际引用集合”和“事实追踪行集合”，两者必须完全闭合。""".strip()
 
+OWNER_PREVIEW_PAGE8_INSTRUCTIONS = """第八页“读卦”分层输出约束：
+1. layered_reading 必须严格输出五项，顺序固定为 BASE_HEXAGRAM、MUTUAL_HEXAGRAM、CHANGED_HEXAGRAM、MOVING_LINE、BODY_USE_STRENGTH。
+2. 五项分别回答本卦看眼下结构、互卦看内部发展、变卦看变化后结构方向、动爻看变化位置与阶段、体用旺衰看双方关系与当前余力。
+3. 每项只写“本层读到什么、怎样连接用户明确提供的现实、仍不能据此断定什么”；不得写下一步行动、可借之力、当慎之处、何时转向或最终核心判断，这些全部留给第九页。
+4. reality_connection 必须具体承接输入中的 RWxx，不得虚构第三方动机、结果、日期或用户未提供的事实。
+5. uncertainty_boundary 必须明确本层不能证明的现实结论，不能用模糊免责声明代替具体边界。
+6. 每项必须同时引用至少一条 RWxx 与指定 EVxx，并标记 interpretation_hypothesis=true：本卦必须含 EV10；互卦必须含 EV11；变卦必须含 EV12；动爻必须含 EV13；体用旺衰必须同时含 EV02、EV03、EV06。
+7. layered_reading 自带 reality_refs 与 evidence_refs，由第八页专用验证器检查；不要把 layered_reading 字段加入 source_trace.supports_fields。
+8. 每项保持精炼：layer_summary 一至两句，reality_connection 两至四句，uncertainty_boundary 一至两句。""".strip()
+
 
 def _canonical_json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -318,7 +333,7 @@ def _prompt(
         "allowed_reality_refs": sorted(reality.reality_refs()),
         "allowed_evidence_refs": sorted(chart_context.evidence_refs()),
         "question_clauses": reality.question_clauses,
-        "output_schema": Gate2ExperimentOutputV3.model_json_schema(),
+        "output_schema": OwnerPreviewExperimentOutputPage8V1.model_json_schema(),
     }
     instructions = (
         f"{OWNER_PREVIEW_SYSTEM_INSTRUCTIONS}\n\n"
@@ -326,7 +341,8 @@ def _prompt(
         f"{OWNER_PREVIEW_TRACE_COVERAGE_INSTRUCTIONS}\n\n"
         f"{C2_SELF_SERVE_QUALITY_INSTRUCTIONS}\n\n"
         f"{OWNER_PREVIEW_JUDGMENT_FIRST_INSTRUCTIONS}\n\n"
-        f"{OWNER_PREVIEW_REFERENCE_CLOSURE_INSTRUCTIONS}"
+        f"{OWNER_PREVIEW_REFERENCE_CLOSURE_INSTRUCTIONS}\n\n"
+        f"{OWNER_PREVIEW_PAGE8_INSTRUCTIONS}"
     )
     digest = hashlib.sha256(
         f"{instructions}\n{_canonical_json(payload)}".encode("utf-8")
@@ -386,10 +402,76 @@ def _validate_output(
     return hard_failures, quality_failures
 
 
+_PAGE8_DATE_PATTERN = re.compile(
+    r"(?<!\d)20\d{2}[年/-](?:0?[1-9]|1[0-2])(?:月|[-/])(?:0?[1-9]|[12]\d|3[01])日?"
+)
+_PAGE8_SAFETY_FORBIDDEN = (
+    "一定会",
+    "必然会",
+    "肯定会",
+    "保证成功",
+    "注定会",
+    "他心里其实",
+    "她心里其实",
+    "对方内心一定",
+    "立即买入",
+    "立即卖出",
+    "满仓",
+    "停药",
+    "自行减药",
+    "必须立刻",
+)
+_PAGE8_RESERVED_FOR_LATER = (
+    "可借之力",
+    "当慎之处",
+    "下一步",
+    "何时转向",
+    "核心判断",
+    "建议你",
+    "你应该",
+    "你应当",
+)
+
+
+def _validate_page8_output(
+    reality: OwnerPreviewRealityContext,
+    chart_context: ChartContext,
+    output: OwnerPreviewExperimentOutputPage8V1,
+) -> list[str]:
+    failures: list[str] = []
+    allowed_reality_refs = reality.reality_refs()
+    allowed_evidence_refs = chart_context.evidence_refs()
+    for layer in output.layered_reading:
+        prefix = f"page8_{layer.scene_id.value.lower()}"
+        if not set(layer.reality_refs).issubset(allowed_reality_refs):
+            failures.append(f"{prefix}_unknown_reality_ref")
+        if not set(layer.evidence_refs).issubset(allowed_evidence_refs):
+            failures.append(f"{prefix}_unknown_evidence_ref")
+        authored_text = "".join(
+            (
+                layer.layer_summary,
+                layer.reality_connection,
+                layer.uncertainty_boundary,
+            )
+        )
+        if _PAGE8_DATE_PATTERN.search(authored_text):
+            failures.append(f"{prefix}_specific_date")
+        if any(term in authored_text for term in _PAGE8_SAFETY_FORBIDDEN):
+            failures.append(f"{prefix}_unsafe_claim")
+        if any(term in authored_text for term in _PAGE8_RESERVED_FOR_LATER):
+            failures.append(f"{prefix}_page9_content")
+        if not any(
+            marker in layer.uncertainty_boundary
+            for marker in ("不能", "不可", "仍", "未知", "不等于", "无法")
+        ):
+            failures.append(f"{prefix}_unclear_uncertainty_boundary")
+    return failures
+
+
 def _restore_input_unknowns(
     reality: OwnerPreviewRealityContext,
-    output: Gate2ExperimentOutputV3,
-) -> tuple[Gate2ExperimentOutputV3, bool]:
+    output: OwnerPreviewExperimentOutputPage8V1,
+) -> tuple[OwnerPreviewExperimentOutputPage8V1, bool]:
     """Keep copied unknowns deterministic instead of trusting model transcription."""
     expected_unknowns = [item.text for item in reality.unknowns]
     model_unknowns = [item.unknown_text for item in output.unknowns]
@@ -399,7 +481,7 @@ def _restore_input_unknowns(
         for text in expected_unknowns
     ]
     return (
-        Gate2ExperimentOutputV3.model_validate(normalized_payload),
+        OwnerPreviewExperimentOutputPage8V1.model_validate(normalized_payload),
         model_unknowns != expected_unknowns,
     )
 
@@ -474,8 +556,8 @@ def _live_generator(prompt: Gate2PromptPackage) -> Gate2ProviderResult:
 
     class OwnerPreviewProvider(OpenAIGate2BackgroundProvider):
         provider_name = "OPENAI_RESPONSES_API_OWNER_PREVIEW_BACKGROUND"
-        output_model = Gate2ExperimentOutputV3
-        stage_label = "OWNER_PREVIEW_V1"
+        output_model = OwnerPreviewExperimentOutputPage8V1
+        stage_label = "OWNER_PREVIEW_PAGE8_MODEL_V1"
 
     provider = OwnerPreviewProvider(
         model=OWNER_PREVIEW_MODEL,
@@ -549,9 +631,10 @@ def process_sites_owner_preview_v1_request(
         generator = _live_generator
     try:
         provider_result = generator(prompt)
-        output = Gate2ExperimentOutputV3.model_validate(provider_result.raw_output)
+        output = OwnerPreviewExperimentOutputPage8V1.model_validate(provider_result.raw_output)
         output, model_unknowns_replaced = _restore_input_unknowns(reality, output)
         hard_failures, quality_failures = _validate_output(reality, chart_context, output)
+        hard_failures.extend(_validate_page8_output(reality, chart_context, output))
     except Exception as exc:
         failure_meta = _provider_failure_meta(exc)
         LOGGER.warning(
@@ -602,6 +685,27 @@ def process_sites_owner_preview_v1_request(
                 "hard_cost_limit_enabled": False,
             },
         )
+    try:
+        page8_reading = build_page8_reading_v1(
+            user_question=deterministic["user_question"],
+            deterministic_result=deterministic["deterministic_result"],
+            interpretations=output.layered_reading,
+        )
+    except (ValidationError, ValueError) as exc:
+        LOGGER.warning(
+            "owner_preview_page8_model_failed request_id=%s failure=%s",
+            payload.request_id,
+            type(exc).__name__,
+        )
+        return _error(
+            payload.request_id,
+            "PREVIEW_FAILED",
+            "本次第八页数据模型没有通过完整性检查，未展示也不会自动重试。",
+            preview_meta_extra={
+                "failure_stage": "PAGE8_MODEL_ASSEMBLY",
+                "failure_codes": [type(exc).__name__],
+            },
+        )
     return {
         "contract_version": OWNER_PREVIEW_CONTRACT_VERSION,
         "request_id": payload.request_id,
@@ -610,6 +714,7 @@ def process_sites_owner_preview_v1_request(
         "structured_intake": deterministic["structured_intake"],
         "deterministic_result": deterministic["deterministic_result"],
         "personalized_reading": output.user_facing_reading.model_dump(mode="json"),
+        "page8_reading": page8_reading.model_dump(mode="json"),
         "preview_meta": {
             "owner_preview_only": True,
             "should_charge": False,

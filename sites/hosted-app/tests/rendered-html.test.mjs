@@ -364,7 +364,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(cssSource, /final-question-step::before[^}]+content:/);
 });
 
-test("sixth page submits directly and seventh page gates detailed reading", async () => {
+test("seventh page opens the page-eight data-model review", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.doesNotMatch(appSource, /const numbersReady = numbers\.every|acknowledged/);
@@ -387,7 +387,10 @@ test("sixth page submits directly and seventh page gates detailed reading", asyn
   assert.doesNotMatch(appSource, /<aside className="result-aside">/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
-  assert.match(appSource, /aria-disabled="true" disabled>第八页待验收后开放<\/button>/);
+  assert.match(appSource, /onClick=\{openDetailedReading\}>\{response\.page8_reading \? "查看详细解卦"/);
+  assert.match(appSource, /function Page8ModelReview/);
+  assert.match(appSource, /数据模型审核版/);
+  assert.match(appSource, /五幕数据已经展示完毕。此处停止，不进入第九页/);
   assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
   assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
   assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);
