@@ -166,13 +166,6 @@ const GOALS_BY_DOMAIN: Record<string, (keyof typeof GOALS)[]> = {
 const HORIZONS = { CURRENT: "当前阶段", NEXT_30_DAYS: "未来三十天", NEXT_QUARTER: "未来一个季度", NEXT_6_MONTHS: "未来六个月" } as const;
 const STAGES = { EXPLORING: "刚开始了解", PREPARING: "准备行动", ALREADY_ACTING: "正在推进", WAITING_FEEDBACK: "等待回应" } as const;
 
-const QUESTION_EXAMPLES = [
-  { topic: "工作", domain: "WORK_CAREER", text: "面对现在的工作机会，我下一步最该先确认什么？" },
-  { topic: "合作", domain: "PROJECT_COOPERATION", text: "这次合作，我还应该继续投入吗？" },
-  { topic: "关系", domain: "RELATIONSHIP_COMMUNICATION", text: "这段关系一直没有进展，我还要继续主动吗？" },
-  { topic: "规划", domain: "PERSONAL_PLANNING", text: "我现在开始这项长期计划，最需要先准备什么？" },
-] as const;
-
 const METHOD_CLASSIC_LINES = ["在天成象", "在地成形", "变化见矣"] as const;
 
 // Presentation-only lookup copied from MEIHUA_HEXAGRAMS_V1; each string is bottom-up.
@@ -190,7 +183,7 @@ const KING_WEN_LINES_BOTTOM_UP = [
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
 const JOURNAL_OPEN_KEY = "guanxiang-open-journal-record-v1";
-const FIRST_DISCERNMENT_QUESTION = "这件事现在具体走到了哪一步？";
+const FIRST_DISCERNMENT_QUESTION = "先从现在说起：这件事目前进行到哪一步了？";
 
 function nonemptyLines(value: string): string[] {
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
@@ -271,9 +264,9 @@ function ChrysanthemumMark() {
 }
 
 const PEONY_BREATHS = [
-  { numeral: "一息", guidance: "上卦取数", flower: "/casting-peony-bloom-1-v1.png" },
-  { numeral: "二息", guidance: "下卦取数", flower: "/casting-peony-bloom-2-v1.png" },
-  { numeral: "三息", guidance: "动爻取数", flower: "/casting-peony-bloom-3-v1.png" },
+  { numeral: "一息", guidance: "输入第一个数", placeholder: "上卦", flower: "/casting-peony-bloom-1-v1.png" },
+  { numeral: "二息", guidance: "输入第二个数", placeholder: "下卦", flower: "/casting-peony-bloom-2-v1.png" },
+  { numeral: "三息", guidance: "输入第三个数", placeholder: "动爻", flower: "/casting-peony-bloom-3-v1.png" },
 ] as const;
 
 const PEONY_PETAL_MOTIONS = [
@@ -917,10 +910,9 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
     </div>}
     {!completed && turn === 0 && <div className="dialogue-options">{Object.entries(HORIZONS).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
     {!completed && turn === 1 && <div className="dialogue-options">{Object.entries(STAGES).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
-    {!completed && turn > 1 && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={turn === 6 ? 300 : 1200} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={!draft.trim()} onClick={() => record(draft)}>答完这一问</button></div>}
-    {!completed && <div className="discernment-controls"><button type="button" onClick={() => record("暂不回答")}>跳过这一问</button><button type="button" onClick={finishEarly}>已经说清，提前结束</button></div>}
-    {completed && <div className="dialogue-review discernment-complete"><p className="eyebrow">基础整理完成</p><h3>现实脉络已经分开</h3><p>这次使用的是基础引导，因此不会提出改写建议。下一页仍由你亲自定下最后这一问。</p><div className="dialogue-review-actions"><button type="button" onClick={finish}>继续定问</button><button type="button" className="text-button" onClick={reset}>重新辨识</button></div></div>}
-    <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
+    {!completed && turn > 1 && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={turn === 6 ? 300 : 1200} onChange={(event) => setDraft(event.target.value)} placeholder="点击这里，回答上面这一问……" /><button type="button" disabled={!draft.trim()} onClick={() => record(draft)}><span>这一问回答好了<br />继续下一问</span></button></div>}
+    {!completed && <div className="discernment-controls"><button type="button" onClick={() => record("暂不回答")}>这一问暂时不知道</button><button type="button" onClick={finishEarly}>我已经说清，可以结束辨识</button></div>}
+    {completed && <div className="dialogue-review discernment-complete"><p className="eyebrow">清空杂念，拨开迷雾</p><h3>你的思路已经慢慢清晰</h3><p>接下来，我们一起定下真正要问的事。</p><div className="dialogue-review-actions"><button type="button" onClick={finish}>进入第三步：定问</button><button type="button" className="text-button" onClick={reset}>重新辨识</button></div></div>}
   </div>;
 }
 
@@ -930,7 +922,7 @@ function GuidedIntake(props: GuidedIntakeProps) {
   const [sessionId] = useState(() => `intake-${crypto.randomUUID()}`);
   const [turns, setTurns] = useState<IntakeAnswer[]>([]);
   const [currentPrompt, setCurrentPrompt] = useState(FIRST_DISCERNMENT_QUESTION);
-  const [assistantMessage, setAssistantMessage] = useState("先从眼前的进展开始，不必一次说完所有细节。");
+  const [assistantMessage, setAssistantMessage] = useState("不必在意说得是否清楚\n杂念会自然在倾诉中渐渐清空");
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -1036,16 +1028,15 @@ function GuidedIntake(props: GuidedIntakeProps) {
       <div className="discernment-chrysanthemum-progress" role="img" aria-label={`还剩 ${Math.max(0, 8 - turns.length)} 朵菊花`}>
         {Array.from({ length: Math.max(0, 8 - turns.length) }, (_, index) => <span key={`chrysanthemum-${index}`} aria-hidden="true"><ChrysanthemumMark /></span>)}
       </div>
-      {!busy && !error && <p className="discernment-understanding">{assistantMessage}</p>}
+      {!busy && !error && <p className="discernment-understanding">{assistantMessage.split("\n").map((line, index) => <span key={`${line}-${index}`}>{index > 0 && <br />}{line}</span>)}</p>}
       {currentPrompt && !busy && !error && <div className="discernment-current" key={currentPrompt}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>}
-      {busy && <div className="discernment-working" role="status"><span>您的回答已被记录，请继续。</span><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
+      {busy && <div className="discernment-working" role="status"><span>不怕念起，只怕觉迟<br />这一问已记下，下一问正在浮现</span><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
       {error && <div className="discernment-recovery" role="alert"><span>前 {turns.length} 个回答都还在</span><p>{error.replace(/[。！？]+$/, "")}。不需要从头再答，只要从这里继续。</p><div><button type="button" disabled={busy} onClick={retryTurn}>继续这一轮</button><button type="button" className="text-button" onClick={() => setMode("FALLBACK")}>改用基础引导</button></div></div>}
     </div>}
-    {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="只回答眼前这一问……" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "回答已记下" : "答完这一问"}</button></div>}
-    {mode === "ASKING" && !error && <div className="discernment-controls"><button type="button" disabled={busy || !currentPrompt} onClick={() => answerWithValue("暂不回答")}>跳过这一问</button><button type="button" disabled={busy} onClick={() => setMode("STOPPED")}>已经说清，提前结束</button></div>}
-    {mode === "REVIEW" && review && <div className="dialogue-review discernment-complete"><p className="eyebrow">辨识已经足够</p><h3>现在，可以定下真正要问的事</h3><p>我已经整理好这次对话。下一页只会在确有必要时提出一个更聚焦的问法，是否采用仍由你决定。</p><div className="dialogue-review-actions"><button type="button" onClick={completeDiscernment}>结束辨识，继续定问</button></div></div>}
-    {mode === "STOPPED" && <div className="dialogue-review discernment-complete discernment-classic"><p className="eyebrow">《周易·系辞下》</p><blockquote>穷则变，变则通，通则久。</blockquote><div className="dialogue-review-actions"><button type="button" onClick={finishWithoutSuggestion}>继续定问</button></div></div>}
-    <p className="guided-boundary">辨识只整理你主动提供的内容，不会替你补写事实，也不参与后面的确定性排盘。</p>
+    {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="回答当前问题" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="点击这里，回答上面这一问……" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "这一问已记下" : <span>这一问回答好了<br />继续下一问</span>}</button></div>}
+    {mode === "ASKING" && !error && <div className="discernment-controls"><button type="button" disabled={busy || !currentPrompt} onClick={() => answerWithValue("暂不回答")}>这一问暂时不知道</button><button type="button" disabled={busy} onClick={() => setMode("STOPPED")}>我已经说清，可以结束辨识</button></div>}
+    {mode === "REVIEW" && review && <div className="dialogue-review discernment-complete"><p className="eyebrow">清空杂念，拨开迷雾</p><h3>你的思路已经慢慢清晰</h3><p>接下来，我们一起定下真正要问的事。</p><div className="dialogue-review-actions"><button type="button" onClick={completeDiscernment}>进入第三步：定问</button></div></div>}
+    {mode === "STOPPED" && <div className="dialogue-review discernment-complete discernment-classic"><p className="eyebrow">《周易·系辞下》</p><blockquote>穷则变，变则通，通则久。</blockquote><div className="dialogue-review-actions"><button type="button" onClick={finishWithoutSuggestion}>进入第三步：定问</button></div></div>}
   </div>;
 }
 
@@ -1078,24 +1069,24 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
     <div className="final-question-heading flow-title-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>
-      <p>理清脉络之后<br />确认最终问题</p>
+      <p>第三步：定问<br />收回纷乱的念头<br />确认你真正想问的事</p>
     </div>
 
     <div className="final-question-workspace">
       {suggestionChangesQuestion && !decisionMade && <div className="question-change-proposal">
-        <p>通过跟你的沟通，我建议你在卜卦之前，把问题更换为：</p>
+        <p>根据刚才的回答<br />你真正想确认的，也许更接近这一问：</p>
         <blockquote>{suggestedQuestion}</blockquote>
-        <p>会更能给到你切实的建议。你愿意更换吗？</p>
-        <div><button type="button" onClick={onChooseSuggestion}>采取建议</button><button type="button" className="text-button" onClick={onChooseOriginal}>保持原题</button></div>
+        <p>如果这句话更贴近你的心意，请采用这一问。<br />如果没有，请保留你最初的问题。</p>
+        <div><button type="button" onClick={onChooseSuggestion}>采用建议</button><button type="button" className="text-button" onClick={onChooseOriginal}>保留原问</button></div>
       </div>}
 
       {ready && <div className="final-question-ready" role="status" aria-live="polite">
-        <p>{earlyExit ? "我感受到你想尽快进入取数卜卦的环节。" : `${decisionMade ? "那现在" : "现在"}已经更清晰你的现状，我们准备开始取数卜卦了。`}</p>
-        <strong className="final-question-breathing"><span>请在心中再次默念你的问题</span><span>深呼吸</span></strong>
+        <p>{earlyExit ? "我感受到你想尽快进入取数卜卦的环节。" : <span>最终问题已经定下<br />接下来，请把注意力重新放回这一问</span>}</p>
+        <strong className="final-question-breathing"><span>请在心中再默念一遍最终问题</span><span>缓缓深呼吸</span></strong>
       </div>}
 
       {ready && <div className="final-question-readiness">
-        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><BaguaMark className="final-question-bagua" /><span className="method-cta-label">{confirmed ? "已经开始" : "开始卜卦"}</span></button>
+        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><BaguaMark className="final-question-bagua" /><span className="method-cta-label">{confirmed ? "已经开始" : <span>我已定问<br />进入第四步：成卦</span>}</span></button>
       </div>}
     </div>
   </section>;
@@ -1451,7 +1442,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
         <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b><span>{baseClassic.canonical_text}</span></blockquote>}
-        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled={!response.page8_reading} disabled={!response.page8_reading} onClick={openDetailedReading}>{response.page8_reading ? "查看详细解卦" : "第八页数据模型未生成"}</button>
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled={!response.page8_reading} disabled={!response.page8_reading} onClick={openDetailedReading}>查看详细解卦</button>
       </div>
     </section>
 
@@ -1994,17 +1985,6 @@ export function GuanxiangApp() {
     setMethodWritingRun((run) => run + 1);
   }
 
-  function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
-    setQuestion(example.text);
-    setDomain(example.domain);
-    setGoal("");
-    setQuestionConfirmed(false);
-    setIntakeComplete(false);
-    setDiscernmentCompletionReason("ENOUGH");
-    setFinalQuestionDecisionMade(false);
-    setFinalQuestionConfirmed(false);
-  }
-
   function confirmQuestion() {
     if (question.trim().length < 6) return;
     const nextQuestion = question.trim();
@@ -2171,7 +2151,7 @@ export function GuanxiangApp() {
     const earlyExit = discernmentCompletionReason === "USER_EARLY";
     const useDeterministicOnly = earlyExit || factLines.length < 1 || unknownLines.length < 1;
     if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
-      setError("请先完成正问与辨识，并填写三个 1–999 的整数。"); return;
+      setError("请在右侧三个位置，各输入一个1–999的整数。"); return;
     }
     setLoading(true); setProgress("正在按三数成卦……");
     const deterministicRequest = fetch("/api/v3/meihua", {
@@ -2288,11 +2268,11 @@ export function GuanxiangApp() {
         <div className="method-stage">
           <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
           <div className="method-explainer">
-            <p className="method-lead">接下来<br />我们尝试观象</p>
-            <p className="method-breath"><span>请闭上眼睛</span><b>做三个呼吸</b></p>
+            <p className="method-lead">炁是流动的<br />也带动象的变化</p>
+            <p className="method-breath"><span>请先放下急于知道答案的心<br />让我用四个步骤<br />带你进入观象的状态<br />现在缓缓做三次深呼吸<br />然后</span><b>进入第一步：正问</b></p>
           </div>
         </div>
-        <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label={methodReady ? "已定心，进入正问" : "开始正问"} aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">{methodReady ? "已定心" : "开始正问"}</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
+        <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label="进入正问" aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">进入正问</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
       </section>
 
       <section id="inquiry" className={`inquiry scroll-section flow-lock-screen${flowPage >= 4 ? " is-nested-flow-page" : ""}${finalQuestionConfirmed ? " has-casting-step" : ""}`} data-reveal hidden={!methodReady || flowPage < 3 || flowPage > 6} aria-labelledby="inquiry-title">
@@ -2306,13 +2286,11 @@ export function GuanxiangApp() {
             </header>
 
             <div className="inquiry-writing">
-              <label className="question-label" htmlFor="primary-question"><span>此刻，你真正想问的是什么？</span></label>
-              <textarea id="primary-question" aria-label="你真正想问的问题" aria-describedby="question-guidance question-count" placeholder="把心里的这一问，写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
-              <div className="question-meta"><p id="question-guidance">先照此刻最自然的方式写。下一步，我们会陪你慢慢辨清事实、未知与真正的需要。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
+              <label className="question-label" htmlFor="primary-question"><span>此刻，你想问的是什么？</span></label>
+              <textarea id="primary-question" aria-label="你想问的问题" aria-describedby="question-guidance question-count" placeholder="请把你的问题写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
+              <div className="question-meta"><p id="question-guidance">不必担心问得是否准确。<br />先把心里的话写下来，下一步，我会陪你慢慢辨清。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
 
-              <div className="question-examples"><header><span>若一时不知怎样开口</span><small>轻点一句，放入上方继续修改</small></header><div>{QUESTION_EXAMPLES.map((example, index) => <button type="button" key={example.text} aria-label={`参考${example.topic}例句：${example.text}`} onClick={() => applyQuestionExample(example)}><span>{String(index + 1).padStart(2, "0")} · {example.topic}</span><b>{example.text}</b></button>)}</div></div>
-
-              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "这一问已写下" : "写好了，继续辨识"}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "再写具体一些，至少六个字。" : ""}</p></div>
+              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "这一问已写下" : <span>问题已经写好<br />进入第二步：辨识</span>}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "请再写详细一点，让我更清楚你想问的是什么。" : ""}</p></div>
             </div>
           </div>
 
@@ -2326,7 +2304,7 @@ export function GuanxiangApp() {
               <header className="discernment-heading flow-title-heading">
                 <p className="eyebrow">观象之法 · 贰</p>
                 <h2 id="discernment-title" tabIndex={-1}>辨识</h2>
-                <p>卜卦之前，<br />让我们一起梳理思路</p>
+                <p>卜卦之前<br />我还有一些问题<br />帮助你把纷繁的念头慢慢理清</p>
               </header>
               <div className="discernment-dialogue">
                 <div className="discernment-cranes" aria-hidden="true">
@@ -2411,9 +2389,10 @@ export function GuanxiangApp() {
               <p className="eyebrow">观象之法 · 肆</p>
               <h3 id="casting-title" tabIndex={-1}>成卦</h3>
               <p className="casting-contemplation">
-                <span>心中再默念一遍所问之事</span>
-                <span>三息之间，收束心念</span>
-                <span>凭当下所感，取三个数</span>
+                <span>第四步：成卦</span>
+                <span>心中默念最终确认的问题</span>
+                <span>缓缓做三次呼吸</span>
+                <span>每一息结束，凭第一直觉写下一个数</span>
               </p>
               <fieldset className="peony-number-field">
                 <legend className="sr-only">依三次呼吸取三个整数</legend>
@@ -2422,13 +2401,13 @@ export function GuanxiangApp() {
                   key={breath.numeral}
                 >
                   <span className="peony-number-copy"><b>{breath.numeral}</b><small>{breath.guidance}</small></span>
-                  <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
+                  <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" placeholder={breath.placeholder} type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
-              <p className="casting-range-note" id="casting-range-note">取1-999之间的数字，填入上方文字右侧</p>
+              <p className="casting-range-note" id="casting-range-note">每次呼吸结束后，在右侧输入一个1–999的整数</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
-              <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? "正在成卦" : "成卦"}</button>
+              <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? <span>正在成卦，请稍候<br />完成后将自动进入卦象页</span> : <span>三个数已经取好<br />开始成卦</span>}</button>
             </header>
 
             <div className="casting-number-workspace" aria-hidden="true">
