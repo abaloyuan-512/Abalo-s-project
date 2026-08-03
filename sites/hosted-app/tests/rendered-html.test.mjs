@@ -263,7 +263,8 @@ test("final question offers a concise user-controlled question decision", async 
   assert.match(appSource, /id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen" hidden=\{!finalQuestionConfirmed \|\| flowPage !== 6\}/);
   assert.match(appSource, /className="final-question-sky-drift"/);
   assert.match(appSource, /className="final-question-bird"/);
-  assert.match(appSource, /第三步：定问<br \/>收回纷乱的念头<br \/>确认你真正想问的事/);
+  assert.match(appSource, /<p>收回纷乱的念头<br \/>确认你真正想问的事<\/p>/);
+  assert.doesNotMatch(appSource, /第三步：定问<br \/>收回纷乱的念头/);
   assert.match(appSource, /<BaguaMark className="final-question-bagua" \/><span className="method-cta-label">/);
   assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
   assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v2\.png/);
@@ -302,6 +303,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(petalMotionSource, /duration: 23\.2/);
   assert.match(appSource, /心中默念最终确认的问题/);
   assert.match(appSource, /缓缓做三次呼吸/);
+  assert.doesNotMatch(appSource, /<span>第四步：成卦<\/span>/);
   assert.match(appSource, /每次呼吸结束后，在右侧输入一个1–999的整数/);
   assert.match(appSource, /placeholder: "上卦"/);
   assert.match(appSource, /placeholder: "下卦"/);
@@ -323,6 +325,9 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(appSource, /guidance: "输入第一个数"/);
   assert.match(appSource, /guidance: "输入第二个数"/);
   assert.match(appSource, /guidance: "输入第三个数"/);
+  assert.match(cssSource, /font-family: "Zhi Mang Xing Local"/);
+  assert.match(cssSource, /--kai: "Ma Shan Zheng Local"/);
+  assert.match(cssSource, /font-family: var\(--input-brush\) !important/);
   assert.doesNotMatch(appSource, /闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题/);
   assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
   assert.doesNotMatch(appSource, /三个数字只交给程序/);

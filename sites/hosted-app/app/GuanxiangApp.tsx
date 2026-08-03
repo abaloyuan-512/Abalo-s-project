@@ -1069,7 +1069,7 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
     <div className="final-question-heading flow-title-heading">
       <p className="eyebrow">观象之法 · 叁</p>
       <h3 id="final-question-title" tabIndex={-1}>定问</h3>
-      <p>第三步：定问<br />收回纷乱的念头<br />确认你真正想问的事</p>
+      <p>收回纷乱的念头<br />确认你真正想问的事</p>
     </div>
 
     <div className="final-question-workspace">
@@ -2389,7 +2389,6 @@ export function GuanxiangApp() {
               <p className="eyebrow">观象之法 · 肆</p>
               <h3 id="casting-title" tabIndex={-1}>成卦</h3>
               <p className="casting-contemplation">
-                <span>第四步：成卦</span>
                 <span>心中默念最终确认的问题</span>
                 <span>缓缓做三次呼吸</span>
                 <span>每一息结束，凭第一直觉写下一个数</span>
