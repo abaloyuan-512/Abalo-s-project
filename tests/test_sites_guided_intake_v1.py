@@ -36,7 +36,7 @@ def request_payload() -> dict[str, object]:
 
 def test_prompt_stops_when_context_is_sufficient_instead_of_chasing_a_fixed_count() -> None:
     assert "不得为了达到固定题数继续追问" in SYSTEM_INSTRUCTIONS
-    assert "通常在 4 至 6 次回答内完成，最多 8 次" in SYSTEM_INSTRUCTIONS
+    assert "通常在 3 至 6 次回答内完成，最多 8 次" in SYSTEM_INSTRUCTIONS
     assert "不要机械追问" in SYSTEM_INSTRUCTIONS
     assert "必须是一句完整、自然、可直接默念的中文问句" in SYSTEM_INSTRUCTIONS
     assert "不得返回行动清单" in SYSTEM_INSTRUCTIONS
@@ -191,7 +191,11 @@ def test_provider_uses_stateless_structured_responses(monkeypatch) -> None:
     assert calls["text_format"] is GuidedIntakeModelOutput
     assert calls["store"] is False
     assert calls["tools"] == []
-    assert calls["reasoning"] == {"effort": "low"}
+    assert calls["reasoning"] == {"effort": "medium"}
+    assert "不是完成一张信息清单" in str(calls["input"])
+    assert "不得因为出现“对方”" in str(calls["input"])
+    assert "不要把用户原本的决策题" in str(calls["input"])
+    assert "不得把“暂停、继续、退出”等行动建议" in str(calls["input"])
     assert "numbers" not in str(calls["input"])
 
 

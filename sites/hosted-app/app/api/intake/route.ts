@@ -1,5 +1,8 @@
 const CONTRACT_VERSION = "SITES_GUIDED_INTAKE_CONTRACT_V1";
-const MAX_REQUEST_BYTES = 16 * 1024;
+// Chinese text is up to three UTF-8 bytes per character. Keep this aligned with
+// the Python intake transport so later turns are not rejected only because the
+// conversation contains CJK text.
+const MAX_REQUEST_BYTES = 32 * 1024;
 const UPSTREAM_TIMEOUT_MS = 55_000;
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 
@@ -67,7 +70,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const url = upstreamUrl();
   const engineKey = process.env.PYTHON_ENGINE_KEY?.trim();
-  if (!url || !engineKey) return safeJson({ error: "AI 辨识暂时未连接。" }, 503);
+  if (!url || !engineKey) return safeJson({ error: "辨识服务暂时未连接。" }, 503);
 
   try {
     const upstream = await fetch(url, {
@@ -78,12 +81,14 @@ export async function POST(request: Request): Promise<Response> {
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
     const result = await upstream.json().catch(() => null) as Record<string, unknown> | null;
-    if (!result || result.session_id !== payload.session_id) {
-      return safeJson({ error: "AI 辨识返回异常，请稍后再试。" }, 502);
+    if (!upstream.ok) {
+      return safeJson({ error: "这一轮暂时没有连接成功" }, upstream.status >= 500 ? 503 : upstream.status);
     }
-    if (!upstream.ok) return safeJson({ error: "AI 辨识暂时不可用，请稍后再试。" }, upstream.status >= 500 ? 503 : upstream.status);
+    if (!result || result.session_id !== payload.session_id) {
+      return safeJson({ error: "这一轮返回的内容不完整" }, 502);
+    }
     return safeJson(result, 200);
   } catch {
-    return safeJson({ error: "AI 辨识连接超时，请稍后再试。" }, 503);
+    return safeJson({ error: "辨识服务连接超时，请稍后再试。" }, 503);
   }
 }

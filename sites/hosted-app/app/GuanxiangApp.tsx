@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
 } from "./personalized-reading-poll";
+import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
@@ -132,9 +133,24 @@ const QUESTION_EXAMPLES = [
   { topic: "è§„åˆ’", domain: "PERSONAL_PLANNING", text: "æˆ‘ç°åœ¨å¼€å§‹è¿™é¡¹é•¿æœŸè®¡åˆ’ï¼Œæœ€éœ€è¦å…ˆå‡†å¤‡ä»€ä¹ˆï¼Ÿ" },
 ] as const;
 
+const METHOD_CLASSIC_LINES = ["åœ¨å¤©æˆè±¡", "åœ¨åœ°æˆå½¢", "å˜åŒ–è§çŸ£"] as const;
+
+// Presentation-only lookup copied from MEIHUA_HEXAGRAMS_V1; each string is bottom-up.
+const KING_WEN_LINES_BOTTOM_UP = [
+  "111111", "000000", "100010", "010001", "111010", "010111", "010000", "000010",
+  "111011", "110111", "111000", "000111", "101111", "111101", "001000", "000100",
+  "100110", "011001", "110000", "000011", "100101", "101001", "000001", "100000",
+  "100111", "111001", "100001", "011110", "010010", "101101", "001110", "011100",
+  "001111", "111100", "000101", "101000", "101011", "110101", "001010", "010100",
+  "110001", "100011", "111110", "011111", "000110", "011000", "010110", "011010",
+  "101110", "011101", "100100", "001001", "001011", "110100", "101100", "001101",
+  "011011", "110110", "010011", "110010", "110011", "001100", "101010", "010101",
+] as const;
+
 const JOURNAL_KEY = "guanxiang-observation-key-v1";
 const ACTIVE_REQUEST_KEY = "guanxiang-personalized-active-request-v1";
 const JOURNAL_OPEN_KEY = "guanxiang-open-journal-record-v1";
+const FIRST_DISCERNMENT_QUESTION = "è¿™ä»¶äº‹ç°åœ¨å…·ä½“èµ°åˆ°äº†å“ªä¸€æ­¥ï¼Ÿ";
 
 function nonemptyLines(value: string): string[] {
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
@@ -204,16 +220,56 @@ function BaguaMark({ className = "", decorative = true }: { className?: string; 
   />;
 }
 
+function ChrysanthemumMark() {
+  return <svg viewBox="0 0 48 48" focusable="false" aria-hidden="true">
+    <g className="chrysanthemum-petals">
+      {Array.from({ length: 12 }, (_, index) => <ellipse key={index} cx="24" cy="10" rx="3.2" ry="8" transform={`rotate(${index * 30} 24 24)`} />)}
+    </g>
+    <circle cx="24" cy="24" r="6.2" />
+    <circle cx="24" cy="24" r="2.4" />
+  </svg>;
+}
+
+const PEONY_BREATHS = [
+  { numeral: "ä¸€æ¯", guidance: "ä¸Šå¦å–æ•°", flower: "/casting-peony-bloom-1-v1.png" },
+  { numeral: "äºŒæ¯", guidance: "ä¸‹å¦å–æ•°", flower: "/casting-peony-bloom-2-v1.png" },
+  { numeral: "ä¸‰æ¯", guidance: "åŠ¨çˆ»å–æ•°", flower: "/casting-peony-bloom-3-v1.png" },
+] as const;
+
+const PEONY_PETAL_MOTIONS = [
+  { left: 12, midX: -7, travelX: -34, travelY: 32, spin: -420, flipX: 540, flipY: -360, size: 10, duration: 8.8, delay: -1.1 },
+  { left: 19, midX: -13, travelX: -44, travelY: 43, spin: 610, flipX: -720, flipY: 540, size: 16, duration: 19.6, delay: -8.7 },
+  { left: 25, midX: -5, travelX: -38, travelY: 51, spin: -760, flipX: 900, flipY: 360, size: 27, duration: 14.8, delay: -4.4 },
+  { left: 32, midX: -18, travelX: -52, travelY: 37, spin: 530, flipX: 450, flipY: -810, size: 13, duration: 10.4, delay: -11.8 },
+  { left: 38, midX: -10, travelX: -47, travelY: 48, spin: -350, flipX: -630, flipY: 720, size: 72, duration: 22.4, delay: -6.3 },
+  { left: 44, midX: -22, travelX: -61, travelY: 45, spin: 820, flipX: 1080, flipY: -540, size: 19, duration: 16.2, delay: -13.7 },
+  { left: 50, midX: -8, travelX: -42, travelY: 35, spin: -580, flipX: 720, flipY: 450, size: 23, duration: 9.6, delay: -2.9 },
+  { left: 56, midX: -15, travelX: -55, travelY: 53, spin: 460, flipX: -900, flipY: 810, size: 12, duration: 20.8, delay: -15.4 },
+  { left: 62, midX: -4, travelX: -36, travelY: 41, spin: -910, flipX: 1260, flipY: -720, size: 30, duration: 13.1, delay: -9.6 },
+  { left: 68, midX: -20, travelX: -64, travelY: 50, spin: 690, flipX: -540, flipY: 1080, size: 15, duration: 18.6, delay: -5.2 },
+  { left: 74, midX: -11, travelX: -49, travelY: 39, spin: -480, flipX: 810, flipY: 630, size: 108, duration: 11.2, delay: -12.5 },
+  { left: 81, midX: -24, travelX: -68, travelY: 47, spin: 940, flipX: -1080, flipY: -450, size: 20, duration: 21.5, delay: -7.4 },
+  { left: 16, midX: -16, travelX: -57, travelY: 55, spin: 720, flipX: 630, flipY: -990, size: 25, duration: 17.8, delay: -16.2 },
+  { left: 29, midX: -6, travelX: -41, travelY: 36, spin: -660, flipX: -810, flipY: 540, size: 11, duration: 8.5, delay: -3.7 },
+  { left: 47, midX: -19, travelX: -59, travelY: 44, spin: 390, flipX: 990, flipY: -720, size: 84, duration: 15.4, delay: -10.9 },
+  { left: 59, midX: -12, travelX: -46, travelY: 52, spin: -840, flipX: -1260, flipY: 810, size: 17, duration: 23.2, delay: -14.6 },
+  { left: 72, midX: -26, travelX: -71, travelY: 42, spin: 570, flipX: 720, flipY: 1260, size: 28, duration: 12.5, delay: -1.9 },
+  { left: 86, midX: -9, travelX: -43, travelY: 49, spin: -730, flipX: -900, flipY: -630, size: 14, duration: 19.9, delay: -8.1 },
+] as const;
+
 type IntakeAnswer = { prompt: string; answer: string };
+type DiscernmentCompletionReason = "ENOUGH" | "MAX_TURNS" | "USER_EARLY";
 type GuidedIntakeProps = {
   question: string;
   onFacts: (value: string) => void;
   onUnknowns: (value: string) => void;
   onActions: (value: string) => void;
   onObservableResponses: (value: string) => void;
-  onQuestion: (value: string) => void;
+  onSuggestion: (value: { question: string; reason: string } | null) => void;
   onStructured: (value: { domain: string; goal: string; horizon: string; stage: string; uncertainty: string; riskProfile?: string }) => void;
+  onCompletionReason: (reason: DiscernmentCompletionReason) => void;
   onComplete: (complete: boolean) => void;
+  onContinue: () => void;
 };
 
 type GuidedIntakeApiResponse = {
@@ -238,6 +294,485 @@ function inferDomain(text: string): string {
   return "PERSONAL_PLANNING";
 }
 
+const METHOD_RIVER_VERTEX_SHADER = `
+  attribute vec2 a_position;
+  varying vec2 v_uv;
+
+  void main() {
+    v_uv = a_position * 0.5 + 0.5;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+const METHOD_RIVER_TUNING = Object.freeze({
+  mainFlowSpeed: 0.31,
+  fineFlowSpeed: 0.47,
+  foamSpeed: 0.39,
+  rollSpeed: 0.27,
+  foamAmount: 0.72,
+  rollStrength: 0.94,
+  opacity: 0.98,
+  turbulence: 0.66,
+  surgeStrength: 0.9,
+  waveWallStrength: 0.92,
+  breakerStrength: 0.96,
+});
+
+const METHOD_RIVER_FRAGMENT_SHADER = `
+  precision mediump float;
+
+  varying vec2 v_uv;
+  uniform sampler2D u_scene;
+  uniform vec2 u_resolution;
+  uniform vec2 u_texture_size;
+  uniform float u_time;
+  uniform vec4 u_flow_speeds;
+  uniform vec4 u_river_style;
+  uniform vec3 u_river_force;
+
+  float hash(vec2 point) {
+    point = fract(point * vec2(123.34, 456.21));
+    point += dot(point, point + 45.32);
+    return fract(point.x * point.y);
+  }
+
+  float noise(vec2 point) {
+    vec2 cell = floor(point);
+    vec2 local = fract(point);
+    local = local * local * (3.0 - 2.0 * local);
+    return mix(
+      mix(hash(cell), hash(cell + vec2(1.0, 0.0)), local.x),
+      mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), local.x),
+      local.y
+    );
+  }
+
+  float fbm(vec2 point) {
+    float value = 0.0;
+    float weight = 0.55;
+    for (int octave = 0; octave < 4; octave++) {
+      value += weight * noise(point);
+      point = point * 2.03 + vec2(8.1, 3.7);
+      weight *= 0.48;
+    }
+    return value;
+  }
+
+  float path_mix(float y, float y0, float y1, float a, float b) {
+    return mix(a, b, smoothstep(y0, y1, y));
+  }
+
+  // Hand-traced centerline for this exact painting. Screen y runs from the
+  // distant gorge (0.0) toward the foreground (1.0).
+  float river_center(float y) {
+    if (y < 0.24) return path_mix(y, 0.10, 0.24, 0.500, 0.512);
+    if (y < 0.38) return path_mix(y, 0.24, 0.38, 0.512, 0.486);
+    if (y < 0.52) return path_mix(y, 0.38, 0.52, 0.486, 0.516);
+    if (y < 0.66) return path_mix(y, 0.52, 0.66, 0.516, 0.472);
+    if (y < 0.82) return path_mix(y, 0.66, 0.82, 0.472, 0.520);
+    return path_mix(y, 0.82, 1.00, 0.520, 0.500);
+  }
+
+  // Matching hand-traced half-widths keep every animated sample inside the
+  // painted water and away from the mountain silhouettes.
+  float river_width(float y) {
+    if (y < 0.24) return path_mix(y, 0.10, 0.24, 0.030, 0.052);
+    if (y < 0.38) return path_mix(y, 0.24, 0.38, 0.052, 0.086);
+    if (y < 0.52) return path_mix(y, 0.38, 0.52, 0.086, 0.145);
+    if (y < 0.66) return path_mix(y, 0.52, 0.66, 0.145, 0.220);
+    if (y < 0.82) return path_mix(y, 0.66, 0.82, 0.220, 0.315);
+    return path_mix(y, 0.82, 1.00, 0.315, 0.405);
+  }
+
+  vec2 cover_uv(vec2 screen_uv) {
+    float viewport_aspect = u_resolution.x / max(u_resolution.y, 1.0);
+    float texture_aspect = u_texture_size.x / max(u_texture_size.y, 1.0);
+    vec2 result = screen_uv;
+    if (viewport_aspect > texture_aspect) {
+      float visible_height = texture_aspect / viewport_aspect;
+      result.y = 0.5 + (screen_uv.y - 0.5) * visible_height;
+    } else {
+      float visible_width = viewport_aspect / texture_aspect;
+      result.x = 0.5 + (screen_uv.x - 0.5) * visible_width;
+    }
+    return result;
+  }
+
+  void main() {
+    vec2 screen = vec2(v_uv.x, 1.0 - v_uv.y);
+    float center = river_center(screen.y);
+    float width = river_width(screen.y);
+    float lane = (screen.x - center) / max(width, 0.001);
+
+    // The soft edge is still well inside the hand-traced banks. This is the
+    // only region in which any animated layer is allowed to contribute.
+    float bank_fade = 1.0 - smoothstep(0.58, 0.80, abs(lane));
+    float source_fade = smoothstep(0.10, 0.22, screen.y);
+    float river = bank_fade * source_fade;
+
+    float depth = smoothstep(0.12, 1.0, screen.y);
+    vec2 scene_uv = cover_uv(v_uv);
+    vec3 base_color = texture2D(u_scene, scene_uv).rgb;
+    vec2 texel = 1.0 / max(u_texture_size, vec2(1.0));
+    float water_luma_base = dot(base_color, vec3(0.299, 0.587, 0.114));
+    float luma_left = dot(texture2D(u_scene, scene_uv - vec2(texel.x * 2.0, 0.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float luma_right = dot(texture2D(u_scene, scene_uv + vec2(texel.x * 2.0, 0.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float luma_up = dot(texture2D(u_scene, scene_uv - vec2(0.0, texel.y * 2.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float luma_down = dot(texture2D(u_scene, scene_uv + vec2(0.0, texel.y * 2.0)).rgb, vec3(0.299, 0.587, 0.114));
+    float gradient_x = abs(luma_right - luma_left);
+    float gradient_y = abs(luma_down - luma_up);
+    float horizontal_water_detail = smoothstep(-0.016, 0.034, gradient_y - gradient_x * 0.56);
+    float vertical_terrain_ink = smoothstep(0.020, 0.068, gradient_x - gradient_y * 0.28);
+    float pale_water_wash = smoothstep(0.48, 0.78, water_luma_base);
+    float water_motion_guard = clamp(
+      (horizontal_water_detail * 0.72 + pale_water_wash * 0.42)
+      * (1.0 - vertical_terrain_ink),
+      0.0,
+      1.0
+    );
+    // The traced path is the final safety boundary. Keep a substantial motion
+    // floor inside it so the pale middle of the painted river does not make the
+    // current disappear, while the bank fade still leaves every mountain still.
+    float river_motion = river;
+
+    float main_speed = u_flow_speeds.x;
+    float fine_speed = u_flow_speeds.y;
+    float foam_speed = u_flow_speeds.z;
+    float roll_speed = u_flow_speeds.w;
+    float foam_amount = u_river_style.x;
+    float roll_strength = u_river_style.y;
+    float layer_opacity = u_river_style.z;
+    float turbulence = u_river_style.w;
+    float surge_strength = u_river_force.x;
+    float wave_wall_strength = u_river_force.y;
+    float breaker_strength = u_river_force.z;
+
+    // Follow the painted bend instead of translating a rectangular texture.
+    float next_center = river_center(min(screen.y + 0.012, 1.0));
+    float previous_center = river_center(max(screen.y - 0.012, 0.0));
+    float bend = (next_center - previous_center) * 16.0;
+    float longitudinal = screen.y
+      + lane * bend * 0.045
+      + sin(screen.y * 12.0 + lane * 2.4) * 0.006 * turbulence;
+    float depth_speed = mix(0.34, 1.76, pow(depth, 1.18));
+
+    // Layer 1: a few broad current corridors. These long ink masses carry the
+    // whole river downstream; they are intentionally much larger than surface
+    // texture so the motion reads as water volume instead of crawling noise.
+    float main_time = u_time * main_speed * depth_speed;
+    float main_warp = fbm(vec2(lane * 1.65, longitudinal * 1.45 - main_time * 0.74)) - 0.5;
+    float main_field_a = fbm(vec2(
+      lane * 2.15 + main_warp * 1.8,
+      (longitudinal - main_time) * 1.62 + lane * 0.34
+    ));
+    float main_field_b = fbm(vec2(
+      lane * 2.7 - main_warp * 1.45 + 9.3,
+      (longitudinal - main_time * 0.72) * 2.18 - lane * 0.26
+    ));
+    float main_ribbon = pow(1.0 - abs(main_field_a * 2.0 - 1.0), 1.55);
+    float main_shadow = smoothstep(0.50, 0.82, 1.0 - main_field_b);
+
+    // Broad white-water masses travel down the gorge on oblique coordinates.
+    // There is deliberately no periodic front here: nested fields make each
+    // surge fork, collide and rejoin instead of forming horizontal rows.
+    float wall_warp = fbm(vec2(
+      lane * 1.42 + 17.0,
+      longitudinal * 1.78 - main_time * 0.48
+    )) - 0.5;
+    float wall_cluster = smoothstep(0.32, 0.68, fbm(vec2(
+      lane * 2.25 - 5.0,
+      longitudinal * 2.32 - main_time * 0.64
+    )));
+    float wall_fracture = fbm(vec2(
+      lane * 4.1 + longitudinal * 2.6 + wall_warp * 2.8,
+      (longitudinal - main_time * 1.12) * 3.25 - lane * 1.35
+    ));
+    float wall_field = fbm(vec2(
+      lane * 2.8 + longitudinal * 2.25 + wall_warp * 2.15,
+      (longitudinal - main_time * 1.18) * 2.42 - lane * 1.42 + wall_fracture * 1.65
+    ));
+    float wall_ridge = 1.0 - abs(wall_field * 2.0 - 1.0);
+    float wave_wall = smoothstep(0.54, 0.88, wall_ridge)
+      * smoothstep(0.38, 0.72, wall_cluster * 0.68 + wall_fracture * 0.46);
+    float undertow_field = fbm(vec2(
+      lane * 2.35 - longitudinal * 1.55 + 8.0,
+      (longitudinal - main_time * 0.92) * 2.05 + lane * 1.18
+    ));
+    float wall_undertow = smoothstep(0.57, 0.82, undertow_field) * wall_cluster;
+
+    // Layer 2: finer secondary current. It stays subordinate to the broad
+    // surge and travels faster, making the river feel deep rather than busy.
+    float fine_time = u_time * fine_speed * depth_speed;
+    float fine_warp = fbm(vec2(lane * 7.4 + 12.0, longitudinal * 4.0 - fine_time * 1.7));
+    float fine_field = noise(vec2(
+      lane * 13.8 + fine_warp * 3.1 + sin(longitudinal * 13.0) * 0.46,
+      (longitudinal - fine_time) * 7.8 + lane * 0.72
+    ));
+    float fine_ribbon = pow(1.0 - abs(fine_field * 2.0 - 1.0), 3.8);
+    fine_ribbon *= smoothstep(0.34, 0.81, fbm(vec2(lane * 8.2, longitudinal * 4.4 - fine_time * 2.1)));
+
+    // Layer 3: broken white foam clusters. Density changes the threshold, not
+    // the shape, so the foam stays irregular and never becomes oval particles.
+    float foam_time = u_time * foam_speed * depth_speed;
+    float foam_warp = fbm(vec2(lane * 2.8 - 7.0, longitudinal * 5.2 - foam_time * 1.6));
+    float foam_field = fbm(vec2(
+      lane * 8.4 + foam_warp * 3.0,
+      (longitudinal - foam_time) * 7.2 + lane * 0.58
+    ));
+    float foam_ridge = 1.0 - abs(foam_field * 2.0 - 1.0);
+    float foam_breakup = fbm(vec2(
+      lane * 12.4 + sin(longitudinal * 16.0) * 0.78,
+      (longitudinal - foam_time * 1.12) * 10.0
+    ));
+    float foam_threshold = mix(0.87, 0.62, foam_amount);
+    float travelling_foam = smoothstep(foam_threshold, 0.96, foam_ridge)
+      * smoothstep(0.47, 0.79, foam_breakup);
+
+    // Foam trains are shed from the large surge itself. Their oblique ridges
+    // stretch, split and dissolve without ever becoming circles or stripes.
+    float foam_train_breakup = smoothstep(0.37, 0.72, fbm(vec2(
+      lane * 6.8 + longitudinal * 3.1 + wall_warp * 3.6,
+      (longitudinal - foam_time * 1.34) * 4.6 - lane * 1.85
+    )));
+    float foam_train_ridge = 1.0 - abs(fbm(vec2(
+      lane * 5.6 - longitudinal * 2.8 + 2.0,
+      (longitudinal - foam_time * 1.22) * 4.1 + lane * 1.65
+    )) * 2.0 - 1.0);
+    float foam_train = smoothstep(0.56, 0.88, foam_train_ridge)
+      * foam_train_breakup
+      * mix(0.34, 1.0, wave_wall);
+
+    // Layer 4: localized rolling crests with a darker underside. Their phase
+    // follows the path and their cluster envelope appears, breaks and reforms.
+    float roll_time = u_time * roll_speed * depth_speed;
+    float roll_noise = fbm(vec2(lane * 2.65 + 4.0, longitudinal * 5.0 - roll_time * 1.4));
+    float roll_clusters = smoothstep(0.44, 0.74, fbm(vec2(
+      lane * 3.1 - 11.0,
+      longitudinal * 6.4 - roll_time * 2.1
+    )));
+    float roll_field = fbm(vec2(
+      lane * 3.75 + longitudinal * 3.25 + roll_noise * 2.5,
+      (longitudinal - roll_time * 1.16) * 3.05 - lane * 2.15
+    ));
+    float roll_ridge = 1.0 - abs(roll_field * 2.0 - 1.0);
+    float rolling_crest = smoothstep(0.55, 0.88, roll_ridge) * roll_clusters;
+    float rolling_shadow = smoothstep(0.58, 0.84, fbm(vec2(
+      lane * 3.15 - longitudinal * 2.1 + 19.0,
+      (longitudinal - roll_time * 0.84) * 2.75 + lane * 1.7
+    ))) * roll_clusters;
+
+    // Near-field breakers rise out of the broad fronts instead of appearing as
+    // separate oval particles. The crest grows, overturns, fragments, then its
+    // shadow closes behind it as the wave falls back into the river.
+    float near_field = smoothstep(0.46, 0.98, depth);
+    float breaker_noise = fbm(vec2(
+      lane * 4.8 + roll_noise * 2.1,
+      longitudinal * 4.6 - roll_time * 2.0
+    ));
+    float breaker_cluster = smoothstep(0.42, 0.73, breaker_noise);
+    float breaker_lift = wave_wall * breaker_cluster * near_field;
+    float breaker_fragment = breaker_lift * smoothstep(0.46, 0.82, foam_breakup);
+    float breaker_shadow = wall_undertow * breaker_cluster * near_field;
+
+    float source_foam = smoothstep(0.57, 0.80, water_luma_base);
+    float motion_mask = river_motion * mix(0.52, 1.0, depth);
+    vec3 warm_foam = vec3(0.978, 0.952, 0.890);
+    vec3 water_color = base_color;
+
+    float dark_energy = (
+      main_shadow * 0.25 * surge_strength
+      + wall_undertow * 0.22 * wave_wall_strength
+      + rolling_shadow * 0.13 * roll_strength
+      + breaker_shadow * 0.18 * breaker_strength
+    )
+      * motion_mask * layer_opacity;
+    water_color *= 1.0 - dark_energy;
+
+    float main_light = main_ribbon * 0.31 * surge_strength;
+    float wall_light = wave_wall * 0.48 * wave_wall_strength;
+    float fine_light = fine_ribbon * 0.045;
+    float foam_light = travelling_foam * mix(0.20, 0.52, source_foam);
+    float foam_train_light = foam_train * 0.48 * mix(0.64, 1.0, source_foam);
+    float roll_light = rolling_crest * 0.50 * roll_strength * mix(0.52, 1.0, source_foam);
+    float breaker_light = (breaker_lift * 0.58 + breaker_fragment * 0.38)
+      * breaker_strength
+      * mix(0.70, 1.0, source_foam);
+    float light_energy = clamp(
+      (main_light + wall_light + fine_light + foam_light + foam_train_light + roll_light + breaker_light)
+      * motion_mask
+      * layer_opacity,
+      0.0,
+      0.82
+    );
+    water_color = mix(water_color, warm_foam, light_energy);
+
+    gl_FragColor = vec4(water_color, 1.0);
+  }
+`;
+
+function compileMethodRiverShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return shader;
+  gl.deleteShader(shader);
+  return null;
+}
+
+function MethodRiverFlow() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!canvas || motionQuery.matches) return;
+
+    const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
+    if (!gl) return;
+
+    const vertexShader = compileMethodRiverShader(gl, gl.VERTEX_SHADER, METHOD_RIVER_VERTEX_SHADER);
+    const fragmentShader = compileMethodRiverShader(gl, gl.FRAGMENT_SHADER, METHOD_RIVER_FRAGMENT_SHADER);
+    if (!vertexShader || !fragmentShader) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+
+    const positionLocation = gl.getAttribLocation(program, "a_position");
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const textureSizeLocation = gl.getUniformLocation(program, "u_texture_size");
+    const timeLocation = gl.getUniformLocation(program, "u_time");
+    const flowSpeedsLocation = gl.getUniformLocation(program, "u_flow_speeds");
+    const riverStyleLocation = gl.getUniformLocation(program, "u_river_style");
+    const riverForceLocation = gl.getUniformLocation(program, "u_river_force");
+    const sceneLocation = gl.getUniformLocation(program, "u_scene");
+    const buffer = gl.createBuffer();
+    const texture = gl.createTexture();
+    if (!buffer || !texture || positionLocation < 0) return;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    gl.useProgram(program);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.uniform1i(sceneLocation, 0);
+    gl.uniform4f(
+      flowSpeedsLocation,
+      METHOD_RIVER_TUNING.mainFlowSpeed,
+      METHOD_RIVER_TUNING.fineFlowSpeed,
+      METHOD_RIVER_TUNING.foamSpeed,
+      METHOD_RIVER_TUNING.rollSpeed,
+    );
+    gl.uniform4f(
+      riverStyleLocation,
+      METHOD_RIVER_TUNING.foamAmount,
+      METHOD_RIVER_TUNING.rollStrength,
+      METHOD_RIVER_TUNING.opacity,
+      METHOD_RIVER_TUNING.turbulence,
+    );
+    gl.uniform3f(
+      riverForceLocation,
+      METHOD_RIVER_TUNING.surgeStrength,
+      METHOD_RIVER_TUNING.waveWallStrength,
+      METHOD_RIVER_TUNING.breakerStrength,
+    );
+
+    let animationFrame = 0;
+    let textureReady = false;
+    let visible = false;
+    let accumulatedTime = 0;
+    let lastFrameAt = performance.now();
+    const mobileQuery = window.matchMedia("(max-width: 900px)");
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+      const width = Math.max(1, Math.round(bounds.width * pixelRatio));
+      const height = Math.max(1, Math.round(bounds.height * pixelRatio));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        gl.viewport(0, 0, width, height);
+      }
+    };
+
+    const draw = (now: number) => {
+      if (!textureReady || !visible || document.hidden) {
+        animationFrame = window.requestAnimationFrame(draw);
+        lastFrameAt = now;
+        return;
+      }
+      const elapsed = Math.min((now - lastFrameAt) / 1000, 0.05);
+      accumulatedTime += elapsed;
+      lastFrameAt = now;
+      resize();
+      gl.useProgram(program);
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+      gl.uniform1f(timeLocation, accumulatedTime);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      animationFrame = window.requestAnimationFrame(draw);
+    };
+
+    let activeImage: HTMLImageElement | null = null;
+    const loadScene = () => {
+      const image = new Image();
+      activeImage = image;
+      textureReady = false;
+      canvas.classList.remove("is-ready");
+      image.onload = () => {
+        if (activeImage !== image) return;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.uniform2f(textureSizeLocation, image.naturalWidth, image.naturalHeight);
+        textureReady = true;
+        resize();
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, accumulatedTime);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        canvas.classList.add("is-ready");
+      };
+      image.src = mobileQuery.matches ? "/method-river-mobile-v2.webp" : "/method-river-wide-v2.webp";
+    };
+
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "12%" });
+    const resizeObserver = new ResizeObserver(resize);
+    observer.observe(canvas);
+    resizeObserver.observe(canvas);
+    mobileQuery.addEventListener("change", loadScene);
+    loadScene();
+    animationFrame = window.requestAnimationFrame((now) => {
+      lastFrameAt = now;
+      draw(now);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+      resizeObserver.disconnect();
+      mobileQuery.removeEventListener("change", loadScene);
+      activeImage = null;
+      gl.deleteTexture(texture);
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="method-river-flow" aria-hidden="true" />;
+}
+
 function inferGoal(text: string): keyof typeof GOALS {
   if (/æ²Ÿé€š|è¡¨è¾¾|è°ˆ|è¯´/.test(text)) return "PREPARE_COMMUNICATION";
   if (/è¾¹ç•Œ|æŠ•å…¥|ä»˜å‡º|åœæ­¢|é€€å‡º/.test(text)) return "ADJUST_COMMITMENT_BOUNDARIES";
@@ -253,7 +788,7 @@ function inferUncertainty(text: string): "CONDITIONS" | "OTHER_RESPONSE" | "OWN_
   return "CONDITIONS";
 }
 
-function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onQuestion, onStructured, onComplete }: GuidedIntakeProps) {
+function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onCompletionReason, onComplete, onContinue }: GuidedIntakeProps) {
   const [turn, setTurn] = useState(0);
   const [draft, setDraft] = useState("");
   const [answers, setAnswers] = useState<IntakeAnswer[]>([]);
@@ -269,6 +804,8 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
     "å¦‚æœè¿™ä¸€æ¬¡åªèƒ½çœ‹æ¸…ä¸€ä»¶äº‹ï¼Œä½ æœ€å¸Œæœ›ç¡®è®¤ä»€ä¹ˆï¼Ÿ",
   ];
   const currentPrompt = prompts[turn];
+  const previousAnswer = answers[answers.length - 1];
+  const localProgress = `ç¬¬ ${Math.min(turn + 1, prompts.length)} é—® Â· å…± ${prompts.length} é—®`;
 
   function record(answer: string) {
     const value = answer.trim();
@@ -276,13 +813,1537 @@ function LocalGuidedIntake({ question, onFacts, onUnknowns, onActions, onObserva
     setAnswers((current) => [...current, { prompt: currentPrompt, answer: value }]);
     if (turn === 0) setHorizonAnswer(Object.entries(HORIZONS).find(([, label]) => label === value)?.[0] ?? "CURRENT");
     if (turn === 1) setStageAnswer(Object.entries(STAGES).find(([, label]) => label === value)?.[0] ?? "EXPLORING");
-    if (turn === 2) onFacts(value);
-    if (turn === 3) onUnknowns(value);
-    if (turn === 4) onActions(v×MzÖÚ$z{-®éÜj×VW7F–öâ“²6WDFöÖ–â‡&V6÷&Bç7G'V7GW&VEö–çF¶RçVW7F–öåöFöÖ–â“²6WDvöÂ‡&V6÷&Bç7G'V7GW&VEö–çF¶RæFV6—6–öåövöÂ“²6WD†÷&—¦öâ‡&V6÷&Bç7G'V7GW&VEö–çF¶RçF–ÖUö†÷&—¦öâ“²6WE7FvR‡&V6÷&Bç7G'V7GW&VEö–çF¶RæFV6—6–öå÷7FvR“²6WEVæ6W'F–çG’‡&V6÷&Bç7G'V7GW&VEö–çF¶Ræ¶W•÷Væ6W'F–çG’“²6WE&—6µ&öf–ÆR‡&V6÷&Bç7G'V7GW&VEö–çF¶RæFV6—6–öå÷&—6µ÷&öf–ÆRóò%5DäD$B"“²6WDçVÖ&W'2‡&V6÷&BæçVÖ&W'2æÖ…7G&–ær’“²6WD–çF¶T6ö×ÆWFR‡G'VR“²6WD6¶æ÷vÆVFvVB‡G'VR“²6WE6fVE&V6÷&D–B‡&V6÷&Bæ–B“°¢6WE&W7öç6R‡²7FGW3¢%5T44U52"ÂW6W%÷VW7F–öã¢&V6÷&BçVW7F–öâÂ7G'V7GW&VEö–çF¶S¢&V6÷&Bç7G'V7GW&VEö–çF¶RÂFWFW&Ö–æ—7F–5÷&W7VÇC¢&V6÷&Bç&W7VÇBÂW'6öæÆ—¦VE÷&VF–æs¢&V6÷&Bç&W7VÇBçW'6öæÆ—¦VE÷&VF–æróòçVÆÂÒ“°¢ÒÂ“°¢&WGW&â‚’Óâv–æF÷ræ6ÆV%F–ÖV÷WB‡F–ÖW"“°¢ÒÂµÒ“° Ğ¢W6TVffV7B‚‚’Óâ°Ğ¢–b‚&W7öç6R’&WGW&ã°Ğ¢6öç7Bg&ÖRÒv–æF÷rç&WVW7Dæ–ÖF–öäg&ÖR‚‚’Óâ°Ğ¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚'&W7VÇB"“òç67&öÆÄ–çFõf–Wr‡²&V†f–÷#¢'6Öö÷F‚"Â&Æö6³¢'7F'B"Ò“°Ğ¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚'&W7VÇB×F—FÆR"“òæfö7W2‡²&WfVçE67&öÆÃ¢G'VRÒ“°Ğ¢Ò“°Ğ¢&WGW&â‚’Óâv–æF÷ræ6æ6VÄæ–ÖF–öäg&ÖR†g&ÖR“°Ğ¢ÒÂ·&W7öç6UÒ“°Ğ Ğ¢gVæ7F–öâVF—EVW7F–öâ‚’°Ğ¢6WE&W7öç6R†çVÆÂ“²6WDW'&÷"‚""“°Ğ¢v–æF÷rç6WEF–ÖV÷WB‚‚’ÓâFö7VÖVçBævWDVÆVÖVçD'”–B‚&–çV—'’"“òç67&öÆÄ–çFõf–Wr‡²&V†f–÷#¢'6Öö÷F‚"Ò’Â“°Ğ¢ĞĞ Ğ¢gVæ7F–öâ6ÆV%VW7F–öâ‚’°¢6WEVW7F–öâ‚""“²6WDFöÖ–â‚""“²6WDvöÂ‚""“²6WD†÷&—¦öâ‚""“²6WE7FvR‚""“²6WEVæ6W'F–çG’‚""“²6WE&—6µ&öf–ÆR‚%5DäD$B"“°Ğ¢6WDf7G2‚""“²6WEVæ¶æ÷vç2‚""“²6WD7F–öç2‚""“²6WDö'6W'f&ÆU&W7öç6W2‚""“°Ğ¢6WDçVÖ&W'2…²""Â""Â"%Ò“²6WD–çF¶T6ö×ÆWFR†fÇ6R“²6WD6¶æ÷vÆVFvVB†fÇ6R“²6WE&W7öç6R†çVÆÂ“²6WDW'&÷"‚""“²6WE6fVE&V6÷&D–B†çVÆÂ“°¢v–æF÷rç6WEF–ÖV÷WB‚‚’ÓâFö7VÖVçBævWDVÆVÖVçD'”–B‚&–çV—'’"“òç67&öÆÄ–çFõf–Wr‡²&V†f–÷#¢'6Öö÷F‚"Ò’Â“°Ğ¢ĞĞ Ğ¢7–æ2gVæ7F–öâ6fTö'6W'fF–öâ†7F–öåFW‡C¢7G&–ærÂ&Wf–Wtöã¢7G&–ærÂçVÆÂ’°¢–b‚&W7öç6SòæFWFW&Ö–æ—7F–5÷&W7VÇB’&WGW&ã°¢6WE6f–æu&V6÷&B‡G'VR“²6WDW'&÷"‚""“°¢6öç7B–BÒ7'—Fòç&æFöÕUT”B‚“°Ğ¢G'’°Ğ¢6öç7B&WVW7BÒv—BfWF6‚‚"ö’ö¦÷W&æÂ"Â²ÖWF†öC¢%õ5B"Â†VFW'3¢¦÷W&æÄ†VFW'2‚’Â&öG“¢¥4ôâç7G&–æv–g’‡°Ğ¢–BÂVW7F–öã¢&W7öç6RçW6W%÷VW7F–öâóòVW7F–öâçG&–Ò‚’Â7G'V7GW&VEö–çF¶S¢&W7öç6Rç7G'V7GW&VEö–çF¶Róò²VW7F–öåöFöÖ–ã¢FöÖ–âÂFV6—6–öåövöÃ¢vöÂÂF–ÖUö†÷&—¦öã¢†÷&—¦öâÂFV6—6–öå÷7FvS¢7FvRÂ¶W•÷Væ6W'F–çG“¢Væ6W'F–çG’ÂFV6—6–öå÷&—6µ÷&öf–ÆS¢&—6µ&öf–ÆRÒÀĞ¢çVÖ&W'3¢&W7öç6RæFWFW&Ö–æ—7F–5÷&W7VÇBæ–çWEöçVÖ&W'2ÀĞ¢&W7VÇC¢²ââç&W7öç6RæFWFW&Ö–æ—7F–5÷&W7VÇBÂâââ‡&W7öç6RçW'6öæÆ—¦VE÷&VF–ærò²W'6öæÆ—¦VE÷&VF–æs¢&W7öç6RçW'6öæÆ—¦VE÷&VF–ærÒ¢·Ò’ÒÀĞ¢7F–öå÷FW‡C¢7F–öåFW‡BÂ&Wf–Wuööã¢&Wf–WtöâÀĞ¢Ò’Ò“°Ğ¢6öç7B–ÆöBÒv—B&WVW7Bæ§6öâ‚’2²&V6÷&Có¢¦÷W&æÅ&V6÷&C²W'&÷#ó¢7G&–ærÓ°Ğ¢–b‚&WVW7Bæö²ÇÂ–ÆöBç&V6÷&B’F‡&÷ræWrW'&÷"‡–ÆöBæW'&÷"ÇÂ.‹ùjÊŠx.‹i¨.i{nk*iÈKùŞZÙh‰X©ş8""“°Ğ¢6WE6fVE&V6÷&D–B†–B“°¢Ò6F6‚†6Vv‡B’²6WDW'&÷"†6Vv‡B–ç7Fæ6VöbW'&÷"ò6Vv‡BæÖW76vR¢.‹ùjÊŠx.‹i¨.i{nk*iÈKùŞZÙh‰X©ş8""“²Ğ¢f–æÆÇ’²6WE6f–æu&V6÷&B†fÇ6R“²Ğ¢Ğ Ğ¢7–æ2gVæ7F–öâ7V&Ö—B†WfVçC¢f÷&ÔWfVçB’°Ğ¢WfVçBç&WfVçDFVfVÇB‚“²6WDW'&÷"‚""“²6WE&W7öç6R†çVÆÂ“²6WE6fVE&V6÷&D–B†çVÆÂ“°Ğ¢6öç7B7F—fU&WVW7D–BÒ6W76–öå7F÷&vRævWD—FVÒ„5D•dUõ$UTU5Eô´U’“°Ğ¢–b†7F—fU&WVW7D–Bbbõå´Õ¦×£Ó•Õ´Õ¦×£Ó’åòÕ×³Ãs—ÒBòçFW7B†7F—fU&WVW7D–B’’°Ğ¢6WDÆöF–ær‡G'VR“°Ğ¢G'’²v—BöÆÅW'6öæÆ—¦VE&WVW7B†7F—fU&WVW7D–B“²ĞĞ¢6F6‚†6Vv‡B’²6WDW'&÷"‡W'6öæÆ—¦VDW'&÷$ÖW76vR†6Vv‡BÂ7F—fU&WVW7D–B’“²ĞĞ¢f–æÆÇ’²6WDÆöF–ær†fÇ6R“²6WE&öw&W72‚""“²ĞĞ¢&WGW&ã°Ğ¢ĞĞ¢–b†7F—fU&WVW7D–B’6W76–öå7F÷&vRç&VÖ÷fT—FVÒ„5D•dUõ$UTU5Eô´U’“°Ğ Ğ¢6öç7Bf7DÆ–æW2ÒæöæV×G”Æ–æW2†f7G2“°Ğ¢6öç7BVæ¶æ÷väÆ–æW2ÒæöæV×G”Æ–æW2‡Væ¶æ÷vç2“°Ğ¢6öç7B7F–öäÆ–æW2ÒæöæV×G”Æ–æW2†7F–öç2“°Ğ¢6öç7B&W7öç6TÆ–æW2ÒæöæV×G”Æ–æW2†ö'6W'f&ÆU&W7öç6W2“°Ğ¢6öç7B'6VBÒçVÖ&W'2æÖ„çVÖ&W"“°Ğ¢6öç7BFW‡DÆ—7G2Ò¶f7DÆ–æW2ÂVæ¶æ÷väÆ–æW2Â7F–öäÆ–æW2Â&W7öç6TÆ–æW5Ó°Ğ¢–b‡VW7F–öâçG&–Ò‚’æÆVæwF‚ÂbÇÂVW7F–öâçG&–Ò‚’æÆVæwF‚âcÇÂ–çF¶T6ö×ÆWFRÇÂFöÖ–âÇÂvöÂÇÂ†÷&—¦öâÇÂ7FvRÇÂVæ6W'F–çG’ÇÂ&—6µ&öf–ÆRÇÂf7DÆ–æW2æÆVæwF‚ÂÇÂf7DÆ–æW2æÆVæwF‚â‚ÇÂVæ¶æ÷väÆ–æW2æÆVæwF‚ÂÇÂVæ¶æ÷väÆ–æW2æÆVæwF‚âbÇÂ7F–öäÆ–æW2æÆVæwF‚âbÇÂ&W7öç6TÆ–æW2æÆVæwF‚âbÇÂFW‡DÆ—7G2ç6öÖR‚†—FV×2’Óâ—FV×2ç6öÖR‚†—FVÒ’Óâ—FVÒæÆVæwF‚âC’’ÇÂ'6VBç6öÖR‚†âÂ–æFW‚’ÓâçVÖ&W'5¶–æFW…ÒÇÂçVÖ&W"æ—4–çFVvW"†â’ÇÂâÂÇÂââ““’’ÇÂ6¶æ÷vÆVFvVB’°¢6WDW'&÷"‚.Šû~XXZèÎh‰jÚ>™zîKˆî‹êŠønûÈÎXhŞ™Ù[ø>Z¾XiKˆKŠ¢(	3““’y¨Ni[Ni[ûÈÎ[›nzîŠêNKÛşyJ‹ëyXÎ8""“²&WGW&ã°¢ĞĞ¢6WDÆöF–ær‡G'VR“²6WE&öw&W72‚.jÚ>YÊhùKªNiÊÎjÊŠx.‹K»¾Xª(
-n(
-b"“°Ğ¢6öç7B&WVW7D–BÒ6—FW2ÒG¶7'—Fòç&æFöÕUT”B‚—Ö°Ğ¢G'’°Ğ¢6W76–öå7F÷&vRç6WD—FVÒ„5D•dUõ$UTU5Eô´U’Â&WVW7D–B“°Ğ¢6öç7B&öG’Ò¥4ôâç7G&–æv–g’‡°Ğ¢6öçG&7E÷fW'6–öã¢%4•DU5õU%4ôäÄ•¤TEôÔT”…Tô4ôåE$5Eõc"Â&WVW7Eö–C¢&WVW7D–BÀĞ¢VW7F–öå÷FW‡C¢VW7F–öâçG&–Ò‚’ÂVW7F–öåöFöÖ–ã¢FöÖ–âÂFV6—6–öåövöÃ¢vöÂÀĞ¢F–ÖUö†÷&—¦öã¢†÷&—¦öâÂFV6—6–öå÷7FvS¢7FvRÂ¶W•÷Væ6W'F–çG“¢Væ6W'F–çG’ÂFV6—6–öå÷&—6µ÷&öf–ÆS¢&—6µ&öf–ÆRÀĞ¢6öæf—&ÖVEöf7G3¢f7DÆ–æW2ÂVæ¶æ÷vç3¢Væ¶æ÷väÆ–æW2Â÷F–öç3¢µÒÀĞ¢7F–öç5öÇ&VG•÷F¶Vã¢7F–öäÆ–æW2Âö'6W'f&ÆU÷&W7öç6W3¢&W7öç6TÆ–æW2ÀĞ¢çVÖ&W'3¢'6VBÂÆö6ÆS¢'¦‚Ô4â"Â6Æ–VçE÷F–ÖW7F×¢æWrFFR‚’çFô•4õ7G&–ær‚’ÀĞ¢W6W%ö6¶æ÷vÆVFvVÖVçG3¢²æõöWFöÖF–5÷&VvVæW&F–öã¢G'VRÂW6W%÷7FFVÖVçG5öæ÷E÷fW&–f–VEöf7G3¢G'VRÒÀĞ¢Ò“°Ğ¢ÆWB66WFVBÒfÇ6S°Ğ¢f÷"†ÆWBGFV×BÒ²GFV×BÂ2bb66WFVC²GFV×B³Ò’°Ğ¢G'’°Ğ¢6öç7B&WVW7BÒv—BfWF6‚‚"ö’÷cBöÖV–‡V"Â²ÖWF†öC¢%õ5B"Â†VFW'3¢²$6öçFVçBÕG—R#¢&Æ–6F–öâö§6öâ"ÒÂ66†S¢&æò×7F÷&R"Â&öG’Ò“°Ğ¢6öç7B–ÆöBÒv—B&WVW7Bæ§6öâ‚’2•&W7öç6S°Ğ¢–b‡&WVW7Bç7FGW2ÓÓÒ#"’²66WFVBÒG'VS²'&V³²ĞĞ¢–b‡&WVW7Bæö²’²f–æ—6…W'6öæÆ—¦VE&WVW7B‡–ÆöB“²&WGW&ã²ĞĞ¢–b‡&WVW7Bç7FGW2ÓÒS2’°Ğ¢6W76–öå7F÷&vRç&VÖ÷fT—FVÒ„5D•dUõ$UTU5Eô´U’“°Ğ¢F‡&÷ræWrW'&÷"‡–ÆöBæW'&÷"ÇÂ–ÆöBæW'&÷'3òå³ÓòæÖW76vRÇÂ.iÊÎjÊiÊ®ˆ;ŞyIşh‰{¹>iéÎ8""“°Ğ¢ĞĞ¢Ò6F6‚†6Vv‡B’°Ğ¢–b†6Vv‡B–ç7Fæ6VöbW'&÷"bbôf–ÆVBFòfWF6‡ÆfWF6‚f–ÆVGÆæWGv÷&²ö’çFW7B†6Vv‡BæÖW76vR’’F‡&÷r6Vv‡C°Ğ¢ĞĞ¢v—B6ÆVWƒóS“°Ğ¢ĞĞ¢v—BöÆÅW'6öæÆ—¦VE&WVW7B‡&WVW7D–B“°Ğ¢Ò6F6‚†6Vv‡B’²6WDW'&÷"‡W'6öæÆ—¦VDW'&÷$ÖW76vR†6Vv‡BÂ&WVW7D–B’“²ĞĞ¢f–æÆÇ’²6WDÆöF–ær†fÇ6R“²6WE&öw&W72‚""“²ĞĞ¢ĞĞ Ğ¢&WGW&âÃàĞ¢Æ†VFW"6Æ74æÖSÒ'6—FRÖ†VFW"#àĞ¢Æ6Æ74æÖSÒ'v÷&FÖ&²"‡&VcÒ"7F÷#îŠx.‹ÂöàĞ¢ÆæcãÆ‡&VcÒ"6ÖWF†öB#îZh.KÙ^Šx#ÂöãÆ‡&VcÒ"6–çV—'’#î[ÈZx¾™zãÂöãÆ‡&VcÒ"ö¦÷W&æÂ#îŠx.K¨¾{óÂöãÂöæcà¢Ç6ÖÆÃîzîZé®h
-~hé.y¹‚+rKŠ®h
-~XÉnŠz>Šû³Â÷6ÖÆÃàĞ¢Âö†VFW#àĞ¢ÆÖ–â–CÒ'F÷"6Æ74æÖSÒ'67&öÆÂÖ6çf2#àĞ¢Ç6V7F–öâ6Æ74æÖSÒ&†W&ò67&öÆÂ×6V7F–öâ"FF×&WfVÂ&–ÖÆ&VÆÆVF'“Ò&†W&ò×F—FÆR#à¢ÆF—b6Æ74æÖSÒ&†W&òÖÆö6·W#à¢Ç6Æ74æÖSÒ&†W&òÖÖ÷GFò#î[ø>iÈh˜™zîûÈÎ™ÙŠx.X[n‹8#Â÷à¢Æ–Ör6Æ74æÖSÒ&†W&ò×6VÂ"7&3Ò"ö&wV×6VÂçær"ÇCÒ""&–Ö†–FFVãÒ'G'VR"óà¢Æƒ–CÒ&†W&ò×F—FÆR#ãÇ7ãîŠx#Â÷7ããÇ7ãî‹Â÷7ããÂöƒà¢ÂöF—cà¢ÆF—b6Æ74æÖSÒ&†W&òÖ6Æ76–2#à¢Ç7â6Æ74æÖSÒ&†W&òÖ–æ²Ö&ÆööÒ"&–Ö†–FFVãÒ'G'VR#ãÆ–Ör7&3Ò"ö–æ²ÖvöÆFVâÖÆæG66Rçær"ÇCÒ""óãÂ÷7ãà¢Æ&Æö6·V÷FSîZø.xKnKˆŞXªûÈÎhIşˆÎ˜.˜	®ZJKˆ¾K˜¾iX^8#Âö&Æö6·V÷FSà¢Æ6—FSî8®Yi‰<+~{;¾‹éîKˆ®8³Âö6—FSà¢ÂöF—cà¢Æ6Æ74æÖSÒ&†W&ò×67&öÆÂÖ7VR"‡&VcÒ"6ÖWF†öB#îY	Kˆ²+rŠx.k9SÂöà¢Â÷6V7F–öãà Ğ¢Ç6V7F–öâ–CÒ&ÖWF†öB"6Æ74æÖSÒ&ÖWF†öB67&öÆÂ×6V7F–öâ"FF×&WfVÂ&–ÖÆ&VÆÆVF'“Ò&ÖWF†öB×F—FÆR#à¢ÅfW'F–6Ä'&æBóà¢ÆF—b6Æ74æÖSÒ&ÖWF†öB×V÷FR#ãÇ6Æ74æÖSÒ&W–V'&÷r#îŠx.‹K˜¾k9SÂ÷ãÆƒ"–CÒ&ÖWF†öB×F—FÆR#ãÇ7â6Æ74æÖSÒ'7"ÖöæÇ’#îYÊZJh‰‹ûÈÎYÊYËh‰[Ú.ûÈÎXùXÉnŠxyú>8#Â÷7ããÇ7â&–Ö†–FFVãÒ'G'VR#îYÊZJh‰‹ûÈÃÂ÷7ããÇ7â&–Ö†–FFVãÒ'G'VR#îYÊYËh‰[Ú.ûÈÃÂ÷7ããÇ7â&–Ö†–FFVãÒ'G'VR#îXùXÉnŠxyú>8#Â÷7ããÂöƒ#ãÆ6—FSî8®Yi‰<+~{;¾‹éîKˆ®8³Âö6—FSãÂöF—cà¢ÆF—b6Æ74æÖSÒ&ÖWF†öBÖW‡Æ–æW"#à¢Ç6Æ74æÖSÒ&ÖWF†öBÖÆVB#îyJKˆXˆn™)şûÈÎh¨®KˆK»nh»şKˆŞXxny¨NK¨¾ynkˆ^ikY	ûÈÎK™şyÈ¾kˆ^Kˆ¾KˆjÚ^Šú^yYhHşK¸K˜8#Â÷à¢ÇîŠx.‹KˆŞKÉ®i»şKÚXk>Zé®ûÈÎK™şKˆŞKÉ®š(NXXXiZ[Ş{¹>iéÎ8.h‰KºÎKÉ®™š®KÚXikˆ^h˜™zî8‹êiˆîK¨¾ZéîKˆîiÊ®yú^ûÈÎXhŞKéŞKˆi[h‰XÚnûÈÎh¨®XÚn‹y¨N{¹>ièN8XùXÉnKˆîxëZéîKŠŞXÎ[é~Šx.Zùşy¨NiÚK»nKˆ[.[.[^[È8#Â÷à¢ÆöÃãÆÆ“ãÇ7ãîZ;“Â÷7ããÆ#îjÚ>™zãÂö#ãÇîXiKˆ¾KˆK»nX[~KÙ>ˆÎyÉşZéîy¨NK¨¾8#Â÷ãÂöÆ“ãÆÆ“ãÇ7ãî‹KÂ÷7ããÆ#î‹êŠøcÂö#ãÇîYÊ˜	jÚ^ZûŠùŞKŠŞûÈÎh›îX‹yÉşjÚ>h;>™zîy¨Nj[ø>8#Â÷ãÂöÆ“ãÆÆ“ãÇ7ãîXøÂ÷7ããÆ#îh‰XÚcÂö#ãÇî™Ù[ø>XùnKˆi[ûÈÎzˆ¾[¨şKéŞŠxNX‰ZèÎh‰hé.y¹8#Â÷ãÂöÆ“ãÆÆ“ãÇ7ãîˆ(cÂ÷7ããÆ#îŠx.XÚcÂö#ãÇîK¸îiÊÎXÚnX‹XùXÉnûÈÎiÈYîY¹îX‹ˆz®[{y¨NZHNZ(>8#Â÷ãÂöÆ“ãÂööÃà¢ÆF—b6Æ74æÖSÒ&ÖWF†öB×&VF–æW72#ãÇîZh.iéÎKÚ[{.{¸şXxnZH~Z[ŞK¨nûÈÎŠû~™zŞKˆ®yËÎyÙ¾ûÈÎ{É>{É>i[‹ø~KˆKŠ®YÎY8.XhŞyØ[ÈyËÎi{nûÈÎh‰KºÎK¸î[ø>KŠŞ˜*>K»nK¨¾[ÈZx¾8#Â÷ãÆ6Æ74æÖSÒ&ÖWF†öBÖ7F"‡&VcÒ"6–çV—'’#îh‰[{.XxnZH~Z[ÓÂöãÂöF—cà¢ÂöF—cà¢Â÷6V7F–öãà Ğ¢Ç6V7F–öâ–CÒ&–çV—'’"6Æ74æÖSÒ&–çV—'’67&öÆÂ×6V7F–öâ"FF×&WfVÃàĞ¢ÅfW'F–6Ä'&æBóàĞ¢Æf÷&Òöå7V&Ö—C×·7V&Ö—GÒæõfÆ–FFSàĞ¢Æ†VFW"6Æ74æÖSÒ&–çV—'’Ö†VF–ær#ãÇ6Æ74æÖSÒ&W–V'&÷r#îŠx.‹K˜¾k9R+rY¹¾jÚSÂ÷ãÆƒ#îK¸î[ø>KŠŞh˜™zîûÈÎ‹[X‹yËÎX˜ŞXúşŠÃÂöƒ#ãÇîjøşjÊXú®ZHNynKˆK»nX[~KÙ>y¨NK¨¾8.š^™Ú.KÉ®hÈjÚ>™zî8‹êŠøn8h‰XÚn8Šx.XÚny¨Nš®[¨ş™š®KÚZèÎh‰ûÈÎKˆŞ™ÈŠhKˆjÊZ¾ZèÎKˆ[Ê™zîXÛ~8#Â÷ãÂö†VFW#à Ğ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂ#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãîZ;“Â÷7ããÆF—cãÆƒ3îjÚ>™zãÂöƒ3ãÇîXiKˆ¾KˆK»nX[~KÙ>ˆÎyÉşZéîy¨NK¨¾8.XXhÈjÚNX‹¾iÈˆz®xKny¨Nik[ÈşXiûÈÎYî™Ú.‹ùiÈiË®KÉ®˜xŞikzîŠêN8#Â÷ãÂöF—cãÂöF—cà¢ÆÆ&VÂ6Æ74æÖSÒ'VW7F–öâÖÆ&VÂ#ãÇ7ãîKÚyÉşjÚ>h;>™zîy¨N™zîš)‚£Â÷7ããÇFW‡F&V&–ÖÆ&VÃÒ.KÚyÉşjÚ>h;>™zîy¨N™zîš)‚"Æ6V†öÆFW#Ò.Kè¾Zh.ûÉ®‹ùjÊYKÙÎûÈÎh‰‹ù[©NŠú^{º~{ºŞh©^XZ^Y	~ûÉò"fÇVS×·VW7F–öçÒÖ„ÆVæwFƒ×³cÒöä6†ævS×²†WfVçB’Óâ6WEVW7F–öâ†WfVçBçF&vWBçfÇVR—ÒóãÇ6ÖÆÃç·VW7F–öâçG&–Ò‚’æÆVæwF‡Òòc+rŠû~yJkˆ^i›X[~KÙ>y¨Nih~ZÙ~ŠûNX{®KÚh;>[ÈNiˆîy›Şy¨NK¨¾ûÈÎ‹ùKÉ®[ŠîXªh‰KºÎh¨®h«Ş‹y¨NXÚnhHş‰ŞX‹xëZéîZHNZ(>KŠŞ8#Â÷6ÖÆÃãÂöÆ&VÃà¢ÆF—b6Æ74æÖSÒ'VW7F–öâÖW†×ÆW2#ãÆ†VFW#ãÇ7ãîKˆŞyú^hîj~[ÈXú>ûÈÎXúşKº^K¸î‹ùK©¾™zîš)[ÈZx³Â÷7ããÇ6ÖÆÃîx+X{¾K»¾hHşKˆXú^ûÈÎKÉ®ˆz®XªZ¾XZ^Kˆ®ik“Â÷6ÖÆÃãÂö†VFW#ãÆF—cçµTU5D”ôåôU„ÕÄU2æÖ‚†W†×ÆR’ÓâÆ'WGFöâG—SÒ&'WGFöâ"¶W“×¶W†×ÆRçFW‡GÒöä6Æ–6³×²‚’ÓâÇ•VW7F–öäW†×ÆR†W†×ÆR—ÓãÇ7ãç¶W†×ÆRçF÷–7ÓÂ÷7ããÆ#ç¶W†×ÆRçFW‡GÓÂö#ãÂö'WGFöãâ—ÓÂöF—cãÂöF—cà¢Â÷6V7F–öãà ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂ#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãî‹KÂ÷7ããÆF—cãÆƒ3î‹êŠøcÂöƒ3ãÇîKˆjÊXú®Y¹îzÙNKˆ™zî8.h‰KºÎh¨®K¨¾ZéîKˆîiÊ®yú^Xˆn[ÈûÈÎK™ş[ŠîXªKÚ‹êŠêNiÈX‰ŞXiKˆ¾y¨N™zîš)iŠşY
-nyÉşy¨N™zîX‹K¨n[ø>˜xÎ8#Â÷ãÂöF—cãÂöF—cà¢·VW7F–öâçG&–Ò‚’æÆVæwF‚ãÒbòÄwV–FVD–çF¶RVW7F–öã×·VW7F–öçÒöäf7G3×·6WDf7G7ÒöåVæ¶æ÷vç3×·6WEVæ¶æ÷vç7Òöä7F–öç3×·6WD7F–öç7Òöäö'6W'f&ÆU&W7öç6W3×·6WDö'6W'f&ÆU&W7öç6W7ÒöåVW7F–öã×·6WEVW7F–öçÒöå7G'V7GW&VC×²‡²FöÖ–ã¢æW‡DFöÖ–âÂvöÃ¢æW‡DvöÂÂ†÷&—¦öã¢æW‡D†÷&—¦öâÂ7FvS¢æW‡E7FvRÂVæ6W'F–çG“¢æW‡EVæ6W'F–çG’Â&—6µ&öf–ÆS¢æW‡E&—6µ&öf–ÆRÒ’Óâ²6WDFöÖ–â†æW‡DFöÖ–â“²6WDvöÂ†æW‡DvöÂ“²6WD†÷&—¦öâ†æW‡D†÷&—¦öâ“²6WE7FvR†æW‡E7FvR“²6WEVæ6W'F–çG’†æW‡EVæ6W'F–çG’“²–b†æW‡E&—6µ&öf–ÆR’6WE&—6µ&öf–ÆR†æW‡E&—6µ&öf–ÆR“²×Òöä6ö×ÆWFS×·6WD–çF¶T6ö×ÆWFWÒóâ¢Ç6Æ74æÖSÒ&F–ÆöwVR×&W&WV—6—FR#îXXYÊKˆ®KˆjÚ^XiKˆ¾ˆ{>[	XZŞKŠ®ZÙ~y¨NX[~KÙ>™zîš)ûÈÎ‹êŠønZûŠùŞh˜ŞKÉ®[ÈZx¾8#Â÷çĞ¢Â÷6V7F–öãà ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂçVÖ&W"×7FW#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãîXøÂ÷7ããÆF—cãÆƒ3îh‰XÚcÂöƒ3ãÇî™zŞKˆ®yËÎyÙ¾ûÈÎ{É>{É>YÎYKˆjÊûÈÎYÊ[ø>KŠŞXhŞ˜xŞZHŞKˆ˜ŞzîŠêNYîy¨N™zîš)8.XxnZH~Z[Şi{nûÈÎXhŞXzŞ[Ù>Kˆ¾h˜hIşXùnKˆKŠ®i[8#Â÷ãÂöF—cãÂöF—cà¢ÆF—b6Æ74æÖSÒ&'&VF‚×&—GVÂ"&–ÖÆ&VÃÒ.KˆjÊYÎYhùzK¢#ãÇ7ãîKˆhò+riÛî[ÈiØ.[ûSÂ÷7ããÇ7ãîK¨Îhò+rY¹îX‹h˜™zãÂ÷7ããÇ7ãîKˆhò+r[ø>Zé®Xùni[Â÷7ããÂöF—cà¢Æf–VÆG6WB6Æ74æÖSÒ&çVÖ&W'2×6Æ—#ãÆÆVvVæB6Æ74æÖSÒ'7"ÖöæÇ’#îXùnKˆKŠ®i[Ni[ÂöÆVvVæCç¶çVÖ&W'2æÖ‚‡fÇVRÂ–æFW‚’ÓâÆÆ&VÂ¶W“×¶–æFW‡ÓãÇ7ãçµ².Z;’+rKˆ®XÚb"Â.‹K+rKˆ¾XÚb"Â.Xø+rXªx‹²%Õ¶–æFW…×ÓÂ÷7ããÆ–çWB&–ÖÆ&VÃ×¶zÊÂG¶–æFW‚²ŞKŠ®i[ZÙvÒÆ6V†öÆFW#Ò#(	C““’"G—SÒ&çVÖ&W""–çWDÖöFSÒ&çVÖW&–2"Ö–ãÒ#"ÖƒÒ#““’"fÇVS×·fÇVWÒöä6†ævS×²†WfVçB’Óâ6WDçVÖ&W'2†çVÖ&W'2æÖ‚†—FVÒÂ—FVÔ–æFW‚’Óâ—FVÔ–æFW‚ÓÓÒ–æFW‚òWfVçBçF&vWBçfÇVR¢—FVÒ’—ÒóãÂöÆ&VÃâ—ÓÂöf–VÆG6WCà¢Ç6Æ74æÖSÒ&çVÖ&W"Öæ÷FR#îzÊÎKˆi[Zé®Kˆ®XÚnûÈÎzÊÎK¨Îi[Zé®Kˆ¾XÚnûÈÎzÊÎKˆi[Zé®Xªx‹¾8.zˆ¾[¨ş™¨şYîKéŞŠxNX‰hé.Zé®iÊÎXÚn8K©.XÚnKˆîXùXÚn8#Â÷à¢Â÷6V7F–öãà ¢Ç6V7F–öâ6Æ74æÖSÒ&–çV—'’×7FW–çV—'’×æVÂ67B×7FW#ãÆF—b6Æ74æÖSÒ'7FWÖ†VF–ær#ãÇ7ãîˆ(cÂ÷7ããÆF—cãÆƒ3îŠx.XÚcÂöƒ3ãÇîzîŠêN‹ëyXÎYîûÈÎzˆ¾[¨şXXxºÎz¸¾ZèÎh‰zîZé®h
-~hé.y¹ûÈÎXhŞ{¹>YKÚYÊ‹êŠønKŠŞhùKé¾y¨NxëZéîKúhşyIşh‰Šz>˜x®8#Â÷ãÂöF—cãÂöF—cà¢ÆÆ&VÂ6Æ74æÖSÒ&6²#ãÆ–çWBG—SÒ&6†V6¶&÷‚"6†V6¶VC×¶6¶æ÷vÆVFvVGÒöä6†ævS×²†WfVçB’Óâ6WD6¶æ÷vÆVFvVB†WfVçBçF&vWBæ6†V6¶VB—ÒóãÇ7ãîh‰ynŠz>ûÉ®XÚn‹hùKé¾KˆzxŞŠx.ZùşŠy.[ªnûÈÎKŠ®h
-~XÉnih~ZÙ~Xú®KÛşyJh‰XiKˆ¾y¨NK¨¾Zéî8iÊ®yú^šY(Îzˆ¾[¨şhé.X{®y¨NXÚn‹ûÉ¾Zè>KˆŞi»şKº>XË¾yi~8k9^[è¾8‹J.XªzØK‰>K‰®hHşŠx8.yIşh‰ZK‹J^KˆŞKÉ®ˆz®Xª˜xŞikyIşh‰ûÉ¾Xú®iÈh‰K‹¾XªKùŞZÙi{nûÈÎ{¹>iéÎh˜ŞKÉ®‹ù¾XZ^Šx.K¨¾{ş8#Â÷7ããÂöÆ&VÃà¢·&öw&W72bbÇ6Æ74æÖSÒ&vVæW&F–öâ×&öw&W72"&öÆSÒ'7FGW2#ç·&öw&W77ÓÂ÷çĞ¢¶W'&÷"bbÇ6Æ74æÖSÒ&W'&÷""&öÆSÒ&ÆW'B#ç¶W'&÷'ÓÂ÷çĞ¢Æ'WGFöâ6Æ74æÖSÒ&67BÖ'WGFöâ"F—6&ÆVC×¶ÆöF–æwÓãÄ&wVÖ&²óç¶ÆöF–ærò.jÚ>YÊyIşh‰Šz>Šû²"¢.Šx.XÚb'ÓÂö'WGFöãà¢¶ÆöF–ærbbÄ67F–ætÆöFW"óçĞ¢Â÷6V7F–öãà¢Âöf÷&Óà¢Â÷6V7F–öãàĞ Ğ¢·&W7öç6RbbÅ&W7VÇEf–Wr&W7öç6S×·&W7öç6WÒöäVF—C×¶VF—EVW7F–öçÒöä6ÆV#×¶6ÆV%VW7F–öçÒöå6fS×·6fTö'6W'fF–öçÒ6f–æs×·6f–æu&V6÷&GÒ6fVC×·6fVE&V6÷&D–BÓÒçVÆÇÒóçĞĞ¢Æ6–FR6Æ74æÖSÒ'fW'6–öâÖæ÷FR#îXÚn‹KˆŞiŠşš(NXXXiZ[Şy¨NXŠNŠøŞûÈÎˆÎiŠşZû[Ù>Kˆ¾{¹>ièNy¨NKˆjÊxZ~Šx8.h˜‹	>(	Îz›~X‰XùûÈÎXùX‰˜	®(	ŞûÈÎ[ø>[û^KˆîŠÎXªKˆXùûÈÎYî{ºŞiÚK»nK™şKÉ®™¨şK˜¾iKXù8.[é~š®X«şK˜¾‹ûÈÎKˆŞXúşYºjÚNXÎjÚ^ûÉ¾Šx™‹¾X©¾K˜¾‹ûÈÎK™şKˆŞ[ø^ˆz®[È>8.Šx.‹y¨NhHşK˜ûÈÎiŠşŠêh‰KºÎyÈ¾ŠxxZ~iz~X˜ŞŠÎXúşˆ;Şh«^‹ëîK˜¾ZHNûÈÎK¸îˆÎXø®izXxnZH~8KúîjÚ>KˆîŠÎXª8#Âö6–FSà¢ÂöÖ–ãàĞ¢Æfö÷FW"6Æ74æÖSÒ'6—FRÖfö÷FW"#ãÆ#îŠx.‹Âö#ãÇ7ãîKÊ{¹şih~XÉn{¹>ièNXø.ˆ2+rKº^xëZéîš¨ÎŠøi»NikXŠNijÓÂ÷7ããÆæcãÆ‡&VcÒ"öwV–FR#îZh.KÙ^KÛşyJƒÂöãÆ‡&VcÒ"ö&÷WB#îikk9^Kˆî‹ëyXÃÂöãÆ‡&VcÒ"÷&—f7’#î™©zxŠûNiˆãÂöãÂöæcãÂöfö÷FW#àĞ¢Âóã°Ğ§ĞĞ 
+    const skipped = value === "æš‚ä¸å›ç­”";
+    if (turn === 2) onFacts(skipped ? "" : value);
+    if (turn === 3) onUnknowns(skipped ? "" : value);
+    if (turn === 4) onActions(skipped || value === "å°šæœªè¡ŒåŠ¨" ? "" : value);
+    if (turn === 5) onObservableResponses(skipped || value === "å°šæ— å›åº”" ? "" : value);
+    if (turn === prompts.length - 1) {
+      const combined = `${question}\n${answers.map((item) => item.answer).join("\n")}\n${value}`;
+      const domain = inferDomain(combined);
+      const desiredGoal = inferGoal(value);
+      const allowed = GOALS_BY_DOMAIN[domain] ?? [];
+      onStructured({
+        domain,
+        goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+        horizon: horizonAnswer,
+        stage: stageAnswer,
+        uncertainty: inferUncertainty(combined),
+      });
+    }
+    setTurn((current) => current + 1);
+    setDraft("");
+  }
+
+  function reset() {
+    setTurn(0); setDraft(""); setAnswers([]); setHorizonAnswer(""); setStageAnswer("");
+    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
+    onSuggestion(null);
+    onComplete(false);
+  }
+
+  function finish() {
+    onSuggestion(null);
+    onCompletionReason("ENOUGH");
+    onComplete(true);
+    onContinue();
+  }
+
+  function finishEarly() {
+    const combined = `${question}\n${answers.map((item) => item.answer).join("\n")}`;
+    const domain = inferDomain(combined);
+    const desiredGoal = inferGoal(answers[answers.length - 1]?.answer ?? question);
+    const allowed = GOALS_BY_DOMAIN[domain] ?? [];
+    onStructured({
+      domain,
+      goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+      horizon: horizonAnswer || "CURRENT",
+      stage: stageAnswer || "EXPLORING",
+      uncertainty: inferUncertainty(combined),
+    });
+    onSuggestion(null);
+    onCompletionReason("USER_EARLY");
+    onComplete(true);
+    onContinue();
+  }
+
+  const completed = turn >= prompts.length;
+  return <div className="guided-intake">
+    {!completed && <div className="discernment-turn" aria-live="polite">
+      {previousAnswer && <div className="discernment-echo" key={`local-echo-${answers.length}`} aria-hidden="true"><span>{previousAnswer.prompt}</span><p>{previousAnswer.answer}</p></div>}
+      <div className="discernment-progress"><span>{localProgress}</span><small>åŸºç¡€æ•´ç† Â· å¯è·³è¿‡ï¼Œä¹Ÿå¯æå‰ç»“æŸ</small></div>
+      <p className="discernment-understanding">{turn === 0 ? "å…ˆæŠŠè¿™ä¸€é—®æ”¾è¿›ç°å®çš„æ—¶é—´èŒƒå›´é‡Œã€‚" : "ä¸Šä¸€é¡¹å·²ç»è®°ä¸‹ã€‚ç°åœ¨åªçœ‹çœ¼å‰è¿™ä¸€ä»¶äº‹ã€‚"}</p>
+      <div className="discernment-current" key={`local-prompt-${turn}`}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>
+    </div>}
+    {!completed && turn === 0 && <div className="dialogue-options">{Object.entries(HORIZONS).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
+    {!completed && turn === 1 && <div className="dialogue-options">{Object.entries(STAGES).map(([key, label]) => <button type="button" key={key} onClick={() => record(label)}><span>{label}</span></button>)}</div>}
+    {!completed && turn > 1 && <div className="dialogue-compose"><textarea aria-label="å›ç­”å½“å‰é—®é¢˜" value={draft} maxLength={turn === 6 ? 300 : 1200} onChange={(event) => setDraft(event.target.value)} placeholder="åªå›ç­”çœ¼å‰è¿™ä¸€é—®â€¦â€¦" /><button type="button" disabled={!draft.trim()} onClick={() => record(draft)}>ç­”å®Œè¿™ä¸€é—®</button></div>}
+    {!completed && <div className="discernment-controls"><button type="button" onClick={() => record("æš‚ä¸å›ç­”")}>è·³è¿‡è¿™ä¸€é—®</button><button type="button" onClick={finishEarly}>å·²ç»è¯´æ¸…ï¼Œæå‰ç»“æŸ</button></div>}
+    {completed && <div className="dialogue-review discernment-complete"><p className="eyebrow">åŸºç¡€æ•´ç†å®Œæˆ</p><h3>ç°å®è„‰ç»œå·²ç»åˆ†å¼€</h3><p>è¿™æ¬¡ä½¿ç”¨çš„æ˜¯åŸºç¡€å¼•å¯¼ï¼Œå› æ­¤ä¸ä¼šæå‡ºæ”¹å†™å»ºè®®ã€‚ä¸‹ä¸€é¡µä»ç”±ä½ äº²è‡ªå®šä¸‹æœ€åè¿™ä¸€é—®ã€‚</p><div className="dialogue-review-actions"><button type="button" onClick={finish}>ç»§ç»­å®šé—®</button><button type="button" className="text-button" onClick={reset}>é‡æ–°è¾¨è¯†</button></div></div>}
+    <p className="guided-boundary">è¾¨è¯†åªæ•´ç†ä½ ä¸»åŠ¨æä¾›çš„å†…å®¹ï¼Œä¸ä¼šæ›¿ä½ è¡¥å†™äº‹å®ï¼Œä¹Ÿä¸å‚ä¸åé¢çš„ç¡®å®šæ€§æ’ç›˜ã€‚</p>
+  </div>;
+}
+
+function GuidedIntake(props: GuidedIntakeProps) {
+  const { question, onFacts, onUnknowns, onActions, onObservableResponses, onSuggestion, onStructured, onCompletionReason, onComplete, onContinue } = props;
+  const [mode, setMode] = useState<"ASKING" | "REVIEW" | "FALLBACK" | "STOPPED">("ASKING");
+  const [sessionId] = useState(() => `intake-${crypto.randomUUID()}`);
+  const [turns, setTurns] = useState<IntakeAnswer[]>([]);
+  const [currentPrompt, setCurrentPrompt] = useState(FIRST_DISCERNMENT_QUESTION);
+  const [assistantMessage, setAssistantMessage] = useState("å…ˆä»çœ¼å‰çš„è¿›å±•å¼€å§‹ï¼Œä¸å¿…ä¸€æ¬¡è¯´å®Œæ‰€æœ‰ç»†èŠ‚ã€‚");
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [review, setReview] = useState<GuidedIntakeApiResponse | null>(null);
+  const [reviewReason, setReviewReason] = useState<"ENOUGH" | "MAX_TURNS">("ENOUGH");
+  const [pendingTurns, setPendingTurns] = useState<IntakeAnswer[] | null>(null);
+
+  async function requestTurn(nextTurns: IntakeAnswer[], id: string) {
+    setBusy(true); setError(""); setPendingTurns(nextTurns);
+    try {
+      const response = await fetch("/api/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contract_version: "SITES_GUIDED_INTAKE_CONTRACT_V1",
+          session_id: id,
+          question_text: question.trim(),
+          turns: nextTurns.map((item) => ({ question: item.prompt, answer: item.answer })),
+          locale: "zh-CN",
+        }),
+      });
+      const payload = await response.json() as GuidedIntakeApiResponse;
+      if (!response.ok || !payload.status) throw new Error(payload.error || "è¾¨è¯†æœåŠ¡æš‚æ—¶ä¸å¯ç”¨");
+      setPendingTurns(null);
+      setAssistantMessage(payload.assistant_message);
+      if (payload.status === "COMPLETE") {
+        setReview(payload); setReviewReason("ENOUGH"); setCurrentPrompt(""); setMode("REVIEW");
+      } else if (nextTurns.length >= 8) {
+        setReview(payload); setReviewReason("MAX_TURNS"); setCurrentPrompt(""); setMode("REVIEW");
+      } else {
+        setCurrentPrompt(payload.next_question ?? "è¯·å†è¯´æ¸…ä¸€é¡¹ä½ å°šæœªç¡®è®¤çš„éƒ¨åˆ†ã€‚"); setMode("ASKING");
+      }
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "è¾¨è¯†æœåŠ¡æš‚æ—¶ä¸å¯ç”¨");
+      setMode("ASKING");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function answerWithValue(rawValue: string) {
+    const value = rawValue.trim();
+    if (!value || !currentPrompt || !sessionId) return;
+    const nextTurns = [...turns, { prompt: currentPrompt, answer: value }];
+    setTurns(nextTurns); setDraft(""); setCurrentPrompt("");
+    await requestTurn(nextTurns, sessionId);
+  }
+
+  async function answer() {
+    await answerWithValue(draft);
+  }
+
+  async function retryTurn() {
+    if (!pendingTurns || !sessionId || busy) return;
+    await requestTurn(pendingTurns, sessionId);
+  }
+
+  function finishWithoutSuggestion() {
+    const combined = `${question}\n${turns.map((item) => item.answer).join("\n")}`;
+    const domain = inferDomain(combined);
+    const desiredGoal = inferGoal(turns[turns.length - 1]?.answer ?? question);
+    const allowed = GOALS_BY_DOMAIN[domain] ?? [];
+    onStructured({
+      domain,
+      goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+      horizon: "CURRENT",
+      stage: "EXPLORING",
+      uncertainty: inferUncertainty(combined),
+    });
+    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
+    onSuggestion(null);
+    onCompletionReason("USER_EARLY");
+    onComplete(true);
+    onContinue();
+  }
+
+  function completeDiscernment() {
+    if (!review) return;
+    onFacts(review.confirmed_facts.join("\n"));
+    onUnknowns(review.unknowns.join("\n"));
+    onActions(review.actions_already_taken.join("\n"));
+    onObservableResponses(review.observable_responses.join("\n"));
+    onSuggestion({ question: review.suggested_question, reason: review.question_change_reason });
+    onStructured({
+      domain: review.structured_intake.question_domain,
+      goal: review.structured_intake.decision_goal,
+      horizon: review.structured_intake.time_horizon,
+      stage: review.structured_intake.decision_stage,
+      uncertainty: review.structured_intake.key_uncertainty,
+      riskProfile: review.structured_intake.decision_risk_profile,
+    });
+    onCompletionReason(reviewReason);
+    onComplete(true);
+    onContinue();
+  }
+
+  if (mode === "FALLBACK") return <LocalGuidedIntake {...props} />;
+
+  const previousTurn = turns[turns.length - 1];
+  return <div className="guided-intake ai-guided-intake">
+    {mode === "ASKING" && <div className="discernment-turn" aria-live="polite">
+      {previousTurn && <div className="discernment-echo" key={`ai-echo-${turns.length}`} aria-hidden="true"><span>{previousTurn.prompt}</span><p>{previousTurn.answer}</p></div>}
+      <div className="discernment-chrysanthemum-progress" role="img" aria-label={`è¿˜å‰© ${Math.max(0, 8 - turns.length)} æœµèŠèŠ±`}>
+        {Array.from({ length: Math.max(0, 8 - turns.length) }, (_, index) => <span key={`chrysanthemum-${index}`} aria-hidden="true"><ChrysanthemumMark /></span>)}
+      </div>
+      {!busy && !error && <p className="discernment-understanding">{assistantMessage}</p>}
+      {currentPrompt && !busy && !error && <div className="discernment-current" key={currentPrompt}><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{currentPrompt}</p></div>}
+      {busy && <div className="discernment-working" role="status"><span>æ‚¨çš„å›ç­”å·²è¢«è®°å½•ï¼Œè¯·ç»§ç»­ã€‚</span><span className="discernment-mist-scroll" aria-hidden="true"><img src="/discernment-mist-scroll-v1.png" alt="" /></span></div>}
+      {error && <div className="discernment-recovery" role="alert"><span>å‰ {turns.length} ä¸ªå›ç­”éƒ½è¿˜åœ¨</span><p>{error.replace(/[ã€‚ï¼ï¼Ÿ]+$/, "")}ã€‚ä¸éœ€è¦ä»å¤´å†ç­”ï¼Œåªè¦ä»è¿™é‡Œç»§ç»­ã€‚</p><div><button type="button" disabled={busy} onClick={retryTurn}>ç»§ç»­è¿™ä¸€è½®</button><button type="button" className="text-button" onClick={() => setMode("FALLBACK")}>æ”¹ç”¨åŸºç¡€å¼•å¯¼</button></div></div>}
+    </div>}
+    {mode === "ASKING" && !error && <div className="dialogue-compose"><textarea aria-label="å›ç­”å½“å‰é—®é¢˜" value={draft} maxLength={1200} disabled={busy || !currentPrompt} onChange={(event) => setDraft(event.target.value)} placeholder="åªå›ç­”çœ¼å‰è¿™ä¸€é—®â€¦â€¦" /><button type="button" disabled={busy || !draft.trim() || !currentPrompt} onClick={answer}>{busy ? "å›ç­”å·²è®°ä¸‹" : "ç­”å®Œè¿™ä¸€é—®"}</button></div>}
+    {mode === "ASKING" && !error && <div className="discernment-controls"><button type="button" disabled={busy || !currentPrompt} onClick={() => answerWithValue("æš‚ä¸å›ç­”")}>è·³è¿‡è¿™ä¸€é—®</button><button type="button" disabled={busy} onClick={() => setMode("STOPPED")}>å·²ç»è¯´æ¸…ï¼Œæå‰ç»“æŸ</button></div>}
+    {mode === "REVIEW" && review && <div className="dialogue-review discernment-complete"><p className="eyebrow">è¾¨è¯†å·²ç»è¶³å¤Ÿ</p><h3>ç°åœ¨ï¼Œå¯ä»¥å®šä¸‹çœŸæ­£è¦é—®çš„äº‹</h3><p>æˆ‘å·²ç»æ•´ç†å¥½è¿™æ¬¡å¯¹è¯ã€‚ä¸‹ä¸€é¡µåªä¼šåœ¨ç¡®æœ‰å¿…è¦æ—¶æå‡ºä¸€ä¸ªæ›´èšç„¦çš„é—®æ³•ï¼Œæ˜¯å¦é‡‡ç”¨ä»ç”±ä½ å†³å®šã€‚</p><div className="dialogue-review-actions"><button type="button" onClick={completeDiscernment}>ç»“æŸè¾¨è¯†ï¼Œç»§ç»­å®šé—®</button></div></div>}
+    {mode === "STOPPED" && <div className="dialogue-review discernment-complete discernment-classic"><p className="eyebrow">ã€Šå‘¨æ˜“Â·ç³»è¾ä¸‹ã€‹</p><blockquote>ç©·åˆ™å˜ï¼Œå˜åˆ™é€šï¼Œé€šåˆ™ä¹…ã€‚</blockquote><div className="dialogue-review-actions"><button type="button" onClick={finishWithoutSuggestion}>ç»§ç»­å®šé—®</button></div></div>}
+    <p className="guided-boundary">è¾¨è¯†åªæ•´ç†ä½ ä¸»åŠ¨æä¾›çš„å†…å®¹ï¼Œä¸ä¼šæ›¿ä½ è¡¥å†™äº‹å®ï¼Œä¹Ÿä¸å‚ä¸åé¢çš„ç¡®å®šæ€§æ’ç›˜ã€‚</p>
+  </div>;
+}
+
+type FinalQuestionProps = {
+  hidden: boolean;
+  originalQuestion: string;
+  suggestedQuestion: string;
+  earlyExit: boolean;
+  decisionMade: boolean;
+  confirmed: boolean;
+  onChooseOriginal: () => void;
+  onChooseSuggestion: () => void;
+  onConfirm: () => void;
+};
+
+function normalizedQuestion(value: string): string {
+  return value.replace(/[\sï¼Œã€‚ï¼ï¼Ÿã€,.!?ï¼›;ï¼š:]/g, "").toLocaleLowerCase("zh-CN");
+}
+
+function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit, decisionMade, confirmed, onChooseOriginal, onChooseSuggestion, onConfirm }: FinalQuestionProps) {
+  const hasSuggestion = suggestedQuestion.trim().length >= 6;
+  const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
+  const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
+  return <section id="final-question" className="inquiry-step inquiry-panel final-question-step viewport-page flow-lock-screen" hidden={hidden} aria-labelledby="final-question-title">
+    <div className="final-question-backdrop" aria-hidden="true">
+      <span className="final-question-sky-drift" />
+      <span className="final-question-bird" />
+    </div>
+    <VerticalBrand />
+    <div className="final-question-heading flow-title-heading">
+      <p className="eyebrow">è§‚è±¡ä¹‹æ³• Â· å</p>
+      <h3 id="final-question-title" tabIndex={-1}>å®šé—®</h3>
+      <p>ç†æ¸…è„‰ç»œä¹‹å<br />ç¡®è®¤æœ€ç»ˆé—®é¢˜</p>
+    </div>
+
+    <div className="final-question-workspace">
+      {suggestionChangesQuestion && !decisionMade && <div className="question-change-proposal">
+        <p>é€šè¿‡è·Ÿä½ çš„æ²Ÿé€šï¼Œæˆ‘å»ºè®®ä½ åœ¨åœå¦ä¹‹å‰ï¼ŒæŠŠé—®é¢˜æ›´æ¢ä¸ºï¼š</p>
+        <blockquote>{suggestedQuestion}</blockquote>
+        <p>ä¼šæ›´èƒ½ç»™åˆ°ä½ åˆ‡å®çš„å»ºè®®ã€‚ä½ æ„¿æ„æ›´æ¢å—ï¼Ÿ</p>
+        <div><button type="button" onClick={onChooseSuggestion}>é‡‡å–å»ºè®®</button><button type="button" className="text-button" onClick={onChooseOriginal}>ä¿æŒåŸé¢˜</button></div>
+      </div>}
+
+      {ready && <div className="final-question-ready" role="status" aria-live="polite">
+        <p>{earlyExit ? "æˆ‘æ„Ÿå—åˆ°ä½ æƒ³å°½å¿«è¿›å…¥å–æ•°åœå¦çš„ç¯èŠ‚ã€‚" : `${decisionMade ? "é‚£ç°åœ¨" : "ç°åœ¨"}å·²ç»æ›´æ¸…æ™°ä½ çš„ç°çŠ¶ï¼Œæˆ‘ä»¬å‡†å¤‡å¼€å§‹å–æ•°åœå¦äº†ã€‚`}</p>
+        <strong className="final-question-breathing"><span>è¯·åœ¨å¿ƒä¸­å†æ¬¡é»˜å¿µä½ çš„é—®é¢˜</span><span>æ·±å‘¼å¸</span></strong>
+      </div>}
+
+      {ready && <div className="final-question-readiness">
+        <button type="button" className="method-cta final-question-cta" aria-pressed={confirmed} onClick={onConfirm}><BaguaMark className="final-question-bagua" /><span className="method-cta-label">{confirmed ? "å·²ç»å¼€å§‹" : "å¼€å§‹åœå¦"}</span></button>
+      </div>}
+    </div>
+  </section>;
+}
+
+function JournalEntry({ record, onOpen, onUpdate, onDelete }: {
+  record: JournalRecord;
+  onOpen: (record: JournalRecord) => void;
+  onUpdate: (id: string, draft: JournalDraft) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<JournalDraft>({ action_text: record.action_text, review_on: record.review_on, reality_text: record.reality_text, learning_text: record.learning_text, status: record.status });
+  const [busy, setBusy] = useState(false);
+  const due = record.review_on && record.status === "OPEN" && record.review_on <= new Date().toISOString().slice(0, 10);
+  async function saveReview() {
+    setBusy(true);
+    await onUpdate(record.id, { ...draft, status: draft.reality_text.trim() || draft.learning_text.trim() ? "REVIEWED" : "OPEN" });
+    setBusy(false);
+  }
+  return <details className="journal-entry">
+    <summary>
+      <div><span>{record.status === "REVIEWED" ? "å·²å¤ç›˜" : due ? "å¾…å¤ç›˜" : "è§‚å¯Ÿä¸­"}</span><h3>{record.question}</h3><small>{formatDate(record.created_at)} Â· {record.result.base_hexagram.name} â†’ {record.result.changed_hexagram.name}</small></div>
+      <b>{record.result.base_hexagram.symbol}</b>
+    </summary>
+    <div className="journal-entry-body">
+      <button type="button" className="text-button" onClick={() => onOpen(record)}>é‡æ–°æ‰“å¼€å®Œæ•´ç»“æœ</button>
+      <label><span>å½“æ—¶å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨</span><textarea value={draft.action_text} maxLength={500} onChange={(event) => setDraft({ ...draft, action_text: event.target.value })} /></label>
+      <label><span>è®¡åˆ’å›çœ‹æ—¥æœŸ</span><input type="date" value={draft.review_on ?? ""} onChange={(event) => setDraft({ ...draft, review_on: event.target.value || null })} /></label>
+      <label><span>åæ¥å®é™…å‘ç”Ÿäº†ä»€ä¹ˆ</span><textarea value={draft.reality_text} maxLength={2000} placeholder="åªå†™äº‹å®ï¼šè°åšäº†ä»€ä¹ˆã€æ¡ä»¶å‘ç”Ÿäº†ä»€ä¹ˆå˜åŒ–ã€‚" onChange={(event) => setDraft({ ...draft, reality_text: event.target.value })} /></label>
+      <label><span>è¿™æ¬¡ç»å†ä¿®æ­£äº†ä»€ä¹ˆè®¤è¯†</span><textarea value={draft.learning_text} maxLength={2000} placeholder="å“ªäº›åˆ¤æ–­å¾—åˆ°éªŒè¯ï¼Œå“ªäº›æ²¡æœ‰ï¼›ä¸‹ä¸€æ¬¡ä¼šæ€æ ·è°ƒæ•´ã€‚" onChange={(event) => setDraft({ ...draft, learning_text: event.target.value })} /></label>
+      <div className="journal-actions"><button type="button" disabled={busy} onClick={saveReview}>{busy ? "æ­£åœ¨ä¿å­˜" : "ä¿å­˜å¤ç›˜"}</button><button type="button" className="danger-link" onClick={() => onDelete(record.id)}>æ°¸ä¹…åˆ é™¤</button></div>
+    </div>
+  </details>;
+}
+
+export function JournalSection({ records, loading, message, hasUnsavedResult, onOpen, onUpdate, onDelete, onExport, onSaveCurrent }: {
+  records: JournalRecord[];
+  loading: boolean;
+  message: string;
+  hasUnsavedResult: boolean;
+  onOpen: (record: JournalRecord) => void;
+  onUpdate: (id: string, draft: JournalDraft) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onExport: () => void;
+  onSaveCurrent: () => void;
+}) {
+  const openCount = records.filter((record) => record.status === "OPEN").length;
+  return <section id="journal" className="journal scroll-section" data-reveal>
+    <VerticalBrand />
+    <header className="section-heading"><p className="eyebrow">äº‹åå†çœ‹ï¼Œæ‰çŸ¥æ‰€è§æ˜¯å¦å‡†ç¡®</p><h2>è§‚äº‹ç°¿</h2><p>æŠŠä¸€æ¬¡è§‚è±¡ç•™åˆ°ç°å®ä¸­ç»§ç»­ã€‚è®°å½•é‡‡å–äº†ä»€ä¹ˆè¡ŒåŠ¨ã€åæ¥å‘ç”Ÿäº†ä»€ä¹ˆï¼Œå†ç”¨æ–°è¯æ®ä¿®æ­£åˆ¤æ–­ã€‚</p></header>
+    <div className="journal-intro"><p><b>{records.length}</b> æ¬¡è®°å½•</p><p><b>{openCount}</b> æ¬¡ç­‰å¾…å¤ç›˜</p><button type="button" className="text-button" disabled={!records.length} onClick={onExport}>å¯¼å‡ºå…¨éƒ¨è®°å½•</button></div>
+    <p className="journal-privacy">è®°å½•ä¸å½“å‰æµè§ˆå™¨ä¸­çš„éšæœºå‡­æ®ç›¸è¿ï¼Œä¸è¦æ±‚å§“åæˆ–è´¦å·ã€‚æ¢è®¾å¤‡å‰è¯·å…ˆå¯¼å‡ºï¼›ä½ ä¹Ÿå¯ä»¥éšæ—¶é€æ¡åˆ é™¤ã€‚</p>
+    {hasUnsavedResult && <div className="journal-current-prompt"><p>åˆšæ‰è¿™æ¬¡è§£è¯»è¿˜æ²¡æœ‰ä¿å­˜ã€‚å¦‚æœä½ å¸Œæœ›ä»¥åå›æ¥çœ‹çœ‹äº‹æƒ…å®é™…æ€æ ·å‘å±•ï¼Œå¯ä»¥å…ˆå†™ä¸‹å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨ï¼Œå†å­˜å…¥è§‚äº‹ç°¿ã€‚</p><button type="button" className="text-button" onClick={onSaveCurrent}>å»ä¿å­˜åˆšæ‰è¿™æ¬¡è§‚è±¡</button></div>}
+    {loading ? <p className="journal-empty">æ­£åœ¨æ‰“å¼€è§‚äº‹ç°¿â€¦â€¦</p> : records.length ? <div className="journal-list">{records.map((record) => <JournalEntry key={record.id} record={record} onOpen={onOpen} onUpdate={onUpdate} onDelete={onDelete} />)}</div> : <div className="journal-empty"><BaguaMark /><div><p>è¿™é‡Œè¿˜æ²¡æœ‰è®°å½•ã€‚æ¯æ¬¡è§£è¯»ç»“æŸåï¼Œä½ éƒ½å¯ä»¥å†™ä¸‹å‡†å¤‡æ€ä¹ˆåšå¹¶ä¿å­˜ï¼›è¿‡ä¸€æ®µæ—¶é—´å†å›æ¥è®°å½•çœŸå®ç»“æœã€‚</p>{hasUnsavedResult && <button type="button" className="text-button" onClick={onSaveCurrent}>ä¿å­˜åˆšæ‰è¿™æ¬¡è§‚è±¡</button>}</div></div>}
+    {message && <p className="journal-message" role="status">{message}</p>}
+  </section>;
+}
+
+type KoiMotion = {
+  x: number;
+  y: number;
+  heading: number;
+  speed: number;
+  baseSpeed: number;
+  turnRate: number;
+  targetX: number;
+  targetY: number;
+  retargetAt: number;
+  phase: number;
+  phaseRate: number;
+  scale: number;
+  alpha: number;
+};
+
+function ResultKoiPond() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    let frame = 0;
+    let lastTime = performance.now();
+    let visible = true;
+    let width = 1;
+    let height = 1;
+    let redraw: (() => void) | null = null;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = src;
+    });
+
+    const randomTarget = (motion: KoiMotion, now: number) => {
+      const marginX = Math.max(70, width * .08);
+      const marginY = Math.max(60, height * .1);
+      motion.targetX = marginX + Math.random() * Math.max(1, width - marginX * 2);
+      motion.targetY = marginY + Math.random() * Math.max(1, height - marginY * 2);
+      motion.retargetAt = now + 5200 + Math.random() * 6200;
+    };
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      const deviceScale = Math.min(window.devicePixelRatio || 1, 1.75);
+      canvas.width = Math.round(width * deviceScale);
+      canvas.height = Math.round(height * deviceScale);
+      context.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+      redraw?.();
+    };
+
+    const normalizeAngle = (angle: number) => {
+      let value = angle;
+      while (value > Math.PI) value -= Math.PI * 2;
+      while (value < -Math.PI) value += Math.PI * 2;
+      return value;
+    };
+
+    const drawKoi = (image: HTMLImageElement, motion: KoiMotion) => {
+      const compact = width < 760;
+      const drawWidth = (compact ? Math.min(138, width * .37) : Math.min(258, width * .15)) * motion.scale;
+      const drawHeight = drawWidth * image.height / image.width;
+      const slices = compact ? 36 : 52;
+      const destinationSlice = drawWidth / slices;
+      const tailAmplitude = drawWidth * (compact ? .052 : .045);
+      const breath = 1 + Math.sin(motion.phase * .45) * .012;
+
+      context.save();
+      context.translate(motion.x, motion.y);
+      context.rotate(motion.heading + Math.sin(motion.phase * .34) * .018);
+      context.scale(breath, 1 / breath);
+      context.globalAlpha = motion.alpha;
+
+      for (let index = 0; index < slices; index += 1) {
+        const progress = (index + .5) / slices;
+        const tailWeight = .14 + Math.pow(1 - progress, 1.75) * .86;
+        const wave = Math.sin(motion.phase - progress * 5.2);
+        const localY = wave * tailAmplitude * tailWeight;
+        const nextProgress = Math.min(1, progress + 1 / slices);
+        const nextTailWeight = .14 + Math.pow(1 - nextProgress, 1.75) * .86;
+        const nextY = Math.sin(motion.phase - nextProgress * 5.2) * tailAmplitude * nextTailWeight;
+        const localAngle = Math.atan2(nextY - localY, destinationSlice) * .72;
+        const localX = -drawWidth / 2 + (index + .5) * drawWidth / slices;
+        const clipX = -drawWidth / 2 + index * destinationSlice;
+
+        context.save();
+        context.beginPath();
+        context.rect(clipX - .08, -drawHeight * 1.35, destinationSlice + .16, drawHeight * 2.7);
+        context.clip();
+        context.translate(localX, localY);
+        context.rotate(localAngle);
+        context.translate(-localX, 0);
+        context.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+        context.restore();
+      }
+      context.restore();
+    };
+
+    const updateMotion = (motion: KoiMotion, now: number, delta: number) => {
+      const distance = Math.hypot(motion.targetX - motion.x, motion.targetY - motion.y);
+      const edge = Math.max(42, Math.min(width, height) * .055);
+      const nearEdge = motion.x < edge || motion.x > width - edge || motion.y < edge || motion.y > height - edge;
+      if (now >= motion.retargetAt || distance < Math.max(70, width * .055) || nearEdge) randomTarget(motion, now);
+
+      const desiredHeading = Math.atan2(motion.targetY - motion.y, motion.targetX - motion.x);
+      const headingDelta = normalizeAngle(desiredHeading - motion.heading);
+      const turn = Math.max(-motion.turnRate * delta, Math.min(motion.turnRate * delta, headingDelta));
+      motion.heading += turn;
+      const glide = motion.baseSpeed * (.9 + Math.sin(motion.phase * .24) * .1);
+      motion.speed += (glide - motion.speed) * Math.min(1, delta * .55);
+      motion.x += Math.cos(motion.heading) * motion.speed * delta;
+      motion.y += Math.sin(motion.heading) * motion.speed * delta;
+      motion.phase += motion.phaseRate * delta;
+    };
+
+    resize();
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvas);
+    const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "12%" });
+    visibilityObserver.observe(canvas);
+
+    let disposed = false;
+    Promise.all([
+      loadImage("/page7-koi-cinnabar-v1.png"),
+      loadImage("/page7-koi-ink-v1.png"),
+    ]).then(([cinnabarKoi, inkKoi]) => {
+      if (disposed) return;
+      const now = performance.now();
+      const motions: KoiMotion[] = [
+        { x: width * .23, y: height * .78, heading: -.12, speed: 24, baseSpeed: 27, turnRate: .33, targetX: width * .7, targetY: height * .62, retargetAt: now + 4300, phase: .8, phaseRate: 3.35, scale: 1, alpha: .64 },
+        { x: width * .78, y: height * .24, heading: Math.PI + .1, speed: 21, baseSpeed: 24, turnRate: .29, targetX: width * .34, targetY: height * .35, retargetAt: now + 6600, phase: 3.7, phaseRate: 3.05, scale: .88, alpha: .57 },
+      ];
+
+      redraw = () => {
+        context.clearRect(0, 0, width, height);
+        drawKoi(cinnabarKoi, motions[0]);
+        drawKoi(inkKoi, motions[1]);
+      };
+
+      const draw = (time: number) => {
+        if (disposed) return;
+        const delta = Math.min(.04, Math.max(0, (time - lastTime) / 1000));
+        lastTime = time;
+        if (visible && !document.hidden) {
+          if (!reducedMotion.matches) motions.forEach((motion) => updateMotion(motion, time, delta));
+          redraw?.();
+        }
+        if (!reducedMotion.matches) frame = window.requestAnimationFrame(draw);
+      };
+
+      if (reducedMotion.matches) {
+        motions[0].x = width * .2;
+        motions[0].y = height * .78;
+        motions[0].heading = -.1;
+        motions[1].x = width * .8;
+        motions[1].y = height * .25;
+        motions[1].heading = Math.PI - .12;
+        draw(now);
+      } else {
+        frame = window.requestAnimationFrame(draw);
+      }
+    }).catch(() => context.clearRect(0, 0, width, height));
+
+    return () => {
+      disposed = true;
+      redraw = null;
+      window.cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      visibilityObserver.disconnect();
+    };
+  }, []);
+
+  return <div className="result-koi-layer" aria-hidden="true"><canvas ref={canvasRef} className="result-koi-pond" /></div>;
+}
+
+function BrushHexagram({ hexagram }: { hexagram: Hexagram }) {
+  const bottomUp = KING_WEN_LINES_BOTTOM_UP[hexagram.king_wen_number - 1] ?? KING_WEN_LINES_BOTTOM_UP[0];
+  const topDown = [...bottomUp].reverse();
+  return <div className="brush-hexagram" role="img" aria-label={`${hexagram.name}å¦è±¡`}>
+    {topDown.map((line, index) => <span key={`${hexagram.king_wen_number}-${index}`} className={`brush-yao ${line === "1" ? "is-yang" : "is-yin"}`} aria-hidden="true">
+      {line === "1"
+        ? <img src="/page7-yao-brush-v1.png" alt="" />
+        : <><img src="/page7-yao-brush-short-v1.png" alt="" /><img src="/page7-yao-brush-short-v1.png" alt="" /></>}
+    </span>)}
+  </div>;
+}
+
+function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
+  const result = response.deterministic_result;
+  const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
+  const [action, setAction] = useState(`æˆ‘å‡†å¤‡è¿™æ ·åšï¼š${initialAction}`);
+  const [reviewOn, setReviewOn] = useState(defaultReviewDate());
+  const [readingStarted, setReadingStarted] = useState(false);
+  if (!result) return null;
+  const report = result.clarity_report;
+  const cultural = result.cultural_reading;
+  const personalized = response.personalized_reading ?? result.personalized_reading;
+  const sectionVisibility = resultSectionVisibility(Boolean(personalized));
+  const questionResponses = personalized?.question_responses ?? [];
+  const question = response.user_question ?? "ä½ æ‰€é—®ä¹‹äº‹";
+  const primaryJudgment = personalized?.core_judgment ?? report.answer;
+  const primaryAction = personalized?.action ?? report.next_action;
+  const baseClassic = cultural?.hexagrams[0];
+  const upperPath = cultural?.number_path[0];
+  const lowerPath = cultural?.number_path[1];
+  const movingTerm = cultural?.terms.find((term) => term.title.startsWith("åŠ¨çˆ»"));
+  const counsel = cultural?.classic_counsel ?? {
+    quote: "ç©·åˆ™å˜ï¼Œå˜åˆ™é€šï¼Œé€šåˆ™ä¹…ã€‚",
+    source: "ã€Šå‘¨æ˜“Â·ç³»è¾ä¸‹ã€‹",
+  };
+
+  function openDetailedReading() {
+    setReadingStarted(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("why-reading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.querySelector<HTMLElement>("#why-reading h2")?.focus({ preventScroll: true });
+    }));
+  }
+
+  return <section id="result" className="result-shell flow-lock-screen" aria-labelledby="result-title">
+    <section className="result-overview scroll-section viewport-page" data-reveal>
+      <ResultKoiPond />
+      <div className="result-verdict">
+        <BrushHexagram hexagram={result.base_hexagram} />
+      </div>
+      <div className="result-summary">
+        <span className="result-number">ç¬¬ {result.base_hexagram.king_wen_number} å¦</span>
+        <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
+        {baseClassic && <blockquote className="result-canonical"><b>å¦è¾</b><span>{baseClassic.canonical_text}</span></blockquote>}
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled="true" disabled>ç¬¬å…«é¡µå¾…éªŒæ”¶åå¼€æ”¾</button>
+      </div>
+    </section>
+
+    <div id="result-reading" hidden={!readingStarted}>
+    <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
+      <VerticalBrand />
+      <header className="section-heading"><p className="eyebrow">ç¬¬ä¸€ç«  Â· è¯»å¦</p><h2 tabIndex={-1}>æœ¬å¦ã€äº’å¦ä¸å˜å¦</h2><p>æœ¬å¦çœ‹çœ¼ä¸‹çš„ä¸»è¦å±€é¢ï¼Œäº’å¦çœ‹å†…éƒ¨æ€æ ·å‘å±•ï¼Œå˜å¦çœ‹å˜åŒ–ä¹‹åé‡ç‚¹è½¬å‘å“ªé‡Œã€‚å…ˆæŠŠä¸‰è€…é€ä¸€çœ‹æ¸…ï¼Œå†è°ˆè¿™ä»¶äº‹åº”å½“å¦‚ä½•åˆ¤æ–­ã€‚</p></header>
+      {cultural ? <div className="canonical-grid">{cultural.hexagrams.map((item) => <article key={item.role} className="canonical-card">
+        <header><span>{item.role}</span><strong>{item.symbol}</strong><div><small>ç¬¬ {item.king_wen_number} å¦</small><h3>{item.name}</h3></div></header>
+        <p className="reading-role">{item.reading_role}</p>
+        <blockquote><b>ã€Šæ˜“ã€‹æ›°</b>{item.canonical_text}</blockquote>
+        <p className="plain-note">{item.plain_note}</p>
+      </article>)}</div> : <p className="compatibility-note">ç»å…¸åŸæ–‡æ­£åœ¨éšæ’ç›˜å¼•æ“åŒæ­¥ï¼Œè¯·ç¨åé‡æ–°è§‚å¦ã€‚</p>}
+    </section>
+
+    <section id="deep-reading" className="evidence-scroll layered-reading scroll-section" data-reveal>
+      <VerticalBrand />
+      <header className="section-heading"><p className="eyebrow">ç¬¬äºŒç«  Â· å¯Ÿå˜</p><h2>å¦ä»ä½•æ¥ï¼Œå˜åŒ–è½åœ¨å“ªé‡Œ</h2><p>è¿™ä¸€ç« è§£é‡Šä¸‰æ•°æ€æ ·æˆå¦ã€åŠ¨çˆ»æ€æ ·å¸¦æ¥å˜åŒ–ï¼Œä»¥åŠä½“ç”¨å’Œæ—ºè¡°æ€æ ·å¸®åŠ©æˆ‘ä»¬åˆ¤æ–­å½“ä¸‹èƒ½å¦æ‰¿æ¥ã€‚</p></header>
+      <details className="reading-disclosure"><summary><span>ä¸‰æ•°å¦‚ä½•æˆå¦</span><small>ç¬¬ä¸€æ•°å®šä¸Šå¦ Â· ç¬¬äºŒæ•°å®šä¸‹å¦ Â· ç¬¬ä¸‰æ•°å®šåŠ¨çˆ»</small></summary>{cultural && <><div className="concept-explainer"><h3>å…ˆåˆ†æ¸…ä¸‰ä¸ªå®¹æ˜“æ··åœ¨ä¸€èµ·çš„æ¦‚å¿µ</h3><p><b>ä¸Šå¦å’Œä¸‹å¦</b>éƒ½æ˜¯ç”±ä¸‰æ¡çˆ»ç»„æˆçš„â€œå…«ç»å¦â€ï¼Œä¾‹å¦‚â€œç¦»â€ã€‚ä¸Šä¸‹ä¸¤ä¸ªä¸‰çˆ»å¦å åœ¨ä¸€èµ·ï¼Œæ‰ç»„æˆä¸€ä¸ªå…­çˆ»çš„<b>æœ¬å¦</b>ï¼Œä¾‹å¦‚â€œç¦»ä¸ºç«â€ã€‚æ‰€ä»¥â€œç¦»â€ä¸â€œç¦»ä¸ºç«â€ä¸æ˜¯åŒä¸€ä¸ªå±‚çº§ï¼šå‰è€…æ˜¯ç»„æˆéƒ¨åˆ†ï¼Œåè€…æ˜¯å®Œæ•´å¦è±¡ã€‚</p><p>æœ¬æ¬¡ä¸Šå¦ä¸º<b>{upperPath?.result_name}</b>ï¼Œä¸‹å¦ä¸º<b>{lowerPath?.result_name}</b>ï¼Œä¸¤è€…ç›¸å å¾—åˆ°æœ¬å¦<b>{result.base_hexagram.name}</b>ï¼›ç¬¬ä¸‰ä¸ªæ•°å­—å†ç¡®å®šå…¶ä¸­å“ªä¸€æ¡çˆ»å‘ç”Ÿå˜åŒ–ã€‚</p></div><div className="number-path">{cultural.number_path.map((item, index) => <article key={item.role}><span>{["å£¹", "è´°", "å"][index]}</span><b>{item.input_number}</b><i aria-hidden="true">â†’</i><strong>{item.role} Â· {item.result_name}</strong><small>{item.explanation}</small></article>)}</div></>}</details>
+      <details className="reading-disclosure"><summary><span>æœ¬å¦ã€äº’å¦ä¸å˜å¦</span><small>çœ¼ä¸‹çš„å±€é¢ Â· å†…éƒ¨çš„å‘å±• Â· å˜åŒ–åçš„æ–¹å‘</small></summary><div className="concept-explainer"><h3>ä¸‰ä¸ªå¦å„è‡ªçœ‹ä»€ä¹ˆ</h3><p><b>æœ¬å¦</b>çœ‹çœ¼ä¸‹æœ€ä¸»è¦çš„å±€é¢ï¼›<b>äº’å¦</b>ä»æœ¬å¦ä¸­é—´å››çˆ»é‡æ–°ç»„åˆï¼Œå¸®åŠ©çœ‹äº‹æƒ…å†…éƒ¨æ€æ ·å‘å±•ï¼›<b>å˜å¦</b>ç”±åŠ¨çˆ»å˜åŒ–åå½¢æˆï¼Œå¸®åŠ©çœ‹å±€é¢æ”¹å˜åä¼šæŠŠé‡ç‚¹å¸¦å‘å“ªé‡Œã€‚</p></div><div className="hexagram-route">{[{ label: "æœ¬å¦", value: result.base_hexagram, note: cultural?.hexagrams[0]?.reading_role }, { label: "äº’å¦", value: result.mutual_hexagram, note: cultural?.hexagrams[1]?.reading_role }, { label: "å˜å¦", value: result.changed_hexagram, note: cultural?.hexagrams[2]?.reading_role }].map(({ label, value, note }) => <article key={label}><span>{label}</span><strong>{value.symbol}</strong><h3>{value.name}</h3><small>ç¬¬ {value.king_wen_number} å¦</small><p>{note}</p></article>)}</div></details>
+      {cultural && <details className="reading-disclosure"><summary><span>æœ¬æ¬¡åŠ¨çˆ»</span><small>{cultural.moving_line.line_name} Â· {cultural.moving_line.stage}</small></summary><article className="moving-line-reading"><header><span>ä»€ä¹ˆæ˜¯åŠ¨çˆ»</span><h3>{cultural.moving_line.line_name}</h3><p>ä¸€å¦å…±æœ‰å…­æ¡çˆ»ã€‚åŠ¨çˆ»å°±æ˜¯è¿™æ¬¡å‘ç”Ÿå˜åŒ–çš„é‚£ä¸€æ¡ï¼›å®ƒä¸€å˜ï¼Œæœ¬å¦ä¾¿éšä¹‹æˆä¸ºå˜å¦ã€‚</p></header><div className="moving-change"><section><span>å˜åŒ–ä¹‹å‰</span><b>{result.base_hexagram.symbol} {result.base_hexagram.name}</b><p>è¿™æ˜¯æ²¡æœ‰å‘ç”Ÿæœ¬æ¬¡å˜åŒ–å‰ï¼Œäº‹æƒ…çœ¼ä¸‹å‘ˆç°çš„ä¸»è¦å±€é¢ã€‚</p></section><section><span>å‘ç”Ÿäº†ä»€ä¹ˆ</span><b>{cultural.moving_line.line_name}å‘ç”Ÿå˜åŒ–</b><p>å˜åŒ–è½åœ¨â€œ{cultural.moving_line.stage}â€ï¼Œè¯´æ˜è¿™ä¸€å¤„æ˜¯æœ¬æ¬¡æœ€éœ€è¦ç•™æ„çš„è½¬æŠ˜ã€‚</p></section><section><span>å˜åŒ–ä¹‹å</span><b>{result.changed_hexagram.symbol} {result.changed_hexagram.name}</b><p>è¿™ä¸€çˆ»æ”¹å˜åå½¢æˆå˜å¦ï¼Œå±€é¢çš„é‡ç‚¹ä¹Ÿéšä¹‹è½¬å‘ã€‚</p></section></div><blockquote><b>çˆ»è¾åŸæ–‡</b>{cultural.moving_line.canonical_text}</blockquote><p className="moving-reality"><b>è½åˆ°ä½ æ‰€é—®çš„è¿™ä»¶äº‹ä¸Š</b>{movingTerm?.current_effect}</p></article></details>}
+      <details className="reading-disclosure"><summary><span>ä½“ç”¨å…³ç³»ä¸æ—ºè¡°</span><small>åŒæ–¹å…³ç³» Â· å˜åŒ–æ–¹å‘ Â· å½“å‰æ‰¿æ¥èƒ½åŠ›</small></summary><div className="term-grid">{cultural?.terms.map((term) => <article key={term.title}><span>{term.title}</span><h3>{term.current_value}</h3><p>{term.meaning}</p><strong>æœ¬æ¬¡å½±å“</strong><p>{term.current_effect}</p></article>)}</div></details>
+      <p className="evidence-boundary">{report.boundary_note}</p>
+    </section>
+
+    {personalized && <section id="personalized-reading" className="personalized-reading scroll-section" data-reveal>
+      <VerticalBrand />
+      <header className="section-heading"><p className="eyebrow">ç¬¬ä¸‰ç«  Â· å›åˆ°ç°å®</p><h2>æŠŠå¦è±¡æ”¾å›ä½ æ‰€é—®çš„äº‹</h2><p>ä»¥ä¸‹æ–‡å­—åªä½¿ç”¨ä½ æ˜ç¡®å†™ä¸‹çš„äº‹å®ã€æœªçŸ¥é¡¹ä¸ç¨‹åºæ’å‡ºçš„å¦è±¡ï¼›å®ƒä¸ä¼šæŠŠçŒœæµ‹è¡¥æˆäº‹å®ï¼Œä¹Ÿä¸ä¼šæ›¿ä½ åšå†³å®šã€‚</p></header>
+      <div className="personalized-reading-grid">
+        {questionResponses.length > 1 && <article className="question-responses"><span>é€é¡¹å›ç­”</span><ul>{questionResponses.map((item) => <li key={item.question_text}><b>{item.question_text}</b><p>{item.answer_text}</p></li>)}</ul></article>}
+        <article><span>ä¸ºä»€ä¹ˆè¿™æ ·åˆ¤æ–­</span><p>{personalized.explanation}</p></article>
+        <article><span>è½åˆ°ä½ çš„ç°å®</span><p>{personalized.reality_application}</p></article>
+        <article><span>ä¸‹ä¸€æ­¥</span><p>{personalized.action}</p></article>
+        <article><span>ä½•æ—¶éœ€è¦è½¬å‘</span><p>{personalized.switch_condition}</p></article>
+      </div>
+    </section>}
+
+    <section className="final-guidance scroll-section" data-reveal>
+      <VerticalBrand />
+      <p className="final-question">ä½ é—®çš„æ˜¯ï¼š{question}</p>
+      <header className="section-heading"><p className="eyebrow">è§£è¯» Â· æœ€ç»ˆæ”¶æŸ</p><h2>{primaryJudgment}</h2><p>{report.what_it_means}</p></header>
+      {sectionVisibility.showGenericGuidance && <div className="guidance-columns"><article><span>å½“ä¸‹æœ‰åˆ©</span><ul>{report.continue_signals.map((item) => <li key={item}>{item}</li>)}</ul></article><article><span>å°¤å…¶æ³¨æ„</span><ul>{report.pause_signals.map((item) => <li key={item}>{item}</li>)}</ul></article></div>}
+      <div className="next-action"><span>çœ¼ä¸‹å¯åšçš„ä¸€æ­¥</span><p>{primaryAction}</p>{personalized && <small>è‹¥å‡ºç°ä»¥ä¸‹æƒ…å†µï¼Œåº”åœä¸‹æ¥é‡æ–°åˆ¤æ–­ï¼š{personalized.switch_condition}</small>}</div>
+      <section id="save-current-reading" className="save-current-reading"><p className="eyebrow">è§£è¯»è‡³æ­¤</p><h3>æŠŠè¿™æ¬¡æ‰€è§ç•™åˆ°ä»¥åå†çœ‹</h3><p>åˆ°è¿™é‡Œï¼Œè¿™æ¬¡å¦è±¡çš„è§£è¯»å°±å®Œæˆäº†ã€‚å¸Œæœ›å®ƒå·²ç»å¸®ä½ ç†æ¸…æ–¹å‘ï¼Œä¹Ÿè®©ä½ æ›´æ¸…æ¥šä¸‹ä¸€æ­¥å‡†å¤‡æ€ä¹ˆåšã€‚å¦‚æœä½ æƒ³åœ¨äº‹æƒ…æœ‰äº†è¿›å±•åå›æ¥å¤ç›˜ï¼Œå¯ä»¥åœ¨ä¸‹é¢å†™ä¸‹å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨ï¼Œå¹¶é€‰æ‹©ä¸€ä¸ªå›çœ‹æ—¥æœŸã€‚</p><div className="save-observation">
+        <label><span>æˆ‘å‡†å¤‡é‡‡å–çš„è¡ŒåŠ¨</span><textarea aria-describedby="action-help" placeholder="è¯·ç”¨è‡ªå·±çš„è¯å†™ä¸‹ï¼šæˆ‘æ¥ä¸‹æ¥å‡†å¤‡åšä»€ä¹ˆã€å…ˆè§‚å¯Ÿä»€ä¹ˆï¼Œä»€ä¹ˆæƒ…å†µå‡ºç°æ—¶ä¼šè°ƒæ•´ã€‚" value={action} maxLength={500} onChange={(event) => setAction(event.target.value)} /></label>
+        <label><span>æˆ‘å‡†å¤‡å›æ¥å¤ç›˜çš„æ—¥æœŸ</span><input type="date" value={reviewOn} onChange={(event) => setReviewOn(event.target.value)} /></label>
+        <button type="button" disabled={saving || saved || !action.trim()} onClick={() => onSave(action, reviewOn || null)}>{saved ? "å·²ç»å­˜å…¥è§‚äº‹ç°¿" : saving ? "æ­£åœ¨ä¿å­˜" : "å­˜å…¥è§‚äº‹ç°¿"}</button>
+        <small id="action-help">ä¿å­˜åï¼Œä½ å¯ä»¥åœ¨è§‚äº‹ç°¿é‡Œé‡æ–°æ‰“å¼€æœ¬æ¬¡å¦è±¡ï¼Œè®°å½•åæ¥å®é™…å‘ç”Ÿäº†ä»€ä¹ˆï¼Œå¹¶æ®æ­¤ä¿®æ­£è‡ªå·±çš„åˆ¤æ–­ã€‚è®°å½•å¯ä»¥å¯¼å‡ºï¼Œä¹Ÿå¯ä»¥éšæ—¶åˆ é™¤ã€‚</small>
+      </div></section>
+      <div className="result-actions"><button type="button" className="restart-button secondary" onClick={() => downloadReadingHtml(response)}>å¯¼å‡ºæœ¬æ¬¡ HTML</button><a className="restart-button secondary" href="/journal">æ‰“å¼€è§‚äº‹ç°¿</a><button type="button" className="restart-button secondary" onClick={onEdit}>å›åˆ°æœ¬é¢˜ä¿®æ”¹</button><button type="button" className="restart-button" onClick={onClear}>æ¸…ç©ºå¹¶å†é—®ä¸€äº‹</button></div>
+      <blockquote className="classic-counsel"><p>{counsel.quote}</p><cite>{counsel.source}</cite></blockquote>
+    </section>
+    </div>
+  </section>;
+}
+
+function EntryArtwork({ className, imgRef }: { className: string; imgRef?: RefObject<HTMLImageElement | null> }) {
+  return <picture className={className}>
+    <source media="(max-aspect-ratio: 3 / 4)" srcSet="/hero-entry-mobile-v7.webp" />
+    <source media="(max-aspect-ratio: 4 / 3)" srcSet="/hero-entry-square-v7.webp" />
+    <img ref={imgRef} src="/hero-entry-wide-v7.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+  </picture>;
+}
+
+function EntrySideButterfly({ className = "" }: { className?: string }) {
+  const rigClassName = `entry-side-butterfly${className ? ` ${className}` : ""}`;
+  return <span className={rigClassName}>
+    <img className="entry-side-butterfly-wing" src="/hero-butterfly-perched-v3.png" alt="" />
+    <img className="entry-side-butterfly-body" src="/hero-butterfly-perched-v3.png" alt="" />
+  </span>;
+}
+
+function EntryButterflyFlight({ sequenceStarted }: { sequenceStarted: boolean }) {
+  const cameraRef = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    if (!sequenceStarted || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const camera = cameraRef.current;
+    const wing = camera?.querySelector<HTMLElement>(".entry-side-butterfly-wing");
+    if (!camera || !wing) return;
+    let animationFrame = 0;
+    let startTimer = 0;
+    let previous = 0;
+    let wingPhase = 0;
+    const duration = 6600;
+
+    const animate = (now: number) => {
+      if (!previous) previous = now;
+      const delta = Math.min(.034, (now - previous) / 1000);
+      previous = now;
+      const started = Number(camera.dataset.started || now);
+      if (!camera.dataset.started) camera.dataset.started = String(now);
+      const t = Math.min(1, (now - started) / duration);
+      const eased = Math.min(1, t + .13 * Math.sin(Math.PI * t));
+      const paced = Math.min(1, Math.max(0, eased + .022 * Math.sin(Math.PI * 2 * eased) * Math.sin(Math.PI * eased)));
+      const parent = camera.offsetParent as HTMLElement | null;
+      const width = parent?.clientWidth || window.innerWidth;
+      const height = parent?.clientHeight || window.innerHeight;
+      const endX = camera.offsetLeft;
+      const endY = camera.offsetTop;
+      const p0 = { x: width + Math.max(24, width * .018), y: height * .22 };
+      const p1 = { x: width * .88, y: height * .56 };
+      const p2 = { x: width * .63, y: height * .17 };
+      const p3 = { x: endX, y: endY };
+      const inv = 1 - paced;
+      const x = inv ** 3 * p0.x + 3 * inv ** 2 * paced * p1.x + 3 * inv * paced ** 2 * p2.x + paced ** 3 * p3.x;
+      const y = inv ** 3 * p0.y + 3 * inv ** 2 * paced * p1.y + 3 * inv * paced ** 2 * p2.y + paced ** 3 * p3.y;
+      const dx = 3 * inv ** 2 * (p1.x - p0.x) + 6 * inv * paced * (p2.x - p1.x) + 3 * paced ** 2 * (p3.x - p2.x);
+      const dy = 3 * inv ** 2 * (p1.y - p0.y) + 6 * inv * paced * (p2.y - p1.y) + 3 * paced ** 2 * (p3.y - p2.y);
+      const spatialSpeed = Math.hypot(dx, dy) / Math.max(width, height);
+      const flapRate = 2.25 + Math.min(2.7, spatialSpeed * 3.35);
+      wingPhase += delta * flapRate * Math.PI * 2;
+      const wingAngle = -32 - 32 * Math.sin(wingPhase);
+      const heading = Math.max(-5.5, Math.min(5.5, Math.atan2(dy, Math.abs(dx)) * 180 / Math.PI * .22));
+      const scale = .9 + paced * .1;
+      const opacity = Math.min(1, t / .075) * (t < .965 ? 1 : Math.max(0, (1 - t) / .035));
+      camera.style.opacity = String(opacity);
+      camera.style.filter = `blur(${Math.max(0, .42 - paced * .42)}px)`;
+      camera.style.transform = `translate3d(${x - endX}px, ${y - endY}px, 0) translate(-24%, -100%) scale(${scale}) rotate(${heading - 2}deg)`;
+      wing.style.transform = `perspective(160px) rotateY(${wingAngle}deg)`;
+      wing.style.filter = `brightness(${.82 + (wingAngle + 64) / 178})`;
+      if (t < 1) animationFrame = window.requestAnimationFrame(animate);
+      else camera.style.opacity = "0";
+    };
+
+    startTimer = window.setTimeout(() => {
+      delete camera.dataset.started;
+      previous = 0;
+      animationFrame = window.requestAnimationFrame(animate);
+    }, 800);
+    return () => {
+      window.clearTimeout(startTimer);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [sequenceStarted]);
+
+  return <span ref={cameraRef} className="entry-butterfly-camera"><EntrySideButterfly className="entry-butterfly-flight" /></span>;
+}
+
+type DissolveParticle = {
+  x: number;
+  y: number;
+  r: number;
+  g: number;
+  b: number;
+  alpha: number;
+  size: number;
+  velocityX: number;
+  velocityY: number;
+  sway: number;
+  trail: number;
+  stretch: number;
+  phase: number;
+  trigger: number;
+  life: number;
+};
+
+function EntryWindDissolve({ sequenceStarted }: { sequenceStarted: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!sequenceStarted || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+
+    let timer = 0;
+    let animationFrame = 0;
+    let dissolveLayer: HTMLElement | null = null;
+    const duration = 5600;
+
+    const begin = () => {
+      const hero = canvas.closest<HTMLElement>(".entry-hero");
+      dissolveLayer = hero?.querySelector<HTMLElement>(".entry-dissolve-layer") || null;
+      const paper = hero?.querySelector<HTMLElement>(".entry-paper-surface");
+      const branch = hero?.querySelector<HTMLImageElement>(".entry-plum-branch");
+      const butterfly = hero?.querySelector<HTMLElement>(".entry-butterfly-perched");
+      const butterflyImage = butterfly?.querySelector<HTMLImageElement>(".entry-side-butterfly-wing");
+      if (!hero || !dissolveLayer || !paper || !branch || !butterfly || !butterflyImage || !branch.complete || !butterflyImage.complete) return;
+
+      const heroRect = hero.getBoundingClientRect();
+      const branchRect = branch.getBoundingClientRect();
+      const butterflyRect = butterfly.getBoundingClientRect();
+      const width = Math.max(1, heroRect.width);
+      const height = Math.max(1, heroRect.height);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+      const sampleScale = .35;
+      const sampleCanvas = document.createElement("canvas");
+      sampleCanvas.width = Math.max(1, Math.round(width * sampleScale));
+      sampleCanvas.height = Math.max(1, Math.round(height * sampleScale));
+      const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
+      if (!sampleContext) return;
+      sampleContext.fillStyle = getComputedStyle(paper).backgroundColor || "#e8ddca";
+      sampleContext.fillRect(0, 0, sampleCanvas.width, sampleCanvas.height);
+      const drawSource = (image: HTMLImageElement, rect: DOMRect) => {
+        sampleContext.drawImage(
+          image,
+          (rect.left - heroRect.left) * sampleScale,
+          (rect.top - heroRect.top) * sampleScale,
+          rect.width * sampleScale,
+          rect.height * sampleScale,
+        );
+      };
+      drawSource(branch, branchRect);
+      drawSource(butterflyImage, butterflyRect);
+
+      const pixels = sampleContext.getImageData(0, 0, sampleCanvas.width, sampleCanvas.height).data;
+      const maxParticles = Math.max(2600, Math.min(7600, Math.round(width * 3.8)));
+      const particles: DissolveParticle[] = [];
+      let seed = 0x7a4f2d;
+      let seen = 0;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+
+      for (let originY = 3; originY < height; originY += 7) {
+        for (let originX = 3; originX < width; originX += 7) {
+          if (random() > .5) continue;
+          const sampleX = Math.min(sampleCanvas.width - 1, Math.max(0, Math.round(originX * sampleScale)));
+          const sampleY = Math.min(sampleCanvas.height - 1, Math.max(0, Math.round(originY * sampleScale)));
+          const index = (sampleY * sampleCanvas.width + sampleX) * 4;
+          const normalizedX = originX / width;
+          const normalizedY = originY / height;
+          const erosionNoise =
+            Math.sin(normalizedX * 19.7 + normalizedY * 8.3 + .4) * .055
+            + Math.sin(normalizedX * 47.3 - normalizedY * 23.1 + 1.8) * .027
+            + (random() - .5) * .052;
+          const surfaceScore = normalizedX + normalizedY + erosionNoise;
+          const timeProgress = Math.max(0, Math.min(1, (2.045 - surfaceScore) / 2.12));
+          const fragmentScale = random() < .1 ? 1.45 : 1;
+          const toneShift = 7 + random() * 18;
+          const particle: DissolveParticle = {
+            x: originX + (random() - .5) * 8,
+            y: originY + (random() - .5) * 8,
+            r: Math.max(0, pixels[index] - toneShift),
+            g: Math.max(0, pixels[index + 1] - toneShift * .84),
+            b: Math.max(0, pixels[index + 2] - toneShift * .62),
+            alpha: .42 + random() * .4,
+            size: (.9 + random() * 3.1) * fragmentScale,
+            velocityX: 52 + random() * 110,
+            velocityY: -46 + random() * 62,
+            sway: 4 + random() * 15,
+            trail: random() < .38 ? 6 + random() * 16 : 0,
+            stretch: .65 + random() * 1.08,
+            phase: random() * Math.PI * 2,
+            trigger: Math.max(0, timeProgress * duration + (random() - .5) * 240),
+            life: 1080 + random() * 880,
+          };
+          seen += 1;
+          if (particles.length < maxParticles) particles.push(particle);
+          else {
+            const replacement = Math.floor(random() * seen);
+            if (replacement < maxParticles) particles[replacement] = particle;
+          }
+        }
+      }
+
+      const startedAt = performance.now();
+      const draw = (now: number) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(1, elapsed / duration);
+        const sceneFade = elapsed <= duration ? 1 : Math.max(0, 1 - (elapsed - duration) / 650);
+        const smooth = progress * progress * (3 - 2 * progress);
+        const eased = progress * .7 + smooth * .3;
+        const threshold = 2.055 - eased * 2.15;
+        const boundaryPoints: string[] = ["0% 0%", "100% 0%"];
+        for (let index = 120; index >= 0; index -= 1) {
+          const normalizedX = index / 120;
+          const staticErosion =
+            Math.sin(normalizedX * 7.6 + .45) * .055
+            + Math.sin(normalizedX * 17.9 + 1.9) * .03
+            + Math.sin(normalizedX * 39.3 + 3.2) * .014
+            + Math.sin(normalizedX * 83.7 + .7) * .006;
+          const movingErosion =
+            (Math.sin(normalizedX * 29 - progress * 7.2) * .016
+              + Math.sin(normalizedX * 53 + progress * 4.6) * .007)
+            * Math.sin(Math.PI * progress);
+          const normalizedY = Math.max(0, Math.min(1, threshold - normalizedX + staticErosion + movingErosion));
+          boundaryPoints.push(`${(normalizedX * 100).toFixed(2)}% ${(normalizedY * 100).toFixed(2)}%`);
+        }
+        dissolveLayer?.style.setProperty("clip-path", `polygon(${boundaryPoints.join(", ")})`);
+
+        context.clearRect(0, 0, width, height);
+        for (const particle of particles) {
+          const age = elapsed - particle.trigger;
+          if (age < 0 || age > particle.life) continue;
+          const lifeProgress = age / particle.life;
+          const driftX = particle.velocityX * age / 1000 + 42 * lifeProgress * lifeProgress;
+          const driftY = particle.velocityY * age / 1000 + Math.sin(particle.phase + lifeProgress * 7) * particle.sway;
+          const opacity = Math.sin(Math.PI * Math.min(1, lifeProgress * 1.18)) * (1 - lifeProgress * .42) * particle.alpha * sceneFade;
+          const size = particle.size * (1 + lifeProgress * .58);
+          const particleX = particle.x + driftX;
+          const particleY = particle.y + driftY;
+          if (particle.trail > 0) {
+            context.beginPath();
+            context.strokeStyle = `rgba(${particle.r},${particle.g},${particle.b},${opacity * .42})`;
+            context.lineWidth = Math.max(.55, size * .42);
+            context.moveTo(particleX - particle.trail * (.42 + lifeProgress), particleY + particle.trail * .08);
+            context.lineTo(particleX, particleY);
+            context.stroke();
+          }
+          context.beginPath();
+          context.fillStyle = `rgba(${particle.r},${particle.g},${particle.b},${opacity})`;
+          context.ellipse(particleX, particleY, size * particle.stretch, Math.max(.5, size * .56), Math.sin(particle.phase) * .34, 0, Math.PI * 2);
+          context.fill();
+        }
+
+        if (elapsed < duration + 680) animationFrame = window.requestAnimationFrame(draw);
+        else context.clearRect(0, 0, width, height);
+      };
+      animationFrame = window.requestAnimationFrame(draw);
+    };
+
+    timer = window.setTimeout(begin, 9300);
+    return () => {
+      window.clearTimeout(timer);
+      window.cancelAnimationFrame(animationFrame);
+      dissolveLayer?.style.removeProperty("clip-path");
+    };
+  }, [sequenceStarted]);
+
+  return <canvas ref={canvasRef} className="entry-wind-dissolve" />;
+}
+
+function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
+  return <div className="entry-opening" aria-hidden="true">
+    <span className="entry-dissolve-layer">
+      <span className="entry-paper-surface" />
+      <span className="entry-dissolve-subject">
+        <img className="entry-plum-branch entry-critical-asset" src="/hero-plum-branch-cinematic-v2.webp" alt="" loading="eager" decoding="async" fetchPriority="high" />
+        <span className="entry-butterfly-perched">
+          <EntrySideButterfly className="entry-butterfly-perch-profile" />
+        </span>
+      </span>
+      <EntryButterflyFlight sequenceStarted={sequenceStarted} />
+    </span>
+    <img className="entry-vfx-preload entry-critical-asset" src="/hero-butterfly-perched-v3.png" alt="" loading="eager" decoding="async" fetchPriority="high" />
+    <EntryWindDissolve sequenceStarted={sequenceStarted} />
+  </div>;
+}
+
+function InquiryInkScene() {
+  return <div className="inquiry-ink-scene" aria-hidden="true">
+    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
+    <InquiryCloudfallCanvas layer="back" />
+    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
+    <InquiryCloudfallCanvas layer="front" />
+    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+  </div>;
+}
+
+const ENTRY_BIRDS = [
+  { left: "4%", top: "58%", scale: ".72", flap: ".74s", delay: "-.16s", drift: "7.2s", frame: "0%" },
+  { left: "19%", top: "42%", scale: ".56", flap: ".81s", delay: "-.48s", drift: "8.4s", frame: "33.333%" },
+  { left: "36%", top: "66%", scale: ".82", flap: ".69s", delay: "-.31s", drift: "6.8s", frame: "66.666%" },
+  { left: "53%", top: "31%", scale: ".62", flap: ".77s", delay: "-.62s", drift: "8.9s", frame: "100%" },
+  { left: "69%", top: "51%", scale: ".76", flap: ".72s", delay: "-.27s", drift: "7.8s", frame: "33.333%" },
+  { left: "84%", top: "23%", scale: ".51", flap: ".86s", delay: "-.55s", drift: "9.3s", frame: "66.666%" },
+] as const;
+
+export function GuanxiangApp() {
+  const [flowPage, setFlowPage] = useState(1);
+  const [question, setQuestion] = useState("");
+  const [domain, setDomain] = useState("");
+  const [goal, setGoal] = useState("");
+  const [horizon, setHorizon] = useState("");
+  const [stage, setStage] = useState("");
+  const [uncertainty, setUncertainty] = useState("");
+  const [riskProfile, setRiskProfile] = useState("STANDARD");
+  const [facts, setFacts] = useState("");
+  const [unknowns, setUnknowns] = useState("");
+  const [actions, setActions] = useState("");
+  const [observableResponses, setObservableResponses] = useState("");
+  const [originalQuestion, setOriginalQuestion] = useState("");
+  const [suggestedQuestion, setSuggestedQuestion] = useState("");
+  const [, setSuggestionReason] = useState("");
+  const [finalQuestionDraft, setFinalQuestionDraft] = useState("");
+  const [finalQuestionDecisionMade, setFinalQuestionDecisionMade] = useState(false);
+  const [finalQuestionConfirmed, setFinalQuestionConfirmed] = useState(false);
+  const [discernmentCompletionReason, setDiscernmentCompletionReason] = useState<DiscernmentCompletionReason>("ENOUGH");
+  const [numbers, setNumbers] = useState(["", "", ""]);
+  const [intakeComplete, setIntakeComplete] = useState(false);
+  const [response, setResponse] = useState<ApiResponse | null>(null);
+  const [error, setError] = useState("");
+  const [progress, setProgress] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [savingRecord, setSavingRecord] = useState(false);
+  const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
+  const [homeNavigationVisible, setHomeNavigationVisible] = useState(false);
+  const [entrySequenceStarted, setEntrySequenceStarted] = useState(false);
+  const [entryReleased, setEntryReleased] = useState(false);
+  const [methodReady, setMethodReady] = useState(false);
+  const [questionConfirmed, setQuestionConfirmed] = useState(false);
+  const [activeMethodLine, setActiveMethodLine] = useState<number | null>(null);
+  const [previewMethodLine, setPreviewMethodLine] = useState<number | null>(null);
+  const [methodWritingRun, setMethodWritingRun] = useState(0);
+  const [titleAwake, setTitleAwake] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
+  const methodAdvanceTimerRef = useRef<number | null>(null);
+  const activePersonalizedRequestRef = useRef<string | null>(null);
+  const flowPageRef = useRef(1);
+
+  function advanceFlow(nextPage: number, focusId?: string) {
+    if (nextPage <= flowPageRef.current || nextPage > 7) return;
+    flowPageRef.current = nextPage;
+    setFlowPage(nextPage);
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    if (focusId) {
+      window.requestAnimationFrame(() => document.getElementById(focusId)?.focus({ preventScroll: true }));
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (!finalQuestionConfirmed) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const focusFrame = window.requestAnimationFrame(() => {
+      document.getElementById("casting-title")?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(focusFrame);
+  }, [finalQuestionConfirmed]);
+
+  useEffect(() => {
+    const openingSavedReading = Boolean(sessionStorage.getItem(JOURNAL_OPEN_KEY));
+    if (!openingSavedReading) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    let cancelled = false;
+    let frame = 0;
+    let fallbackTimer = 0;
+    const criticalImages = [
+      entryHeroImageRef.current,
+      ...Array.from(document.querySelectorAll<HTMLImageElement>(".entry-critical-asset")),
+    ];
+    const criticalArtworkReady = Promise.all(criticalImages.map((image) => image?.decode().catch(() => undefined)));
+    const fallbackReady = new Promise<void>((resolve) => {
+      fallbackTimer = window.setTimeout(resolve, 1800);
+    });
+    void Promise.race([criticalArtworkReady, fallbackReady]).then(() => {
+      if (cancelled) return;
+      frame = window.requestAnimationFrame(() => {
+        setEntrySequenceStarted(true);
+        if (openingSavedReading) {
+          setEntryReleased(true);
+          setMethodReady(true);
+        }
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(fallbackTimer);
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    const previousRestoration = window.history.scrollRestoration;
+    root.classList.add("flow-scroll-locked");
+    body.classList.add("flow-scroll-locked");
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    const blockScroll = (event: Event) => event.preventDefault();
+    const blockScrollKeys = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isInteractive = Boolean(target?.closest("input, textarea, select, button, [contenteditable='true']"));
+      if (!isInteractive && ["ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp", " "].includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+    const holdFlowPosition = () => {
+      if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+    window.addEventListener("wheel", blockScroll, { passive: false });
+    window.addEventListener("touchmove", blockScroll, { passive: false });
+    window.addEventListener("keydown", blockScrollKeys);
+    window.addEventListener("scroll", holdFlowPosition, { passive: true });
+    return () => {
+      root.classList.remove("flow-scroll-locked");
+      body.classList.remove("flow-scroll-locked");
+      window.history.scrollRestoration = previousRestoration;
+      window.removeEventListener("wheel", blockScroll);
+      window.removeEventListener("touchmove", blockScroll);
+      window.removeEventListener("keydown", blockScrollKeys);
+      window.removeEventListener("scroll", holdFlowPosition);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    audioRef.current?.pause();
+    if (methodAdvanceTimerRef.current !== null) window.clearTimeout(methodAdvanceTimerRef.current);
+  }, []);
+
+  async function toggleSound() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (soundOn) {
+      audio.pause();
+      setSoundOn(false);
+      return;
+    }
+    audio.volume = .18;
+    try {
+      await audio.play();
+      setSoundOn(true);
+    } catch {
+      setSoundOn(false);
+    }
+  }
+
+  function enterMethod() {
+    setEntryReleased(true);
+    advanceFlow(2, "method-title");
+  }
+
+  function confirmMethodReady() {
+    if (methodReady) return;
+    setMethodReady(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    methodAdvanceTimerRef.current = window.setTimeout(() => {
+      advanceFlow(3, "inquiry-title");
+      methodAdvanceTimerRef.current = null;
+    }, reducedMotion ? 0 : 780);
+  }
+
+  function writeMethodLine(index: number) {
+    setPreviewMethodLine(null);
+    setActiveMethodLine(index);
+    setMethodWritingRun((run) => run + 1);
+  }
+
+  function applyQuestionExample(example: typeof QUESTION_EXAMPLES[number]) {
+    setQuestion(example.text);
+    setDomain(example.domain);
+    setGoal("");
+    setQuestionConfirmed(false);
+    setIntakeComplete(false);
+    setDiscernmentCompletionReason("ENOUGH");
+    setFinalQuestionDecisionMade(false);
+    setFinalQuestionConfirmed(false);
+  }
+
+  function confirmQuestion() {
+    if (question.trim().length < 6) return;
+    const nextQuestion = question.trim();
+    setOriginalQuestion(nextQuestion);
+    setFinalQuestionDraft(nextQuestion);
+    setSuggestedQuestion("");
+    setSuggestionReason("");
+    setIntakeComplete(false);
+    setDiscernmentCompletionReason("ENOUGH");
+    setFinalQuestionDecisionMade(false);
+    setFinalQuestionConfirmed(false);
+    setQuestionConfirmed(true);
+    advanceFlow(4);
+  }
+
+  function continueToFinalQuestion() {
+    advanceFlow(5, "final-question-title");
+  }
+
+  function receiveQuestionSuggestion(value: { question: string; reason: string } | null) {
+    setSuggestedQuestion(value?.question.trim() ?? "");
+    setSuggestionReason(value?.reason.trim() ?? "");
+    setFinalQuestionDraft(originalQuestion || question.trim());
+    setFinalQuestionDecisionMade(false);
+    setFinalQuestionConfirmed(false);
+  }
+
+  function chooseOriginalQuestion() {
+    setFinalQuestionDraft(originalQuestion);
+    setFinalQuestionDecisionMade(true);
+    setFinalQuestionConfirmed(false);
+  }
+
+  function chooseSuggestedQuestion() {
+    if (!suggestedQuestion.trim()) return;
+    setFinalQuestionDraft(suggestedQuestion.trim());
+    setFinalQuestionDecisionMade(true);
+    setFinalQuestionConfirmed(false);
+  }
+
+  function confirmFinalQuestion() {
+    const value = finalQuestionDraft.trim();
+    if (value.length < 6) return;
+    setQuestion(value);
+    setFinalQuestionDraft(value);
+    setFinalQuestionConfirmed(true);
+    advanceFlow(6, "casting-title");
+  }
+
+  function finishPersonalizedRequest(payload: ApiResponse, requestId: string): void {
+    if (activePersonalizedRequestRef.current !== requestId) return;
+    activePersonalizedRequestRef.current = null;
+    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.deterministic_result?.clarity_report) {
+      throw new Error(payload.error || "æœ¬æ¬¡è§£è¯»æ²¡æœ‰é€šè¿‡æ£€æŸ¥ï¼Œä¹Ÿä¸ä¼šè‡ªåŠ¨é‡æ–°ç”Ÿæˆã€‚");
+    }
+    setResponse(payload);
+    setProgress("");
+  }
+
+  async function pollPersonalizedRequest(requestId: string, cancelled: () => boolean = () => false): Promise<void> {
+    try {
+      const payload = await pollPersonalizedTask(requestId, {
+        fetchResult: () => fetch(`/api/v4/meihua?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" }),
+        sleep,
+        cancelled,
+      });
+      if (payload) finishPersonalizedRequest(payload as ApiResponse, requestId);
+    } catch (caught) {
+      if (caught instanceof PersonalizedPollError && caught.terminal) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+      throw caught;
+    }
+  }
+
+  useEffect(() => {
+    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
+    if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
+    activePersonalizedRequestRef.current = activeRequestId;
+    let cancelled = false;
+    const resumeTimer = window.setTimeout(() => {
+      void pollPersonalizedRequest(activeRequestId, () => cancelled)
+        .catch(() => { if (!cancelled) sessionStorage.removeItem(ACTIVE_REQUEST_KEY); });
+    }, 0);
+    return () => { cancelled = true; window.clearTimeout(resumeTimer); };
+  // An unfinished request is intentionally resumed only once when the formal page mounts.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { elements.forEach((item) => item.classList.add("is-visible")); return; }
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: .08, rootMargin: "0px 0px -3%" });
+    elements.forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, [response]);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(JOURNAL_OPEN_KEY);
+    if (!saved) return;
+    sessionStorage.removeItem(JOURNAL_OPEN_KEY);
+    let record: JournalRecord;
+    try {
+      record = JSON.parse(saved) as JournalRecord;
+    } catch { return; }
+    const timer = window.setTimeout(() => {
+      setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setDiscernmentCompletionReason("ENOUGH"); setIntakeComplete(true); setSavedRecordId(record.id);
+      setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!response) return;
+    const frame = window.requestAnimationFrame(() => {
+      advanceFlow(7, "result-title");
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [response]);
+
+  function editQuestion() {
+    setResponse(null); setError("");
+    window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
+  }
+
+  function clearQuestion() {
+    setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
+    setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
+    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setError(""); setSavedRecordId(null);
+    window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
+  }
+
+  async function saveObservation(actionText: string, reviewOn: string | null) {
+    if (!response?.deterministic_result) return;
+    setSavingRecord(true); setError("");
+    const id = crypto.randomUUID();
+    try {
+      const request = await fetch("/api/journal", { method: "POST", headers: journalHeaders(), body: JSON.stringify({
+        id, question: response.user_question ?? question.trim(), structured_intake: response.structured_intake ?? { question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile },
+        numbers: response.deterministic_result.input_numbers,
+        result: { ...response.deterministic_result, ...(response.personalized_reading ? { personalized_reading: response.personalized_reading } : {}) },
+        action_text: actionText, review_on: reviewOn,
+      }) });
+      const payload = await request.json() as { record?: JournalRecord; error?: string };
+      if (!request.ok || !payload.record) throw new Error(payload.error || "è¿™æ¬¡è§‚è±¡æš‚æ—¶æ²¡æœ‰ä¿å­˜æˆåŠŸã€‚");
+      setSavedRecordId(id);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "è¿™æ¬¡è§‚è±¡æš‚æ—¶æ²¡æœ‰ä¿å­˜æˆåŠŸã€‚"); }
+    finally { setSavingRecord(false); }
+  }
+
+  async function submit(event: FormEvent) {
+    event.preventDefault(); setError(""); setResponse(null); setSavedRecordId(null);
+    const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
+    if (activeRequestId) {
+      activePersonalizedRequestRef.current = null;
+      sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    }
+
+    const factLines = nonemptyLines(facts);
+    const unknownLines = nonemptyLines(unknowns);
+    const actionLines = nonemptyLines(actions);
+    const responseLines = nonemptyLines(observableResponses);
+    const parsed = numbers.map(Number);
+    const textLists = [factLines, unknownLines, actionLines, responseLines];
+    const earlyExit = discernmentCompletionReason === "USER_EARLY";
+    const useDeterministicOnly = earlyExit || factLines.length < 1 || unknownLines.length < 1;
+    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
+      setError("è¯·å…ˆå®Œæˆæ­£é—®ä¸è¾¨è¯†ï¼Œå¹¶å¡«å†™ä¸‰ä¸ª 1â€“999 çš„æ•´æ•°ã€‚"); return;
+    }
+    setLoading(true); setProgress("æ­£åœ¨æŒ‰ä¸‰æ•°æˆå¦â€¦â€¦");
+    const deterministicRequest = fetch("/api/v3/meihua", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify({
+        contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
+        request_id: `sites-${crypto.randomUUID()}`,
+        question_text: question.trim(), question_domain: domain, decision_goal: goal,
+        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+        user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
+      }),
+    });
+
+    if (!useDeterministicOnly) {
+      const requestId = `sites-${crypto.randomUUID()}`;
+      activePersonalizedRequestRef.current = requestId;
+      sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
+      const body = JSON.stringify({
+        contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId,
+        question_text: question.trim(), question_domain: domain, decision_goal: goal,
+        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile,
+        confirmed_facts: factLines, unknowns: unknownLines, options: [],
+        actions_already_taken: actionLines, observable_responses: responseLines,
+        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+        user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
+      });
+      void (async () => {
+        try {
+          let accepted = false;
+          for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
+            try {
+              const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+              const payload = await request.json() as ApiResponse;
+              if (request.status === 202) { accepted = true; break; }
+              if (request.ok) { finishPersonalizedRequest(payload, requestId); return; }
+              if (request.status !== 503) {
+                sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+                return;
+              }
+            } catch (caught) {
+              if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) return;
+            }
+            await sleep(1_500);
+          }
+          if (accepted) await pollPersonalizedRequest(requestId);
+        } catch {
+          sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+        }
+      })();
+    }
+
+    try {
+      const request = await deterministicRequest;
+      const payload = await request.json() as ApiResponse;
+      if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
+        throw new Error(payload.error || payload.errors?.[0]?.message || "æœ¬æ¬¡æœªèƒ½å®Œæˆæ’ç›˜ã€‚");
+      }
+      setResponse(payload);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "æœ¬æ¬¡æœªèƒ½å®Œæˆæ’ç›˜ã€‚"); }
+    finally { setLoading(false); setProgress(""); }
+  }
+
+  const emphasizedMethodLine = activeMethodLine ?? previewMethodLine;
+  return <>
+    <header className={`site-header home-header${homeNavigationVisible ? " is-visible" : ""}`} aria-hidden="true" hidden>
+      <a className="wordmark" href="#top" tabIndex={homeNavigationVisible ? undefined : -1}>è§‚è±¡</a>
+      <nav><a href="#method" tabIndex={homeNavigationVisible ? undefined : -1}>å¦‚ä½•è§‚</a><a href={methodReady ? "#inquiry" : "#method"} onClick={(event) => { if (!methodReady) { event.preventDefault(); document.getElementById("method-ready")?.focus(); } }} tabIndex={homeNavigationVisible ? undefined : -1}>å¼€å§‹é—®</a><a href="/journal" tabIndex={homeNavigationVisible ? undefined : -1}>è§‚äº‹ç°¿</a></nav>
+      <small>ç¡®å®šæ€§æ’ç›˜ Â· ä¸ªæ€§åŒ–è§£è¯»</small>
+    </header>
+    <main id="top" className="scroll-canvas flow-shell" data-flow-page={flowPage}>
+      <section className={`hero entry-hero scroll-section flow-lock-screen${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} hidden={flowPage !== 1} aria-labelledby="hero-title">
+        <EntryArtwork className="entry-hero-final" imgRef={entryHeroImageRef} />
+        <EntryOpening sequenceStarted={entrySequenceStarted} />
+        <EntryArtwork className="entry-title-focus" />
+        <img className="entry-name-seal" src="/hero-yuanshuai-seal-v1.webp" alt="" aria-hidden="true" />
+        <img className="entry-classic-calligraphy" src="/hero-classic-calligraphy-v1.webp" alt="" aria-hidden="true" />
+        <div className="entry-birds-life" aria-hidden="true">
+          {["a", "b"].map((flock) => <div className={`entry-bird-flock entry-bird-flock-${flock}`} key={flock}>
+            {ENTRY_BIRDS.map((bird, index) => <span
+              className="entry-bird"
+              key={index}
+              style={{
+                "--bird-left": bird.left,
+                "--bird-top": bird.top,
+                "--bird-scale": bird.scale,
+                "--bird-flap": bird.flap,
+                "--bird-delay": bird.delay,
+                "--bird-drift": bird.drift,
+                "--bird-frame": bird.frame,
+              } as CSSProperties}
+            />)}
+          </div>)}
+        </div>
+        <h1 id="hero-title" className="sr-only">è§‚è±¡</h1>
+        <p className="sr-only">å¿ƒæœ‰æ‰€é—® é™è§‚å…¶è±¡</p>
+        <button type="button" className="hero-title-hotspot" aria-pressed={titleAwake} aria-label="è®©è§‚è±¡é¢˜å­—ä¸æ°´å¢¨å¤ªææµ®ç°" onPointerEnter={() => setTitleAwake(true)} onPointerLeave={() => setTitleAwake(false)} onFocus={() => setTitleAwake(true)} onBlur={() => setTitleAwake(false)} onClick={() => setTitleAwake((current) => !current)}><span className="sr-only">è§‚è±¡</span></button>
+        <blockquote className="sr-only">å¯‚ç„¶ä¸åŠ¨ï¼Œæ„Ÿè€Œé‚é€šå¤©ä¸‹ä¹‹æ•…ã€‚</blockquote>
+        <span className="sr-only">ã€Šå‘¨æ˜“Â·ç³»è¾ä¸Šã€‹</span>
+        <audio ref={audioRef} src="/audio/guqin-zheng-diao.ogg" preload="none" loop />
+        <button type="button" className="hero-sound-control" aria-pressed={soundOn} aria-label={soundOn ? "æš‚åœå¤ç´éŸ³ä¹" : "æ’­æ”¾å¤ç´éŸ³ä¹"} onClick={toggleSound}><span className="hero-sound-label" aria-hidden="true">é—»ç´</span><img src="/hero-guqin-horizontal-v2.webp" alt="" aria-hidden="true" /><span className="sr-only">{soundOn ? "æš‚åœå¤ç´éŸ³ä¹" : "æ’­æ”¾å¤ç´éŸ³ä¹"}</span></button>
+        <button type="button" className="hero-scroll-cue" aria-label="è¿›å…¥è§‚è±¡ä¹‹æ³•" onClick={enterMethod}><img className="entry-boat-life" src="/hero-boat-v1.png" alt="" aria-hidden="true" /><img className="entry-down-cue" src="/hero-down-cue-v1.png" alt="" aria-hidden="true" /></button>
+      </section>
+
+      <section id="method" className={`method scroll-section flow-lock-screen${methodReady ? " is-ready" : ""}`} hidden={flowPage !== 2} data-reveal aria-labelledby="method-title">
+        <MethodRiverFlow />
+        <picture className="method-landscape">
+          <source media="(max-width: 900px)" srcSet="/method-river-mobile-v2.webp" />
+          <img src="/method-river-wide-v2.webp" alt="" />
+        </picture>
+        <VerticalBrand />
+        <div className="method-stage">
+          <div className="method-quote"><h2 id="method-title" aria-label="åœ¨å¤©æˆè±¡ åœ¨åœ°æˆå½¢ å˜åŒ–è§çŸ£" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} ç‚¹å‡»è§‚çœ‹æ•´å¥ä¹¦å†™è¿‡ç¨‹`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>ã€Šå‘¨æ˜“Â·ç³»è¾ä¸Šã€‹</cite></div>
+          <div className="method-explainer">
+            <p className="method-lead">æ¥ä¸‹æ¥<br />æˆ‘ä»¬å°è¯•è§‚è±¡</p>
+            <p className="method-breath"><span>è¯·é—­ä¸Šçœ¼ç›</span><b>åšä¸‰ä¸ªå‘¼å¸</b></p>
+          </div>
+        </div>
+        <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label={methodReady ? "å·²å®šå¿ƒï¼Œè¿›å…¥æ­£é—®" : "å¼€å§‹æ­£é—®"} aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">{methodReady ? "å·²å®šå¿ƒ" : "å¼€å§‹æ­£é—®"}</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "å‡†å¤‡çŠ¶æ€å·²ç¡®è®¤ï¼Œæ­£åœ¨è¿›å…¥æ­£é—®ã€‚" : ""}</p></div>
+      </section>
+
+      <section id="inquiry" className={`inquiry scroll-section flow-lock-screen${flowPage >= 4 ? " is-nested-flow-page" : ""}${finalQuestionConfirmed ? " has-casting-step" : ""}`} data-reveal hidden={!methodReady || flowPage < 3 || flowPage > 6} aria-labelledby="inquiry-title">
+        <InquiryInkScene />
+        <VerticalBrand />
+        <form onSubmit={submit} noValidate>
+          <div className="inquiry-stage" hidden={flowPage !== 3}>
+            <header className="inquiry-heading flow-title-heading">
+              <p className="eyebrow">è§‚è±¡ä¹‹æ³• Â· å£¹</p>
+              <h2 id="inquiry-title" tabIndex={-1}>æ­£é—®</h2>
+            </header>
+
+            <div className="inquiry-writing">
+              <label className="question-label" htmlFor="primary-question"><span>æ­¤åˆ»ï¼Œä½ çœŸæ­£æƒ³é—®çš„æ˜¯ä»€ä¹ˆï¼Ÿ</span></label>
+              <textarea id="primary-question" aria-label="ä½ çœŸæ­£æƒ³é—®çš„é—®é¢˜" aria-describedby="question-guidance question-count" placeholder="æŠŠå¿ƒé‡Œçš„è¿™ä¸€é—®ï¼Œå†™åœ¨è¿™é‡Œâ€¦â€¦" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
+              <div className="question-meta"><p id="question-guidance">å…ˆç…§æ­¤åˆ»æœ€è‡ªç„¶çš„æ–¹å¼å†™ã€‚ä¸‹ä¸€æ­¥ï¼Œæˆ‘ä»¬ä¼šé™ªä½ æ…¢æ…¢è¾¨æ¸…äº‹å®ã€æœªçŸ¥ä¸çœŸæ­£çš„éœ€è¦ã€‚</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
+
+              <div className="question-examples"><header><span>è‹¥ä¸€æ—¶ä¸çŸ¥æ€æ ·å¼€å£</span><small>è½»ç‚¹ä¸€å¥ï¼Œæ”¾å…¥ä¸Šæ–¹ç»§ç»­ä¿®æ”¹</small></header><div>{QUESTION_EXAMPLES.map((example, index) => <button type="button" key={example.text} aria-label={`å‚è€ƒ${example.topic}ä¾‹å¥ï¼š${example.text}`} onClick={() => applyQuestionExample(example)}><span>{String(index + 1).padStart(2, "0")} Â· {example.topic}</span><b>{example.text}</b></button>)}</div></div>
+
+              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "è¿™ä¸€é—®å·²å†™ä¸‹" : "å†™å¥½äº†ï¼Œç»§ç»­è¾¨è¯†"}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "å†å†™å…·ä½“ä¸€äº›ï¼Œè‡³å°‘å…­ä¸ªå­—ã€‚" : ""}</p></div>
+            </div>
+          </div>
+
+          <div className="inquiry-future-flow" hidden={!questionConfirmed || flowPage < 4 || flowPage > 6}>
+          <section id="discernment" className="discernment scroll-section flow-lock-screen" hidden={flowPage !== 4} aria-labelledby="discernment-title">
+            <div className="discernment-artwork" aria-hidden="true">
+              <img src="/discernment-chrysanthemum-mountains-v2.png" alt="" />
+            </div>
+            <VerticalBrand />
+            <div className="discernment-stage">
+              <header className="discernment-heading flow-title-heading">
+                <p className="eyebrow">è§‚è±¡ä¹‹æ³• Â· è´°</p>
+                <h2 id="discernment-title" tabIndex={-1}>è¾¨è¯†</h2>
+                <p>åœå¦ä¹‹å‰ï¼Œ<br />è®©æˆ‘ä»¬ä¸€èµ·æ¢³ç†æ€è·¯</p>
+              </header>
+              <div className="discernment-dialogue">
+                <div className="discernment-cranes" aria-hidden="true">
+                  <span className="discernment-crane discernment-crane-leading">
+                    <i className="discernment-crane-bank">
+                      <span className="discernment-crane-facing discernment-crane-facing-right" />
+                      <span className="discernment-crane-facing discernment-crane-facing-left" />
+                      <span className="discernment-crane-turn discernment-crane-turn-right" />
+                      <span className="discernment-crane-turn discernment-crane-turn-left" />
+                    </i>
+                  </span>
+                  <span className="discernment-crane discernment-crane-following">
+                    <i className="discernment-crane-bank">
+                      <span className="discernment-crane-facing discernment-crane-facing-right" />
+                      <span className="discernment-crane-facing discernment-crane-facing-left" />
+                      <span className="discernment-crane-turn discernment-crane-turn-right" />
+                      <span className="discernment-crane-turn discernment-crane-turn-left" />
+                    </i>
+                  </span>
+                </div>
+                {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">å…ˆåœ¨ä¸Šä¸€æ­¥å†™ä¸‹è‡³å°‘å…­ä¸ªå­—çš„å…·ä½“é—®é¢˜ï¼Œè¾¨è¯†å¯¹è¯æ‰ä¼šå¼€å§‹ã€‚</p>}
+              </div>
+            </div>
+          </section>
+
+
+
+          <FinalQuestion hidden={!intakeComplete || flowPage !== 5} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
+
+          <section id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen" hidden={!finalQuestionConfirmed || flowPage !== 6} aria-labelledby="casting-title">
+            <div className="casting-peony-scene" aria-hidden="true">
+              <div className="casting-peony-backdrop" />
+              {PEONY_BREATHS.map((breath, index) => <span
+                className={`peony-bloom peony-bloom-scene-${index + 1}`}
+                key={breath.numeral}
+              >
+                <img className="peony-bloom-image" src={breath.flower} alt="" />
+              </span>)}
+              <div className="peony-petal-layer">
+                {PEONY_BREATHS.map((breath, index) => <span
+                  className={`peony-petal-origin peony-bloom-scene-${index + 1}`}
+                  key={`petals-${breath.numeral}`}
+                  style={{ "--breath-delay": `${index * -1.6}s` } as CSSProperties}
+                >
+                  {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
+                    className="peony-falling-petal"
+                    src="/casting-peony-petal-v1.png"
+                    alt=""
+                    key={`${breath.numeral}-${petalIndex}`}
+                    style={{
+                      "--petal-delay": `${motion.delay}s`,
+                      "--petal-left": `${motion.left}%`,
+                      "--petal-quarter-x": `${motion.midX * .45}vw`,
+                      "--petal-mid-x": `${motion.midX}vw`,
+                      "--petal-late-x": `${motion.travelX * .62}vw`,
+                      "--petal-travel-x": `${motion.travelX}vw`,
+                      "--petal-quarter-y": `${motion.travelY * .17}vh`,
+                      "--petal-mid-y": `${motion.travelY * .4}vh`,
+                      "--petal-late-y": `${motion.travelY * .7}vh`,
+                      "--petal-travel-y": `${motion.travelY}vh`,
+                      "--petal-quarter-spin": `${motion.spin * .18}deg`,
+                      "--petal-mid-spin": `${motion.spin * .43}deg`,
+                      "--petal-late-spin": `${motion.spin * .72}deg`,
+                      "--petal-spin": `${motion.spin}deg`,
+                      "--petal-quarter-flip-x": `${motion.flipX * .23}deg`,
+                      "--petal-mid-flip-x": `${motion.flipX * .48}deg`,
+                      "--petal-late-flip-x": `${motion.flipX * .76}deg`,
+                      "--petal-flip-x": `${motion.flipX}deg`,
+                      "--petal-quarter-flip-y": `${motion.flipY * .2}deg`,
+                      "--petal-mid-flip-y": `${motion.flipY * .46}deg`,
+                      "--petal-late-flip-y": `${motion.flipY * .74}deg`,
+                      "--petal-flip-y": `${motion.flipY}deg`,
+                      "--petal-size": `${motion.size}px`,
+                      "--petal-duration": `${motion.duration}s`,
+                    } as CSSProperties}
+                  />)}
+                </span>)}
+              </div>
+            </div>
+            <VerticalBrand />
+            <header className="final-question-heading casting-heading flow-title-heading">
+              <p className="eyebrow">è§‚è±¡ä¹‹æ³• Â· è‚†</p>
+              <h3 id="casting-title" tabIndex={-1}>æˆå¦</h3>
+              <p className="casting-contemplation">
+                <span>å¿ƒä¸­å†é»˜å¿µä¸€éæ‰€é—®ä¹‹äº‹</span>
+                <span>ä¸‰æ¯ä¹‹é—´ï¼Œæ”¶æŸå¿ƒå¿µ</span>
+                <span>å‡­å½“ä¸‹æ‰€æ„Ÿï¼Œå–ä¸‰ä¸ªæ•°</span>
+              </p>
+              <fieldset className="peony-number-field">
+                <legend className="sr-only">ä¾ä¸‰æ¬¡å‘¼å¸å–ä¸‰ä¸ªæ•´æ•°</legend>
+                {PEONY_BREATHS.map((breath, index) => <label
+                  className={`peony-number peony-number-${index + 1}`}
+                  key={breath.numeral}
+                >
+                  <span className="peony-number-copy"><b>{breath.numeral}</b><small>{breath.guidance}</small></span>
+                  <input aria-label={`ç¬¬${index + 1}ä¸ªæ•°å­—`} aria-describedby="casting-range-note" type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
+                </label>)}
+              </fieldset>
+              <p className="casting-range-note" id="casting-range-note">å–1-999ä¹‹é—´çš„æ•°å­—ï¼Œå¡«å…¥ä¸Šæ–¹æ–‡å­—å³ä¾§</p>
+              {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
+              {error && <p className="error casting-submit-error" role="alert">{error}</p>}
+              <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? "æ­£åœ¨æˆå¦" : "æˆå¦"}</button>
+            </header>
+
+            <div className="casting-number-workspace" aria-hidden="true">
+              <img className="peony-number-petal peony-number-petal-1" src="/casting-peony-petal-v1.png" alt="" />
+              <img className="peony-number-petal peony-number-petal-2" src="/casting-peony-petal-v1.png" alt="" />
+              <img className="peony-number-petal peony-number-petal-3" src="/casting-peony-petal-v1.png" alt="" />
+            </div>
+          </section>
+
+          </div>
+        </form>
+      </section>
+
+      {response && flowPage === 7 && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
+      <aside className="version-note" hidden>å¦è±¡ä¸æ˜¯é¢„å…ˆå†™å¥½çš„åˆ¤è¯ï¼Œè€Œæ˜¯å¯¹å½“ä¸‹ç»“æ„çš„ä¸€æ¬¡ç…§è§ã€‚æ‰€è°“â€œç©·åˆ™å˜ï¼Œå˜åˆ™é€šâ€ï¼Œå¿ƒå¿µä¸è¡ŒåŠ¨ä¸€å˜ï¼Œåç»­æ¡ä»¶ä¹Ÿä¼šéšä¹‹æ”¹å˜ã€‚å¾—é¡ºåŠ¿ä¹‹è±¡ï¼Œä¸å¯å› æ­¤åœæ­¥ï¼›è§é˜»åŠ›ä¹‹è±¡ï¼Œä¹Ÿä¸å¿…è‡ªå¼ƒã€‚è§‚è±¡çš„æ„ä¹‰ï¼Œæ˜¯è®©æˆ‘ä»¬çœ‹è§ç…§æ—§å‰è¡Œå¯èƒ½æŠµè¾¾ä¹‹å¤„ï¼Œä»è€ŒåŠæ—©å‡†å¤‡ã€ä¿®æ­£ä¸è¡ŒåŠ¨ã€‚</aside>
+    </main>
+    <footer className="site-footer" hidden><b>è§‚è±¡</b><span>ä¼ ç»Ÿæ–‡åŒ–ç»“æ„å‚è€ƒ Â· ä»¥ç°å®éªŒè¯æ›´æ–°åˆ¤æ–­</span><nav><a href="/guide">å¦‚ä½•ä½¿ç”¨</a><a href="/about">æ–¹æ³•ä¸è¾¹ç•Œ</a><a href="/privacy">éšç§è¯´æ˜</a></nav></footer>
+  </>;
+}

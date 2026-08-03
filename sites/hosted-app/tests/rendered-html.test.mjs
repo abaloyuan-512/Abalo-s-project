@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import test from "node:test";
 
 async function worker() {
@@ -19,25 +20,87 @@ test("server-renders the Guanxiang product", async () => {
   const html = await response.text();
   assert.match(html, /<title>观象 · 寂然不动，感而遂通天下之故<\/title>/);
   assert.match(html, /寂然不动，感而遂通天下之故/);
-  assert.match(html, /在天成象，/);
-  assert.match(html, /在地成形，变化见矣/);
+  assert.match(html, /心有所问 静观其象/);
+  assert.match(html, /hero-entry-wide-v7\.webp/);
+  assert.match(html, /hero-entry-square-v7\.webp/);
+  assert.match(html, /hero-entry-mobile-v7\.webp/);
+  assert.match(html, /entry-hero-final/);
+  assert.match(html, /hero-plum-branch-cinematic-v2\.webp/);
+  assert.match(html, /hero-butterfly-perched-v3\.png/);
+  assert.match(html, /entry-wind-dissolve/);
+  assert.doesNotMatch(html, /entry-(?:ink-drop|ripple|taiji)/);
+  assert.match(html, /entry-bird-flock/);
+  assert.match(html, /hero-boat-v1\.png/);
+  assert.doesNotMatch(html, /entry-waterfall/);
+  assert.match(html, /hero-title-hotspot/);
+  assert.match(html, />闻琴<\/span>/);
+  assert.match(html, /hero-guqin-horizontal-v2\.webp/);
+  assert.match(html, /<button[^>]+class="hero-scroll-cue"/);
+  assert.doesNotMatch(html, /<a[^>]+class="hero-scroll-cue"/);
+  assert.match(html, /在天成象/);
+  assert.match(html, /在地成形/);
+  assert.match(html, /变化见矣/);
+  assert.doesNotMatch(html, /在天成象，|在地成形，|变化见矣。/);
   assert.doesNotMatch(html, /遇事不决，可问春风/);
-  assert.match(html, /我已准备好/);
+  assert.match(html, /开始正问/);
+  assert.match(html, /<button[^>]+id="method-ready"[^>]+aria-pressed="false"/);
+  assert.match(html, /method-cta-label/);
+  assert.doesNotMatch(html, /method-cta-mini-seal/);
+  assert.doesNotMatch(html, /<a[^>]+class="method-cta"/);
   assert.match(html, /href="#method"/);
-  assert.match(html, /观象不会替你决定，也不会预先写好结果/);
-  assert.match(html, /程序依规则完成排盘/);
+  assert.match(html, /接下来/);
+  assert.match(html, /我们尝试观象/);
+  assert.match(html, /请闭上眼睛/);
+  assert.match(html, /做三个呼吸/);
+  assert.doesNotMatch(html, /一步一步看清心中的疑惑|慢慢做三个呼吸|三个呼吸之后，我们进入「正问」/);
+  assert.doesNotMatch(html, /观象不会替你决定，也不会预先写好结果/);
+  assert.doesNotMatch(html, /程序依规则完成排盘/);
+  assert.doesNotMatch(html, /aria-label="观象四步"/);
   assert.match(html, /\/fuxi-bagua-taiji\.svg/);
+  assert.match(html, /question-pine-cloud-base-v2\.webp/);
+  assert.match(html, /question-cloudfall-mountain-v5\.png/);
+  assert.match(html, /question-pine-tree-v2\.png/);
+  assert.match(html, /inquiry-cloudfall-canvas-back/);
+  assert.match(html, /inquiry-cloudfall-canvas-front/);
+  assert.doesNotMatch(html, /inquiry-pine-ground/);
+  assert.doesNotMatch(html, /inquiry-cloud-stream-far/);
+  assert.doesNotMatch(html, /inquiry-cloud-sky-drift/);
   assert.match(html, /你真正想问的问题/);
-  assert.match(html, /请用清晰具体的文字说出你想弄明白的事/);
+  assert.doesNotMatch(html, /写下一件<br\/>真实具体的事/);
+  assert.match(html, /把心里的这一问，写在这里/);
+  assert.match(html, /下一步，我们会陪你慢慢辨清事实、未知与真正的需要/);
   assert.match(html, /确定性排盘 · 个性化解读/);
-  assert.match(html, /用三分钟，把一件拿不准的事/);
+  assert.doesNotMatch(html, /约三分钟/);
+  assert.doesNotMatch(html, /第二阶段 · 明法/);
+  assert.match(html, /观象之法 · 壹/);
   assert.match(html, /这段关系一直没有进展，我还要继续主动吗/);
-  assert.match(html, /<h3>正问<\/h3>/);
-  assert.match(html, /<h3>辨识<\/h3>/);
-  assert.match(html, /<h3>成卦<\/h3>/);
-  assert.match(html, /<h3>观卦<\/h3>/);
-  assert.match(html, /一次只回答一问/);
-  assert.match(html, /闭上眼睛，缓缓呼吸三次/);
+  assert.match(html, /<h2[^>]+id="inquiry-title"[^>]*>正问<\/h2>/);
+  assert.match(html, /<div[^>]+class="inquiry-future-flow"[^>]+hidden/);
+  assert.match(html, /写好了，继续辨识/);
+  assert.match(html, /观象之法 · 贰/);
+  assert.match(html, /<h2[^>]+id="discernment-title"[^>]*>辨识<\/h2>/);
+  assert.match(html, /卜卦之前，<br\/>让我们一起梳理思路/);
+  assert.match(html, /discernment-chrysanthemum-mountains-v2\.png/);
+  assert.match(html, /<section[^>]+id="final-question"[^>]+hidden/);
+  assert.match(html, /id="final-question-title"[^>]*>定问<\/h3>/);
+  assert.match(html, /请在心中再次默念你的问题/);
+  assert.match(html, />深呼吸<\/span>/);
+  assert.match(html, /开始卜卦/);
+  assert.doesNotMatch(html, /最终问卦题目/);
+  assert.match(html, /<section[^>]+id="casting"[^>]+class="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen"[^>]+hidden/);
+  assert.doesNotMatch(html, /class="inquiry-step inquiry-panel cast-step"/);
+  assert.match(html, /<h3[^>]+id="casting-title"[^>]*>成卦<\/h3>/);
+  assert.match(html, /casting-peony-bloom-1-v1\.png/);
+  assert.match(html, /casting-peony-bloom-2-v1\.png/);
+  assert.match(html, /casting-peony-bloom-3-v1\.png/);
+  assert.match(html, /casting-peony-petal-v1\.png/);
+  assert.match(html, /心中再默念一遍所问之事/);
+  assert.match(html, /三息之间，收束心念/);
+  assert.match(html, /取1-999之间的数字，填入上方文字右侧/);
+  assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
+  assert.match(html, /凭当下所感，取三个数/);
+  assert.match(html, /<button[^>]+class="cast-button casting-submit"[^>]*>[\s\S]*成卦<\/button>/);
+  assert.doesNotMatch(html, /闭上眼睛，缓缓呼吸三次/);
   assert.match(html, /观事簿/);
   assert.doesNotMatch(html, /何为观象|冻结规则|当前不收费|当前为视觉验收版|PRIVATE PREVIEW/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
@@ -101,6 +164,264 @@ test("formal personalized API fails safely until the Python engine is configured
   assert.deepEqual(await response.json(), { error: "个性化解读服务尚未开放。" });
 });
 
+test("method lines retain the replayable writing interaction", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /methodWritingRun/);
+  assert.match(appSource, /method-writing-layer/);
+  assert.match(appSource, /onPointerLeave=.*setPreviewMethodLine\(null\)/);
+  assert.match(cssSource, /method-ink-line\.is-writing[^}]+scale\(2\)/s);
+  assert.match(cssSource, /method-ink-line:focus-visible:not\(\.is-writing\)[^}]+font-weight: 700[^}]+scale\(1\.34\)/s);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+method-writing-layer i/);
+});
+
+test("question scene preserves anchored ground while separating mountain, pine and cloud motion", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /function InquiryInkScene/);
+  assert.match(appSource, /question-pine-cloud-base-v2\.webp/);
+  assert.match(appSource, /question-cloudfall-mountain-v5\.png/);
+  assert.match(appSource, /question-pine-tree-v2\.png/);
+  assert.match(appSource, /<InquiryCloudfallCanvas layer="back"/);
+  assert.match(appSource, /<InquiryCloudfallCanvas layer="front"/);
+  assert.doesNotMatch(appSource, /inquiry-pine-ground/);
+  assert.doesNotMatch(appSource, /question-cloud-stream-v3-tile\.png/);
+  assert.match(cssSource, /inquiry-cloud-breath::before[^}]+question-cloudfall-base-v6\.png/);
+  assert.match(cssSource, /inquiry-ink-scene \.inquiry-mountain-occluder[^}]+object-position: center 68%/);
+  assert.doesNotMatch(cssSource, /inquiry-mountain-occluder[^}]+translate3d/);
+  assert.match(cssSource, /inquiry-cloudfall-canvas-front[^}]+z-index: 3/);
+  assert.match(cssSource, /inquiry-pine-tree[^}]+animation: inquiry-pine-breeze 6\.8s/);
+  assert.match(cssSource, /@keyframes inquiry-cloud-breathe-near/);
+  assert.doesNotMatch(cssSource, /inquiry-pine-ground[^}]+clip-path/);
+});
+
+test("discernment mirrors the primary-question hierarchy and shows only the current turn", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /className="discernment scroll-section flow-lock-screen"/);
+  assert.match(appSource, /className="eyebrow">观象之法 · 贰/);
+  assert.match(appSource, /discernment-chrysanthemum-mountains-v2\.png/);
+  assert.match(appSource, /discernment-crane-flight-sprite-v1\.png|discernment-crane-facing/);
+  assert.doesNotMatch(appSource, /hair-ribbon|discernment-ribbon/);
+  assert.doesNotMatch(appSource, /<div className="step-heading"><span>贰<\/span>/);
+  assert.doesNotMatch(appSource, /className="dialogue-history"/);
+  assert.match(appSource, /const previousAnswer = answers\[answers\.length - 1\]/);
+  assert.match(appSource, /const previousTurn = turns\[turns\.length - 1\]/);
+  assert.match(appSource, /className="discernment-echo"/);
+  assert.match(appSource, /className="discernment-current"/);
+  assert.match(appSource, /key=\{`local-echo-\$\{answers\.length\}`\}/);
+  assert.match(appSource, /key=\{`local-prompt-\$\{turn\}`\}/);
+  assert.match(appSource, /discernment-current[^\n]+fuxi-bagua-taiji\.svg/);
+  assert.doesNotMatch(appSource, /discernment-current[^\n]+bagua-seal\.png/);
+  assert.match(appSource, /跳过这一问/);
+  assert.match(appSource, /已经说清，提前结束/);
+  assert.match(appSource, /className="discernment-chrysanthemum-progress"/);
+  assert.match(appSource, /Math\.max\(0, 8 - turns\.length\)/);
+  assert.doesNotMatch(appSource, /className="discernment-dialogue-head"/);
+  assert.match(appSource, /type DiscernmentCompletionReason = "ENOUGH" \| "MAX_TURNS" \| "USER_EARLY"/);
+  assert.match(appSource, /nextTurns\.length >= 8[\s\S]+setReview\(payload\); setReviewReason\("MAX_TURNS"\); setCurrentPrompt\(""\); setMode\("REVIEW"\)/);
+  assert.match(appSource, /onCompletionReason\("USER_EARLY"\)/);
+  assert.match(appSource, /《周易·系辞下》/);
+  assert.match(appSource, /穷则变，变则通，通则久/);
+  assert.doesNotMatch(appSource, /你选择了提前结束，或已经达到本次最多八问|不必为了问完而继续回答|AI 改写建议/);
+  assert.match(appSource, /FIRST_DISCERNMENT_QUESTION = "这件事现在具体走到了哪一步？"/);
+  assert.match(appSource, /前 \{turns\.length\} 个回答都还在/);
+  assert.match(appSource, /onClick=\{retryTurn\}>继续这一轮/);
+  assert.match(appSource, /className="discernment-mist-scroll"/);
+  assert.match(appSource, /discernment-mist-scroll-v1\.png/);
+  assert.match(appSource, /您的回答已被记录，请继续。/);
+  assert.doesNotMatch(appSource, /你刚才的回答已经记下|正在从这句话里分清已知与未知/);
+  assert.match(cssSource, /\.discernment \.discernment-turn \{ border-top: 0; border-bottom: 0; \}/);
+  assert.match(cssSource, /\.discernment \.discernment-working \{ border-top: 0; \}/);
+  assert.match(cssSource, /\.discernment \.discernment-classic \{ border-top: 0; border-bottom: 0; \}/);
+  assert.doesNotMatch(appSource, /开始 AI 辨识|重新连接 AI 辨识|正在静心听你所问/);
+  assert.match(cssSource, /\.discernment \{[^}]+min-height: 100svh[^}]+overflow: hidden/s);
+  assert.match(cssSource, /discernment-heading h2[^}]+clamp\(88px, 8\.3vw, 132px\)/);
+  assert.match(cssSource, /discernment-current img[^}]+object-fit: contain/);
+  assert.match(cssSource, /discernment-echo[^}]+discernment-echo-away/);
+  assert.match(cssSource, /discernment-mist-scroll img[^}]+discernment-mist-pass/);
+  assert.doesNotMatch(cssSource, /discernment-working-line/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+discernment-echo/);
+});
+
+test("final question offers a concise user-controlled question decision", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  await fs.access(new URL("../public/final-question-sunset-reeds-v1.webp", import.meta.url));
+  assert.match(appSource, /通过跟你的沟通，我建议你在卜卦之前，把问题更换为/);
+  assert.match(appSource, /采取建议/);
+  assert.match(appSource, /保持原题/);
+  assert.match(appSource, /decisionMade \? "那现在" : "现在"/);
+  assert.match(appSource, /我感受到你想尽快进入取数卜卦的环节。/);
+  assert.match(appSource, /className="final-question-breathing"><span>请在心中再次默念你的问题<\/span><span>深呼吸<\/span>/);
+  assert.doesNotMatch(appSource, /请在心中再次默念你的问题[，,]|深呼吸[。\.]/);
+  assert.match(appSource, /开始卜卦/);
+  assert.doesNotMatch(appSource, /最终问卦题目|final-question-input|question-compare/);
+  assert.match(appSource, /onSuggestion\(\{ question: review\.suggested_question, reason: review\.question_change_reason \}\)/);
+  assert.match(appSource, /<FinalQuestion hidden=\{!intakeComplete \|\| flowPage !== 5\}/);
+  assert.match(appSource, /id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen" hidden=\{!finalQuestionConfirmed \|\| flowPage !== 6\}/);
+  assert.match(appSource, /className="final-question-sky-drift"/);
+  assert.match(appSource, /className="final-question-bird"/);
+  assert.match(appSource, /理清脉络之后<br \/>确认最终问题/);
+  assert.match(appSource, /<BaguaMark className="final-question-bagua" \/><span className="method-cta-label">/);
+  assert.match(cssSource, /final-question-step[^}]+min-height: 100svh/);
+  assert.match(cssSource, /final-question-backdrop[^}]+final-question-sunset-reeds-v2\.png/);
+  assert.match(cssSource, /final-question-backdrop[^}]+position: fixed[^}]+inset: 0[^}]+width: 100vw[^}]+height: 100svh/);
+  assert.match(cssSource, /final-question-backdrop::before[^}]+background-position: calc\(50% - 38px\) center/);
+  assert.match(cssSource, /final-question-backdrop::after[^}]+background-position: calc\(50% \+ 44px\) center/);
+  assert.match(cssSource, /final-question-backdrop::before[^}]+final-question-reed-sway-near/);
+  assert.match(cssSource, /final-question-backdrop::after[^}]+final-question-reed-sway-mid/);
+  assert.match(cssSource, /@keyframes final-question-reed-sway-near/);
+  assert.match(cssSource, /final-question-sky-drift::before[^}]+final-question-sky-flow/);
+  assert.match(cssSource, /@keyframes final-question-sky-flow/);
+  assert.match(cssSource, /@keyframes final-question-sky-flow-soft/);
+  assert.match(cssSource, /final-question-bird[^}]+final-question-bird-sprite-v1\.png/);
+  assert.match(cssSource, /@keyframes final-question-bird-flap/);
+  assert.match(cssSource, /final-question-cta::after[^}]+content: none/);
+  assert.match(cssSource, /final-question-ready[^}]+border: 0/);
+  assert.match(cssSource, /question-change-proposal \{[^}]+border-top: 0[^}]+border-bottom: 0/s);
+  assert.match(cssSource, /question-change-proposal blockquote \{[^}]+padding: 0[^}]+border: 0[^}]+var\(--brush\)/s);
+  assert.match(cssSource, /final-question-step > \.final-question-heading \{[^}]+position: absolute[^}]+left: clamp\(116px, 10vw, 184px\)/s);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+final-question-backdrop::before[^}]+animation: none/);
+  assert.match(cssSource, /final-question-cta/);
+});
+
+test("casting uses a borderless windblown peony scene without changing number roles", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const petalMotionSource = appSource.match(/const PEONY_PETAL_MOTIONS = \[([\s\S]*?)\] as const;/)?.[1] ?? "";
+  assert.match(appSource, /className="eyebrow">观象之法 · 肆/);
+  assert.match(appSource, /id="casting-title"[^>]*>成卦/);
+  assert.match(appSource, /PEONY_BREATHS\.map/);
+  assert.match(appSource, /casting-peony-petal-v1\.png/);
+  assert.equal((petalMotionSource.match(/\{ left:/g) ?? []).length, 18);
+  assert.match(petalMotionSource, /size: 10/);
+  assert.match(petalMotionSource, /size: 108/);
+  assert.match(petalMotionSource, /duration: 8\.5/);
+  assert.match(petalMotionSource, /duration: 23\.2/);
+  assert.match(appSource, /心中再默念一遍所问之事/);
+  assert.match(appSource, /三息之间，收束心念/);
+  assert.match(appSource, /取1-999之间的数字，填入上方文字右侧/);
+  assert.doesNotMatch(appSource, /placeholder="1—999"/);
+  assert.match(appSource, /aria-describedby="casting-range-note"/);
+  assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+loading \? "正在成卦" : "成卦"[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
+  assert.match(cssSource, /\.casting-heading \{ --casting-copy-size: clamp\(22px, 1\.7vw, 29px\)/);
+  assert.match(cssSource, /\.casting-heading \.casting-contemplation \{[^}]+font-size: var\(--casting-copy-size\)/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-copy b \{ font-size: var\(--casting-copy-size\); \}/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-field \{ margin-top: clamp\(72px, 8vh, 92px\); \}/);
+  assert.match(cssSource, /\.casting-heading \.casting-submit \{ margin-top: clamp\(72px, 9vh, 96px\); \}/);
+  assert.equal((appSource.match(/className="cast-button/g) ?? []).length, 1);
+  assert.doesNotMatch(appSource, /function CastingLoader|className="ack"|正在生成解读|确认使用边界/);
+  assert.doesNotMatch(appSource, /className="inquiry-step inquiry-panel cast-step"/);
+  assert.match(appSource, /peony-bloom-image[\s\S]+peony-petal-layer[\s\S]+peony-petal-origin[\s\S]+peony-falling-petal/);
+  assert.match(appSource, /凭当下所感，取三个数/);
+  assert.match(appSource, /guidance: "上卦取数"/);
+  assert.match(appSource, /guidance: "下卦取数"/);
+  assert.match(appSource, /guidance: "动爻取数"/);
+  assert.doesNotMatch(appSource, /闭上眼睛，缓缓呼吸三次，在心中再默念一遍确认后的问题/);
+  assert.doesNotMatch(appSource, /第一数定上卦，第二数定下卦，第三数定动爻/);
+  assert.doesNotMatch(appSource, /三个数字只交给程序/);
+  assert.doesNotMatch(appSource, /className="breath-ritual"/);
+  assert.match(cssSource, /casting-peony-backdrop[^}]+casting-peony-background-v3\.webp/);
+  assert.match(cssSource, /casting-heading h3[^}]+font-family: var\(--brush\)/);
+  assert.match(cssSource, /casting-heading \.casting-submit \.bagua-mark[^}]+width: 30px[^}]+height: 30px/);
+  assert.match(cssSource, /casting-number-step[^}]+overflow: visible/);
+  assert.match(cssSource, /casting-number-step::before[^}]+z-index: -3[^}]+background: #f1ede5/);
+  assert.match(cssSource, /casting-peony-scene[^}]+width: 100vw[^}]+aspect-ratio: 16 \/ 9/);
+  assert.match(cssSource, /casting-number-step[^}]+--casting-viewport-shift/);
+  assert.match(cssSource, /casting-number-step > \.casting-heading \{[^}]+position: absolute[^}]+left: clamp\(116px, 10vw, 184px\)/s);
+  assert.match(cssSource, /casting-number-step > \.casting-heading \{[^}]+z-index: 2/);
+  assert.match(cssSource, /casting-number-workspace \{[^}]+pointer-events: none/);
+  assert.match(cssSource, /inquiry\.has-casting-step[^}]+padding-bottom: 0/);
+  assert.match(cssSource, /viewport-page[^}]+min-height: calc\(100svh - 68px\)/);
+  assert.match(appSource, /useLayoutEffect\(\(\) => \{[\s\S]+if \(!finalQuestionConfirmed\) return;[\s\S]+window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
+  assert.doesNotMatch(appSource, /getBoundingClientRect\(\)\.top - headerHeight/);
+  assert.doesNotMatch(appSource, /getElementById\("casting"\)\?\.scrollIntoView/);
+  assert.match(appSource, /className="version-note" hidden/);
+  assert.match(appSource, /className="site-footer" hidden/);
+  assert.match(cssSource, /casting-peony-scene[^}]+translateX\(calc\(-50% - var\(--casting-viewport-shift\)\)\)/);
+  assert.doesNotMatch(cssSource, /peony-bloom-image[^}]+animation:/);
+  assert.match(cssSource, /peony-falling-petal[^}]+peony-petal-fall var\(--petal-duration\) linear/);
+  assert.match(cssSource, /peony-number \{[^}]+grid-template-columns:[^}]+align-items: center/);
+  assert.match(cssSource, /peony-petal-layer \{[^}]+z-index: 2/);
+  assert.match(cssSource, /peony-bloom \{[^}]+z-index: 1/);
+  assert.match(cssSource, /casting-heading \.peony-number-field[^}]+grid-template-columns: repeat\(3/);
+  assert.match(cssSource, /casting-contemplation span:nth-child\(2\)[^}]+margin-left: 0/);
+  assert.match(cssSource, /peony-number-copy[^}]+justify-items: start[^}]+text-align: left/);
+  assert.match(cssSource, /casting-heading \.casting-submit::after[^}]+content: none/);
+  assert.match(cssSource, /@media \(max-width: 760px\)[\s\S]+\.casting-heading \{[^}]+display: block/);
+  assert.doesNotMatch(cssSource, /peony-number-wind/);
+  assert.match(cssSource, /peony-falling-petal[^}]+mix-blend-mode: normal/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+rotateX\([^)]+\)[\s\S]+rotateY\([^)]+\)/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+0% \{ opacity: 1;/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+24% \{ opacity: 1;/);
+  assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+47% \{ opacity: 1;/);
+  assert.doesNotMatch(cssSource, /casting-contemplation span:nth-child\(1\)[^{]*\{[^}]*border-bottom/);
+  assert.match(cssSource, /prefers-reduced-motion:[^}]+reduce[\s\S]+peony-falling-petal[^}]+display: none/);
+  assert.doesNotMatch(cssSource, /discernment-step::before[^}]+content:/);
+  assert.doesNotMatch(cssSource, /final-question-step::before[^}]+content:/);
+});
+
+test("sixth page submits directly and seventh page gates detailed reading", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.doesNotMatch(appSource, /const numbersReady = numbers\.every|acknowledged/);
+  assert.match(appSource, /className="cast-button casting-submit" disabled=\{loading\}/);
+  assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
+  assert.match(appSource, /function ResultKoiPond\(\)/);
+  assert.match(appSource, /id="result" className="result-shell flow-lock-screen"/);
+  assert.match(appSource, /page7-koi-cinnabar-v1\.png/);
+  assert.match(appSource, /page7-koi-ink-v1\.png/);
+  assert.match(appSource, /Math\.random\(\)/);
+  assert.match(appSource, /requestAnimationFrame\(draw\)/);
+  assert.match(appSource, /tailWeight/);
+  assert.match(appSource, /context\.rotate\(localAngle\)/);
+  assert.match(appSource, /function BrushHexagram/);
+  assert.match(appSource, /className="brush-hexagram"/);
+  assert.match(appSource, /page7-yao-brush-v1\.png/);
+  assert.match(appSource, /page7-yao-brush-short-v1\.png/);
+  assert.match(appSource, /className="result-number">第 \{result\.base_hexagram\.king_wen_number\} 卦/);
+  assert.match(appSource, /className="result-canonical"><b>卦辞<\/b><span>/);
+  assert.doesNotMatch(appSource, /<aside className="result-aside">/);
+  assert.doesNotMatch(appSource, /className="result-question"/);
+  assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
+  assert.match(appSource, /aria-disabled="true" disabled>第八页待验收后开放<\/button>/);
+  assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
+  assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
+  assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);
+  assert.match(appSource, /const deterministicRequest = fetch\("\/api\/v3\/meihua"/);
+  assert.match(appSource, /if \(!useDeterministicOnly\) \{[\s\S]+void \(async \(\) => \{/);
+  assert.match(appSource, /const request = await deterministicRequest;[\s\S]+setResponse\(payload\)/);
+  assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
+  assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
+  assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
+  assert.match(cssSource, /result-overview[^}]+grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/);
+  assert.match(cssSource, /page7-taiji-bg-v1\.png/);
+  assert.match(cssSource, /result-koi-layer[^}]+pointer-events: none/);
+  assert.match(cssSource, /result-detail-button:hover, \.result-detail-button:focus-visible/);
+});
+
+test("first seven pages are single-screen, forward-only and scroll locked", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(appSource, /const \[flowPage, setFlowPage\] = useState\(1\)/);
+  assert.match(appSource, /if \(nextPage <= flowPageRef\.current \|\| nextPage > 7\) return/);
+  assert.match(appSource, /window\.addEventListener\("wheel", blockScroll, \{ passive: false \}\)/);
+  assert.match(appSource, /window\.addEventListener\("touchmove", blockScroll, \{ passive: false \}\)/);
+  assert.match(appSource, /data-flow-page=\{flowPage\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 1\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 2\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 3\}/);
+  assert.match(appSource, /hidden=\{flowPage !== 4\}/);
+  assert.match(appSource, /flowPage !== 5/);
+  assert.match(appSource, /flowPage !== 6/);
+  assert.match(appSource, /response && flowPage === 7/);
+  assert.match(cssSource, /flow-scroll-locked[^}]+overflow: hidden !important/);
+  assert.match(cssSource, /flow-lock-screen[^}]+height: 100svh !important[^}]+max-height: 100svh !important/);
+});
+
 test("AI guided intake fails safely until the Python engine is configured", async () => {
   const app = await worker();
   const response = await app.fetch(new Request("http://localhost/api/intake", {
@@ -116,7 +437,27 @@ test("AI guided intake fails safely until the Python engine is configured", asyn
   }), env, context);
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("cache-control"), "no-store");
-  assert.deepEqual(await response.json(), { error: "AI 辨识暂时未连接。" });
+  assert.deepEqual(await response.json(), { error: "辨识服务暂时未连接。" });
+});
+
+test("AI guided intake accepts later CJK turns within the engine transcript limit", async () => {
+  const app = await worker();
+  const response = await app.fetch(new Request("http://localhost/api/intake", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contract_version: "SITES_GUIDED_INTAKE_CONTRACT_V1",
+      session_id: "intake-cjk-size-001",
+      question_text: "这次合作，我还应该继续投入吗？",
+      turns: Array.from({ length: 5 }, (_, index) => ({
+        question: `这是第${index + 1}个需要辨清的问题？`,
+        answer: "现实".repeat(600),
+      })),
+      locale: "zh-CN",
+    }),
+  }), env, context);
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: "辨识服务暂时未连接。" });
 });
 
 function createBudgetDb() {

@@ -205,20 +205,46 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             return
         try:
             if path == GUIDED_INTAKE_PATH:
+                session_id = str(payload.get("session_id", ""))[:32] if isinstance(payload, dict) else "invalid"
+                turns = payload.get("turns", []) if isinstance(payload, dict) else []
+                turn_count = len(turns) if isinstance(turns, list) else -1
                 intake_enabled = os.environ.get("ABALO_GUIDED_INTAKE_ENABLED", "").strip().lower() == "true"
                 owner_preview_enabled = os.environ.get("ABALO_OWNER_PREVIEW_ENABLED", "").strip().lower() == "true"
                 if not (intake_enabled or owner_preview_enabled):
+                    LOGGER.warning(
+                        "guided_intake_unavailable reason=disabled session_id=%s turn_count=%d",
+                        session_id,
+                        turn_count,
+                    )
                     self._send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"status": "intake_disabled"})
                     return
                 try:
                     response = process_sites_guided_intake_v1_request(payload)
                 except ValueError:
+                    LOGGER.warning(
+                        "guided_intake_unavailable reason=invalid_request session_id=%s turn_count=%d",
+                        session_id,
+                        turn_count,
+                    )
                     self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_request"})
                     return
                 except GuidedIntakeError:
+                    LOGGER.warning(
+                        "guided_intake_unavailable reason=model_request session_id=%s turn_count=%d latency_ms=%d",
+                        session_id,
+                        turn_count,
+                        round((time.perf_counter() - started) * 1000),
+                    )
                     self._send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"status": "intake_unavailable"})
                     return
                 self._send_json(HTTPStatus.OK, response)
+                LOGGER.info(
+                    "guided_intake status=%s session_id=%s turn_count=%d latency_ms=%d",
+                    response.get("status", "UNKNOWN"),
+                    session_id,
+                    turn_count,
+                    round((time.perf_counter() - started) * 1000),
+                )
                 return
             if path == OWNER_PREVIEW_JOB_PATH:
                 if not isinstance(payload, dict):
