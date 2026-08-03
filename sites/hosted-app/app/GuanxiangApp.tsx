@@ -1442,7 +1442,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
         <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b><span>{baseClassic.canonical_text}</span></blockquote>}
-        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled={!response.page8_reading} disabled={!response.page8_reading} onClick={openDetailedReading}>查看详细解卦</button>
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled="true" disabled>查看详细解卦</button>
       </div>
     </section>
 

@@ -390,7 +390,7 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.doesNotMatch(appSource, /<aside className="result-aside">/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
-  assert.match(appSource, /onClick=\{openDetailedReading\}>查看详细解卦<\/button>/);
+  assert.match(appSource, /aria-disabled="true" disabled>查看详细解卦<\/button>/);
   assert.match(appSource, /function Page8ModelReview/);
   assert.match(appSource, /数据模型审核版/);
   assert.match(appSource, /五幕数据已经展示完毕。此处停止，不进入第九页/);
