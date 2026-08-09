@@ -165,6 +165,7 @@ type ProductResult = {
   clarity_report: ClarityReport;
   cultural_reading?: CulturalReading;
   personalized_reading?: PersonalizedReading;
+  page8_reading?: Page8Reading | null;
 };
 type StructuredIntake = {
   question_domain: string;
@@ -1933,13 +1934,13 @@ export function Page8KunStory({ reading, reviewMode = false }: { reading: Page8R
   </section>;
 }
 
-function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
+function ResultView({ response, page8Pending, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; page8Pending: boolean; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
   const result = response.deterministic_result;
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
   const [action, setAction] = useState(`我准备这样做：${initialAction}`);
   const [reviewOn, setReviewOn] = useState(defaultReviewDate());
   const [readingStarted, setReadingStarted] = useState(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!readingStarted) return;
     const root = document.documentElement;
     const body = document.body;
@@ -1974,13 +1975,13 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     setReadingStarted(true);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("page8-model-review")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-      document.querySelector<HTMLElement>("#page8-model-review h2")?.focus({ preventScroll: true });
+      document.getElementById("result-reading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.querySelector<HTMLElement>("#result-reading h2, #result-reading [role='status']")?.focus({ preventScroll: true });
     }));
   }
 
   return <section id="result" className={`result-shell${readingStarted ? " is-reading-started" : " flow-lock-screen"}`} aria-labelledby="result-title">
-    <section className="result-overview scroll-section viewport-page" data-reveal>
+    <section className="result-overview scroll-section viewport-page" data-reveal hidden={readingStarted}>
       <ResultKoiPond />
       <div className="result-verdict">
         <BrushHexagram hexagram={result.base_hexagram} />
@@ -1994,7 +1995,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     </section>
 
     <div id="result-reading" hidden={!readingStarted}>
-    {response.page8_reading ? <Page8KunStory reading={response.page8_reading} /> : <section className="page8-kun-story is-incomplete"><p>第八页五幕数据尚未生成，本次不展示。</p></section>}
+    {response.page8_reading ? <Page8KunStory reading={response.page8_reading} /> : <section id="page8-model-review" className="page8-kun-story is-incomplete"><p role="status" tabIndex={-1}>{page8Pending ? "详细解卦正在生成，完成后将在这里自动展开。" : "本次详细解卦尚未生成。"}</p></section>}
     <div className="future-result-sections" hidden aria-hidden="true">
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
@@ -2383,6 +2384,7 @@ export function GuanxiangApp() {
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
+  const [page8Pending, setPage8Pending] = useState(false);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
@@ -2594,6 +2596,7 @@ export function GuanxiangApp() {
       throw new Error(payload.error || "本次解读没有通过检查，也不会自动重新生成。");
     }
     setResponse(payload);
+    setPage8Pending(false);
     setProgress("");
   }
 
@@ -2615,10 +2618,11 @@ export function GuanxiangApp() {
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
     activePersonalizedRequestRef.current = activeRequestId;
+    setPage8Pending(true);
     let cancelled = false;
     const resumeTimer = window.setTimeout(() => {
       void pollPersonalizedRequest(activeRequestId, () => cancelled)
-        .catch(() => { if (!cancelled) sessionStorage.removeItem(ACTIVE_REQUEST_KEY); });
+        .catch(() => { if (!cancelled) { sessionStorage.removeItem(ACTIVE_REQUEST_KEY); setPage8Pending(false); } });
     }, 0);
     return () => { cancelled = true; window.clearTimeout(resumeTimer); };
   // An unfinished request is intentionally resumed only once when the formal page mounts.
@@ -2643,7 +2647,7 @@ export function GuanxiangApp() {
     } catch { return; }
     const timer = window.setTimeout(() => {
       setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setDiscernmentCompletionReason("ENOUGH"); setIntakeComplete(true); setSavedRecordId(record.id);
-      setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null });
+      setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null, page8_reading: record.result.page8_reading ?? null });
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -2657,14 +2661,14 @@ export function GuanxiangApp() {
   }, [response]);
 
   function editQuestion() {
-    setResponse(null); setError("");
+    setResponse(null); setPage8Pending(false); setError("");
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setError(""); setSavedRecordId(null);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Pending(false); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -2676,7 +2680,7 @@ export function GuanxiangApp() {
       const request = await fetch("/api/journal", { method: "POST", headers: journalHeaders(), body: JSON.stringify({
         id, question: response.user_question ?? question.trim(), structured_intake: response.structured_intake ?? { question_domain: domain, decision_goal: goal, time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile },
         numbers: response.deterministic_result.input_numbers,
-        result: { ...response.deterministic_result, ...(response.personalized_reading ? { personalized_reading: response.personalized_reading } : {}) },
+        result: { ...response.deterministic_result, ...(response.personalized_reading ? { personalized_reading: response.personalized_reading } : {}), ...(response.page8_reading ? { page8_reading: response.page8_reading } : {}) },
         action_text: actionText, review_on: reviewOn,
       }) });
       const payload = await request.json() as { record?: JournalRecord; error?: string };
@@ -2687,7 +2691,7 @@ export function GuanxiangApp() {
   }
 
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError(""); setResponse(null); setSavedRecordId(null);
+    event.preventDefault(); setError(""); setResponse(null); setPage8Pending(false); setSavedRecordId(null);
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (activeRequestId) {
       activePersonalizedRequestRef.current = null;
@@ -2721,6 +2725,7 @@ export function GuanxiangApp() {
     });
 
     if (!useDeterministicOnly) {
+      setPage8Pending(true);
       const requestId = `sites-${crypto.randomUUID()}`;
       activePersonalizedRequestRef.current = requestId;
       sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
@@ -2744,16 +2749,19 @@ export function GuanxiangApp() {
               if (request.ok) { finishPersonalizedRequest(payload, requestId); return; }
               if (request.status !== 503) {
                 sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+                setPage8Pending(false);
                 return;
               }
             } catch (caught) {
-              if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) return;
+              if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) { setPage8Pending(false); return; }
             }
             await sleep(1_500);
           }
           if (accepted) await pollPersonalizedRequest(requestId);
+          else setPage8Pending(false);
         } catch {
           sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+          setPage8Pending(false);
         }
       })();
     }
@@ -2764,7 +2772,7 @@ export function GuanxiangApp() {
       if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
         throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
       }
-      setResponse(payload);
+      setResponse((current) => current?.page8_reading ? current : payload);
     } catch (caught) { setError(caught instanceof Error ? caught.message : "本次未能完成排盘。"); }
     finally { setLoading(false); setProgress(""); }
   }
@@ -2972,7 +2980,7 @@ export function GuanxiangApp() {
         </form>
       </section>
 
-      {response && flowPage === 7 && <ResultView response={response} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
+      {response && flowPage === 7 && <ResultView response={response} page8Pending={page8Pending} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
       <aside className="version-note" hidden>卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
     </main>
     <footer className="site-footer" hidden><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>

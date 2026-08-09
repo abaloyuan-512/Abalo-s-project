@@ -89,6 +89,11 @@ test("page eight opens from page seven and keeps all later reserved sections hid
   assert.match(source, /response\.page8_reading \? <Page8KunStory/);
   assert.match(source, /className="result-detail-button"[\s\S]*?onClick=\{openDetailedReading\}/);
   assert.doesNotMatch(source, /className="result-detail-button"[^>]+disabled/);
+  assert.match(source, /className="result-overview scroll-section viewport-page" data-reveal hidden=\{readingStarted\}/);
+  assert.match(source, /document\.getElementById\("result-reading"\)\?\.scrollIntoView/);
+  assert.match(source, /id="page8-model-review" className="page8-kun-story is-incomplete"/);
+  assert.match(source, /page8Pending \? "详细解卦正在生成，完成后将在这里自动展开。"/);
+  assert.match(source, /setResponse\(\(current\) => current\?\.page8_reading \? current : payload\)/);
   assert.match(source, /page8ScrollIsOpen/);
   assert.match(source, /root\.classList\.add\("page8-reading-open"\)/);
   assert.match(source, /root\.classList\.remove\("page8-reading-open"\)/);

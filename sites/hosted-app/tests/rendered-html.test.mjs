@@ -404,7 +404,7 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);
   assert.match(appSource, /const deterministicRequest = fetch\("\/api\/v3\/meihua"/);
   assert.match(appSource, /if \(!useDeterministicOnly\) \{[\s\S]+void \(async \(\) => \{/);
-  assert.match(appSource, /const request = await deterministicRequest;[\s\S]+setResponse\(payload\)/);
+  assert.match(appSource, /const request = await deterministicRequest;[\s\S]+setResponse\(\(current\) => current\?\.page8_reading \? current : payload\)/);
   assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
