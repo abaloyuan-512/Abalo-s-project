@@ -379,7 +379,7 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /className="cast-button casting-submit" disabled=\{loading\}/);
   assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
   assert.match(appSource, /function ResultKoiPond\(\)/);
-  assert.match(appSource, /id="result" className="result-shell flow-lock-screen"/);
+  assert.match(appSource, /id="result" className=\{`result-shell\$\{readingStarted \? " is-reading-started" : " flow-lock-screen"\}`\}/);
   assert.match(appSource, /page7-koi-cinnabar-v1\.png/);
   assert.match(appSource, /page7-koi-ink-v1\.png/);
   assert.match(appSource, /Math\.random\(\)/);
@@ -395,10 +395,10 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.doesNotMatch(appSource, /<aside className="result-aside">/);
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
-  assert.match(appSource, /aria-disabled="true" disabled>查看详细解卦<\/button>/);
-  assert.match(appSource, /function Page8ModelReview/);
-  assert.match(appSource, /数据模型审核版/);
-  assert.match(appSource, /五幕数据已经展示完毕。此处停止，不进入第九页/);
+  assert.match(appSource, /aria-expanded=\{readingStarted\} onClick=\{openDetailedReading\}>查看详细解卦<\/button>/);
+  assert.match(appSource, /function Page8KunStory/);
+  assert.match(appSource, /鲲游五境/);
+  assert.match(appSource, /五境阅毕 · 第九页尚未开启/);
   assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
   assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
   assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);

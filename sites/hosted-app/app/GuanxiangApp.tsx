@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -95,13 +95,63 @@ type Page8Scene = {
   deterministic: Page8DeterministicContent;
   interpretation: Page8LayerInterpretation;
 };
-type Page8Reading = {
+export type Page8Reading = {
   template_version: "SITES_PAGE8_READING_V1";
   stage_title: "读卦";
   user_question: string;
   scenes: Page8Scene[];
   epistemic_boundary: string;
   page9_reserved: true;
+};
+const PAGE8_VISUAL_ORDER: Page8SceneId[] = [
+  "BASE_HEXAGRAM",
+  "MUTUAL_HEXAGRAM",
+  "MOVING_LINE",
+  "CHANGED_HEXAGRAM",
+  "BODY_USE_STRENGTH",
+];
+const PAGE8_SCENE_ART: Record<Page8SceneId, {
+  background: string;
+  mist: string;
+  breath: string;
+  navLabel: string;
+  copySide: "left" | "right";
+}> = {
+  BASE_HEXAGRAM: {
+    background: "/page8/page8-ben-gua-background-v6.png",
+    mist: "/page8/page8-ben-gua-mist-v1.png",
+    breath: "/page8/page8-ben-gua-breath-v1.png",
+    navLabel: "本",
+    copySide: "left",
+  },
+  MUTUAL_HEXAGRAM: {
+    background: "/page8/page8-hu-gua-background-v6.png",
+    mist: "/page8/page8-hu-gua-mist-v1.png",
+    breath: "/page8/page8-hu-gua-breath-v1.png",
+    navLabel: "互",
+    copySide: "right",
+  },
+  MOVING_LINE: {
+    background: "/page8/page8-dong-yao-background-v6.png",
+    mist: "/page8/page8-dong-yao-mist-v1.png",
+    breath: "/page8/page8-dong-yao-breath-v1.png",
+    navLabel: "爻",
+    copySide: "left",
+  },
+  CHANGED_HEXAGRAM: {
+    background: "/page8/page8-bian-gua-background-v6.png",
+    mist: "/page8/page8-bian-gua-mist-v1.png",
+    breath: "/page8/page8-bian-gua-breath-v1.png",
+    navLabel: "变",
+    copySide: "right",
+  },
+  BODY_USE_STRENGTH: {
+    background: "/page8/page8-wang-shuai-background-v6.png",
+    mist: "/page8/page8-wang-shuai-mist-v1.png",
+    breath: "/page8/page8-wang-shuai-breath-v1.png",
+    navLabel: "势",
+    copySide: "left",
+  },
 };
 type ProductResult = {
   input_numbers: number[];
@@ -1341,6 +1391,130 @@ function BrushHexagram({ hexagram }: { hexagram: Hexagram }) {
   </div>;
 }
 
+type Page8ReviewVariant = "A" | "B";
+
+const PAGE8_TRIGRAM_NAMES: Record<string, string> = {
+  "111": "乾",
+  "110": "兑",
+  "101": "离",
+  "100": "震",
+  "011": "巽",
+  "010": "坎",
+  "001": "艮",
+  "000": "坤",
+};
+
+function Page8BrushLine({ value, className = "" }: { value: "0" | "1"; className?: string }) {
+  return <span className={`page8-brush-line ${value === "1" ? "is-yang" : "is-yin"}${className ? ` ${className}` : ""}`}>
+    {value === "1"
+      ? <img src="/page7-yao-brush-v1.png" alt="" />
+      : <><img src="/page7-yao-brush-short-v1.png" alt="" /><img src="/page7-yao-brush-short-v1.png" alt="" /></>}
+  </span>;
+}
+
+function Page8YaoStack({ linesBottomUp, activePosition, className = "" }: { linesBottomUp: string; activePosition?: number; className?: string }) {
+  return <div className={`page8-yao-stack${className ? ` ${className}` : ""}`} aria-hidden="true">
+    {[...linesBottomUp].reverse().map((value, index) => {
+      const position = linesBottomUp.length - index;
+      return <Page8BrushLine key={`${position}-${value}`} value={value as "0" | "1"} className={activePosition === position ? "is-active-line" : ""} />;
+    })}
+  </div>;
+}
+
+function page8MovingPosition(scene: Page8Scene | undefined): number {
+  const positionFact = scene?.deterministic.facts.find((fact) => fact.label.includes("位置"));
+  const numeric = Number.parseInt(positionFact?.value ?? "", 10);
+  if (numeric >= 1 && numeric <= 6) return numeric;
+  const text = `${scene?.deterministic.primary_name ?? ""} ${scene?.deterministic.facts.map((fact) => fact.value).join(" ") ?? ""}`;
+  if (text.includes("初")) return 1;
+  if (text.includes("二")) return 2;
+  if (text.includes("三")) return 3;
+  if (text.includes("四")) return 4;
+  if (text.includes("五")) return 5;
+  if (text.includes("上") || text.includes("六")) return 6;
+  return 3;
+}
+
+function page8BodyIsStrong(scene: Page8Scene): boolean | null {
+  const text = scene.deterministic.facts.map((fact) => `${fact.label}${fact.value}`).join(" ");
+  if (/[旺相]/.test(text)) return true;
+  if (/[休囚死衰弱]/.test(text)) return false;
+  return null;
+}
+
+function Page8OracleMark({
+  scene,
+  baseLines,
+  movingPosition,
+  movingVariant,
+  strengthVariant,
+  isEngaged = false,
+  focusVisible = false,
+  onPointerEnter,
+  onPointerLeave,
+}: {
+  scene: Page8Scene;
+  baseLines: string;
+  movingPosition: number;
+  movingVariant: Page8ReviewVariant;
+  strengthVariant: Page8ReviewVariant;
+  isEngaged?: boolean;
+  focusVisible?: boolean;
+  onPointerEnter?: (markElement: HTMLDivElement) => void;
+  onPointerLeave?: () => void;
+}) {
+  const mark = (className: string, content: ReactNode) => <div
+    className={`page8-oracle-zone ${className}${isEngaged ? " is-oracle-engaged" : ""}`}
+  >
+    <div
+      className="page8-oracle-hit-area"
+      aria-hidden="true"
+      onPointerEnter={(event) => {
+        const markElement = event.currentTarget.nextElementSibling;
+        if (markElement instanceof HTMLDivElement) onPointerEnter?.(markElement);
+      }}
+      onPointerLeave={onPointerLeave}
+    />
+    <div
+      className={`page8-oracle-mark ${className}${isEngaged ? focusVisible ? " is-oracle-focused" : " is-oracle-returning" : ""}`}
+      aria-hidden="true"
+    >
+      <div className="page8-oracle-moving-body">{content}</div>
+    </div>
+  </div>;
+
+  if (["BASE_HEXAGRAM", "MUTUAL_HEXAGRAM", "CHANGED_HEXAGRAM"].includes(scene.scene_id)) {
+    const number = scene.deterministic.king_wen_number;
+    const lines = number ? KING_WEN_LINES_BOTTOM_UP[number - 1] : null;
+    if (!lines) return null;
+    return mark("is-full-hexagram", <Page8YaoStack linesBottomUp={lines} />);
+  }
+
+  if (scene.scene_id === "MOVING_LINE") {
+    const original = (baseLines[movingPosition - 1] ?? "1") as "0" | "1";
+    const changed = original === "1" ? "0" : "1";
+    if (movingVariant === "B") {
+      return mark("is-moving-line is-variant-b", <>
+        <Page8BrushLine value={original} className="is-origin-line" />
+        <Page8BrushLine value={changed} className="is-changed-line" />
+      </>);
+    }
+    return mark("is-moving-line is-variant-a", <>
+      <Page8YaoStack linesBottomUp={baseLines} activePosition={movingPosition} />
+    </>);
+  }
+
+  const lowerTrigram = baseLines.slice(0, 3);
+  const upperTrigram = baseLines.slice(3, 6);
+  const bodyLines = movingPosition <= 3 ? upperTrigram : lowerTrigram;
+  const useLines = movingPosition <= 3 ? lowerTrigram : upperTrigram;
+  const bodyStrong = page8BodyIsStrong(scene);
+  return mark(`is-body-use is-variant-${strengthVariant.toLowerCase()}${bodyStrong === true ? " is-body-strong" : bodyStrong === false ? " is-use-strong" : ""}`, <>
+    <div className="page8-trigram-mark is-body"><span>体 · {PAGE8_TRIGRAM_NAMES[bodyLines] ?? "卦"}</span><Page8YaoStack linesBottomUp={bodyLines} /></div>
+    <div className="page8-trigram-mark is-use"><span>用 · {PAGE8_TRIGRAM_NAMES[useLines] ?? "卦"}</span><Page8YaoStack linesBottomUp={useLines} /></div>
+  </>);
+}
+
 function Page8ModelReview({ reading }: { reading: Page8Reading }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -1399,12 +1573,383 @@ function Page8ModelReview({ reading }: { reading: Page8Reading }) {
   </section>;
 }
 
+type Page8Photon = {
+  phase: number;
+  band: number;
+  size: number;
+  speed: number;
+  twinkle: number;
+  twinklePhase: number;
+  brightness: number;
+  tone: number;
+  spark: boolean;
+};
+
+const PAGE8_PHOTON_COUNT = 1500;
+
+function page8PhotonField(): Page8Photon[] {
+  let seed = 0x8f4d3a2b;
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+
+  return Array.from({ length: PAGE8_PHOTON_COUNT }, () => {
+    const centeredBand = (random() + random() + random() + random() - 2) / 2;
+    const sizeRoll = random();
+    const toneRoll = random();
+    return {
+      phase: random(),
+      band: Math.max(-1, Math.min(1, centeredBand)),
+      size: sizeRoll > .945 ? 1.9 + random() * 1.65 : .38 + random() * 1.08,
+      speed: .009 + random() * .012,
+      twinkle: .55 + random() * 1.35,
+      twinklePhase: random() * Math.PI * 2,
+      brightness: .34 + random() * .48,
+      tone: toneRoll < .58 ? 1 : toneRoll < .82 ? 0 : 2,
+      spark: sizeRoll > .925,
+    };
+  });
+}
+
+function Page8PhotonRiver() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext("2d", { alpha: true });
+    if (!context) return;
+
+    const photons = page8PhotonField();
+    const tones = ["#fff1b8", "#c4881e", "#edf2df"];
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let width = 0;
+    let height = 0;
+    let animationFrame = 0;
+    let startedAt = performance.now();
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      const density = Math.min(window.devicePixelRatio || 1, 1.5);
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      canvas.width = Math.round(width * density);
+      canvas.height = Math.round(height * density);
+      context.setTransform(density, 0, 0, density, 0, 0);
+    };
+
+    const photonPosition = (photon: Page8Photon, elapsed: number) => {
+      const progress = (photon.phase + elapsed * photon.speed) % 1;
+      const wave = progress * Math.PI * 2;
+      const drift = elapsed * .035;
+      const centerY = height * (
+        .49
+        + .105 * Math.sin(wave - .72 + drift)
+        + .03 * Math.sin(wave * 2 + 1.36 - drift * .7)
+      );
+      const derivativeX = width * 1.28;
+      const derivativeY = height * (
+        .105 * Math.PI * 2 * Math.cos(wave - .72 + drift)
+        + .06 * Math.PI * 2 * Math.cos(wave * 2 + 1.36 - drift * .7)
+      );
+      const tangentLength = Math.hypot(derivativeX, derivativeY) || 1;
+      const normalX = -derivativeY / tangentLength;
+      const normalY = derivativeX / tangentLength;
+      const riverWidth = Math.min(height * .13, 122);
+      const bandOffset = photon.band * riverWidth * (.72 + .28 * Math.sin(wave + photon.twinklePhase));
+      return {
+        progress,
+        x: (progress * 1.28 - .14) * width + normalX * bandOffset,
+        y: centerY + normalY * bandOffset,
+      };
+    };
+
+    const draw = (now: number) => {
+      const elapsed = reducedMotion ? 18 : (now - startedAt) / 1000;
+      context.clearRect(0, 0, width, height);
+      context.globalCompositeOperation = "lighter";
+
+      for (const photon of photons) {
+        const position = photonPosition(photon, elapsed);
+        const edgeFade = Math.min(1, position.progress / .09, (1 - position.progress) / .09);
+        const shimmer = .42 + .58 * (.5 + .5 * Math.sin(elapsed * photon.twinkle + photon.twinklePhase));
+        const alpha = photon.brightness * shimmer * Math.max(0, edgeFade);
+        context.globalAlpha = alpha;
+        context.fillStyle = tones[photon.tone];
+        context.beginPath();
+        context.arc(position.x, position.y, photon.size, 0, Math.PI * 2);
+        context.fill();
+      }
+
+      for (const photon of photons) {
+        if (!photon.spark) continue;
+        const position = photonPosition(photon, elapsed);
+        const flare = Math.max(0, Math.sin(elapsed * photon.twinkle * 1.4 + photon.twinklePhase));
+        if (flare < .38) continue;
+        const glow = (flare - .38) / .62;
+        context.save();
+        context.globalAlpha = glow * .7;
+        context.strokeStyle = photon.tone === 1 ? "#edca70" : "#fffdf0";
+        context.shadowColor = photon.tone === 1 ? "rgba(218, 166, 58, .82)" : "rgba(255, 251, 224, .9)";
+        context.shadowBlur = 7;
+        context.lineWidth = .72;
+        const ray = photon.size * (2.2 + glow * 1.8);
+        context.beginPath();
+        context.moveTo(position.x - ray, position.y);
+        context.lineTo(position.x + ray, position.y);
+        context.moveTo(position.x, position.y - ray);
+        context.lineTo(position.x, position.y + ray);
+        context.stroke();
+        context.restore();
+      }
+
+      context.globalAlpha = 1;
+      context.globalCompositeOperation = "source-over";
+    };
+
+    const animate = (now: number) => {
+      draw(now);
+      if (!reducedMotion) animationFrame = window.requestAnimationFrame(animate);
+    };
+
+    const observer = new ResizeObserver(() => resize());
+    observer.observe(canvas);
+    resize();
+    animationFrame = window.requestAnimationFrame(animate);
+
+    const handleVisibility = () => {
+      if (document.hidden || reducedMotion) {
+        window.cancelAnimationFrame(animationFrame);
+        return;
+      }
+      startedAt = performance.now();
+      animationFrame = window.requestAnimationFrame(animate);
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="page8-photon-river" aria-hidden="true" />;
+}
+
+export function Page8KunStory({ reading, reviewMode = false }: { reading: Page8Reading; reviewMode?: boolean }) {
+  const storyRef = useRef<HTMLElement>(null);
+  const oracleFocusTimerRef = useRef<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [movingVariant, setMovingVariant] = useState<Page8ReviewVariant>("A");
+  const [strengthVariant, setStrengthVariant] = useState<Page8ReviewVariant>("B");
+  const [focusedOracleSceneId, setFocusedOracleSceneId] = useState<Page8SceneId | null>(null);
+  const [oracleFocusVisible, setOracleFocusVisible] = useState(false);
+  const orderedScenes = PAGE8_VISUAL_ORDER
+    .map((sceneId) => reading.scenes.find((scene) => scene.scene_id === sceneId))
+    .filter((scene): scene is Page8Scene => Boolean(scene));
+  const baseScene = orderedScenes.find((scene) => scene.scene_id === "BASE_HEXAGRAM");
+  const movingScene = orderedScenes.find((scene) => scene.scene_id === "MOVING_LINE");
+  const baseNumber = baseScene?.deterministic.king_wen_number;
+  const baseLines = baseNumber ? KING_WEN_LINES_BOTTOM_UP[baseNumber - 1] : KING_WEN_LINES_BOTTOM_UP[0];
+  const movingPosition = page8MovingPosition(movingScene);
+  const activeSceneId = orderedScenes[activeIndex]?.scene_id;
+  function showOracleFocus(sceneId: Page8SceneId, markElement: HTMLDivElement) {
+    if (oracleFocusTimerRef.current !== null) window.clearTimeout(oracleFocusTimerRef.current);
+    const bounds = markElement.getBoundingClientRect();
+    markElement.style.setProperty("--page8-oracle-shift-x", `${window.innerWidth / 2 - (bounds.left + bounds.width / 2)}px`);
+    markElement.style.setProperty("--page8-oracle-shift-y", `${window.innerHeight / 2 - (bounds.top + bounds.height / 2)}px`);
+    setFocusedOracleSceneId(sceneId);
+    setOracleFocusVisible(true);
+  }
+
+  function hideOracleFocus() {
+    setOracleFocusVisible(false);
+    if (oracleFocusTimerRef.current !== null) window.clearTimeout(oracleFocusTimerRef.current);
+    oracleFocusTimerRef.current = window.setTimeout(() => {
+      setFocusedOracleSceneId(null);
+      oracleFocusTimerRef.current = null;
+    }, 950);
+  }
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [reading.template_version, reading.user_question]);
+
+  useEffect(() => () => {
+    if (oracleFocusTimerRef.current !== null) window.clearTimeout(oracleFocusTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    setOracleFocusVisible(false);
+    setFocusedOracleSceneId(null);
+  }, [activeIndex]);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const story = storyRef.current;
+      if (!story || orderedScenes.length === 0) return;
+      const bounds = story.getBoundingClientRect();
+      const travel = Math.max(1, bounds.height - window.innerHeight);
+      const progress = Math.max(0, Math.min(1, -bounds.top / travel));
+      const scenePhase = Math.max(0, Math.min(orderedScenes.length - 1, progress * orderedScenes.length - .5));
+      const nextIndex = Math.round(scenePhase);
+      story.style.setProperty("--page8-progress", String(progress));
+      setActiveIndex((current) => current === nextIndex ? current : nextIndex);
+    };
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, [orderedScenes.length]);
+
+  function goToScene(index: number) {
+    const story = storyRef.current;
+    if (!story || orderedScenes.length === 0) return;
+    const top = window.scrollY + story.getBoundingClientRect().top;
+    const travel = Math.max(1, story.offsetHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, (index + .5) / orderedScenes.length));
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: top + travel * progress, behavior: reducedMotion ? "auto" : "smooth" });
+  }
+
+  if (orderedScenes.length !== PAGE8_VISUAL_ORDER.length) {
+    return <section id="page8-model-review" className="page8-kun-story is-incomplete"><p>第八页五幕数据尚未完整生成，本次不展示。</p></section>;
+  }
+
+  return <section
+    ref={storyRef}
+    id="page8-model-review"
+    className="page8-kun-story"
+    style={{ "--page8-scene-count": orderedScenes.length } as CSSProperties}
+    aria-label="第八页，鲲游五境"
+  >
+    <div className="page8-kun-stage">
+      {orderedScenes.map((scene, index) => {
+        const art = PAGE8_SCENE_ART[scene.scene_id];
+        const active = activeIndex === index;
+        return <article
+          key={scene.scene_id}
+          className={`page8-kun-scene is-copy-${art.copySide}${active ? " is-active" : ""}`}
+          aria-hidden={!active}
+          style={{
+            "--page8-mist-delay": `${index * -7}s`,
+            "--page8-breath-delay": `${index * -11}s`,
+          } as CSSProperties}
+        >
+          <img className="page8-kun-background" src={art.background} alt="" />
+          <img className="page8-kun-mist" src={art.mist} alt="" />
+          <img className="page8-kun-breath" src={art.breath} alt="" />
+          <Page8OracleMark
+            scene={scene}
+            baseLines={baseLines}
+            movingPosition={movingPosition}
+            movingVariant={movingVariant}
+            strengthVariant={strengthVariant}
+            isEngaged={focusedOracleSceneId === scene.scene_id}
+            focusVisible={focusedOracleSceneId === scene.scene_id && oracleFocusVisible}
+            onPointerEnter={(markElement) => showOracleFocus(scene.scene_id, markElement)}
+            onPointerLeave={hideOracleFocus}
+          />
+          <div className="page8-kun-paper-veil" aria-hidden="true" />
+
+          <div className="page8-kun-copy">
+            <header>
+              <h2 tabIndex={active ? 0 : -1}>{scene.title}</h2>
+              <p className="page8-kun-purpose">{scene.purpose}</p>
+            </header>
+
+            <div className="page8-kun-reading">
+              <section className="page8-kun-deterministic" aria-label="卦象依据">
+                <p className="page8-kun-section-label">卦象依据</p>
+                <h3>
+                  {scene.deterministic.symbol && <i aria-hidden="true">{scene.deterministic.symbol}</i>}
+                  {scene.deterministic.king_wen_number ? <small>第 {scene.deterministic.king_wen_number} 卦</small> : null}
+                  <span>{scene.deterministic.primary_name}</span>
+                </h3>
+                <p><b>如何形成</b>{scene.deterministic.formation}</p>
+                <p><b>此层所观</b>{scene.deterministic.reading_role}</p>
+                {scene.deterministic.canonical_text && <blockquote>
+                  {scene.deterministic.canonical_label && <b>{scene.deterministic.canonical_label}</b>}
+                  <span>{scene.deterministic.canonical_text}</span>
+                </blockquote>}
+                {scene.deterministic.facts.length > 0 && <dl>{scene.deterministic.facts.map((fact) => <div key={`${scene.scene_id}-${fact.label}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
+              </section>
+
+              <section className="page8-kun-interpretation" aria-label="结合所问">
+                <p className="page8-kun-section-label">结合所问</p>
+                <h3>{scene.interpretation.layer_summary}</h3>
+                <p>{scene.interpretation.reality_connection}</p>
+              </section>
+            </div>
+
+            <footer className="page8-kun-notes">
+              <p><b>仍不能据此断定：</b>{scene.interpretation.uncertainty_boundary}</p>
+              <small>来源：{scene.deterministic.source_name} · {scene.deterministic.source_reference}</small>
+              {index === orderedScenes.length - 1 && <strong>五境阅毕 · 第九页尚未开启</strong>}
+            </footer>
+          </div>
+        </article>;
+      })}
+
+      <Page8PhotonRiver />
+
+      {reviewMode && (activeSceneId === "MOVING_LINE" || activeSceneId === "BODY_USE_STRENGTH") && <aside className="page8-review-variants" aria-label={`${activeSceneId === "MOVING_LINE" ? "动爻" : "旺衰"}视觉样片切换`}>
+        <span>{activeSceneId === "MOVING_LINE" ? "动爻样片" : "旺衰样片"}</span>
+        {(["A", "B"] as const).map((variant) => {
+          const current = activeSceneId === "MOVING_LINE" ? movingVariant : strengthVariant;
+          return <button
+            key={variant}
+            type="button"
+            aria-pressed={current === variant}
+            onClick={() => activeSceneId === "MOVING_LINE" ? setMovingVariant(variant) : setStrengthVariant(variant)}
+          >{variant}</button>;
+        })}
+      </aside>}
+
+      <nav className="page8-kun-progress" aria-label="五幕导航">
+        <ol>{orderedScenes.map((scene, index) => <li key={scene.scene_id}>
+          <button
+            type="button"
+            className={index === activeIndex ? "is-current" : ""}
+            aria-current={index === activeIndex ? "step" : undefined}
+            onClick={() => goToScene(index)}
+          ><i aria-hidden="true" /><span>{PAGE8_SCENE_ART[scene.scene_id].navLabel}</span></button>
+        </li>)}</ol>
+      </nav>
+
+    </div>
+  </section>;
+}
+
 function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
   const result = response.deterministic_result;
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
   const [action, setAction] = useState(`我准备这样做：${initialAction}`);
   const [reviewOn, setReviewOn] = useState(defaultReviewDate());
   const [readingStarted, setReadingStarted] = useState(false);
+  useEffect(() => {
+    if (!readingStarted) return;
+    const root = document.documentElement;
+    const body = document.body;
+    root.classList.remove("flow-scroll-locked");
+    body.classList.remove("flow-scroll-locked");
+    return () => {
+      root.classList.add("flow-scroll-locked");
+      body.classList.add("flow-scroll-locked");
+    };
+  }, [readingStarted]);
   if (!result) return null;
   const report = result.clarity_report;
   const cultural = result.cultural_reading;
@@ -1432,7 +1977,7 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     }));
   }
 
-  return <section id="result" className="result-shell flow-lock-screen" aria-labelledby="result-title">
+  return <section id="result" className={`result-shell${readingStarted ? " is-reading-started" : " flow-lock-screen"}`} aria-labelledby="result-title">
     <section className="result-overview scroll-section viewport-page" data-reveal>
       <ResultKoiPond />
       <div className="result-verdict">
@@ -1442,12 +1987,12 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
         <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
         <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b><span>{baseClassic.canonical_text}</span></blockquote>}
-        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} aria-disabled="true" disabled>查看详细解卦</button>
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>查看详细解卦</button>
       </div>
     </section>
 
     <div id="result-reading" hidden={!readingStarted}>
-    {response.page8_reading ? <Page8ModelReview reading={response.page8_reading} /> : <section className="page8-model-review viewport-page"><p>第八页数据模型尚未生成，本次不展示。</p></section>}
+    {response.page8_reading ? <Page8KunStory reading={response.page8_reading} /> : <section className="page8-kun-story is-incomplete"><p>第八页五幕数据尚未生成，本次不展示。</p></section>}
     <div className="future-result-sections" hidden aria-hidden="true">
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
@@ -1916,8 +2461,12 @@ export function GuanxiangApp() {
     window.history.scrollRestoration = "manual";
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-    const blockScroll = (event: Event) => event.preventDefault();
+    const page8ScrollIsOpen = () => document.getElementById("result")?.classList.contains("is-reading-started") === true;
+    const blockScroll = (event: Event) => {
+      if (!page8ScrollIsOpen()) event.preventDefault();
+    };
     const blockScrollKeys = (event: KeyboardEvent) => {
+      if (page8ScrollIsOpen()) return;
       const target = event.target as HTMLElement | null;
       const isInteractive = Boolean(target?.closest("input, textarea, select, button, [contenteditable='true']"));
       if (!isInteractive && ["ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp", " "].includes(event.key)) {
@@ -1925,6 +2474,7 @@ export function GuanxiangApp() {
       }
     };
     const holdFlowPosition = () => {
+      if (page8ScrollIsOpen()) return;
       if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     };
     window.addEventListener("wheel", blockScroll, { passive: false });
