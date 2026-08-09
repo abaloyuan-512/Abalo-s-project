@@ -1945,7 +1945,9 @@ function ResultView({ response, onEdit, onClear, onSave, saving, saved }: { resp
     const body = document.body;
     root.classList.remove("flow-scroll-locked");
     body.classList.remove("flow-scroll-locked");
+    root.classList.add("page8-reading-open");
     return () => {
+      root.classList.remove("page8-reading-open");
       root.classList.add("flow-scroll-locked");
       body.classList.add("flow-scroll-locked");
     };

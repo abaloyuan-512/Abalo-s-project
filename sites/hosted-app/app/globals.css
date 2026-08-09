@@ -45,6 +45,7 @@ html.entry-locked, body.entry-locked { overflow: hidden; overscroll-behavior: no
 html.flow-scroll-locked, body.flow-scroll-locked { height: 100%; overflow: hidden !important; overscroll-behavior: none; }
 body.flow-scroll-locked { touch-action: manipulation; }
 .flow-shell { height: 100svh; overflow: hidden; }
+.page8-reading-open .flow-shell { height: auto; min-height: 100svh; overflow: visible; }
 .flow-lock-screen { width: 100%; height: 100svh !important; min-height: 100svh !important; max-height: 100svh !important; overflow: hidden !important; }
 .inquiry.is-nested-flow-page { padding: 0; align-items: start; }
 .inquiry.is-nested-flow-page form { width: 100%; max-width: none; margin: 0; }

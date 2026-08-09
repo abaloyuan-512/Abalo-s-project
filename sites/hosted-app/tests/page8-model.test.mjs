@@ -84,10 +84,14 @@ test("page eight adds one continuous photon river and source-based brush oracle 
 
 test("page eight opens from page seven and keeps all later reserved sections hidden", async () => {
   const source = await readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(source, /className="future-result-sections" hidden aria-hidden="true"/);
   assert.match(source, /response\.page8_reading \? <Page8KunStory/);
   assert.match(source, /className="result-detail-button"[\s\S]*?onClick=\{openDetailedReading\}/);
   assert.doesNotMatch(source, /className="result-detail-button"[^>]+disabled/);
   assert.match(source, /page8ScrollIsOpen/);
+  assert.match(source, /root\.classList\.add\("page8-reading-open"\)/);
+  assert.match(source, /root\.classList\.remove\("page8-reading-open"\)/);
+  assert.match(css, /\.page8-reading-open \.flow-shell \{ height: auto; min-height: 100svh; overflow: visible; \}/);
   assert.match(source, /五境阅毕 · 第九页尚未开启/);
 });
