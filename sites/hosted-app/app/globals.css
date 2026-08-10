@@ -3004,6 +3004,66 @@ textarea::placeholder,
   letter-spacing: .06em;
 }
 
+.page8-kun-task-state {
+  position: relative;
+  margin-top: 17px;
+  padding-top: 15px;
+  min-height: 150px;
+}
+
+.page8-kun-task-state h3 {
+  margin: 0 0 7px;
+  color: #3c322b;
+  font: 400 clamp(20px, 1.42vw, 26px)/1.45 var(--brush);
+  letter-spacing: .06em;
+}
+
+.page8-kun-task-state > p {
+  max-width: 590px;
+  margin: 0;
+  color: rgba(45, 41, 35, .72);
+  font: 400 clamp(14px, .95vw, 17px)/1.75 var(--kai);
+  letter-spacing: .025em;
+}
+
+.page8-kun-task-state.is-failed h3,
+.page8-kun-task-state.is-recoverable h3 { color: #874433; }
+
+.page8-kun-task-flow {
+  position: relative;
+  width: min(100%, 420px);
+  height: 1px;
+  margin-top: 22px;
+  display: block;
+  overflow: hidden;
+  background: rgba(117, 91, 66, .16);
+}
+
+.page8-kun-task-flow::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -38%;
+  width: 38%;
+  background: linear-gradient(90deg, transparent, rgba(190, 139, 56, .72), rgba(255, 245, 202, .92), transparent);
+  animation: page8-task-flow 3.8s ease-in-out infinite;
+}
+
+.page8-kun-task-actions { margin-top: 18px; }
+.page8-kun-task-actions:empty { display: none; }
+.page8-kun-task-actions button {
+  min-height: 38px;
+  padding: 4px 0 7px;
+  color: #884633;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(136, 70, 51, .42);
+  cursor: pointer;
+  font: 400 15px/1 var(--kai);
+  letter-spacing: .12em;
+}
+.page8-kun-task-actions button:hover,
+.page8-kun-task-actions button:focus-visible { color: #a1432d; border-bottom-color: #a1432d; }
+
 .page8-kun-notes {
   margin-top: 17px;
   padding-top: 12px;
@@ -3072,6 +3132,13 @@ textarea::placeholder,
   0% { opacity: .17; transform: translate3d(-.06%, .05%, 0) scale(1.002); }
   52% { opacity: .3; transform: translate3d(.13%, -.08%, 0) scale(1.004); }
   100% { opacity: .22; transform: translate3d(.05%, .1%, 0) scale(1.003); }
+}
+
+@keyframes page8-task-flow {
+  0% { transform: translateX(0); opacity: 0; }
+  18% { opacity: .78; }
+  72% { opacity: .62; }
+  100% { transform: translateX(365%); opacity: 0; }
 }
 
 @media (max-width: 1080px) {
@@ -3167,6 +3234,12 @@ textarea::placeholder,
   .page8-kun-deterministic dl { display: none; }
   .page8-kun-interpretation { margin-top: 11px; padding-top: 10px; }
   .page8-kun-interpretation h3 { font-size: 17px; line-height: 1.5; letter-spacing: .035em; }
+  .page8-kun-task-state { min-height: 118px; margin-top: 11px; padding-top: 10px; }
+  .page8-kun-task-state h3 { font-size: 17px; line-height: 1.5; letter-spacing: .035em; }
+  .page8-kun-task-state > p { font-size: 13px; line-height: 1.6; }
+  .page8-kun-task-flow { margin-top: 14px; }
+  .page8-kun-task-actions { margin-top: 12px; }
+  .page8-kun-task-actions button { font-size: 13px; }
   .page8-kun-notes { margin-top: 10px; padding-top: 8px; font-size: 10px; }
   .page8-kun-progress {
     top: 18px;
@@ -3193,6 +3266,7 @@ textarea::placeholder,
   .page8-kun-scene { transition-duration: .01ms; }
   .page8-kun-mist,
   .page8-kun-breath { animation: none !important; }
+  .page8-kun-task-flow::after { animation: none !important; left: 31%; opacity: .7; }
   .page8-oracle-mark,
   .page8-oracle-moving-body { transition-duration: .01ms; }
 }

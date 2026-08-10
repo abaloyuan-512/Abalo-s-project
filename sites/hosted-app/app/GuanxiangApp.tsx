@@ -177,13 +177,30 @@ type StructuredIntake = {
 };
 type ApiResponse = {
   status?: string;
+  request_id?: string;
   user_question?: string;
   structured_intake?: StructuredIntake;
   deterministic_result?: ProductResult | null;
   personalized_reading?: PersonalizedReading | null;
   page8_reading?: Page8Reading | null;
+  preview_meta?: {
+    failure_stage?: string;
+    failure_codes?: string[];
+    stage?: string;
+    elapsed_ms?: number;
+    [key: string]: unknown;
+  } | null;
   error?: string;
   errors?: { message?: string }[];
+};
+type Page8TaskPhase = "NOT_REQUESTED" | "SUBMITTING" | "RUNNING" | "SUCCESS" | "FAILED" | "RECOVERABLE" | "TIMEOUT";
+type Page8TaskState = {
+  phase: Page8TaskPhase;
+  message: string;
+  requestId?: string;
+  startedAt?: number;
+  stage?: string;
+  retryable?: boolean;
 };
 export type JournalRecord = {
   id: string;
@@ -200,6 +217,144 @@ export type JournalRecord = {
   status: "OPEN" | "REVIEWED";
 };
 export type JournalDraft = Pick<JournalRecord, "action_text" | "review_on" | "reality_text" | "learning_text" | "status">;
+
+const PAGE8_MODEL_ORDER: Page8SceneId[] = [
+  "BASE_HEXAGRAM",
+  "MUTUAL_HEXAGRAM",
+  "CHANGED_HEXAGRAM",
+  "MOVING_LINE",
+  "BODY_USE_STRENGTH",
+];
+
+function pendingPage8Interpretation(sceneId: Page8SceneId): Page8LayerInterpretation {
+  return {
+    scene_id: sceneId,
+    layer_summary: "个性化解读正在生成",
+    reality_connection: "卦象结构已经呈现；结合现实信息的解释完成后，会在这里原位出现。",
+    uncertainty_boundary: "在个性化解读完成前，只展示确定性的排盘与经典资料。",
+    reality_refs: [],
+    evidence_refs: [],
+    interpretation_hypothesis: true,
+  };
+}
+
+function buildPage8Scaffold(response: ApiResponse): Page8Reading | null {
+  const result = response.deterministic_result;
+  const cultural = result?.cultural_reading;
+  if (!result || !cultural || cultural.hexagrams.length < 3 || cultural.number_path.length < 3 || cultural.terms.length < 3) return null;
+
+  const hexagrams = cultural.hexagrams;
+  const makeHexagramScene = (
+    sceneId: Page8SceneId,
+    sequence: number,
+    title: string,
+    purpose: string,
+    item: CanonicalHexagramItem,
+    formation: string,
+    facts: Page8DeterministicContent["facts"] = [],
+  ): Page8Scene => ({
+    scene_id: sceneId,
+    sequence,
+    title,
+    purpose,
+    deterministic: {
+      primary_name: item.name,
+      symbol: item.symbol,
+      king_wen_number: item.king_wen_number,
+      formation,
+      reading_role: item.reading_role,
+      canonical_label: "卦爻原文",
+      canonical_text: item.canonical_text,
+      plain_note: item.plain_note,
+      facts,
+      source_name: item.source_name,
+      source_reference: item.source_reference,
+    },
+    interpretation: pendingPage8Interpretation(sceneId),
+  });
+
+  const baseFacts = cultural.number_path.slice(0, 2).map((item) => ({
+    label: item.role,
+    value: `输入数 ${item.input_number} → ${item.result_name}。${item.explanation}`,
+  }));
+  const moving = cultural.moving_line;
+  const scenes: Page8Scene[] = [
+    makeHexagramScene(
+      "BASE_HEXAGRAM",
+      1,
+      "本卦",
+      "看清这件事眼下最主要的结构，以及本卦怎样由前两数形成。",
+      hexagrams[0],
+      "第一数定上卦，第二数定下卦；上下两卦相叠，形成本卦。",
+      baseFacts,
+    ),
+    makeHexagramScene(
+      "MUTUAL_HEXAGRAM",
+      2,
+      "互卦",
+      "看清事情内部怎样发展，不把内部结构误当成已经发生的现实结果。",
+      hexagrams[1],
+      "取本卦中间四爻重新组合，形成互卦。",
+    ),
+    makeHexagramScene(
+      "CHANGED_HEXAGRAM",
+      3,
+      "变卦",
+      "看清动爻改变后结构重点转向哪里，不把变卦写成必然未来。",
+      hexagrams[2],
+      "本次动爻由阴变阳或由阳变阴后，形成变卦。",
+    ),
+    {
+      scene_id: "MOVING_LINE",
+      sequence: 4,
+      title: "动爻",
+      purpose: "看清本次变化发生在哪一爻、处于什么阶段，以及爻辞提供的观察角度。",
+      deterministic: {
+        primary_name: moving.line_name,
+        formation: "第三数按六数之余确定本次动爻；这一爻变化后，本卦随之成为变卦。",
+        reading_role: "动爻标记本次卦象中实际发生结构变化的位置。",
+        canonical_label: "爻辞原文",
+        canonical_text: moving.canonical_text,
+        facts: [
+          { label: "动爻位置", value: String(moving.position) },
+          { label: "对应阶段", value: moving.stage },
+          { label: "变化路径", value: `${result.base_hexagram.name} → ${result.changed_hexagram.name}` },
+        ],
+        source_name: moving.source_name,
+        source_reference: moving.source_reference,
+      },
+      interpretation: pendingPage8Interpretation("MOVING_LINE"),
+    },
+    {
+      scene_id: "BODY_USE_STRENGTH",
+      sequence: 5,
+      title: "体用与旺衰",
+      purpose: "分清体与用的关系及当前余力；旺衰只说明承接条件，不作吉凶总评。",
+      deterministic: {
+        primary_name: "体用与旺衰",
+        formation: "体用关系与旺衰由确定性排盘结果和版本化规则生成。",
+        reading_role: "体用帮助观察你与所问之事的关系，旺衰帮助观察当下余力与限制。",
+        facts: cultural.terms.slice(0, 3).map((item) => ({
+          label: item.title,
+          value: `${item.current_value}。${item.meaning}${item.current_effect}`,
+        })),
+        source_name: "观象确定性排盘",
+        source_reference: "当前版本化体用与旺衰规则",
+      },
+      interpretation: pendingPage8Interpretation("BODY_USE_STRENGTH"),
+    },
+  ];
+
+  if (scenes.map((scene) => scene.scene_id).some((sceneId, index) => sceneId !== PAGE8_MODEL_ORDER[index])) return null;
+  return {
+    template_version: "SITES_PAGE8_READING_V1",
+    stage_title: "读卦",
+    user_question: response.user_question ?? "本次所问",
+    scenes,
+    epistemic_boundary: "卦象结构与经典资料已经呈现；结合现实信息的解释属于待验证的观察假设。",
+    page9_reserved: true,
+  };
+}
 
 const GOALS = {
   IDENTIFY_OBSTACLES: "看清阻力与条件",
@@ -1739,7 +1894,54 @@ function Page8PhotonRiver() {
   return <canvas ref={canvasRef} className="page8-photon-river" aria-hidden="true" />;
 }
 
-export function Page8KunStory({ reading, reviewMode = false }: { reading: Page8Reading; reviewMode?: boolean }) {
+function Page8TaskPanel({
+  task,
+  onRetry,
+  onResume,
+  onEdit,
+}: {
+  task: Page8TaskState;
+  onRetry?: () => void;
+  onResume?: () => void;
+  onEdit?: () => void;
+}) {
+  const title = task.phase === "NOT_REQUESTED"
+    ? "本次先呈现卦象结构"
+    : task.phase === "FAILED"
+      ? "个性化解读本次未完成"
+      : task.phase === "RECOVERABLE"
+        ? "查询连接暂时中断"
+        : task.phase === "TIMEOUT"
+          ? "本次生成时间较长"
+          : "正在结合所问生成解读";
+  return <div className={`page8-kun-task-state is-${task.phase.toLowerCase()}`} role="status" aria-live="polite">
+    <span className="page8-kun-section-label">结合所问</span>
+    <h3>{title}</h3>
+    <p>{task.message}</p>
+    {(task.phase === "SUBMITTING" || task.phase === "RUNNING" || task.phase === "TIMEOUT") && <i className="page8-kun-task-flow" aria-hidden="true" />}
+    <div className="page8-kun-task-actions">
+      {task.phase === "NOT_REQUESTED" && onEdit && <button type="button" onClick={onEdit}>返回补充现实信息</button>}
+      {task.phase === "RECOVERABLE" && onResume && <button type="button" onClick={onResume}>继续查询原任务</button>}
+      {task.phase === "FAILED" && task.retryable && onRetry && <button type="button" onClick={onRetry}>重新生成详细解卦</button>}
+    </div>
+  </div>;
+}
+
+export function Page8KunStory({
+  reading,
+  reviewMode = false,
+  task = { phase: "SUCCESS", message: "详细解卦已经生成。" },
+  onRetry,
+  onResume,
+  onEdit,
+}: {
+  reading: Page8Reading;
+  reviewMode?: boolean;
+  task?: Page8TaskState;
+  onRetry?: () => void;
+  onResume?: () => void;
+  onEdit?: () => void;
+}) {
   const storyRef = useRef<HTMLElement>(null);
   const oracleFocusTimerRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -1888,15 +2090,17 @@ export function Page8KunStory({ reading, reviewMode = false }: { reading: Page8R
                 {scene.deterministic.facts.length > 0 && <dl>{scene.deterministic.facts.map((fact) => <div key={`${scene.scene_id}-${fact.label}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
               </section>
 
-              <section className="page8-kun-interpretation" aria-label="结合所问">
-                <p className="page8-kun-section-label">结合所问</p>
-                <h3>{scene.interpretation.layer_summary}</h3>
-                <p>{scene.interpretation.reality_connection}</p>
-              </section>
+              {task.phase === "SUCCESS"
+                ? <section className="page8-kun-interpretation" aria-label="结合所问">
+                  <p className="page8-kun-section-label">结合所问</p>
+                  <h3>{scene.interpretation.layer_summary}</h3>
+                  <p>{scene.interpretation.reality_connection}</p>
+                </section>
+                : <Page8TaskPanel task={task} onRetry={onRetry} onResume={onResume} onEdit={onEdit} />}
             </div>
 
             <footer className="page8-kun-notes">
-              <p><b>仍不能据此断定：</b>{scene.interpretation.uncertainty_boundary}</p>
+              <p><b>仍不能据此断定：</b>{task.phase === "SUCCESS" ? scene.interpretation.uncertainty_boundary : "个性化解释完成前，只能确认当前展示的排盘结构与经典资料。"}</p>
               <small>来源：{scene.deterministic.source_name} · {scene.deterministic.source_reference}</small>
               {index === orderedScenes.length - 1 && <strong>五境阅毕 · 第九页尚未开启</strong>}
             </footer>
@@ -1934,8 +2138,29 @@ export function Page8KunStory({ reading, reviewMode = false }: { reading: Page8R
   </section>;
 }
 
-function ResultView({ response, page8Pending, onEdit, onClear, onSave, saving, saved }: { response: ApiResponse; page8Pending: boolean; onEdit: () => void; onClear: () => void; onSave: (action: string, reviewOn: string | null) => Promise<void>; saving: boolean; saved: boolean }) {
+function ResultView({
+  response,
+  page8Task,
+  onRetryPage8,
+  onResumePage8,
+  onEdit,
+  onClear,
+  onSave,
+  saving,
+  saved,
+}: {
+  response: ApiResponse;
+  page8Task: Page8TaskState;
+  onRetryPage8: () => void;
+  onResumePage8: () => void;
+  onEdit: () => void;
+  onClear: () => void;
+  onSave: (action: string, reviewOn: string | null) => Promise<void>;
+  saving: boolean;
+  saved: boolean;
+}) {
   const result = response.deterministic_result;
+  const page8Reading = response.page8_reading ?? buildPage8Scaffold(response);
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
   const [action, setAction] = useState(`我准备这样做：${initialAction}`);
   const [reviewOn, setReviewOn] = useState(defaultReviewDate());
@@ -1995,7 +2220,9 @@ function ResultView({ response, page8Pending, onEdit, onClear, onSave, saving, s
     </section>
 
     <div id="result-reading" hidden={!readingStarted}>
-    {response.page8_reading ? <Page8KunStory reading={response.page8_reading} /> : <section id="page8-model-review" className="page8-kun-story is-incomplete"><p role="status" tabIndex={-1}>{page8Pending ? "详细解卦正在生成，完成后将在这里自动展开。" : "本次详细解卦尚未生成。"}</p></section>}
+    {page8Reading
+      ? <Page8KunStory reading={page8Reading} task={page8Task} onRetry={onRetryPage8} onResume={onResumePage8} onEdit={onEdit} />
+      : <section id="page8-model-review" className="page8-kun-story is-incomplete"><p role="status" tabIndex={-1}>本次排盘资料不完整，暂时无法呈现第八页。</p></section>}
     <div className="future-result-sections" hidden aria-hidden="true">
     <section id="why-reading" className="reading-scroll layered-reading scroll-section" data-reveal>
       <VerticalBrand />
@@ -2384,7 +2611,10 @@ export function GuanxiangApp() {
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
-  const [page8Pending, setPage8Pending] = useState(false);
+  const [page8Task, setPage8Task] = useState<Page8TaskState>({
+    phase: "NOT_REQUESTED",
+    message: "卦象结构可以先行查看；个性化解读尚未发起。",
+  });
   const [error, setError] = useState("");
   const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
@@ -2404,6 +2634,7 @@ export function GuanxiangApp() {
   const entryHeroImageRef = useRef<HTMLImageElement | null>(null);
   const methodAdvanceTimerRef = useRef<number | null>(null);
   const activePersonalizedRequestRef = useRef<string | null>(null);
+  const lastPersonalizedPayloadRef = useRef<Record<string, unknown> | null>(null);
   const flowPageRef = useRef(1);
 
   function advanceFlow(nextPage: number, focusId?: string) {
@@ -2588,16 +2819,33 @@ export function GuanxiangApp() {
     advanceFlow(6, "casting-title");
   }
 
-  function finishPersonalizedRequest(payload: ApiResponse, requestId: string): void {
-    if (activePersonalizedRequestRef.current !== requestId) return;
+  function failPersonalizedRequest(requestId: string, message: string, retryable: boolean): void {
+    if (activePersonalizedRequestRef.current === requestId) activePersonalizedRequestRef.current = null;
+    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    setPage8Task({ phase: "FAILED", message, requestId, retryable });
+    setProgress("");
+  }
+
+  function finishPersonalizedRequest(payload: ApiResponse, requestId: string): boolean {
+    if (activePersonalizedRequestRef.current !== requestId) return false;
+    if (payload.status !== "SUCCESS") {
+      failPersonalizedRequest(requestId, payload.error || "本次个性化解读没有通过安全或质量检查。卦象结构仍可正常查看。", true);
+      return false;
+    }
+    if (!payload.personalized_reading || !payload.deterministic_result?.clarity_report) {
+      failPersonalizedRequest(requestId, "个性化解读返回的数据不完整。卦象结构仍可正常查看。", true);
+      return false;
+    }
+    if (!payload.page8_reading) {
+      failPersonalizedRequest(requestId, "详细解卦服务版本尚未同步。卦象结构仍可查看，系统完成同步前不会让你无意义等待。", false);
+      return false;
+    }
     activePersonalizedRequestRef.current = null;
     sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-    if (payload.status !== "SUCCESS" || !payload.personalized_reading || !payload.page8_reading || !payload.deterministic_result?.clarity_report) {
-      throw new Error(payload.error || "本次解读没有通过检查，也不会自动重新生成。");
-    }
     setResponse(payload);
-    setPage8Pending(false);
+    setPage8Task({ phase: "SUCCESS", message: "详细解卦已经生成。", requestId });
     setProgress("");
+    return true;
   }
 
   async function pollPersonalizedRequest(requestId: string, cancelled: () => boolean = () => false): Promise<void> {
@@ -2606,28 +2854,149 @@ export function GuanxiangApp() {
         fetchResult: () => fetch(`/api/v4/meihua?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" }),
         sleep,
         cancelled,
+        onProgress: (progressPayload) => {
+          const stageName = typeof progressPayload.preview_meta?.stage === "string" ? progressPayload.preview_meta.stage : "GENERATING";
+          setPage8Task((current) => current.phase === "TIMEOUT" ? current : {
+            ...current,
+            phase: "RUNNING",
+            stage: stageName,
+            message: "详细解卦正在生成；五幕卦象结构已经可以查看，文字完成后会原位出现。",
+          });
+        },
       });
       if (payload) finishPersonalizedRequest(payload as ApiResponse, requestId);
     } catch (caught) {
-      if (caught instanceof PersonalizedPollError && caught.terminal) sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-      throw caught;
+      const message = caught instanceof Error ? caught.message : "查询连接暂时中断。任务仍然保留，可以继续查询原任务。";
+      if (caught instanceof PersonalizedPollError && caught.terminal) {
+        failPersonalizedRequest(requestId, message, Boolean(lastPersonalizedPayloadRef.current));
+        return;
+      }
+      setPage8Task((current) => ({
+        ...current,
+        phase: "RECOVERABLE",
+        message,
+        requestId,
+        retryable: false,
+      }));
     }
+  }
+
+  function launchPersonalizedRequest(payloadBase: Record<string, unknown>): void {
+    lastPersonalizedPayloadRef.current = payloadBase;
+    const requestId = `sites-${crypto.randomUUID()}`;
+    activePersonalizedRequestRef.current = requestId;
+    sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
+    setPage8Task({
+      phase: "SUBMITTING",
+      message: "正在建立详细解卦任务；五幕卦象结构会先行呈现。",
+      requestId,
+      startedAt: Date.now(),
+      stage: "SUBMITTING",
+    });
+    const body = JSON.stringify({
+      ...payloadBase,
+      contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1",
+      request_id: requestId,
+    });
+    void (async () => {
+      try {
+        let accepted = false;
+        for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
+          try {
+            const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+            const payload = await request.json() as ApiResponse;
+            if (request.status === 202) {
+              accepted = true;
+              setPage8Task((current) => ({
+                ...current,
+                phase: "RUNNING",
+                stage: payload.preview_meta?.stage ?? "GENERATING",
+                message: "详细解卦正在生成；五幕卦象结构已经可以查看，文字完成后会原位出现。",
+              }));
+              break;
+            }
+            if (request.ok) { finishPersonalizedRequest(payload, requestId); return; }
+            if (request.status !== 503) {
+              failPersonalizedRequest(requestId, payload.error || "详细解卦任务未能建立。卦象结构仍可正常查看。", true);
+              return;
+            }
+          } catch (caught) {
+            if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) {
+              failPersonalizedRequest(requestId, caught.message, true);
+              return;
+            }
+          }
+          await sleep(1_500);
+        }
+        if (accepted) await pollPersonalizedRequest(requestId);
+        else setPage8Task((current) => ({
+          ...current,
+          phase: "RECOVERABLE",
+          message: "任务提交暂时没有得到确认。为避免重复生成，原任务编号已经保留，可以继续查询。",
+          requestId,
+        }));
+      } catch {
+        setPage8Task((current) => ({
+          ...current,
+          phase: "RECOVERABLE",
+          message: "查询连接暂时中断。原任务仍然保留，可以继续查询。",
+          requestId,
+        }));
+      }
+    })();
+  }
+
+  function retryPersonalizedRequest(): void {
+    const payload = lastPersonalizedPayloadRef.current;
+    if (!payload) return;
+    launchPersonalizedRequest(payload);
+  }
+
+  function resumePersonalizedRequest(): void {
+    const requestId = activePersonalizedRequestRef.current ?? sessionStorage.getItem(ACTIVE_REQUEST_KEY);
+    if (!requestId) return;
+    activePersonalizedRequestRef.current = requestId;
+    setPage8Task((current) => ({
+      ...current,
+      phase: "RUNNING",
+      message: "正在继续查询原任务，不会重复生成。",
+      requestId,
+    }));
+    void pollPersonalizedRequest(requestId);
   }
 
   useEffect(() => {
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
     activePersonalizedRequestRef.current = activeRequestId;
-    setPage8Pending(true);
+    setPage8Task({
+      phase: "RUNNING",
+      message: "正在恢复上一次详细解卦任务，不会重复生成。",
+      requestId: activeRequestId,
+      startedAt: Date.now(),
+      stage: "RECOVERING",
+    });
     let cancelled = false;
     const resumeTimer = window.setTimeout(() => {
-      void pollPersonalizedRequest(activeRequestId, () => cancelled)
-        .catch(() => { if (!cancelled) { sessionStorage.removeItem(ACTIVE_REQUEST_KEY); setPage8Pending(false); } });
+      void pollPersonalizedRequest(activeRequestId, () => cancelled);
     }, 0);
     return () => { cancelled = true; window.clearTimeout(resumeTimer); };
   // An unfinished request is intentionally resumed only once when the formal page mounts.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!page8Task.startedAt || !["SUBMITTING", "RUNNING"].includes(page8Task.phase)) return;
+    const remaining = Math.max(0, 90_000 - (Date.now() - page8Task.startedAt));
+    const timer = window.setTimeout(() => {
+      setPage8Task((current) => ["SUBMITTING", "RUNNING"].includes(current.phase) ? {
+        ...current,
+        phase: "TIMEOUT",
+        message: "本次生成时间较长。你可以继续浏览五幕卦象结构；任务仍在后台查询，完成后文字会自动出现。",
+      } : current);
+    }, remaining);
+    return () => window.clearTimeout(timer);
+  }, [page8Task.phase, page8Task.startedAt]);
 
   useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -2648,6 +3017,9 @@ export function GuanxiangApp() {
     const timer = window.setTimeout(() => {
       setQuestion(record.question); setDomain(record.structured_intake.question_domain); setGoal(record.structured_intake.decision_goal); setHorizon(record.structured_intake.time_horizon); setStage(record.structured_intake.decision_stage); setUncertainty(record.structured_intake.key_uncertainty); setRiskProfile(record.structured_intake.decision_risk_profile ?? "STANDARD"); setNumbers(record.numbers.map(String)); setDiscernmentCompletionReason("ENOUGH"); setIntakeComplete(true); setSavedRecordId(record.id);
       setResponse({ status: "SUCCESS", user_question: record.question, structured_intake: record.structured_intake, deterministic_result: record.result, personalized_reading: record.result.personalized_reading ?? null, page8_reading: record.result.page8_reading ?? null });
+      setPage8Task(record.result.page8_reading
+        ? { phase: "SUCCESS", message: "详细解卦已经生成。" }
+        : { phase: "NOT_REQUESTED", message: "这条旧记录没有保存个性化五幕解释，现先呈现卦象结构。" });
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -2661,14 +3033,17 @@ export function GuanxiangApp() {
   }, [response]);
 
   function editQuestion() {
-    setResponse(null); setPage8Pending(false); setError("");
-    window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
+    setResponse(null); setFlowPage(3); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError("");
+    window.setTimeout(() => {
+      document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("primary-question")?.focus({ preventScroll: true });
+    }, 0);
   }
 
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Pending(false); setError(""); setSavedRecordId(null);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -2691,7 +3066,7 @@ export function GuanxiangApp() {
   }
 
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError(""); setResponse(null); setPage8Pending(false); setSavedRecordId(null);
+    event.preventDefault(); setError(""); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setSavedRecordId(null);
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (activeRequestId) {
       activePersonalizedRequestRef.current = null;
@@ -2725,12 +3100,7 @@ export function GuanxiangApp() {
     });
 
     if (!useDeterministicOnly) {
-      setPage8Pending(true);
-      const requestId = `sites-${crypto.randomUUID()}`;
-      activePersonalizedRequestRef.current = requestId;
-      sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
-      const body = JSON.stringify({
-        contract_version: "SITES_PERSONALIZED_MEIHUA_CONTRACT_V1", request_id: requestId,
+      launchPersonalizedRequest({
         question_text: question.trim(), question_domain: domain, decision_goal: goal,
         time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile,
         confirmed_facts: factLines, unknowns: unknownLines, options: [],
@@ -2738,32 +3108,11 @@ export function GuanxiangApp() {
         numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
         user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
       });
-      void (async () => {
-        try {
-          let accepted = false;
-          for (let attempt = 0; attempt < 3 && !accepted; attempt += 1) {
-            try {
-              const request = await fetch("/api/v4/meihua", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
-              const payload = await request.json() as ApiResponse;
-              if (request.status === 202) { accepted = true; break; }
-              if (request.ok) { finishPersonalizedRequest(payload, requestId); return; }
-              if (request.status !== 503) {
-                sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-                setPage8Pending(false);
-                return;
-              }
-            } catch (caught) {
-              if (caught instanceof Error && !/Failed to fetch|fetch failed|network/i.test(caught.message)) { setPage8Pending(false); return; }
-            }
-            await sleep(1_500);
-          }
-          if (accepted) await pollPersonalizedRequest(requestId);
-          else setPage8Pending(false);
-        } catch {
-          sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-          setPage8Pending(false);
-        }
-      })();
+    } else {
+      setPage8Task({
+        phase: "NOT_REQUESTED",
+        message: "前面的辨识没有同时形成至少一项已确认事实和一项未知内容，因此本次不凭空生成个性解释；五幕卦象结构仍可完整查看。",
+      });
     }
 
     try {
@@ -2980,7 +3329,17 @@ export function GuanxiangApp() {
         </form>
       </section>
 
-      {response && flowPage === 7 && <ResultView response={response} page8Pending={page8Pending} onEdit={editQuestion} onClear={clearQuestion} onSave={saveObservation} saving={savingRecord} saved={savedRecordId !== null} />}
+      {response && flowPage === 7 && <ResultView
+        response={response}
+        page8Task={page8Task}
+        onRetryPage8={retryPersonalizedRequest}
+        onResumePage8={resumePersonalizedRequest}
+        onEdit={editQuestion}
+        onClear={clearQuestion}
+        onSave={saveObservation}
+        saving={savingRecord}
+        saved={savedRecordId !== null}
+      />}
       <aside className="version-note" hidden>卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
     </main>
     <footer className="site-footer" hidden><b>观象</b><span>传统文化结构参考 · 以现实验证更新判断</span><nav><a href="/guide">如何使用</a><a href="/about">方法与边界</a><a href="/privacy">隐私说明</a></nav></footer>

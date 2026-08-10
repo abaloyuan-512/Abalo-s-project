@@ -403,8 +403,11 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
   assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);
   assert.match(appSource, /const deterministicRequest = fetch\("\/api\/v3\/meihua"/);
-  assert.match(appSource, /if \(!useDeterministicOnly\) \{[\s\S]+void \(async \(\) => \{/);
+  assert.match(appSource, /if \(!useDeterministicOnly\) \{[\s\S]+launchPersonalizedRequest\(\{/);
+  assert.match(appSource, /else \{[\s\S]+phase: "NOT_REQUESTED"[\s\S]+五幕卦象结构仍可完整查看/);
   assert.match(appSource, /const request = await deterministicRequest;[\s\S]+setResponse\(\(current\) => current\?\.page8_reading \? current : payload\)/);
+  assert.match(appSource, /const page8Reading = response\.page8_reading \?\? buildPage8Scaffold\(response\)/);
+  assert.match(appSource, /function Page8TaskPanel/);
   assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
   assert.match(appSource, /id="result-reading" hidden=\{!readingStarted\}/);
   assert.match(appSource, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
