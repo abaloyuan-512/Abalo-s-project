@@ -56,6 +56,25 @@ test("only explicit running responses continue polling", async () => {
   assert.equal(result.status, "SUCCESS");
 });
 
+test("running progress metadata is exposed without changing the task result", async () => {
+  const responses = [
+    response(202, { status: "RUNNING", preview_meta: { stage: "GENERATING_AND_VALIDATING", elapsed_ms: 1250 } }),
+    response(200, { status: "SUCCESS", personalized_reading: { core_judgment: "完成" } }),
+  ];
+  const progress = [];
+  let calls = 0;
+  const result = await pollPersonalizedTask("beta-progress", {
+    fetchResult: async () => responses[calls++],
+    sleep: async () => {},
+    onProgress: (payload) => progress.push(payload),
+  });
+  assert.equal(result.status, "SUCCESS");
+  assert.deepEqual(progress, [{
+    status: "RUNNING",
+    preview_meta: { stage: "GENERATING_AND_VALIDATING", elapsed_ms: 1250 },
+  }]);
+});
+
 test("network errors stop loading but preserve the task for refresh recovery", async () => {
   await assert.rejects(
     pollPersonalizedTask("beta-network", {

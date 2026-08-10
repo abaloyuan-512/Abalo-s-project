@@ -33,7 +33,13 @@ from abalo_iching.application.sites_meihua_service_v3 import (  # noqa: E402
     process_sites_meihua_v3_request,
 )
 from abalo_iching.application.sites_owner_preview_v1 import (  # noqa: E402
+    OWNER_PREVIEW_CONTRACT_VERSION,
+    OWNER_PREVIEW_PROMPT_VERSION,
+    OWNER_PREVIEW_VALIDATOR_VERSION,
     process_sites_owner_preview_v1_request,
+)
+from abalo_iching.application.sites_page8_reading_v1 import (  # noqa: E402
+    PAGE8_READING_VERSION,
 )
 
 MAX_BODY_BYTES = 16 * 1024
@@ -93,7 +99,19 @@ class HostedApiHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         path = self.path.split("?", 1)[0]
         if path == "/healthz":
-            self._send_json(HTTPStatus.OK, {"status": "ok", "service": "abalo-authoritative-engine"})
+            commit = os.environ.get("RENDER_GIT_COMMIT", "").strip()
+            self._send_json(
+                HTTPStatus.OK,
+                {
+                    "status": "ok",
+                    "service": "abalo-authoritative-engine",
+                    "git_commit": commit[:12] if commit else "unknown",
+                    "owner_preview_contract": OWNER_PREVIEW_CONTRACT_VERSION,
+                    "page8_contract": PAGE8_READING_VERSION,
+                    "prompt_version": OWNER_PREVIEW_PROMPT_VERSION,
+                    "validator_version": OWNER_PREVIEW_VALIDATOR_VERSION,
+                },
+            )
             return
         if not path.startswith(OWNER_PREVIEW_JOB_PREFIX):
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
@@ -114,12 +132,17 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             response = job.get("response")
             status = str(job["status"])
         if response is None:
+            elapsed_ms = max(0, round((time.monotonic() - float(job["started_at"])) * 1000))
             self._send_json(
                 HTTPStatus.ACCEPTED,
                 {
                     "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
                     "request_id": request_id,
                     "status": status,
+                    "preview_meta": {
+                        "stage": str(job.get("stage", "GENERATING")),
+                        "elapsed_ms": elapsed_ms,
+                    },
                 },
             )
             return
@@ -154,17 +177,25 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                 },
                 "error": "新版解读服务暂时不可用，请稍后再试。",
             }
+        elapsed_ms = round((time.perf_counter() - started) * 1000)
+        preview_meta = response.get("preview_meta")
+        response["preview_meta"] = {
+            **(preview_meta if isinstance(preview_meta, dict) else {}),
+            "stage": "COMPLETE" if response.get("status") == "SUCCESS" else "FAILED",
+            "elapsed_ms": elapsed_ms,
+        }
         with self.hosted_server.owner_preview_jobs_lock:
             job = self.hosted_server.owner_preview_jobs.get(request_id)
             if job is not None:
                 job["status"] = str(response.get("status", "PREVIEW_FAILED"))
+                job["stage"] = str(response["preview_meta"]["stage"])
                 job["response"] = response
                 job["updated_at"] = time.monotonic()
         LOGGER.info(
             "owner_preview_job status=%s request_id=%s latency_ms=%d",
             response.get("status", "UNKNOWN"),
             request_id,
-            round((time.perf_counter() - started) * 1000),
+            elapsed_ms,
         )
 
     def do_POST(self) -> None:  # noqa: N802
@@ -283,7 +314,9 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                         job = {
                             "digest": digest,
                             "status": "RUNNING",
+                            "stage": "GENERATING_AND_VALIDATING",
                             "response": None,
+                            "started_at": time.monotonic(),
                             "updated_at": time.monotonic(),
                         }
                         self.hosted_server.owner_preview_jobs[request_id] = job
@@ -298,12 +331,17 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                 if response is not None:
                     self._send_json(HTTPStatus.OK, response)
                 else:
+                    elapsed_ms = max(0, round((time.monotonic() - float(job["started_at"])) * 1000))
                     self._send_json(
                         HTTPStatus.ACCEPTED,
                         {
                             "contract_version": "SITES_OWNER_PREVIEW_CONTRACT_V1",
                             "request_id": request_id,
                             "status": status,
+                            "preview_meta": {
+                                "stage": str(job.get("stage", "GENERATING")),
+                                "elapsed_ms": elapsed_ms,
+                            },
                         },
                     )
                 return

@@ -2,6 +2,11 @@ export type PersonalizedTaskPayload = {
   status?: string;
   error?: string | null;
   personalized_reading?: unknown;
+  preview_meta?: {
+    stage?: unknown;
+    elapsed_ms?: unknown;
+    [key: string]: unknown;
+  } | null;
   [key: string]: unknown;
 };
 
@@ -31,12 +36,14 @@ export async function pollPersonalizedTask(
     fetchResult,
     sleep,
     cancelled = () => false,
+    onProgress = () => {},
     maxAttempts = 720,
     intervalMs = 2_500,
   }: {
     fetchResult: () => Promise<PersonalizedTaskResponse>;
     sleep: (milliseconds: number) => Promise<void>;
     cancelled?: () => boolean;
+    onProgress?: (payload: PersonalizedTaskPayload) => void;
     maxAttempts?: number;
     intervalMs?: number;
   },
@@ -56,7 +63,11 @@ export async function pollPersonalizedTask(
       );
     }
 
-    if (response.status === 202 || response.status === 503) continue;
+    if (response.status === 202) {
+      try { onProgress(await response.json()); } catch { /* A later poll can recover progress. */ }
+      continue;
+    }
+    if (response.status === 503) continue;
 
     let payload: PersonalizedTaskPayload;
     try {

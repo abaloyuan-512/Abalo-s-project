@@ -119,11 +119,18 @@ def test_engine_key_is_mandatory_and_not_accepted_when_short() -> None:
         hosted_api.create_server("127.0.0.1", 0, "short")
 
 
-def test_health_check_discloses_no_secret_or_repository_path() -> None:
+def test_health_check_discloses_versions_but_no_secret_or_repository_path(monkeypatch) -> None:
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "abcdef1234567890")
     with running_server() as port:
         status, headers, payload = request(port, "GET", "/healthz")
     assert status == 200
-    assert payload == {"status": "ok", "service": "abalo-authoritative-engine"}
+    assert payload["status"] == "ok"
+    assert payload["service"] == "abalo-authoritative-engine"
+    assert payload["git_commit"] == "abcdef123456"
+    assert payload["owner_preview_contract"] == "SITES_OWNER_PREVIEW_CONTRACT_V1"
+    assert payload["page8_contract"] == "SITES_PAGE8_READING_V1"
+    assert payload["prompt_version"]
+    assert payload["validator_version"]
     assert headers["Cache-Control"] == "no-store"
     assert "Abalo-s-project" not in json.dumps(payload)
 
@@ -279,11 +286,16 @@ def test_owner_preview_job_is_async_authenticated_and_idempotent(monkeypatch) ->
     assert first == 202
     assert duplicate == 202
     assert first_payload["status"] == "RUNNING"
+    assert first_payload["preview_meta"]["stage"] == "GENERATING_AND_VALIDATING"
+    assert first_payload["preview_meta"]["elapsed_ms"] >= 0
     assert duplicate_payload["request_id"] == payload["request_id"]
+    assert duplicate_payload["preview_meta"]["stage"] == "GENERATING_AND_VALIDATING"
     assert conflict == 409
     assert calls == 1
     assert terminal == 200
     assert terminal_payload["status"] == "SUCCESS"
+    assert terminal_payload["preview_meta"]["stage"] == "COMPLETE"
+    assert terminal_payload["preview_meta"]["elapsed_ms"] >= 0
 
 
 def test_owner_preview_job_rejects_excess_concurrency_without_generation(monkeypatch) -> None:
