@@ -1,0 +1,39 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V010",
+  "verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+  "candidate_manifest_sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E",
+  "gates": {
+    "gate_0_v009_inheritance": "PASS",
+    "gate_1_acceptance_contract_frozen": "PASS",
+    "gate_2_offline_candidate_frozen": "PASS",
+    "gate_3_one_time_independent_acceptance": "FAIL",
+    "gate_4_numeric_live_authorization_proposal": "BLOCKED",
+    "gate_5_stability_evidence": "NOT_ESTABLISHED",
+    "gate_6_router_or_page9_next_step": "BLOCKED"
+  },
+  "only_failure": {
+    "contract_item": 3,
+    "code": "FROZEN_CASE_LEDGER_ROW_MISSING_AFTER_PRIOR_FAILURE"
+  },
+  "call_accounting": {
+    "proposed_fixed_high_attempts": 2,
+    "authorized_fixed_high_attempts": 0,
+    "actual_fixed_high_attempts": 0,
+    "router_attempts": 0,
+    "automatic_retries": 0,
+    "v010_real_casts": 0,
+    "provider_instantiated": false
+  },
+  "historical_integrity": {
+    "v007_s1": "S1_FAIL_STOP_2_OF_3_UNCHANGED",
+    "v008": "V008_CANARY_FAIL_STOP_INCOMPLETE_UNCHANGED",
+    "v009": "SUCCESS_UNCHANGED_SHA_40376C23B51D91A36049242A3DCE24C2FD97C14AC57EBB17B0AD56AC3FF0CAAD"
+  },
+  "candidate_repair_or_retest": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "router_wiring": false,
+  "page9_art_or_product_implementation": false,
+  "future_work": "A corrected runner may only be considered in a separately authorized new candidate or stage; this frozen candidate is not repaired or re-reviewed."
+}

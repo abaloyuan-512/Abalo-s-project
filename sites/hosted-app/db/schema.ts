@@ -54,3 +54,13 @@ export const publicRequestRateLimits = sqliteTable("public_request_rate_limits",
 }, (table) => [
   index("public_request_rate_limits_subject_created_idx").on(table.subjectHash, table.createdAt),
 ]);
+
+export const directReadingPreviewJobs = sqliteTable("direct_reading_preview_jobs", {
+  requestId: text("request_id").primaryKey(),
+  payloadSha256: text("payload_sha256").notNull(),
+  promptVersion: text("prompt_version").notNull(),
+  state: text("state").notNull().default("RUNNING"),
+  resultStatus: text("result_status"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

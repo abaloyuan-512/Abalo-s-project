@@ -1,0 +1,22 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "verdict": "OFFLINE_CANDIDATE_PASS_AWAITING_NUMERIC_LIVE_AUTHORIZATION",
+  "candidate_manifest_sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A",
+  "independent_acceptance": "PASS",
+  "call_accounting": {
+    "proposed_fixed_high_attempts": 2,
+    "authorized_fixed_high_attempts": 0,
+    "actual_fixed_high_attempts": 0,
+    "router_attempts": 0,
+    "automatic_retries": 0,
+    "v011_real_casts": 0,
+    "provider_instantiated": false
+  },
+  "next_gate": "EXPLICIT_NUMERIC_USER_AUTHORIZATION_FOR_2_FIXED_HIGH_ATTEMPTS",
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "router_wiring": false,
+  "page9_art_or_product_implementation": false,
+  "stability_evidence_established": false
+}

@@ -1,0 +1,1 @@
+{"stage_id":"DIRECT_READING_V2_SDK_RUNTIME_DIAGNOSTIC_V023","objective":"Zero-live localization of SDK snapshot versus bridge boundaries.","history_lock":{"v022":"PERMANENT_FAIL_STOP","v022_ledger_sha256":"041443510A27ADE9BBC6C54788A006E235A5C91AEE2BE51267ABE4498E46C2A1"},"live_calls":0,"real_provider_instantiated":false,"automatic_retries":0}

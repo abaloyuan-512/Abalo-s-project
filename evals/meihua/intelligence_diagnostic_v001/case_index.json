@@ -1,0 +1,102 @@
+{
+  "dataset_id": "GUANXIANG_INTELLIGENCE_DIAGNOSTIC_V1_0",
+  "status": "PASS_WITH_OPEN_ITEMS",
+  "case_count": 10,
+  "composition": {
+    "FAILURE": 4,
+    "MEDIUM_CANDIDATE": 4,
+    "PROTECTION": 2
+  },
+  "cases": [
+    {
+      "case_id": "GXID-F01",
+      "quality_tier": "FAILURE",
+      "title": "工作问题变化但报告不变",
+      "capability_scope": ["READING_QUESTION_SENSITIVITY"],
+      "source_case_id": "G0-TEXT-WORK",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "tier_rationale": "同盘与同结构化字段下，只更换自由问题，clarity_report 逐字段完全相同。"
+    },
+    {
+      "case_id": "GXID-F02",
+      "quality_tier": "FAILURE",
+      "title": "合作问题变化但报告不变",
+      "capability_scope": ["READING_QUESTION_SENSITIVITY"],
+      "source_case_id": "G0-TEXT-COOPERATION",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "tier_rationale": "是否继续合作与多次延期后是否追加预算得到逐字段相同的 clarity_report。"
+    },
+    {
+      "case_id": "GXID-F03",
+      "quality_tier": "FAILURE",
+      "title": "关系问题变化但报告不变",
+      "capability_scope": ["READING_QUESTION_SENSITIVITY"],
+      "source_case_id": "G0-TEXT-RELATIONSHIP",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "tier_rationale": "主动联系与反复争执后继续维持得到逐字段相同的 clarity_report。"
+    },
+    {
+      "case_id": "GXID-F04",
+      "quality_tier": "FAILURE",
+      "title": "个人计划问题变化但报告不变",
+      "capability_scope": ["READING_QUESTION_SENSITIVITY"],
+      "source_case_id": "G0-TEXT-PERSONAL",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "tier_rationale": "考试与副业两个不同问题得到逐字段相同的 clarity_report。"
+    },
+    {
+      "case_id": "GXID-M01",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "title": "尚未准备充分的新项目",
+      "capability_scope": ["READING_VALUE", "CHART_GROUNDING"],
+      "source_case_id": "CASE-001",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "tier_rationale": "真实模型输出通过技术验证，但 human review 未完成；只能作为待人工确认的中间候选。"
+    },
+    {
+      "case_id": "GXID-M02",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "title": "合作顺利时继续扩大投入",
+      "capability_scope": ["READING_VALUE", "CHART_GROUNDING"],
+      "source_case_id": "CASE-005",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "tier_rationale": "低/中推理输出均通过技术验证，但 human review 未完成；不能以 validator 通过代替价值通过。"
+    },
+    {
+      "case_id": "GXID-M03",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "title": "长期停滞的内部项目重启",
+      "capability_scope": ["READING_VALUE", "CHART_GROUNDING"],
+      "source_case_id": "CASE-006",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "tier_rationale": "低/中推理输出均通过技术验证，但具体价值和卦象增量尚未人工确认。"
+    },
+    {
+      "case_id": "GXID-M04",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "title": "回应含糊时推动关系确认",
+      "capability_scope": ["READING_VALUE", "CHART_GROUNDING"],
+      "source_case_id": "CASE-008",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "tier_rationale": "低/中推理输出均通过技术验证，但 human review 未完成。"
+    },
+    {
+      "case_id": "GXID-P01",
+      "quality_tier": "PROTECTION",
+      "title": "合作投入：先见承担，再谈继续",
+      "capability_scope": ["PRODUCT_VOICE", "READING_VALUE"],
+      "source_case_id": "GATE1-ROUND3-COOPERATION",
+      "source_type": "PRODUCT_CALIBRATION",
+      "tier_rationale": "产品负责人明确评价为 85 分以上；只保护产品声音和判断力度，不代表易学专家验收。"
+    },
+    {
+      "case_id": "GXID-P02",
+      "quality_tier": "PROTECTION",
+      "title": "关系沟通：只主动一次",
+      "capability_scope": ["PRODUCT_VOICE", "READING_VALUE"],
+      "source_case_id": "GATE1-ROUND4-RELATIONSHIP",
+      "source_type": "PRODUCT_CALIBRATION",
+      "tier_rationale": "产品负责人评分 85 并明确通过；只保护已认可表达，不作为唯一易理解读。"
+    }
+  ]
+}

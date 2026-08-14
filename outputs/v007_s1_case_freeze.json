@@ -1,0 +1,61 @@
+{
+  "stage_id": "DIRECT_READING_V2_HIGH_STABILITY_S1_V007",
+  "freeze_version": "V2",
+  "status": "FROZEN_BEFORE_LIVE_EXECUTION",
+  "supersedes": {
+    "version": "V1",
+    "sha256": "833F44FE5EE40D2495864508AA323379054A6D35AB8D9AFC7E7A697AD3F5BD89",
+    "live_attempts_under_version": 0,
+    "reason": "反向审查发现三个问题都偏向先验证/保留退路，可能产生模板坍塌；V2只修正S1-02和S1-03的问题措辞以覆盖推进时机与资源集中选择。"
+  },
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V2_EXACT_SECTIONS_V1",
+  "case_order": ["S1-01", "S1-02", "S1-03"],
+  "cases": [
+    {
+      "slot": 1,
+      "case_id": "S1-01",
+      "domain": "WORK_CAREER",
+      "question_text": "我获得了一个薪酬更高但职责跨度明显增大的工作机会；我应该接受，还是继续留在现在相对稳定但成长变慢的岗位？",
+      "numbers": [31, 46, 11],
+      "input_type": "DIRECT_DECISION"
+    },
+    {
+      "slot": 2,
+      "case_id": "S1-02",
+      "domain": "RELATIONSHIP_COMMUNICATION",
+      "question_text": "我和伴侣已经就未来生活安排形成了共同方案，但执行会改变双方现有节奏；我们应该现在开始落实，还是把计划推迟到条件更宽裕时？",
+      "numbers": [24, 39, 8],
+      "input_type": "IMPLEMENT_NOW_OR_DELAY"
+    },
+    {
+      "slot": 3,
+      "case_id": "S1-03",
+      "domain": "PROJECT_COOPERATION",
+      "question_text": "一个重要客户愿意签署长期合作，但要求我们把核心团队集中到这个项目；我应该接受这种深度绑定，还是保留资源继续服务多个客户？",
+      "numbers": [52, 17, 34],
+      "input_type": "CONCENTRATE_OR_DIVERSIFY_RESOURCES"
+    }
+  ],
+  "call_ledger": {
+    "authorized_high_attempts": 3,
+    "actual_high_attempts": 0,
+    "remaining_high_attempts": 3,
+    "router_attempts": 0,
+    "automatic_retry_limit": 0,
+    "automatic_retries": 0,
+    "failed_attempt_consumes_slot": true,
+    "replacement_cases_allowed": false,
+    "provider_instantiated": false
+  },
+  "excluded": {
+    "router": true,
+    "medium": true,
+    "concise": true,
+    "deployment": true,
+    "production": true,
+    "v005_experiment_control": true,
+    "page_implementation": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018_LIVE",
+  "contract_id": "DRV2-SDK-BRIDGE-V018-ROUTER-ONLY-LIVE-ACCEPTANCE-V1",
+  "verdict": "FAIL",
+  "ledger_sha256": "39AF9AB4DD4D3053D8D0C65E78691A945434EA8BB7F698FD0837EFE7762625EB",
+  "failed_clauses": ["H5", "H6", "H7", "H8", "H9", "H10"],
+  "terminal_status": "TERMINAL_UNKNOWN",
+  "authorized_router_only_calls": 1,
+  "actual_provider_attempts": 1,
+  "remaining_authorized_calls": 0,
+  "automatic_retries": 0,
+  "high_calls": 0,
+  "cast_calls": 0,
+  "candidate_modified_by_qa": false,
+  "rerun_allowed": false
+}

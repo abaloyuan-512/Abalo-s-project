@@ -1,0 +1,50 @@
+{
+  "stage_id": "DIRECT_READING_V2_PARSE_EXCEPTION_V019",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-PARSE-BOUNDARY-SAFE-EXCEPTION-CLASSIFICATION-V019-OFFLINE-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path":"src/abalo_iching/application/sites_parse_exception_classifier_v019.py","sha256":"0B5F1CF991377DE3FF184F7AAD54138EB03FC9855945CB87A5A85BE0712CFCC1"},
+    {"path":"tests/test_sites_parse_exception_classifier_v019.py","sha256":"574A013600E0C68C878340B95DC4D55BFFE091826BFF299CB090B57CEB48057D"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/scope_lock.json","sha256":"557253F4D69B5A6ED7B536CAF8A93D97C7E821BC5D05337D5D540BE3C58124CC"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/acceptance_contract.json","sha256":"6D2AD34658B1212DC8E830E8B4946F6E25C4999A635D0876AB7414ECCBBFABFD"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/decision_log.md","sha256":"7266F43D31163A0A89F40D2A3BB7551DC9018A0EEA1C604D418732E1C075B773"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/execution_log.md","sha256":"3A69A16B04DC38FDE1BC557CD5A9E9E1A2EAF04029EBA7E9DFAAE3DB62A343B5"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/risk_log.md","sha256":"D7BBD4E4AA3BD683EB0C77BB2CF9E4B620F13E3C5C8097F2BFE0EA1FF7D3FC65"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/deviation_log.md","sha256":"A777E04A19C96C82D5D14CC8251FC6836ACFE6815F51A81B1D3BB1D7ABEA765D"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/build_offline_evidence.py","sha256":"42B540E3A1F8FDCE1C4D6E309853BD53EA4B6525FB0CC48DC88B96FBED7614FD"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/offline_ledger.json","sha256":"A62C49740C3A46809D5F1A83EFF6435D05A154429AA8DA37333300BD64704ADF"}
+  ],
+  "immutable_authority_evidence": [
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/candidate_manifest.json","sha256":"30C1E24EB0675B7FC5091431AA1599CBAD9D0A14314713CDCDC812956D432109"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/final_outcome.json","sha256":"53619CDE8061FF8C95B97F094B98855D77328D92A8BCD9EB85102279E6D34B95"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/independent_acceptance_result.json","sha256":"3D13944F90B70FA35F722C614F589147B84DB69E30BAFAB4A8A6C3D5A288B8EB"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/live_final_outcome.json","sha256":"BE54651D5BDC2AE67B6866CA235EB9EB0CCEFE32047F16AC0011024542C60DB5"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/live_independent_acceptance_result.json","sha256":"200F91087B42E405064DE184E2E1547ADAD55622783C8086958CFF19F4D6DC07"},
+    {"path":"outputs/v018_router_only_live_ledger.json","sha256":"39AF9AB4DD4D3053D8D0C65E78691A945434EA8BB7F698FD0837EFE7762625EB"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/candidate_manifest.json","sha256":"3EAED990E1F03DE10A7B44598F5B5D16BE71D51909B46AFD77BF76D655467EC6"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/candidate_manifest.json","sha256":"3396D84D379C4047B301E84332650E607AAE820A806688673535B1E22F827BD1"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/final_outcome.json","sha256":"7411ABF1982C265C7BA5A2339CFADD4B9E7BEB109E1DFE990179221517C01975"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/candidate_manifest.json","sha256":"D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/live_final_outcome.json","sha256":"EAABD0C7ECD37E7071F41FE260CE191B59B3E84F4309E089B2EC20E993769B34"},
+    {"path":"outputs/v015_router_only_live_ledger.json","sha256":"FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321"},
+    {"path":"evals/meihua/direct_reading_v2_pure_data_router_v014/candidate_manifest.json","sha256":"CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67"},
+    {"path":"evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json","sha256":"DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v012/final_outcome.json","sha256":"D2EC3A91266C284BA7E3CB990A302A6559E8AEACE9ED17FD3B7E9D210D9B7FB1"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v013/design_stop.json","sha256":"C0A5D1B5B86749DB6E31DA25A2566C6F8E16944F74467B92D8CBDD2BDE5E4089"}
+  ],
+  "offline_verification": {
+    "focused": "11 passed",
+    "inherited_focused": "84 passed",
+    "full": "1405 passed plus the sole Windows socket 10053 case passed on immediate isolated rerun",
+    "case_denominator": 8,
+    "classified_count": 8,
+    "frozen_failure_codes": 7,
+    "provider_calls": 0,
+    "live_calls": 0,
+    "real_provider_instantiated": false,
+    "high_calls": 0,
+    "cast_calls": 0,
+    "automatic_retries": 0
+  },
+  "external_state": {"new_live_authorized":false,"product_wiring":false,"deployment":false,"production":false,"default_replacement":false}
+}

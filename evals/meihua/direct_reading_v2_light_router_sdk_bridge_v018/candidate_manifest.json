@@ -1,0 +1,49 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-REAL-ADAPTER-RESPONSE-TO-V017-TELEMETRY-V018-OFFLINE-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path":"src/abalo_iching/application/sites_light_router_sdk_bridge_v018.py","sha256":"5D8CEADE15D22EA4579CCC7FC328693DC8EC64EE79381437FCB3DC25F2F0720C"},
+    {"path":"tests/test_sites_light_router_sdk_bridge_v018.py","sha256":"53BBACFEE984A6CCE4137340A78546A879BA451057DCBFC9136BEE9FF628149A"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/scope_lock.json","sha256":"C933368295B371C8008F89A362332CD52A380E974387315CC9F014B167C3AB36"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/acceptance_contract.json","sha256":"909232F5059296FE4B0AE05CBD35DA62D020913B499A08A863B28E27D81C1190"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/decision_log.md","sha256":"65C90AA1D712ED39A525C4AD77E1297EDF4E8314B2B567744DE49368F9AF7101"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/execution_log.md","sha256":"A30E78A82E3AAE89D559627EBA2181825550FAC88BB45B3005E220F87AE0945F"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/risk_log.md","sha256":"AD8FF6DC30D681871A3076612D17242D2D8188480D6DB44456286115A41B31ED"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/deviation_log.md","sha256":"011FE42BBF6CEA762AD9FE0C0F94947DF5581D18EA53916F9A25A0C89A238D35"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/build_offline_evidence.py","sha256":"D68F92E8E90F22C07A419AA20B2284C71C28DFF28B19EA6CC5D5FE1430F8B2D3"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/offline_ledger.json","sha256":"15ED13DA5C1CD4E430A5DFC1B342A0F2D7F27FEE76D65BC68968568977057CCE"}
+  ],
+  "immutable_authority_evidence": [
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/candidate_manifest.json","sha256":"3EAED990E1F03DE10A7B44598F5B5D16BE71D51909B46AFD77BF76D655467EC6"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/final_outcome.json","sha256":"B5990DF95DE871C243B2E1A08165C55A0E328A044741B9F53AE08895A50C11EA"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/independent_acceptance_result.json","sha256":"F3DD893D6E604F46B7AE8B826651E1BE2FF2B46C704BAD88CD18E2A74266D7AB"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/candidate_manifest.json","sha256":"3396D84D379C4047B301E84332650E607AAE820A806688673535B1E22F827BD1"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/final_outcome.json","sha256":"7411ABF1982C265C7BA5A2339CFADD4B9E7BEB109E1DFE990179221517C01975"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/candidate_manifest.json","sha256":"D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/live_final_outcome.json","sha256":"EAABD0C7ECD37E7071F41FE260CE191B59B3E84F4309E089B2EC20E993769B34"},
+    {"path":"outputs/v015_router_only_live_ledger.json","sha256":"FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321"},
+    {"path":"evals/meihua/direct_reading_v2_pure_data_router_v014/candidate_manifest.json","sha256":"CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67"},
+    {"path":"evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json","sha256":"DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v012/final_outcome.json","sha256":"D2EC3A91266C284BA7E3CB990A302A6559E8AEACE9ED17FD3B7E9D210D9B7FB1"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v013/design_stop.json","sha256":"C0A5D1B5B86749DB6E31DA25A2566C6F8E16944F74467B92D8CBDD2BDE5E4089"}
+  ],
+  "offline_verification": {
+    "focused":"16 passed",
+    "inherited_focused":"232 passed",
+    "full":"1395 passed",
+    "case_denominator":12,
+    "complete_telemetry":2,
+    "failed_or_invalid":10,
+    "sdk_response_extractions":10,
+    "v017_receipt_attempts":7,
+    "v017_fixture_fetches":7,
+    "integration_binding_rebuild_matches":2,
+    "live_calls":0,
+    "real_provider_instantiated":false,
+    "high_calls":0,
+    "cast_calls":0,
+    "automatic_retries":0
+  },
+  "external_state": {"new_live_authorized":false,"product_wiring":false,"deployment":false,"production":false,"default_replacement":false}
+}

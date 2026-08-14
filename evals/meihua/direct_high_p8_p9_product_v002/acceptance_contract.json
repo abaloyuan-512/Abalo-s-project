@@ -1,0 +1,26 @@
+{
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-V002-EVIDENCE-COMPLETENESS-OFFLINE-ACCEPTANCE-V1",
+  "status": "FROZEN_BEFORE_IMPLEMENTATION",
+  "repairs_only": ["V001_D12", "V001_D13", "V001_D14", "V001_D15"],
+  "positive_rows": ["CLEAR", "CONFIRMED", "SKIP"],
+  "required_negative_kinds": [
+    "HIGH_PROVIDER_EXCEPTION",
+    "HIGH_TRUNCATED_OR_MISSING_SECTION",
+    "HIGH_VALIDATION_ERROR",
+    "SAFETY_HARD_GATE",
+    "P8_CHART_LINEAGE_MISMATCH",
+    "P8_PROGRAM_STRENGTH_SOURCE_INVALID",
+    "P9_MISSING_REQUIRED_ITEM",
+    "P9_NOT_BYTE_EXACT",
+    "P8_P9_RESPONSIBILITY_CROSSOVER",
+    "PRODUCT_PARTIAL_RELEASE_ATTEMPT"
+  ],
+  "additional_boundary_rows": ["PUBLIC_STRUCTURE_TAMPER", "PUBLIC_DIGEST_TAMPER"],
+  "per_transaction": {"prepare": 1, "cast": 1, "provider": 1, "fixed_high": 1, "retry": 0},
+  "v001_repair_in_place": false,
+  "live_calls": 0,
+  "router_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

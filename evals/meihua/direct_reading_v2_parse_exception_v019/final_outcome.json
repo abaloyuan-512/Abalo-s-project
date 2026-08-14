@@ -1,0 +1,14 @@
+{
+  "stage_id":"DIRECT_READING_V2_PARSE_EXCEPTION_V019",
+  "verdict":"OFFLINE_CANDIDATE_FAIL_STOP",
+  "manifest_sha256":"291CFAA1546B089E6FAA51D86013C0936772B460E31D4330D5EDAE72ED7B196E",
+  "independent_acceptance":"FAIL",
+  "failed_clauses":["J3","J8","J9"],
+  "reason":"Candidate implemented seven codes instead of the frozen eight-code one-to-one classification contract.",
+  "live_calls":0,
+  "rerun_allowed":false,
+  "product_wiring":false,
+  "deployment":false,
+  "production":false,
+  "default_replacement":false
+}

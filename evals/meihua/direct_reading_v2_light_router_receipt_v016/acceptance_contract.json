@@ -1,0 +1,7 @@
+{
+  "contract_id": "DRV2-LIGHT-ROUTER-RECEIPT-PROVENANCE-V016-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "frozen_before_implementation": true,
+  "one_time_independent_acceptance": true,
+  "clauses": ["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10"],
+  "live_calls": 0
+}

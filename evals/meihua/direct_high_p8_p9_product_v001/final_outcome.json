@@ -1,0 +1,15 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V001",
+  "verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+  "independent_acceptance": "FAIL",
+  "failed_gates": ["D12", "D13", "D14", "D15"],
+  "candidate_manifest_sha256": "3A8B644C2D685F208EA815DE60A15E3785B1EB07C8F10FC4FCD42DE8DE498B4D",
+  "offline_ledger_sha256": "3EB0AB980D3BFED0BCE43FDAD8B388DB58EC13D8AFE91E33F4D12C1E53F9A483",
+  "historical_candidate_locked": true,
+  "repair_in_place": false,
+  "release_authorized": false,
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

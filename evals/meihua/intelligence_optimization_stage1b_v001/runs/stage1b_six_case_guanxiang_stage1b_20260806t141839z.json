@@ -1,0 +1,1316 @@
+{
+  "run_id": "GUANXIANG_STAGE1B_20260806T141839Z",
+  "scope": "STAGE1B_SINGLE_SIX_CASE_RUN",
+  "generated_at": "2026-08-06T14:18:39.836762+00:00",
+  "model": "gpt-5.6-luna",
+  "contract_version": "GUANXIANG_DECISION_FRAME_EXPERIMENT_V1",
+  "prompt_sha256": "a8e19bd07114b700a6867bfa95b74051e4d2b783955ba5682add9d18396a4a96",
+  "contract_file_sha256": "43C7281527DD53A9353B004DCD358A0F838CF2DFCF35382A73B3F2070E6EC61F",
+  "heldout_run_number": 1,
+  "no_retries": true,
+  "generic_confirmation_is_synthetic": true,
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "set": "DEVELOPMENT",
+      "synthetic": true,
+      "question_text": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？",
+      "frozen_answers": [
+        "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。",
+        "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。",
+        "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。",
+        "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+      ],
+      "initial": null,
+      "critical_answer": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。",
+      "after_critical": null,
+      "completed": null,
+      "error": {
+        "type": "Stage1BExperimentError",
+        "message": "CONFIRM must invite confirmation and correction"
+      },
+      "rejected_model_output": {
+        "status": "CONFIRM",
+        "assistant_message": "我已形成一个可被纠正的理解：你要在未来三个月内决定，是否在资源、合作人和交付流程尚未稳定时立即公开启动；同时，你保留了一个条件性路径——如果一个月内能确认合作人的投入和第一轮交付资源，就先小范围试运行，否则继续准备。当前决策卡点主要集中在合作人投入与第一轮交付资源是否能及时确定。",
+        "next_question": "这是我的理解：你要在未来三个月内决定，是立即公开启动，还是继续准备；若一个月内确认合作人投入和第一轮交付资源，则先小范围试运行。请确认，或指出我哪里理解不准确。",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "是否在未来三个月内立即公开启动",
+              "option_a": "立即公开启动",
+              "option_b": "否则继续准备",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "我现在最纠结的是要不要公开启动。"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "否则继续准备。"
+                }
+              ]
+            },
+            {
+              "name": "启动范围与方式",
+              "option_a": "公开启动",
+              "option_b": "先小范围试运行",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "立即公开启动"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我愿意先小范围试运行"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。"
+                }
+              ]
+            },
+            {
+              "statement": "已经做过一次小范围内部测试，并收到两位潜在用户的正面反馈。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+                }
+              ]
+            },
+            {
+              "statement": "目前尚未知道合作人能否按时投入，也未确认第一轮交付需要多少资源。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+                }
+              ]
+            },
+            {
+              "statement": "如果一个月内能确定合作人的投入和第一轮交付资源，就先小范围试运行；否则继续准备。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "GROUNDED",
+              "value": "我",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "我现在最纠结的是要不要公开启动。"
+                }
+              ]
+            },
+            "action_owner": {
+              "status": "GROUNDED",
+              "value": "我",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我愿意先小范围试运行"
+                }
+              ]
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "feared_cost": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            }
+          },
+          "highest_value_unknown": null
+        },
+        "hypothesis": {
+          "statement": "决策瓶颈可能不是是否存在初步用户兴趣，而是能否在一个月内确认合作人的投入和第一轮交付所需资源；这两个条件的不确定性使“立即公开启动”与“继续准备”之间无法确定。",
+          "why_decision_is_stuck": "用户明确表示尚不知道合作人能否按时投入，也未确认第一轮交付需要多少资源，并将这两项是否在一个月内确定作为选择小范围试运行或继续准备的条件。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+            }
+          ],
+          "uncertainty_note": "尚未明确用户希望通过该决定获得的具体结果，以及公开启动失败或延后的具体担忧；以上瓶颈仅基于用户明确给出的决策条件。"
+        },
+        "confirmation": {
+          "state": "AWAITING",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [
+          "“立即公开启动”与“先小范围试运行”是用户希望分别比较的启动方式，而不是同一方案的不同表述。",
+          "用户本人是该决定的决定者，但是否还需要他人授权尚未明确。"
+        ],
+        "candidates": []
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 2618,
+        "output_tokens": 2413,
+        "total_tokens": 5031,
+        "latency_ms": 21942
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M02",
+      "set": "DEVELOPMENT",
+      "synthetic": true,
+      "question_text": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+      "frozen_answers": [
+        "合作当前数据良好，但尚未经历完整交付周期。我在考虑现在就快速增加投入，还是先建立回调和风险控制。",
+        "我已经增加过一次小额投入，目前获客和成交都比原计划好。",
+        "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。",
+        "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+      ],
+      "initial": null,
+      "critical_answer": "合作进展顺利是这次判断的固定前提。我已经决定继续增加投入，真正犹豫的是应该快速扩大，还是分阶段缓慢增加。",
+      "after_critical": null,
+      "completed": null,
+      "error": {
+        "type": "Stage1BExperimentError",
+        "message": "CONFIRM must invite confirmation and correction"
+      },
+      "rejected_model_output": {
+        "status": "CONFIRM",
+        "assistant_message": "我的理解是：你当前并不是在判断合作数据是否良好，而是在“现在就快速增加投入”与“先完成一轮交付、核实退款率和维护成本仍在预算内，再分阶段增加投入”之间做决定。真正卡住的是，完整交付后的关键风险数据和高负荷履约稳定性尚未被验证，因此你还无法把“进展顺利”转化为快速加大投入的充分依据。请确认这是否准确，或指出需要纠正的地方。",
+        "next_question": "这是我的理解：你要决定的是，在未来三个月内，是现在就快速增加投入，还是先完成一轮交付并确认退款率、维护成本在预算内后再分阶段增加投入；目前的瓶颈是完整交付后的风险数据和高负荷履约稳定性尚未验证。请确认或纠正。",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "增加投入的时机与速度",
+              "option_a": "现在就快速增加投入",
+              "option_b": "先完成一轮交付并核实退款率、维护成本在预算内后，再分阶段增加投入",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "我在考虑现在就快速增加投入，还是先建立回调和风险控制。"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "合作当前数据良好，但尚未经历完整交付周期。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "合作当前数据良好，但尚未经历完整交付周期。"
+                }
+              ]
+            },
+            {
+              "statement": "此前已经增加过一次小额投入，获客和成交都比原计划好。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+                }
+              ]
+            },
+            {
+              "statement": "完整交付后的退款率、维护成本，以及合作方高负荷时能否稳定履约尚未验证。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+                }
+              ]
+            },
+            {
+              "statement": "只有在完成一轮交付后退款率和维护成本仍在预算内，才会分阶段增加投入。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "我在考虑现在就快速增加投入，还是先建立回调和风险控制。"
+                }
+              ]
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我才会分阶段增加投入。"
+                }
+              ]
+            },
+            "action_owner": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "我已经增加过一次小额投入"
+                }
+              ]
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "GROUNDED",
+              "value": "在满足交付后退款率和维护成本预算条件时分阶段增加投入",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                }
+              ]
+            },
+            "feared_cost": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            }
+          },
+          "highest_value_unknown": null
+        },
+        "hypothesis": {
+          "statement": "当前决策瓶颈不是获客和成交表现是否良好，而是尚未完成一轮交付，因而缺少退款率、维护成本及高负荷履约稳定性的验证；在这些证据出现前，“是否适合继续快速增加投入”无法被明确转化为快速投入的决定。",
+          "why_decision_is_stuck": "已有一次小额投入后的获客和成交正向结果，但完整交付后的退款率、维护成本和高负荷履约能力尚未验证；用户已明确表示，只有退款率和维护成本仍在预算内，才会分阶段增加投入。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+            }
+          ],
+          "uncertainty_note": "高负荷履约稳定性已被指出为未验证因素，但用户明确给出的分阶段增加投入条件只涉及退款率和维护成本；二者在最终决策中的相对权重尚未明确。"
+        },
+        "confirmation": {
+          "state": "AWAITING",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [
+          "用户希望保留“未来三个月”的原有时间范围。",
+          "“快速增加投入”与“分阶段增加投入”主要构成投入时机与速度的选择，而不是两个独立决策。"
+        ],
+        "candidates": []
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 2652,
+        "output_tokens": 1831,
+        "total_tokens": 4483,
+        "latency_ms": 15037
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M03",
+      "set": "DEVELOPMENT",
+      "synthetic": true,
+      "question_text": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？",
+      "frozen_answers": [
+        "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。我想判断现在推动重启是否合适。",
+        "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。",
+        "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。",
+        "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+      ],
+      "initial": null,
+      "critical_answer": "是我主动想借管理层重新关注的机会推动，领导没有明确要求我负责重启；我在决定要不要主动承担推动责任。",
+      "after_critical": null,
+      "completed": null,
+      "error": {
+        "type": "Stage1BExperimentError",
+        "message": "CONFIRM must invite confirmation and correction"
+      },
+      "rejected_model_output": {
+        "status": "CONFIRM",
+        "assistant_message": "这是我的理解：你要判断的不是项目是否值得重启，而是在未来三个月内，能否在明确项目负责人、最低资源和阶段验收的前提下，先推动一个小范围里程碑。当前决策瓶颈是：这些重启条件尚未获得明确承诺，尤其是管理层投入多少资源、最终由谁承担交付责任仍不清楚。请确认这是否准确，或直接指出需要纠正的地方。",
+        "next_question": "这是我的理解：你要判断的不是项目是否值得重启，而是在未来三个月内，能否在明确项目负责人、最低资源和阶段验收的前提下，先推动一个小范围里程碑；当前瓶颈是这些条件尚未获得明确承诺。请确认或纠正，这是否准确？",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "未来三个月是否推动项目重启",
+              "option_a": "暂不推动重启，等待负责人、最低资源和阶段验收明确",
+              "option_b": "在这些条件明确后，先推动一个小范围里程碑",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。"
+                }
+              ]
+            },
+            {
+              "statement": "用户已经整理停滞原因并向直属负责人汇报，直属负责人表示愿意再讨论。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。"
+                }
+              ]
+            },
+            {
+              "statement": "管理层投入多少资源、最终由谁承担交付责任尚未确认。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+                }
+              ]
+            },
+            {
+              "statement": "如果项目负责人、最低资源和阶段验收能够明确，用户愿意先重启一个小范围里程碑。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "我已经整理了停滞原因并向直属负责人汇报"
+                }
+              ]
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "action_owner": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我愿意先重启一个小范围里程碑"
+                }
+              ]
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "GROUNDED",
+              "value": "在条件明确的前提下先重启一个小范围里程碑",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+                }
+              ]
+            },
+            "feared_cost": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            }
+          },
+          "highest_value_unknown": null
+        },
+        "hypothesis": {
+          "statement": "当前瓶颈假设是：项目重启的判断被“是否能先获得明确的项目负责人、最低资源和阶段验收”卡住；在这些条件尚未明确前，用户无法判断未来三个月是否适合推动重启。",
+          "why_decision_is_stuck": "管理层重新关注项目，但资源投入和最终交付责任仍未确认；用户只在这些条件明确时愿意启动小范围里程碑。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+            }
+          ],
+          "uncertainty_note": "尚未确认最终由谁拥有项目决策权，也尚未确认管理层是否会明确承诺最低资源和交付责任。"
+        },
+        "confirmation": {
+          "state": "AWAITING",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [
+          "尚未确认最终由谁拥有项目决策权。",
+          "尚未确认管理层是否会明确承诺最低资源和交付责任。"
+        ],
+        "candidates": []
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 2620,
+        "output_tokens": 2035,
+        "total_tokens": 4655,
+        "latency_ms": 17538
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M04",
+      "set": "DEVELOPMENT",
+      "synthetic": true,
+      "question_text": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？",
+      "frozen_answers": [
+        "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊，我在考虑是否继续推动关系确认。",
+        "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。",
+        "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。",
+        "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+      ],
+      "initial": null,
+      "critical_answer": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。",
+      "after_critical": null,
+      "completed": null,
+      "error": {
+        "type": "Stage1BExperimentError",
+        "message": "CONFIRM must invite confirmation and correction"
+      },
+      "rejected_model_output": {
+        "status": "CONFIRM",
+        "assistant_message": "这是我的理解：你要决定的是，在未来六周内，对方尚未明确是否愿意建立稳定关系、也没有给出下一次见面的具体安排时，你是否还要继续单方面推动关系确认。当前的瓶颈是：你已经直接询问过，但对方只回应“最近很忙”，没有提供具体安排；因此，继续推进的前提——具体见面安排和对关系期待的正面回应——尚未出现。请确认这是否准确，或指出需要纠正的地方。",
+        "next_question": "这是我的理解：未来六周内，在对方尚未明确是否愿意建立稳定关系、也没有给出下一次见面的具体安排时，你要决定是否继续单方面推动关系确认。当前瓶颈是对方尚未给出你设定的具体回应，因此你在“继续了解”和“停止单方面推进”之间无法判断。请确认或纠正。",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "未来六周是否继续推动关系确认",
+              "option_a": "继续推动关系确认并继续了解",
+              "option_b": "停止单方面推进",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我会继续了解；否则我会停止单方面推进。"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "双方目前有持续联系，但对未来安排没有形成明确共识，对方回应含糊。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊"
+                }
+              ]
+            },
+            {
+              "statement": "用户已经直接询问过对方对未来的想法，对方只说最近很忙，之后没有给出具体安排。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+                }
+              ]
+            },
+            {
+              "statement": "目前尚未确认对方是否愿意建立稳定关系，也未确认下一次见面的时间。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+                }
+              ]
+            },
+            {
+              "statement": "如果对方给出具体见面安排并正面回应关系期待，用户会继续了解；否则停止单方面推进。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "GROUNDED",
+              "value": "用户发起了关系确认，并在考虑是否继续推动。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "我在考虑是否继续推动关系确认。"
+                }
+              ]
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "GROUNDED",
+              "value": "用户决定继续了解或停止单方面推进。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我会继续了解；否则我会停止单方面推进。"
+                }
+              ]
+            },
+            "action_owner": {
+              "status": "GROUNDED",
+              "value": "用户承担后续是否继续推动或停止推进的行动。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我会继续了解；否则我会停止单方面推进。"
+                }
+              ]
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "feared_cost": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            }
+          },
+          "highest_value_unknown": null
+        },
+        "hypothesis": {
+          "statement": "当前决策瓶颈在于：对方尚未对稳定关系意愿作出正面回应，也未给出下一次见面的具体安排，导致用户无法判断是否满足继续了解的前提，只能在继续单方面推动与停止推进之间犹豫。",
+          "why_decision_is_stuck": "用户已经直接询问过，但得到的只是“最近很忙”，而用户明确把“具体见面安排”和“正面回应关系期待”设为继续了解的条件；这两个条件目前都未被满足。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+            }
+          ],
+          "uncertainty_note": "对方的真实意愿尚未被确认；本假设仅描述信息缺口如何造成决策停滞，不推断对方的动机或授权。"
+        },
+        "confirmation": {
+          "state": "AWAITING",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [],
+        "candidates": []
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 2656,
+        "output_tokens": 2069,
+        "total_tokens": 4725,
+        "latency_ms": 16375
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-H07",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "未来三周，我是先维修这台开始间歇停机的冰箱，还是直接换新？",
+      "frozen_answers": [
+        "冰箱已经使用八年；维修人员上门检测后确认是启动器故障，不是压缩机或制冷管路问题。",
+        "更换启动器的固定报价是七百元，维修后保修三个月；满足相同容量的新冰箱约三千六百元，整机保修三年。",
+        "两种方案都在现有预算内，不需要分期；家里有一台小冰箱，可以临时存放两天的必需食品。",
+        "我当前优先考虑的是尽快恢复稳定制冷并控制三年内的总支出，品牌、外观和智能功能都不是决定因素。"
+      ],
+      "initial": null,
+      "critical_answer": null,
+      "after_critical": null,
+      "completed": null,
+      "error": {
+        "type": "Stage1BExperimentError",
+        "message": "CONFIRM must invite confirmation and correction"
+      },
+      "rejected_model_output": {
+        "status": "CONFIRM",
+        "assistant_message": "这是我的理解：你要在未来三周内，在“先以700元维修并接受三个月保修”与“直接以约3600元换新并获得三年整机保修”之间做选择。核心权衡不是品牌或功能，而是能否尽快恢复稳定制冷，以及哪种方案更有利于控制三年内的总支出；目前已知故障是启动器，不是压缩机或制冷管路。请确认这个决策框架是否准确，或指出需要纠正的地方。",
+        "next_question": "这是我的理解：你要在未来三周内，在“先以700元维修并接受三个月保修”与“直接以约3600元换新并获得三年整机保修”之间做选择。核心权衡不是品牌或功能，而是能否尽快恢复稳定制冷，以及哪种方案更有利于控制三年内的总支出；目前已知故障是启动器，不是压缩机或制冷管路。请确认这个决策框架是否准确，或指出需要纠正的地方。",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "处置方案",
+              "option_a": "先维修这台已使用八年的冰箱",
+              "option_b": "直接换新",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来三周，我是先维修这台开始间歇停机的冰箱，还是直接换新？"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "决策时间范围是未来三周。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来三周"
+                }
+              ]
+            },
+            {
+              "statement": "冰箱已经使用八年，当前开始间歇停机。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "这台开始间歇停机的冰箱"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "冰箱已经使用八年"
+                }
+              ]
+            },
+            {
+              "statement": "维修人员确认故障是启动器，不是压缩机或制冷管路。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "维修人员上门检测后确认是启动器故障，不是压缩机或制冷管路问题。"
+                }
+              ]
+            },
+            {
+              "statement": "维修报价为700元，维修后保修三个月；相同容量的新冰箱约3600元，整机保修三年。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "更换启动器的固定报价是七百元，维修后保修三个月；满足相同容量的新冰箱约三千六百元，整机保修三年。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "GROUNDED",
+              "value": "用户本人",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "我是先维修这台开始间歇停机的冰箱，还是直接换新？"
+                }
+              ]
+            },
+            "action_owner": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "GROUNDED",
+              "value": "尽快恢复稳定制冷，并控制三年内的总支出",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "我当前优先考虑的是尽快恢复稳定制冷并控制三年内的总支出"
+                }
+              ]
+            },
+            "feared_cost": {
+              "status": "GROUNDED",
+              "value": "三年内总支出失控",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "控制三年内的总支出"
+                }
+              ]
+            }
+          },
+          "highest_value_unknown": null
+        },
+        "hypothesis": {
+          "statement": "当前的决策瓶颈是：在已知故障相对明确、维修成本较低但保修较短，与换新成本较高但保修较长之间，用户需要判断哪一方案更可能同时满足“尽快恢复稳定制冷”和“控制三年内总支出”这两个优先目标。",
+          "why_decision_is_stuck": "两种方案都在预算内，且已有临时存放食品的安排，因此预算和短期应急并非主要分歧；主要分歧集中在维修方案的短期保障与换新方案的长期保障之间。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "更换启动器的固定报价是七百元，维修后保修三个月；满足相同容量的新冰箱约三千六百元，整机保修三年。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "两种方案都在现有预算内，不需要分期；家里有一台小冰箱，可以临时存放两天的必需食品。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "我当前优先考虑的是尽快恢复稳定制冷并控制三年内的总支出"
+            }
+          ],
+          "uncertainty_note": "尚未据此推断维修后再次故障的概率，也未把任何未明确的家庭授权或实际执行安排当作事实。"
+        },
+        "confirmation": {
+          "state": "AWAITING",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [
+          "用户希望比较的是维修与换新本身，而不是进一步比较不同品牌、型号或维修商。"
+        ],
+        "candidates": []
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 2657,
+        "output_tokens": 1794,
+        "total_tokens": 4451,
+        "latency_ms": 13038
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-H08",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "本周要把一套演出服送到外地剧场，我是用普通保价快递，还是次日航空件？",
+      "frozen_answers": [
+        "今天是寄件安排的起点，剧场只说这套服装会在本周五使用，没有说明周五第一次必须拿到服装的具体时间。",
+        "普通保价快递预计周五十八点前送达，费用一百二十元；次日航空件预计周四十二点前送达，费用四百六十元。",
+        "服装已经装入防水硬箱，申报价值八千元；两种运送方式都提供全程追踪、保价和本人签收。",
+        "两种费用我都能承担，最重要的是不耽误剧场使用；除了到达时限之外，没有其他必须优先考虑的差异。"
+      ],
+      "initial": {
+        "contract_version": "GUANXIANG_DECISION_FRAME_EXPERIMENT_V1",
+        "session_id": "GXID-H08-initial",
+        "status": "ASK_CRITICAL",
+        "assistant_message": "目前真正会改变这个选择的问题，是剧场在周五第一次使用这套服装的具体时间。这个时间决定普通保价快递在周五十八点前送达是否仍来得及，而不是一般的背景细节。",
+        "next_question": "剧场在本周五第一次使用这套服装的具体时间是什么？",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "到达时限与运输方式",
+              "option_a": "普通保价快递：预计周五十八点前送达，费用一百二十元",
+              "option_b": "次日航空件：预计周四十二点前送达，费用四百六十元",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "普通保价快递预计周五十八点前送达，费用一百二十元；次日航空件预计周四十二点前送达，费用四百六十元。"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "剧场只说这套服装会在本周五使用，但尚未说明周五第一次必须拿到服装的具体时间。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "剧场只说这套服装会在本周五使用，没有说明周五第一次必须拿到服装的具体时间。"
+                }
+              ]
+            },
+            {
+              "statement": "服装已经装入防水硬箱，申报价值八千元。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "服装已经装入防水硬箱，申报价值八千元"
+                }
+              ]
+            },
+            {
+              "statement": "两种运送方式都提供全程追踪、保价和本人签收。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "两种运送方式都提供全程追踪、保价和本人签收。"
+                }
+              ]
+            },
+            {
+              "statement": "两种费用都能承担，除了到达时限之外，没有其他必须优先考虑的差异。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "两种费用我都能承担，最重要的是不耽误剧场使用；除了到达时限之外，没有其他必须优先考虑的差异。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "我是用普通保价快递，还是次日航空件？"
+                }
+              ]
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "我是用普通保价快递，还是次日航空件？"
+                }
+              ]
+            },
+            "action_owner": {
+              "status": "GROUNDED",
+              "value": "用户",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "本周要把一套演出服送到外地剧场，我是用普通保价快递，还是次日航空件？"
+                }
+              ]
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "GROUNDED",
+              "value": "不耽误剧场使用",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "最重要的是不耽误剧场使用"
+                }
+              ]
+            },
+            "feared_cost": {
+              "status": "GROUNDED",
+              "value": "耽误剧场使用",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "最重要的是不耽误剧场使用"
+                }
+              ]
+            }
+          },
+          "highest_value_unknown": {
+            "dimension": "DECISION_AXIS",
+            "missing_information": "周五第一次使用这套服装的具体时间",
+            "why_it_changes_question_definition": "如果周五十八点前已经晚于第一次使用时间，问题就不再是普通快递与航空件之间的一般取舍，而是能否按时送达；如果十八点前仍来得及，选择才主要变成到达余量的取舍。",
+            "question": "剧场在本周五第一次使用这套服装的具体时间是什么？",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 0,
+                "quote": "没有说明周五第一次必须拿到服装的具体时间。"
+              }
+            ]
+          }
+        },
+        "hypothesis": null,
+        "confirmation": {
+          "state": "NOT_REQUESTED",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [
+          "尚未知道周五第一次使用服装的具体时间，因此尚不能判断普通保价快递是否满足“不耽误剧场使用”的要求。"
+        ],
+        "candidates": [],
+        "generation_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2689,
+          "output_tokens": 1584,
+          "total_tokens": 4273,
+          "latency_ms": 17848
+        },
+        "boundary_note": "本结果仅用于阶段1B决策框架实验；不解卦、不排盘、不替用户决定，合成回答不代表真实用户认可。"
+      },
+      "critical_answer": "剧场刚确认周五下午三点开始第一次带装彩排，服装必须在周五下午一点前由负责人签收。",
+      "after_critical": null,
+      "completed": null,
+      "error": {
+        "type": "Stage1BExperimentError",
+        "message": "CONFIRM must invite confirmation and correction"
+      },
+      "rejected_model_output": {
+        "status": "CONFIRM",
+        "assistant_message": "这是我的理解：你要在普通保价快递和次日航空件之间选择运输方式；你的首要目标是不耽误剧场使用。剧场已确认服装必须在周五下午一点前由负责人签收，而普通保价快递预计周五十八点前送达，次日航空件预计周四十二点前送达。因此，当前瓶颈是：普通快递的预计到达时间晚于明确的签收截止时间，选择普通快递可能无法满足使用前提；次日航空件则满足该时间要求。请确认这是否准确，或指出需要纠正的地方。",
+        "next_question": "这是我的理解：剧场已确认服装必须在周五下午一点前由负责人签收，而普通保价快递预计周五十八点前送达、次日航空件预计周四十二点前送达；因此选择的关键是是否优先确保在截止时间前送达。请确认或纠正。",
+        "frame": {
+          "decision_axes": [
+            {
+              "name": "运输方式",
+              "option_a": "普通保价快递：预计周五十八点前送达，费用一百二十元",
+              "option_b": "次日航空件：预计周四十二点前送达，费用四百六十元",
+              "status": "GROUNDED",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "本周要把一套演出服送到外地剧场，我是用普通保价快递，还是次日航空件？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "普通保价快递预计周五十八点前送达，费用一百二十元；次日航空件预计周四十二点前送达，费用四百六十元。"
+                }
+              ]
+            }
+          ],
+          "stated_premises": [
+            {
+              "statement": "剧场第一次带装彩排在周五下午三点开始，服装必须在周五下午一点前由负责人签收。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "剧场刚确认周五下午三点开始第一次带装彩排，服装必须在周五下午一点前由负责人签收。"
+                }
+              ]
+            },
+            {
+              "statement": "两种费用都能承担，最重要的是不耽误剧场使用，除到达时限外没有其他必须优先考虑的差异。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "两种费用我都能承担，最重要的是不耽误剧场使用；除了到达时限之外，没有其他必须优先考虑的差异。"
+                }
+              ]
+            },
+            {
+              "statement": "服装已装入防水硬箱，两种方式都提供全程追踪、保价和本人签收。",
+              "treatment": "RESPECT_AS_STATED",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 2,
+                  "quote": "服装已经装入防水硬箱，申报价值八千元；两种运送方式都提供全程追踪、保价和本人签收。"
+                }
+              ]
+            }
+          ],
+          "agency_and_authority": {
+            "initiator": {
+              "status": "GROUNDED",
+              "value": "用户（我）提出运输方式选择",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "我用普通保价快递，还是次日航空件？"
+                }
+              ]
+            },
+            "authorizer": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            },
+            "decision_owner": {
+              "status": "GROUNDED",
+              "value": "用户（我）",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "我是用普通保价快递，还是次日航空件？"
+                }
+              ]
+            },
+            "action_owner": {
+              "status": "UNKNOWN",
+              "value": null,
+              "evidence_refs": []
+            }
+          },
+          "motive_and_feared_cost": {
+            "desired_outcome": {
+              "status": "GROUNDED",
+              "value": "不耽误剧场使用",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "两种费用我都能承担，最重要的是不耽误剧场使用；除了到达时限之外，没有其他必须优先考虑的差异。"
+                }
+              ]
+            },
+            "feared_cost": {
+              "status": "GROUNDED",
+              "value": "耽误剧场使用",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "两种费用我都能承担，最重要的是不耽误剧场使用；除了到达时限之外，没有其他必须优先考虑的差异。"
+                }
+              ]
+            }
+          },
+          "highest_value_unknown": null
+        },
+        "hypothesis": {
+          "statement": "在已确认周五下午一点前必须签收的前提下，运输方式选择的瓶颈是普通保价快递预计周五十八点送达，晚于签收截止时间；次日航空件预计周四十二点送达，满足该时间要求。",
+          "why_decision_is_stuck": "若首要目标是不耽误剧场使用，普通保价快递的预计时效与明确的签收截止时间不相容；因此两种方案并非仅是费用差异，而是能否满足使用前提的差异。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 4,
+              "quote": "服装必须在周五下午一点前由负责人签收。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "普通保价快递预计周五十八点前送达，费用一百二十元；次日航空件预计周四十二点前送达，费用四百六十元。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "最重要的是不耽误剧场使用"
+            }
+          ],
+          "uncertainty_note": "以上判断依据的是两种方式的预计送达时间；未对实际运输波动或其他未陈述因素作额外推断。"
+        },
+        "confirmation": {
+          "state": "AWAITING",
+          "user_quote": null,
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [],
+        "candidates": []
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 2815,
+        "output_tokens": 1843,
+        "total_tokens": 4658,
+        "latency_ms": 13737
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    }
+  ],
+  "aggregate": {
+    "api_call_count": 7,
+    "input_tokens": 18707,
+    "output_tokens": 13569,
+    "total_tokens": 32276,
+    "latency_total_ms": 115515,
+    "estimated_cost_usd": null,
+    "all_machine_gates_pass": false
+  }
+}

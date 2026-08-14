@@ -1,0 +1,26 @@
+{
+  "form_id": "GXID_USER_VALUE_V1",
+  "purpose": "用户价值盲评",
+  "allowed_reviewers": ["CASE_OWNER", "TARGET_USER", "OTHER_HUMAN"],
+  "disallowed_as_substitute": ["CODEX", "GENERATION_MODEL", "PMO_AGENT"],
+  "required_case_source": "reviewer_cases/user_value_cases.json",
+  "blind_rule": "不得读取 reveal_key.json、cases.json、案例分层、来源、旧反馈或作者信息。",
+  "scale": ["CLEARLY_YES", "PARTLY", "NO", "CANNOT_JUDGE"],
+  "questions": [
+    {
+      "id": "DISCERNMENT_UNDERSTANDING",
+      "text": "这版定问是否明显更像理解了用户真正卡在哪里，而不是复述信息？"
+    },
+    {
+      "id": "CHART_CAUSAL_VALUE",
+      "text": "这版解卦是否明显更像因为这个卦而这样判断，而不是普通 AI 建议？"
+    }
+  ],
+  "optional_evidence_fields": [
+    "最让你觉得被理解的一句",
+    "最像普通 AI 建议的一句",
+    "更愿意继续使用的版本及原因"
+  ],
+  "forced_rule": "案例的 forced_cannot_judge_question_ids 中包含的问题必须填 CANNOT_JUDGE；普通用户不理解卦象时也允许主动填 CANNOT_JUDGE。",
+  "result_status_before_human_submission": "UNASSIGNED"
+}

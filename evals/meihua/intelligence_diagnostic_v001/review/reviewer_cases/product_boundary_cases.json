@@ -1,0 +1,627 @@
+{
+  "packet_id": "GXID_BLIND_REVIEW_PACKET_V1",
+  "dataset_version": "1.0.0",
+  "blind_status": "BLINDED",
+  "case_order_frozen": true,
+  "source_cases_sha256": "09c5ad3d7b36c52f23bee048a2aec9cc20423006566a36c04250b7e4fb9291b5",
+  "allowed_form_id": "GXID_PRODUCT_BOUNDARY_V1",
+  "cases": [
+    {
+      "review_case_id": "R-7C2A",
+      "original_question": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？",
+      "anonymized_context": "管理层开始重新关注该项目，但资源和责任机制仍不稳定。",
+      "discernment_transcript": [
+        {
+          "assistant_message": "你关心的是在未来三个月内，是否值得推动这个长期停滞的内部项目重新启动。先从最近一次停滞的具体情况看：它当时卡在哪个环节？",
+          "next_question": "这个项目最近一次停滞时，具体卡在哪个环节？",
+          "suggested_question": "这个项目最近一次停滞时，具体卡在哪个环节？",
+          "question_change_reason": "先确认项目停滞的现实障碍，才能判断未来三个月是否存在可推动的切入口。",
+          "user_answer": "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。我想判断现在推动重启是否合适。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，项目并非完全没人关注，真正影响重启判断的是资源和责任是否能稳定下来。现在最关键的是确认：有没有人已经明确承诺承担责任并提供所需资源？",
+          "next_question": "目前是否已有具体负责人、资源或时间安排被明确承诺？",
+          "suggested_question": "目前是否已有具体负责人、资源或时间安排被明确承诺？",
+          "question_change_reason": "从“管理层重新关注”进一步核实重启所需的实际条件，而不是只依据关注度判断。",
+          "user_answer": "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，你已经完成了原因梳理和一次汇报，但项目能否重启仍取决于资源与责任机制是否稳定，以及直属负责人后续是否给出更具体的安排。接下来最需要确认的是：什么样的明确回应，才足以支持你在未来三个月继续推动？",
+          "next_question": "直属负责人需要明确承诺哪些资源、责任或时间安排，你才会认为项目具备重新启动的条件？",
+          "suggested_question": "直属负责人需要明确承诺哪些资源、责任或时间安排，你才会认为项目具备重新启动的条件？",
+          "question_change_reason": "从已完成的原因梳理和初步汇报，转而核实推动重启所需的可观察条件。",
+          "user_answer": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "目前已经有一次汇报和“愿意再讨论”的回应，但资源与责任仍没有落到可核实的安排上。下一步先看这次讨论是否真正被安排下来。",
+          "next_question": "直属负责人表示愿意再讨论后，是否已经约定下一次讨论的时间？",
+          "suggested_question": "在未来三个月内，我应如何核实资源、交付责任和时间安排，来判断这个内部项目是否适合重新启动？",
+          "question_change_reason": "已确认你采取过汇报行动，也获得了愿意再讨论的回应；当前最需要补充的是能否形成具体、可观察的后续安排。",
+          "user_answer": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，管理层重新关注和直属负责人愿意再讨论，已经提供了推动的入口；但是否适合重启，仍取决于资源、交付责任和阶段验收能否落到明确安排上。你已经提出了先做小范围里程碑的可行路径。",
+          "next_question": null,
+          "suggested_question": "在未来三个月内，我需要先核实哪些最低资源、交付责任和阶段验收条件，才能判断是否适合推动这个项目重新启动？",
+          "question_change_reason": "当前信息已足以从“是否适合重启”转向核实具体启动条件；继续追问不会明显改变核心判断范围。",
+          "user_answer": null,
+          "status": "COMPLETE"
+        }
+      ],
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "这类停滞更值得先从协作方式、责任边界和资源配置中找原因，而不宜仅靠加大投入来重复原有做法。",
+            "evidence_ids": [
+              "E02"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "若要推动项目，需要把修复思路落实为可执行的分工、沟通和风险控制，而非只处理表面进度。",
+            "evidence_ids": [
+              "E03"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑先梳理项目中已经失效的审批、协作或交接环节，并暂停对这些环节的重复消耗。",
+            "evidence_ids": [
+              "E02"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "可以考虑将责任人、决策权限、资源承诺和升级路径写入明确机制，并设置检查与备选方案。",
+            "evidence_ids": [
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证重启方案是否保留了关键资源与退出边界，避免为推动进展而承担不可控的额外风险。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "项目当前最主要的阻塞，是否已经被具体定位为责任、资源、决策或跨团队协作中的某一类问题？",
+            "evidence_ids": [
+              "E02"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "是否已有被明确授权的责任人，能够协调资源并对关键决策承担后续责任？",
+            "evidence_ids": [
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "重启方案中是否包含可核对的检查点、风险升级路径和资源不足时的止损安排？",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "b3ccdc258a882e37994461eca9ca323040348a0c67507b8355deb8798b65eb07"
+    },
+    {
+      "review_case_id": "R-19F4",
+      "original_question": "这次合作，我还应该继续投入吗？",
+      "anonymized_context": null,
+      "discernment_transcript": null,
+      "reading_output": {
+        "core_judgment": "这次不宜直接追加投入。",
+        "reading": "离为两火相承，也有附丽之义：火有所附，方能成明。体用起初比和，说明这段合作并非根本相悖，双方也曾有过彼此照应、同向发力的基础。但三爻所见是“日昃之离”——日势已斜，光还在，阶段却已经变了。此时若仍循旧法，只靠原来的热度、承诺或你的持续投入维持，所得未必是推进，更多可能只是耗损。变而为噬嗑。噬嗑之象，是颐中有物，梗在其间；不先把它辨清、处置，彼此便难以重新相合。落到这次合作，眼下真正要处理的不是“你还能再投入多少”，而是责任、交付、分配或延期代价中，究竟哪一处始终含混，迟迟没有落定。",
+        "action": "在新增资金、时间或资源以前，先要求对方完成一个足以消除当前梗碍的实际动作：补上关键交付、重新划清责任、承担已经发生的延期成本，或者把后续资源与回报明确下来。先见承担，再谈继续。"
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "8750951d321875a93ee00aebab5dd467bd6c9cb64f39d54ebd5e84db43f8d524"
+    },
+    {
+      "review_case_id": "R-B603",
+      "original_question": {
+        "question_a": "这次合作，我还应该继续投入吗？",
+        "question_b": "对方多次延期后，我还要继续追加预算吗？"
+      },
+      "anonymized_context": null,
+      "discernment_transcript": null,
+      "reading_output": {
+        "answer": "山地剥把重点放在“旧结构正在脱落，先保住最重要的部分”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "what_it_means": "本卦是山地剥，先提醒你：旧结构正在脱落，先保住最重要的部分。动爻之后变为艮为山，局面的下一层重点转向：知道什么时候停下来，才能重新看清。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。"
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "0c3f523507a154b4084c04ef492f6d8c7c56caace2d7b592d9dcf94f93293bc1"
+    },
+    {
+      "review_case_id": "R-4D8E",
+      "original_question": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？",
+      "anonymized_context": "已经有初步方案，但资源、合作人和交付流程尚未稳定。",
+      "discernment_transcript": [
+        {
+          "assistant_message": "你问的是未来三个月内，是否要把一个“尚未准备充分”的新项目立即公开启动；现在最关键的是先看清楚，究竟是哪部分还没准备好。",
+          "next_question": "目前这个项目最具体、最影响公开启动的一项未准备内容是什么？",
+          "user_answer": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。"
+        },
+        {
+          "assistant_message": "听起来，项目已有初步方案，但公开启动可能会把尚未稳定的资源、合作人和交付流程变成外部承诺。为了判断启动边界，我想先确认公开之后别人会期待你立刻兑现什么。",
+          "next_question": "如果现在公开启动，外界会把哪些具体内容视为你已经确定承诺的？",
+          "user_answer": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+        },
+        {
+          "assistant_message": "你已经做过一次小范围内部测试，也收到两位潜在用户的正面反馈；但资源、合作人和交付流程都还没稳定。现在最需要厘清的是，公开启动会让你实际承担哪些对外承诺。",
+          "next_question": "如果现在公开启动，你准备对外明确承诺哪些具体内容？",
+          "user_answer": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+        },
+        {
+          "assistant_message": "听起来，小范围测试已有正面反馈，但合作投入和首轮资源仍未确认；现在最需要厘清的是“公开启动”具体会把什么承诺放到台面上。",
+          "next_question": "你准备在公开启动时，最先对外公布哪一项具体内容？",
+          "user_answer": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+        },
+        {
+          "assistant_message": "听起来，内部测试已有正面反馈，但公开启动是否合适主要卡在合作人的投入和第一轮交付资源还没确认。你已经提出了“一个月内确认”的条件，下一步需要把确认方式说具体。",
+          "next_question": "你打算通过什么具体方式，在一个月内确认合作人的投入和第一轮交付所需资源？",
+          "user_answer": null
+        }
+      ],
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "这件事更适合把“主动”理解为有边界的筹划与验证，而不是用公开承诺来替代准备。",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "现有方案可以继续推进，但资源、协作和交付安排是否能承接公开启动，仍是需要优先核对的现实环节。",
+            "evidence_ids": [
+              "D-L-1-1",
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑先把项目拆成较小的验证单元，分别确认资源来源、合作分工和交付标准。",
+            "evidence_ids": [
+              "D-L-1-1",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "可先尝试设定明确的公开启动门槛，例如关键资源到位、协作责任确认，以及交付流程能够实际运转。",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证你的行动强度是否与可承担的承诺相匹配，避免为了证明能力而扩大范围。",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "目前哪些资源已经落实，哪些仍依赖口头意向或不稳定的外部配合？",
+            "evidence_ids": [
+              "D-L-1-1",
+              "E02"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "合作人是否已明确各自的责任、权限和交付接口？",
+            "evidence_ids": [
+              "D-H-1",
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "如果公开启动后出现需求变化或协作缺口，现有流程能否承受并及时调整？",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "40cece299a968a1bdf698e254b2f8c04657f2467b3584f2c8f5eff2b76d11156"
+    },
+    {
+      "review_case_id": "R-A271",
+      "original_question": {
+        "question_a": "我还应该继续准备这次考试吗？",
+        "question_b": "这个副业方向，我还应该继续投入吗？"
+      },
+      "anonymized_context": null,
+      "discernment_transcript": null,
+      "reading_output": {
+        "answer": "水雷屯把重点放在“事情刚起步，先把混乱一件件理顺”。这项个人计划目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+        "what_it_means": "本卦是水雷屯，先提醒你：事情刚起步，先把混乱一件件理顺。动爻之后变为水地比，局面的下一层重点转向：确认彼此是否真心靠近、愿意同行。当前结构对你的消耗或约束偏强，先保护可用资源更重要。回到现实，重点看时间、精力与资源能否承受这项计划。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你正在准备行动，写下可承受的时间、精力与预算上限，只先投入其中最小的一部分。保留调整空间，让每个阶段的事实决定下一阶段。"
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "c0d229c850af8d7df3a7f8d9be8ac5f92af7d0e802f426e2906a5f30d86b7ce3"
+    },
+    {
+      "review_case_id": "R-52C9",
+      "original_question": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？",
+      "anonymized_context": "双方有持续联系，但对未来安排没有形成明确共识。",
+      "discernment_transcript": [
+        {
+          "assistant_message": "你提到的“关系确认”可能对应不同场景，判断重点会不一样。我先确认具体对象，避免把合作或工作关系误当成感情关系。",
+          "next_question": "这里的“关系确认”具体是指感情关系、合作关系，还是其他关系？",
+          "suggested_question": "在对方回应含糊时，我需要先核实哪些具体条件，才能判断未来六周是否适合继续推动关系确认？",
+          "question_change_reason": "先澄清“关系确认”的具体场景，避免后续追问方向偏离。",
+          "user_answer": "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊，我在考虑是否继续推动关系确认。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "你已经确认目前有持续联系，但关键卡在对方的含糊回应。为了判断接下来能否继续推进，先看一个最近的具体例子会更有帮助。",
+          "next_question": "对方最近一次回应含糊时，具体说了什么，或没有明确回答哪件事？",
+          "suggested_question": "在未来六周内，我应根据对方哪些具体回应或行动来判断是否继续推动关系确认？",
+          "question_change_reason": "前一轮没有明确关系类型，因此先不重复追问分类，改为核实对方最近一次可观察的具体回应。",
+          "user_answer": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，你已经主动问过一次，但对方只以“最近很忙”回应，关键缺口是对方是否愿意把未来安排说具体。为了判断接下来是否适合继续推动，需要先明确你希望对方具体确认哪一件事。",
+          "next_question": "在未来六周内，你最希望对方明确回答哪一件事，怎样的具体回应才算形成共识？",
+          "suggested_question": "在未来六周内，你最希望对方明确回答哪一件事，怎样的具体回应才算形成共识？",
+          "question_change_reason": "已确认用户主动询问过且对方未给出具体安排，下一步应明确可观察的回应标准，而不是重复追问已发生的沟通。",
+          "user_answer": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，你已经直接问过一次，但对方只回应“最近很忙”，所以现在的关键缺口是：你所说的“继续推动”具体准备怎么做。",
+          "next_question": "如果继续推动关系确认，你下一步具体打算联系对方提出什么？",
+          "suggested_question": "在未来六周内，我要怎样提出一次具体的关系确认，并根据对方是否给出明确安排来判断下一步？",
+          "question_change_reason": "已明确对方当前回应含糊，下一步需要先厘清用户准备采取的具体行动，才能进一步整理判断范围。",
+          "user_answer": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，关键已经集中在对方是否愿意用具体见面安排和正面回应来共同推进，而不是继续由你单方面猜测或推动。你也已经说清了：如果这些回应没有出现，就会停止单方面推进。",
+          "next_question": null,
+          "suggested_question": "在接下来的六周里，我可以用哪些具体回应或见面安排来判断对方是否愿意共同推进稳定关系？",
+          "question_change_reason": "已明确关系场景、当前信息缺口、已经采取的沟通行动，以及继续或停止推进的条件，下一阶段可直接围绕可观察信号形成题目。",
+          "user_answer": null,
+          "status": "COMPLETE"
+        }
+      ],
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "在信息尚未清晰、回应也缺少可核对内容时，继续加大推动力度可能更容易形成压力与消耗；把重点放在厘清事实和边界，会更利于判断下一步。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "事情处于尚待落实和验证的状态，现阶段更适合区分“已有共识”和“仍是推测”的部分，避免把含糊回应直接当作确认。",
+            "evidence_ids": [
+              "E09"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑以一次具体、可回应的沟通来核实双方对未来安排的理解，例如确认各自愿意讨论的议题、可接受的边界和需要补充的信息。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证对方的回应是否包含可落实的内容，而不只看态度是否友好；如信息仍不完整，可先尝试降低承诺成本，保留继续观察和调整的空间。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "对方是否能够清楚说明其对未来安排的理解、顾虑和可接受边界？",
+            "evidence_ids": [
+              "E09"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "双方目前已经明确一致的事项有哪些，哪些仍主要依赖猜测或模糊表述？",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "在提出确认需求后，沟通是否让信息更清楚，还是让彼此的压力和误解增加？",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "b5d0e6d1e97e24d157ff3a2df4085c6d69ef6939c0d5e75c02aa9bbb8001497f"
+    },
+    {
+      "review_case_id": "R-E148",
+      "original_question": "这段关系，我还应该主动联系吗？",
+      "anonymized_context": null,
+      "discernment_transcript": null,
+      "reading_output": {
+        "core_judgment": "可以主动联系一次，但这次是为了把关系说清，不是为了再次替两个人维持关系。",
+        "reading": "丰本是盛大明亮之象，六二所见却是“日中见斗”：本应光明的时候，眼前反而有了遮蔽。落到关系里，这常不是全无情意，而是表面的热度、争执或反复联系太多，真正需要回答的问题却一直没有见光。爻辞又说“往得疑疾，有孚发若”。此时一味向前追问，容易让猜疑更重；真正能解开遮蔽的，是一次诚实而不纠缠的表达。变为大壮，力量会变强，但大壮只说“利贞”——有力量，不等于可以步步紧逼；守住分寸，力量才不致反过来伤身。",
+        "action": "主动一次，把想确认的关系状态、需要的回应或不能再接受的相处方式说清。说完以后，不再补充长篇解释，也不连续追问；接下来看对方会不会主动承担沟通。"
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "91defb0fc030a51c9789cac0f1833acfbe277b35f362403e1a85ebb68d277bee"
+    },
+    {
+      "review_case_id": "R-8B35",
+      "original_question": {
+        "question_a": "我是否应该继续争取这次晋升？",
+        "question_b": "我是否应该接受新的岗位安排？"
+      },
+      "anonymized_context": null,
+      "discernment_transcript": null,
+      "reading_output": {
+        "answer": "天地否把重点放在“沟通受阻时先疏通关系，不要硬推”。这份工作或职业选择眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "what_it_means": "本卦是天地否，先提醒你：沟通受阻时先疏通关系，不要硬推。动爻之后变为火地晋，局面的下一层重点转向：局面有向前的机会，要让成果被看见。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看职责、资源与评价标准是否真正匹配。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你正在等待反馈，向关键决策者提出一个可明确回答的问题，并只根据实际答复更新判断。把判断拆成阶段复盘，不一次承诺全部投入。"
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "390b5738d87428e2f1e66f93452850a5db1cb438ee9d3f749283fdecac0729a1"
+    },
+    {
+      "review_case_id": "R-3F76",
+      "original_question": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+      "anonymized_context": "合作当前数据良好，但尚未经历完整交付周期。",
+      "discernment_transcript": [
+        {
+          "assistant_message": "你关注的是未来三个月是否要在合作顺利时继续加大投入；现在最需要先把“进展顺利”落到一个最近发生、可核实的具体表现上。",
+          "next_question": "最近一次让你觉得合作进展顺利的具体表现是什么？",
+          "suggested_question": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+          "question_change_reason": "先核实“合作进展顺利”对应的具体信号，再判断是否需要调整投入边界。",
+          "user_answer": "合作当前数据良好，但尚未经历完整交付周期。我在考虑现在就快速增加投入，还是先建立回调和风险控制。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "你提到“数据良好”，但目前还没有经历完整交付周期；听起来，是否增加投入的判断仍缺少一个具体、可核对的进展依据。",
+          "next_question": "最近一次让你觉得数据良好的具体指标或结果是什么？",
+          "suggested_question": "未来三个月，我应依据哪些可观察的交付表现和风险控制条件来判断是否适合增加投入？",
+          "question_change_reason": "当前的“数据良好”还不够具体，先核实最近一次可观察的进展表现，才能进一步讨论增加投入的条件。",
+          "user_answer": "我已经增加过一次小额投入，目前获客和成交都比原计划好。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，早期获客和成交已经超过原计划，但合作还没走完一个完整交付周期；现在真正需要厘清的是，什么条件出现后才足以支持更快增加投入。",
+          "next_question": "你准备先建立的回调和风险控制，具体会用哪些可观察的指标或触发条件来决定是否加大投入？",
+          "suggested_question": "你准备先建立的回调和风险控制，具体会用哪些可观察的指标或触发条件来决定是否加大投入？",
+          "question_change_reason": "从已确认的早期数据较好，转向核实增加投入所需的具体条件，避免把一次小额投入的正面结果直接当成完整交付周期的依据。",
+          "user_answer": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，当前获客和成交表现较好，但这还没有覆盖完整交付、退款维护和高负荷履约的风险。下一步最关键的是先把其中一项变成可核实的依据。",
+          "next_question": "在决定是否快速增加投入前，你最先能核实哪一项：完整交付后的退款率、维护成本，还是合作方高负荷时的履约稳定性？",
+          "suggested_question": "在决定是否快速增加投入前，你最先能核实哪一项：完整交付后的退款率、维护成本，还是合作方高负荷时的履约稳定性？",
+          "question_change_reason": "当前已确认投入后获客和成交优于原计划，但完整交付周期尚未经历；先明确最优先核实的风险条件，比继续追问总体感受更能帮助设定投入边界。",
+          "user_answer": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。",
+          "status": "ASK"
+        },
+        {
+          "assistant_message": "听起来，当前获客和成交表现已经较好，但合作尚未经历完整交付周期；你也明确了，是否增加投入要看一轮交付后的退款率、维护成本和高负荷履约表现。现在核心不是数据是否暂时向好，而是这些条件能否被核实并持续满足。",
+          "next_question": null,
+          "suggested_question": "未来三个月，我是否应在完成一轮交付、确认退款率和维护成本仍在预算内，并核实合作方能够稳定履约后，再分阶段增加投入？",
+          "question_change_reason": "将原先笼统的“是否快速增加投入”改为围绕完整交付后的可核实条件和分阶段投入进行判断。",
+          "user_answer": null,
+          "status": "COMPLETE"
+        }
+      ],
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "当前更值得关注的是协作中的信息是否透明、目标是否一致，以及资源能否顺畅衔接；这些因素会影响推进过程是否稳健。",
+            "evidence_ids": [
+              "D-H-11"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "即使合作进展较顺，也应保留对变化和回落的准备，避免把阶段性成果直接当作长期保障。",
+            "evidence_ids": [
+              "D-L-11-3"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "当前处在需要兼顾内部衔接与后续执行质量的位置，局部的小问题是否被及时处理，可能比单纯追求速度更重要。",
+            "evidence_ids": [
+              "E09",
+              "D-L-11-3"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑将新增投入拆分为可核验的阶段，并为每个阶段设置交付、质量和资源使用的检查点。",
+            "evidence_ids": [
+              "D-H-11",
+              "D-L-11-3"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证合作各方对责任边界、资源调配和异常处理方式是否已有明确共识，再决定是否扩大承诺。",
+            "evidence_ids": [
+              "D-H-11"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "可先尝试建立回调方案，例如预先约定出现交付偏差、成本失控或沟通阻塞时的暂停、复盘和调整机制。",
+            "evidence_ids": [
+              "D-L-11-3"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "合作各方是否已经就目标、职责和资源投入形成了可执行且可核对的约定？",
+            "evidence_ids": [
+              "D-H-11"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "目前的数据表现是否已经覆盖了完整交付、质量验收和问题处理等关键环节？",
+            "evidence_ids": [
+              "D-L-11-3",
+              "E09"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "当出现小范围偏差时，团队是否能够及时共享信息、明确责任并完成调整？",
+            "evidence_ids": [
+              "D-H-11",
+              "D-L-11-3"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "b6308ba1c7dff04e7cc32c8e37ebf40046f3ea1d2467080c6912f99fe5d7804d"
+    },
+    {
+      "review_case_id": "R-C904",
+      "original_question": {
+        "question_a": "这段关系，我还应该主动联系吗？",
+        "question_b": "我们反复争执后，我还要继续维持吗？"
+      },
+      "anonymized_context": null,
+      "discernment_transcript": null,
+      "reading_output": {
+        "answer": "雷火丰把重点放在“局面正盛时也要为转折和收束做准备”。这段关系或沟通目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+        "what_it_means": "本卦是雷火丰，先提醒你：局面正盛时也要为转折和收束做准备。动爻之后变为雷天大壮，局面的下一层重点转向：力量正在增强，更需要克制和正确用力。当前结构对你的消耗或约束偏强，先保护可用资源更重要。回到现实，重点看回应是否稳定、边界是否被尊重、说法能否落到行动。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你已经在推进，清楚表达一次需要与边界，然后只观察对方的实际回应，不替对方补答案。在这段观察范围内，只用阶段反馈更新判断。"
+      },
+      "check_rule": "可检查项逐项 true/false；无法检查写 null 与 reason，整体为 INCOMPLETE，不得自动通过。",
+      "payload_sha256": "1adaecee8a7dad35d7453e039fab48166fbf30b8ac1d99164e3ff7db24b4051b"
+    }
+  ]
+}

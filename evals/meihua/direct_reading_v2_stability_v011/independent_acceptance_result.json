@@ -1,0 +1,39 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "acceptance_contract": "DRV2-STABILITY-LEDGER-COMPLETENESS-V011-DIFF-V1",
+  "candidate_manifest_path": "evals/meihua/direct_reading_v2_stability_v011/candidate_manifest.json",
+  "candidate_manifest_sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A",
+  "review_mode": "ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "verdict": "PASS",
+  "contract_results": {
+    "D1": "PASS",
+    "D2": "PASS",
+    "D3": "PASS",
+    "D4": "PASS",
+    "D5": "PASS",
+    "D6": "PASS",
+    "D7": "PASS",
+    "D8": "PASS",
+    "D9": "PASS",
+    "inherited_v1": "PASS"
+  },
+  "hash_verification": {
+    "candidate_files": "9/9 MATCH",
+    "immutable_authority_evidence": "13/13 MATCH",
+    "unchanged_before_and_after_review": true
+  },
+  "independent_tests": {
+    "differential_and_inherited_focused": "150 passed",
+    "full": "1200 passed"
+  },
+  "historical_integrity": {
+    "v010_manifest_sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E",
+    "v010_verdict": "OFFLINE_CANDIDATE_FAIL_STOP_UNCHANGED",
+    "v009_v008_s1_locks": "UNCHANGED"
+  },
+  "candidate_modified_by_reviewer": false,
+  "live_model_calls": 0,
+  "v011_real_casts": 0,
+  "provider_instantiated": false,
+  "authorization_effect": "OFFLINE_ACCEPTANCE_ONLY; DOES_NOT_AUTHORIZE_LIVE_OR_PRODUCT_WORK"
+}

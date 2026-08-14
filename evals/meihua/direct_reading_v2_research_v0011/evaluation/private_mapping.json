@@ -1,0 +1,53 @@
+{
+  "evaluation_id": "GUANXIANG_DIRECT_READING_V2_BLIND_0011",
+  "seed": 20260810,
+  "warning": "Do not open before blinded scoring is frozen.",
+  "pack_sha256": "523DC30E1A79E6F66A2D8DF2AD8C152B64B0CB29365471F1CBFE1E62D97B9A34",
+  "mappings": [
+    {
+      "case_id": "DR-01-Q1",
+      "answer_a_arm": "CANDIDATE",
+      "answer_b_arm": "REFERENCE"
+    },
+    {
+      "case_id": "DR-02-Q1",
+      "answer_a_arm": "REFERENCE",
+      "answer_b_arm": "CANDIDATE"
+    },
+    {
+      "case_id": "DR-02-Q2",
+      "answer_a_arm": "CANDIDATE",
+      "answer_b_arm": "REFERENCE"
+    },
+    {
+      "case_id": "DR-03-Q1",
+      "answer_a_arm": "REFERENCE",
+      "answer_b_arm": "CANDIDATE"
+    },
+    {
+      "case_id": "DR-03-Q2",
+      "answer_a_arm": "REFERENCE",
+      "answer_b_arm": "CANDIDATE"
+    },
+    {
+      "case_id": "DR-04-Q1",
+      "answer_a_arm": "CANDIDATE",
+      "answer_b_arm": "REFERENCE"
+    },
+    {
+      "case_id": "DR-04-Q2",
+      "answer_a_arm": "REFERENCE",
+      "answer_b_arm": "CANDIDATE"
+    },
+    {
+      "case_id": "DR-05-Q1",
+      "answer_a_arm": "CANDIDATE",
+      "answer_b_arm": "REFERENCE"
+    },
+    {
+      "case_id": "DR-05-Q2",
+      "answer_a_arm": "REFERENCE",
+      "answer_b_arm": "CANDIDATE"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V001",
+  "status": "READY_TO_FREEZE",
+  "offline_ledger_sha256": "3EB0AB980D3BFED0BCE43FDAD8B388DB58EC13D8AFE91E33F4D12C1E53F9A483",
+  "checks": [
+    {"name": "product_and_direct_reading_focused_pytest", "result": "123 passed"},
+    {"name": "sites_vinext_build", "result": "passed"},
+    {"name": "sites_node_and_component_tests", "result": "49 passed"},
+    {"name": "full_pytest_external_basetemp", "result": "1459 passed"},
+    {"name": "eslint_product_files", "result": "passed"},
+    {"name": "git_diff_check", "result": "passed"}
+  ],
+  "live_calls": 0,
+  "router_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

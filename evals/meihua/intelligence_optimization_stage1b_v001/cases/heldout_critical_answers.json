@@ -1,0 +1,21 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1B_HELDOUT_CRITICAL_ANSWERS_V1",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_after_prompt_implementation": true,
+  "synthetic": true,
+  "warning": "这些回答只用于测试最高价值追问后的流程，不代表真实用户认可，不得进入模型Prompt。",
+  "cases": [
+    {
+      "case_id": "GXID-H07",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    },
+    {
+      "case_id": "GXID-H08",
+      "expected_dimension": "DECISION_AXIS",
+      "target_gap": "确认剧场周五最迟必须收到服装的具体时间。",
+      "critical_answer": "剧场刚确认周五下午三点开始第一次带装彩排，服装必须在周五下午一点前由负责人签收。"
+    }
+  ]
+}

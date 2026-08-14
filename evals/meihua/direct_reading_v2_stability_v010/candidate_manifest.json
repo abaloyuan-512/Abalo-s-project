@@ -1,0 +1,64 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V010",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-STABILITY-OFFLINE-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path": "src/abalo_iching/application/sites_direct_reading_v2.py", "sha256": "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/__init__.py", "sha256": "05499F9802EC2A37BAE73594964571FFBD539379D6C0F941617DABB4439EE0DE"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/stability_executor.py", "sha256": "E3E94DF0EB894D591169BFD2945C637CC34B3BDC8732A62708EAB2E3C69C28E7"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/run_stability_batch.py", "sha256": "DC57542305B80415BF1C8038C6F20B4BA0BB005FD25786075DD3BDDD34400FFB"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/scope_lock.json", "sha256": "7E7FDD0A93EC9629C75A606E08D94C1D5022307D8887EF11242D87316FBEE73B"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/frozen_cases.json", "sha256": "0C5C82AA0645CF4CCED4942317B7FB3381C941A47ECDA39B85FF5CFF01B3C9D3"},
+    {"path": "outputs/v010_stability_call_ledger.json", "sha256": "CE994A83054C6362F09C6D1A48D38B9DB2937FE8233FCF07BAC03330A7509966"},
+    {"path": "tests/test_direct_reading_v2_stability_v010.py", "sha256": "E9F6997F0F1FD13D12C78D2AF1BCCB44A79B561C981C43F3660FF2BF6A65193D"},
+    {"path": "tests/test_sites_direct_reading_v2.py", "sha256": "6ADC0908B8CDFA57902CCC7A8C50C30E559CD13FD3121BA34F84AAAF6087D4E4"},
+    {"path": "tests/test_v008_reality_lineage_gate.py", "sha256": "F91742031EE596327DE59EB8E9ACE401F5218316B48870883E2D8E461C59D9E0"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/governance/execution_log.md", "sha256": "3083B580BCC3D0A28FB8B755925FD7077D43E0EF82541D588B2EC1BE6E6AB2B8"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/governance/decision_log.md", "sha256": "31FD065121D4DF7F59CE75D04D649C6EB48B207B04DA8F64965E1AD4500800CA"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/governance/risk_log.md", "sha256": "415FFD9E0B7990ADDDF5041A954457074CEF86E871B436C9C2571F7D60FD824A"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/governance/deviation_log.md", "sha256": "DA1A851E82EB2C2BB76721D11D1F065F24728D6A2C9DD0A4657E24F5EAB727EC"}
+  ],
+  "authority_evidence": [
+    {"path": "outputs/v009_canary_real_result.json", "sha256": "BE35C9632A9D65BD683E9AD36A213F79CC7533E93EF04FC1E83371EB876A56C6"},
+    {"path": "outputs/v009_canary_page8_page9.md", "sha256": "E62B0B8CD9D1E85D7F84610D13BBC9433201E1F46AE4834C543C08F1379D8ED7"},
+    {"path": "outputs/v009_canary_provenance.json", "sha256": "1B6FDB9BBF7B04A215D6E40AC2DE0A532A417F31CF1B0E05D26B3917E5CEC0ED"},
+    {"path": "outputs/v009_canary_call_ledger.json", "sha256": "81E16FCFBD1F1DEB0FBC9F0279F30CAAE7EE79718CB5C526DD6A515A4FA73E18"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v009/final_outcome.json", "sha256": "972AECED2687810C597B855385C832928A5061CAF31C73409C19F47D88501AC4"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v009/candidate_manifest.json", "sha256": "5BE1B84C1DACA4293B6AB7635459C08549770EBECB27DB418C93ED4555D792B3"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/canary_outcome.json", "sha256": "A47E940CBDC32019F1A611131992E9D29CD27B79CE100C79CAF3E4AD1B20D069"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/candidate_manifest.json", "sha256": "AC1542BAE3D65CCD6DF3EF237C958489DD8CF0F86121430D86FD2ACF891A3BFF"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/offline_gate_evidence.json", "sha256": "2EB3D9F3D6DFB29C820B9392912DD3A593B13502096FF79B385C73C287DE0D31"},
+    {"path": "outputs/v008_canary_real_result.json", "sha256": "2A20E6820B50B359FCA192CE3B3BFA36ADDFFC600797187A32D9C70A1EEE483C"},
+    {"path": "outputs/v007_s1_stage_summary.json", "sha256": "8265C3676EB1E4F5FB4B44DFFB76C317B3A63AA8DF069F3D8257E5953572A032"},
+    {"path": "outputs/v007_s1_call_ledger.json", "sha256": "C851E79FA9F780761C58D1933DF19D81BAAA5336F0688D2D3C847F42DBAC94C9"},
+    {"path": "outputs/v007_s1_case_freeze.json", "sha256": "4AD16E382AFD00B0A38740669644EC8895A2876FA834DFC74022B336BA09BD8C"}
+  ],
+  "offline_verification": {
+    "focused": "146 passed",
+    "full": "1191 passed",
+    "live_model_calls": 0,
+    "v010_real_casts": 0,
+    "provider_instantiated": false
+  },
+  "execution_policy": {
+    "proposed_fixed_high_attempts": 2,
+    "authorized_fixed_high_attempts": 0,
+    "router_attempts": 0,
+    "automatic_retries": 0,
+    "failure_consumes_slot": true,
+    "stop_on_first_failure": true,
+    "replacement_cases_allowed": false,
+    "success_denominator": 2
+  },
+  "known_non_candidate_worktree_differences": [
+    "pre-existing product and hosted-app WIP is outside this manifest and was not overwritten",
+    "the old V009 manifest covered product files that are not claimed identical in this worktree"
+  ],
+  "external_state": {
+    "deployment": false,
+    "production": false,
+    "default_replacement": false,
+    "router_wiring": false,
+    "page9_art_or_product_implementation": false
+  }
+}

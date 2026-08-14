@@ -1,0 +1,129 @@
+{
+  "evidence_type": "V009_OUTPUT_BUDGET_REAL_HIGH_CANARY",
+  "stage_id": "DIRECT_READING_V2_OUTPUT_BUDGET_V009",
+  "freeze_version": "V1",
+  "freeze_sha256": "8E3AE6EF43CC104A295C6CBCBE9848CA47DB95A96A858D2AFB9540731C01FA15",
+  "candidate_manifest_sha256": "2B983B6DBA615AB68E7344DDD3CC84B1510405B59AC4C879621B2A1C09E21935",
+  "slot": 1,
+  "case_id": "V009-CANARY-01",
+  "domain": "RELATIONSHIP_SHARED_LIFE_DECISION",
+  "input_type": "EXPLICIT_USER_BACKGROUND_DIRECT_DECISION",
+  "input": {
+    "question_text": "我和伴侣已经为共同搬家制定了预算和分工方案，但执行会暂时增加通勤与照护压力；我们应该按现方案开始搬家，还是继续维持现状？",
+    "numbers": [
+      27,
+      44,
+      16
+    ]
+  },
+  "input_sha256": "FE3C0C36BAA4968EBCC2A2F83990613426F6BC8387A6D0762E0C76F378F83073",
+  "request_id": "drv2-7079291ef4c2f7b7f30a3db46ffe24c7",
+  "started_at": "2026-08-13T08:29:43.200533+08:00",
+  "finished_at": "2026-08-13T08:30:54.356585+08:00",
+  "max_output_tokens": 12000,
+  "call_ledger": {
+    "authorized_slot": 1,
+    "router_attempts": 0,
+    "high_attempts": 1,
+    "provider_attempts": 1,
+    "automatic_retries": 0,
+    "deterministic_cast_count": 1
+  },
+  "status": "SUCCESS",
+  "validation_errors": [],
+  "chart_facts": {
+    "base_hexagram": {
+      "role": "BASE",
+      "king_wen_number": 21,
+      "name": "火雷噬嗑",
+      "upper_trigram": "离",
+      "lower_trigram": "震"
+    },
+    "mutual_hexagram": {
+      "role": "MUTUAL",
+      "king_wen_number": 39,
+      "name": "水山蹇",
+      "upper_trigram": "坎",
+      "lower_trigram": "艮"
+    },
+    "changed_hexagram": {
+      "role": "CHANGED",
+      "king_wen_number": 27,
+      "name": "山雷颐",
+      "upper_trigram": "艮",
+      "lower_trigram": "震"
+    },
+    "moving_line": {
+      "position": 4,
+      "name": "九四",
+      "canonical_line_text": "噬乾胏，得金矢，利艱貞吉。",
+      "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
+    },
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+  },
+  "direct_reading": {
+    "version": "SITES_DIRECT_READING_V2_NONPROD_V2",
+    "content_format": "MARKDOWN",
+    "text": "## 判断\n\n判断偏向：**按现方案开始搬家，但应采取分阶段、设止损的执行方式，不宜一次性压满，也不宜无期限维持现状。**此卦不是轻松顺遂之象，而是“有阻力仍可推进”之象；成败关键不在是否马上完成搬迁，而在能否把通勤、照护和日常供给控制在可持续范围内。\n\n> 用户提供的现实背景（非卦象证据）：我和伴侣已经为共同搬家制定了预算和分工方案，但执行会暂时增加通勤与照护压力\n\n卦象支持启动，是因为噬嗑主处理已经显现的梗阻，九四又显示难处虽硬，仍有工具和原则可用；但互卦为蹇，说明过程中的不便不可低估；最终变为颐，则把判断标准落在生活能否得到稳定供养。故宜“动而有节”：先执行可验证、可回退的部分，再根据实际负荷决定是否全面切换。\n\n这不是对搬家结果的保证。若基本照护、安全、现金流或双方承受力出现实质缺口，暂缓便比勉强推进更合卦意。\n\n## 本卦：火雷噬嗑\n\n卦象事实是上离下震：震有发动之象，离有明辨、看清之意；噬嗑整体取象于咬合、处理夹在其中的硬物。它对应的不是“继续放着自然会好”，而是需要把阻碍辨明，用明确规则逐项解决。\n\n联系所问，现实推断是：既然已有预算和分工，现阶段更需要检验这些安排能否真正咬合，而不是继续停留在纸面协调。适合把搬家拆成预算、通勤、照护、家务和应急几个相互衔接的环节，逐项确认责任人与边界。\n\n噬嗑也提醒，阻碍不能只靠情绪安抚。若分工含糊、支出没有上限、临时任务无人承接，即使搬家本身完成，后续仍会反复卡住。因此，本卦支持行动，却要求行动建立在清楚、可执行的约束之上。\n\n## 互卦：水山蹇\n\n卦象事实是互卦为蹇，水在山上，有行路受阻、进展不畅之象。互卦常用来观察事情内部的运作过程，因此它提示：表面上是搬家选择，内里真正考验的是压力出现时，双方能否保持协作。\n\n联系所问，通勤与照护压力不应被视为可以忽略的小代价，而应被列为方案的核心约束。现实推断是，开始执行后可能出现节奏不合、临时任务挤压休息、分工在现实中失衡等情况；这并不自动否定搬家，却说明推进速度必须服从承载能力。\n\n蹇的意义在于知难而调整路径，不是见难便永久不动。因而，比起“立刻全部完成”或“完全维持现状”，更合适的是保留缓冲、替代安排和暂停点。\n\n## 动爻：九四\n\n九四，爻辞：噬乾胏，得金矢，利艱貞吉。\n\n卦象事实是，此爻所面对的不是柔软易解之物，而是坚硬难处理的部分；但同时又有获得坚实工具、守正处理的意味。它说明困难真实存在，却并非毫无办法，关键在于用坚定而准确的方式处理。\n\n联系搬家选择，九四支持“迎难而做”，但不支持凭热情硬扛。这里的“工具”，现实中可对应为明确的预算上限、书面分工、任务交接规则、备用照护安排，以及当负荷超限时谁来调整。它们不是卦象所断定已经存在的事实，而是根据爻意提出的执行条件。\n\n此爻之吉带有条件：承认过程艰难，仍守住必要标准。若为了赶进度而牺牲基本照护、透支身体，便只剩“艰”而失去可取之处；若因预见困难便长期不动，也没有发挥此爻处理硬结的力量。\n\n## 变卦：山雷颐\n\n卦象事实是变卦为颐，上艮下震：下有动意，上有止意，形成“发动而知道止”的结构。颐与供养、入口、日常维持有关，因此事情最终落点不是搬到哪里，而是新安排能否持续供养两个人的生活秩序。\n\n联系所问，现实推断是：搬家应被视为改善共同生活的手段，而不是必须完成的目标。判断方案是否成功，应看实际支出是否可控、照护是否连续、通勤是否尚能恢复、双方是否仍有基本休息与协商余地。\n\n变卦因此给本次判断加上一道边界：可以开始，但每一步都要回到“能否养得住”来验收。若搬迁使住所改变，却长期损害生活供给和关系修复能力，就偏离了变卦所指的方向。\n\n## 适合做什么\n\n- **分阶段启动。**先做可验证、可回退的部分，再处理成本高、不可逆的环节，避免把所有压力集中到同一时点。\n- **把分工改成可执行清单。**明确常规任务、临时任务、替补责任和调整方式，减少出现问题后临场争执。\n- **给预算与负荷设上限。**除总预算外，也要考虑持续性支出；通勤和照护则应有明确的超限处理办法。\n- **先做现实模拟。**按搬家后的节奏试运行交通、照护和家务安排，用实际体验修正纸面方案。\n- **保留缓冲与回退条件。**启动不等于不得暂停。若关键环节失衡，应允许缩小规模、延后后续步骤或重新分配任务。\n- **定期只讨论方案，不翻旧账。**把问题落在流程与资源上，符合噬嗑以规则解结、颐以持续供养为准的方向。\n\n## 不适合做什么\n\n- 不适合因为已经做了方案，就把方案视为不可修改。\n- 不适合一次性完成所有切换，把通勤、照护、财务与整理压力同时推到高位。\n- 不适合只算搬家的一次性费用，而忽略之后持续发生的交通、照护与恢复成本。\n- 不适合把暂时吃力浪漫化为“只要坚持就会过去”，也不适合因预见不便而无限期拖延。\n- 不适合用表面平均代替实际公平；分工是否合理，应看时间、强度和替代资源，而不只是任务数量。\n\n## 反向风险\n\n若依此判断启动搬家，主要风险是把“可以克服”误读为“必须硬撑”。蹇象表明，阻力可能通过多个小问题累积，而非一次显现；若没有暂停点，双方容易在疲惫中互相归责。颐又提醒，资源消耗若超过补充能力，短期推进可能换来长期失衡。\n\n反过来，继续维持现状也并非没有代价。若维持只是逃避检验方案，那么未解决的居住与协作问题仍会存在，并可能消耗已经形成的共识。不过，卦象并不能据此断言现状一定恶化；它只是显示，当阻碍已经进入共同决策范围时，单纯搁置未必比有限启动更稳妥。\n\n## 哪些现实信号会改变判断\n\n以下信号若真实出现，会使判断转向“暂缓搬家、先补条件”：\n\n- 保守估算下，搬家后基本支出持续超过可承受范围，且没有可靠缓冲；\n- 照护安排存在无法替补的空档，涉及基本安全或必要连续性；\n- 通勤试运行已明显损害工作、睡眠或照护能力，且调整路线、时段或分工仍不能缓解；\n- 双方对核心分工并未真正同意，或试运行中反复无人履责；\n- 方案中的关键步骤具有较大不可逆成本，而相应风险尚未查清。\n\n反之，若试运行显示通勤与照护虽增加但仍可恢复，实际支出落在上限以内，临时任务有替补机制，双方也能根据负荷主动调节，那么“分阶段开始搬家”的判断会得到加强。真正改变结论的，不是某一时刻的犹豫或兴奋，而是持续可观察的承载能力。",
+    "chart_facts": {
+      "base_hexagram": {
+        "role": "BASE",
+        "king_wen_number": 21,
+        "name": "火雷噬嗑",
+        "upper_trigram": "离",
+        "lower_trigram": "震"
+      },
+      "mutual_hexagram": {
+        "role": "MUTUAL",
+        "king_wen_number": 39,
+        "name": "水山蹇",
+        "upper_trigram": "坎",
+        "lower_trigram": "艮"
+      },
+      "changed_hexagram": {
+        "role": "CHANGED",
+        "king_wen_number": 27,
+        "name": "山雷颐",
+        "upper_trigram": "艮",
+        "lower_trigram": "震"
+      },
+      "moving_line": {
+        "position": 4,
+        "name": "九四",
+        "canonical_line_text": "噬乾胏，得金矢，利艱貞吉。",
+        "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
+      },
+      "rule_version": "MEIHUA_RULE_SPEC_V1",
+      "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+    },
+    "validation_status": "PASSED"
+  },
+  "reading_utf8_sha256": "40376C23B51D91A36049242A3DCE24C2FD97C14AC57EBB17B0AD56AC3FF0CAAD",
+  "audit": {
+    "request_id": "drv2-7079291ef4c2f7b7f30a3db46ffe24c7",
+    "request_sha256": "FE3C0C36BAA4968EBCC2A2F83990613426F6BC8387A6D0762E0C76F378F83073",
+    "question_sha256": "680CDEEA05F90C446BA69B7E5C71EE94CFEC77B55087EED5A5AFAB241CA703E2",
+    "chart_sha256": "D8900A18E0B7F0D50BB8751550B84C1AA2742E74F3C8FA4110F7F4B5567399EF",
+    "prompt_sha256": "4954F74CDDCE86AA13C9939729961A42A522114120A6A658F4D903D71A86C986",
+    "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V2_EXACT_SECTIONS_LINEAGE_V1",
+    "model": "gpt-5.6-sol",
+    "response_id": "resp_046b4760883531ba016a7d0ff95cd0819baa32ec3b625d701d",
+    "usage": {
+      "input_tokens": 687,
+      "output_tokens": 3755,
+      "total_tokens": 4442
+    },
+    "latency_ms": 71066,
+    "phase_timings": {
+      "deterministic_prepare_ms": 11,
+      "provider_first_response_ms": 31998,
+      "provider_generation_ms": 39068,
+      "provider_total_ms": 71066,
+      "validation_ms": 76,
+      "service_total_ms": 71154
+    },
+    "shadow_signals": [],
+    "generated_at": "2026-08-13T08:29:43.200533+08:00"
+  }
+}

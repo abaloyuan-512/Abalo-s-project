@@ -1,0 +1,15 @@
+{
+  "stage_id": "DIRECT_READING_V2_CONDITIONAL_ROUTER_V012",
+  "verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+  "candidate_manifest_sha256": "D838188446B232C3946F3EAE75CFE758DB5818F2DA43FED51CF6490CF3C2378C",
+  "failed_gate": "ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "failed_requirements": ["R7", "R10"],
+  "root_cause": "Router-stage deterministic casting is not mechanically blocked or included in accounting.",
+  "candidate_rewritten": false,
+  "live_calls": 0,
+  "product_wiring": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "next_stage_requires_independent_candidate": true
+}

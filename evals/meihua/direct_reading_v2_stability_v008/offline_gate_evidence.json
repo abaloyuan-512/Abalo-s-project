@@ -1,0 +1,338 @@
+{
+  "stage_id": "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+  "evidence_level": "OFFLINE_L1_PRODUCTION_VALIDATOR_PATH",
+  "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V2_EXACT_SECTIONS_LINEAGE_V1",
+  "provider_instantiated": false,
+  "model_calls": 0,
+  "automatic_retries": 0,
+  "counts": {
+    "release_cases": 10,
+    "block_cases": 21,
+    "false_positive": 0,
+    "false_negative": 0,
+    "mutation": 0
+  },
+  "cases": [
+    {
+      "case_id": "V008-P-literal_s1_shape",
+      "corpus": "release",
+      "source_span_sha256": "8DDB028A35FB6B6677F695A37C56DCF80DE0B6B240C283A2EBA5D047C0901464",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-literal_first_person_preserved",
+      "corpus": "release",
+      "source_span_sha256": "EC792FC4D7810A71F143213A30CEA8E84EE7F0DA0188BA73F2BBC54B9625FFE7",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-punctuation_and_space_normalization",
+      "corpus": "release",
+      "source_span_sha256": "1AE2AD9DA4EAC479E60EEA4A00AC77386805B4A1E6344677FB470BF244AD323D",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-negative_background",
+      "corpus": "release",
+      "source_span_sha256": "388D53840593B1EB604482BC68279998D7D7CC132E535280440167A08C877E48",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-conditional_background",
+      "corpus": "release",
+      "source_span_sha256": "32D18F9FDBACD4692E2797762287DDBD903FE902BACA6618E6E1573C16CA9C85",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-user_supplied_quantity",
+      "corpus": "release",
+      "source_span_sha256": "11785C07B9B5D3B34EEF3C3C129AE4543530B2B0F849E82C216AC427CBAD8F18",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-user_supplied_date",
+      "corpus": "release",
+      "source_span_sha256": "B08AAF2058B34CEE46AF688BFF9ED4F1D7C7ACF1F29B75BACF18DFDFA8F82AEB",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-quoted_speaker_perspective_preserved",
+      "corpus": "release",
+      "source_span_sha256": "DE8D78899CE400159E897E418B12D0B9A76F618B8F67F1E24EF4E7700C028517",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-optional_context_lineage",
+      "corpus": "release",
+      "source_span_sha256": "E9F807D58093E5A1DDC6E3B440E26E498DA7C998ACA1701F13DA1254BA2502E1",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-P-unicode_nfc",
+      "corpus": "release",
+      "source_span_sha256": "7A7AC144BCBC6EDA2BD935CF697D852341514A6E0BABBDD7AB4AFE117A4571F3",
+      "expected_code": null,
+      "actual_codes": [],
+      "actual_disposition": "release",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-suffix_qualification_dropped",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-suffix_uncertainty_dropped",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-suffix_unless_dropped",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-quoted_speaker_pronoun_changed",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-invented_fact",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-faithful_but_unverifiable_paraphrase",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-subject_substitution",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-certainty_escalation",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-reported_certainty_escalation",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-condition_dropped",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-negation_dropped",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-fact_appended_to_excerpt",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-cross_case_fact",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-missing_fixed_attribution",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-hexagram_claims_background",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-nested_prefix_injection",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-invented_third_party_motive",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "THIRD_PARTY_MIND_READING",
+      "actual_codes": [
+        "THIRD_PARTY_MIND_READING"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-invented_action_date",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_DATE",
+      "actual_codes": [
+        "UNSUPPORTED_DATE"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-existing_work_ten_years_red_team",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-existing_team_restructure_red_team",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "UNSUPPORTED_REALITY_FACT",
+      "actual_codes": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    },
+    {
+      "case_id": "V008-N-dangerous_markup_remains_visible_to_all_gates",
+      "corpus": "block",
+      "source_span_sha256": null,
+      "expected_code": "DANGEROUS_MARKUP",
+      "actual_codes": [
+        "DANGEROUS_MARKUP"
+      ],
+      "actual_disposition": "block",
+      "mutation": false
+    }
+  ]
+}

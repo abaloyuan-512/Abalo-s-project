@@ -1,0 +1,15 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015_ROUTER_ONLY_LIVE",
+  "verdict": "ROUTER_ONLY_LIVE_FAIL_STOP",
+  "ledger_sha256": "FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321",
+  "semantic_result": "Both frozen cases matched their expected PASS and ASK_ONCE outcomes.",
+  "evidence_result": "FAIL because response ID, true provider receipt digest and token usage were not captured, breaking the frozen live audit contract.",
+  "calls_consumed": 2,
+  "calls_remaining": 0,
+  "rerun": false,
+  "next_stage": "V016 zero-live receipt telemetry repair",
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "product_wiring": false
+}

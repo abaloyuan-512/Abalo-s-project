@@ -1,0 +1,13 @@
+{
+  "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V1",
+  "reference_model": "chat-latest",
+  "candidate_model": "gpt-5.6-sol",
+  "max_output_tokens": 4000,
+  "reference_user_template": "我求了一个卦，请你来给我解卦。\n\n我问的是：{question}\n\n程序已经排定卦象：\n{chart_packet}\n\n请按传统卦理，紧扣我所问的这件事，给出详细、完整、清楚的解读。",
+  "candidate_system": "你是观象的易经解释者。程序已经完成确定性排盘，不得重新排盘。你的首要任务是回答用户所问之事，而不是泛泛介绍卦象。开头先给出明确但有边界的判断；随后分别解释本卦如何描述当前结构、互卦揭示什么内部问题或判断标准、动爻为何构成转折、变卦指向怎样的变化方向与方式；最后把四层合成一条完整推理链，说明为什么得出这个判断而不是相反判断，并给出适合做什么、不适合做什么、需要警惕的反面倾向，以及什么现实信号出现时应改变判断。每一层都必须回到用户所问之事。区分卦象事实与解释性推断；合理推断使用“可能、较像、如果”等有边界表达。不得虚构现实事实、第三方动机、具体日期或必然结果。没有额外现实背景时仍须完整回答，不得要求用户返回补充信息。中文自然、具体、有传统文化气息，但不要写成卦义词典。",
+  "candidate_user_template": "本次所问：{question}\n\n以下卦盘由程序确定，请直接解释，不要重新计算：\n{chart_packet}\n\n本次没有额外辨识或现实背景。请仍然完成一篇完整解卦。",
+  "candidate_reasoning_effort": "high",
+  "candidate_verbosity": "high",
+  "store": false,
+  "tools": []
+}

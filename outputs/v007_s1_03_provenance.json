@@ -1,0 +1,66 @@
+{
+  "case_id": "S1-03",
+  "status": "SUCCESS",
+  "input": {
+    "question_text": "一个重要客户愿意签署长期合作，但要求我们把核心团队集中到这个项目；我应该接受这种深度绑定，还是保留资源继续服务多个客户？",
+    "numbers": [
+      52,
+      17,
+      34
+    ]
+  },
+  "call_ledger": {
+    "authorized_slot": 3,
+    "router_attempts": 0,
+    "high_attempts": 1,
+    "provider_attempts": 1,
+    "automatic_retries": 0,
+    "deterministic_cast_count": 1
+  },
+  "chart_facts": {
+    "base_hexagram": {
+      "role": "BASE",
+      "king_wen_number": 34,
+      "name": "雷天大壮",
+      "upper_trigram": "震",
+      "lower_trigram": "乾"
+    },
+    "mutual_hexagram": {
+      "role": "MUTUAL",
+      "king_wen_number": 43,
+      "name": "泽天夬",
+      "upper_trigram": "兑",
+      "lower_trigram": "乾"
+    },
+    "changed_hexagram": {
+      "role": "CHANGED",
+      "king_wen_number": 11,
+      "name": "地天泰",
+      "upper_trigram": "坤",
+      "lower_trigram": "乾"
+    },
+    "moving_line": {
+      "position": 4,
+      "name": "九四",
+      "canonical_line_text": "貞吉，悔亡，藩決不羸，壯于大輿之輹。",
+      "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
+    },
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+  },
+  "program_strength": {
+    "calendar_provider": "lunar_python/1.4.8",
+    "body_trigram": "乾",
+    "initial_use_trigram": "震",
+    "changed_use_trigram": "坤",
+    "initial_relation": "BODY_CONTROLS_USE",
+    "changed_relation": "USE_GENERATES_BODY",
+    "body_strength": "PROSPEROUS",
+    "additional_casts": 0
+  },
+  "source_reading_utf8_sha256": "BD76B24501A9BB229BC2370569867B53358E291D80E5BAEA09E9EB8429039E7A",
+  "reconstructed_reading_utf8_sha256": "BD76B24501A9BB229BC2370569867B53358E291D80E5BAEA09E9EB8429039E7A",
+  "reconstructed_equals_source": true,
+  "model_calls_for_render": 0,
+  "page_path": "outputs/v007_s1_03_page8_page9.md"
+}

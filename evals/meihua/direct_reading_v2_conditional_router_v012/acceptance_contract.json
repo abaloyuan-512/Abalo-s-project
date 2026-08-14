@@ -1,0 +1,20 @@
+{
+  "contract_id": "DRV2-CONDITIONAL-ROUTER-OFFLINE-ACCEPTANCE-V1",
+  "frozen_before_implementation": true,
+  "independent_qa_implements": false,
+  "single_acceptance_after_candidate_freeze": true,
+  "requirements": [
+    "R1_SCOPE_AND_ZERO_LIVE",
+    "R2_ORIGINAL_QUESTION_LOCK",
+    "R3_CLEAR_AND_CONFIRMED_DIRECT",
+    "R4_NARROW_CRITICAL_AMBIGUITY_AND_ONCE",
+    "R5_EXPLICIT_SKIP",
+    "R6_ROUTER_FAIL_OPEN",
+    "R7_COUNTS_AND_CAST_BOUNDARY",
+    "R8_MINIMAL_LEGAL_OUTPUT",
+    "R9_PER_PATH_LEDGER",
+    "R10_OFFLINE_MATRIX",
+    "R11_INHERITED_REGRESSION",
+    "R12_NO_FURTHER_AUTHORIZATION"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "stage_id":"DIRECT_READING_V2_LIGHT_ROUTER_RECEIPT_V016",
+  "verdict":"OFFLINE_CANDIDATE_FAIL_STOP",
+  "manifest_sha256":"3396D84D379C4047B301E84332650E607AAE820A806688673535B1E22F827BD1",
+  "independent_acceptance":"FAIL",
+  "preserved_progress":"Basic response_id, usage, receipt projection SHA and cost reconstruction worked in fixtures.",
+  "blocking_gap":"Atomic same-response provenance and frozen failure-matrix completeness were not proven.",
+  "next_stage":"V017 minimal provenance-token and ledger-matrix repair",
+  "live_calls":0,
+  "deployment":false,
+  "production":false,
+  "default_replacement":false
+}

@@ -1,0 +1,15 @@
+{
+  "manifest_id": "GXID_OWNER_REVIEW_RESULTS_MANIFEST_V1",
+  "reviewer_id": "OWNER_REVIEWER_01",
+  "frozen_on": "2026-08-06",
+  "workbook_sha256": "d23a6dffc787ba9628b7c5a64652b304cda6ad3018bf2acae4f55364d104d4af",
+  "normalized_submission_sha256": "960f83bad092c9e8266979910985802df7f342cf7a613d6d1a805397de2cab43",
+  "review_rows": {
+    "user_value": 10,
+    "iching_structure": 10,
+    "product_boundary": 10
+  },
+  "result_interpretation": "INTERNAL_PRODUCT_OWNER_QUALITATIVE_REVIEW",
+  "quantitative_calibration_status": "NOT_CALIBRATED_MISSING_BEHAVIORAL_ANCHORS",
+  "ready_to_reveal": true
+}

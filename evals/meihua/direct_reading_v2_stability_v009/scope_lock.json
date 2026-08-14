@@ -1,0 +1,44 @@
+{
+  "stage_id": "DIRECT_READING_V2_OUTPUT_BUDGET_V009",
+  "status": "FROZEN_BEFORE_IMPLEMENTATION_AND_LIVE_CALL",
+  "objective": "Complete the unchanged V008 real case by removing the internal 4000-token response bottleneck.",
+  "single_implementation_variable": {
+    "name": "MAX_OUTPUT_TOKENS",
+    "from": 4000,
+    "to": 12000
+  },
+  "immutable": [
+    "V008 case identity, UTF-8 question, domain, input type, and numbers 27/44/16",
+    "gpt-5.6-sol high, timeout, verbosity, prompt text and prompt version",
+    "validator and release-gate logic",
+    "nine sections, visible-text length gates, Page 8/Page 9 mechanical mapping",
+    "deterministic casting algorithm and protected legacy/default entry points"
+  ],
+  "live_authority": {
+    "fixed_high_authorized_cap": 1,
+    "router_cap": 0,
+    "automatic_retry_cap": 0,
+    "failure_consumes_slot": true,
+    "replacement_allowed": false,
+    "success_stops_execution": true
+  },
+  "forbidden": [
+    "automatic token-cap staircase, continuation, repair, retry, or fallback",
+    "prompt compression or any validator/safety relaxation",
+    "deployment, production, default-flow change, V005, Router, medium, concise, or page product implementation",
+    "docs/specs, deterministic engine, calendar adapter, legacy entry, Streamlit, or iching_tools changes"
+  ],
+  "historical_lock": {
+    "v008_verdict": "V008_CANARY_FAIL_STOP",
+    "v008_authorized": 1,
+    "v008_actual": 1,
+    "v008_retry": 0,
+    "v008_output_tokens": 4000,
+    "v008_may_be_rewritten": false
+  },
+  "external_state": {
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "default_replacement_authorized": false
+  }
+}

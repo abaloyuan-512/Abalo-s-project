@@ -1,0 +1,46 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1_SYNTHETIC_CONFIRMATION_SCRIPTS_V1",
+  "scope": "STAGE_1_DISCERNMENT_EXPERIMENT_ONLY",
+  "synthetic": true,
+  "warning": "这些回答只用于测试确认状态机，不代表真实用户认可，也不得计入用户价值胜负。",
+  "main_confirmation_scripts": [
+    {
+      "case_id": "GXID-M01",
+      "answer": "基本准确。真正卡住的是：正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。"
+    },
+    {
+      "case_id": "GXID-M02",
+      "answer": "基本准确。真正卡住的是：早期数据很好，但我不知道完整交付后还能不能安全放大投入。"
+    },
+    {
+      "case_id": "GXID-M03",
+      "answer": "基本准确。真正卡住的是：管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。"
+    },
+    {
+      "case_id": "GXID-M04",
+      "answer": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。"
+    }
+  ],
+  "correction_scripts": [
+    {
+      "script_id": "CORR-M01-01",
+      "case_id": "GXID-M01",
+      "answer": "这个理解不对。更准确地说，我不是害怕公开，而是不确定两位潜在用户的反馈是否足以证明值得启动。"
+    },
+    {
+      "script_id": "CORR-M03-01",
+      "case_id": "GXID-M03",
+      "answer": "这个理解不对。真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。"
+    },
+    {
+      "script_id": "CORR-M02-01",
+      "case_id": "GXID-M02",
+      "answer": "这个理解不对。真正卡住的不是我敢不敢增加投入，而是早期好数据能不能代表完整交付后仍然可持续。"
+    },
+    {
+      "script_id": "CORR-M04-01",
+      "case_id": "GXID-M04",
+      "answer": "这个理解不对。真正卡住的不是我想不想继续，而是对方持续含糊本身是否已经足够说明我不该再单方面推进。"
+    }
+  ]
+}

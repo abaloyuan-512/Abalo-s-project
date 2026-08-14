@@ -1,0 +1,45 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_RECEIPT_V016",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-LIGHT-ROUTER-RECEIPT-PROVENANCE-V016-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path":"src/abalo_iching/application/sites_light_router_receipt_v016.py","sha256":"10BF90250CCB46EBF0B3137FEFE7CF885439A5B23256ED4EAF420FDAB91BFFF1"},
+    {"path":"tests/test_sites_light_router_receipt_v016.py","sha256":"B8AD30FEC2D65970E6074AAE86FC1A006FC10E49DE33020AE9528A33818DEA6A"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/scope_lock.json","sha256":"4367FC9476E7E9974097D4DC45AE9A26F0B7B3B3A3546C28C3525C627E96F792"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/acceptance_contract.json","sha256":"4CAE4C6B8A8F735AD34CA15AACBA2E2CAE4C01D1122CE89C560AD7F1590DFC16"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/decision_log.md","sha256":"13491EB99854FE9925D7074240BFB2A9B2358C844467FE87AC4D9CA68FD01F92"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/execution_log.md","sha256":"50F84025DCAC8ECFEA1C35A19F7DC7379F0354747D3020C6ADD5E4ECB2BCD8E3"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/risk_log.md","sha256":"8FD28723670F0902EEC99AE93ADF61D44F0BB4B4F66F62C6BCE2091B655EF3BE"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/deviation_log.md","sha256":"42C6583D81B3694F1F23A80D533301649696A6ECB481EBB9B5572A72B4D592F7"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/build_offline_evidence.py","sha256":"FE1EDD5A20415A56DC5D4C3C633D57A097430218F68ACCDFFF883A7E04D8B5AA"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/offline_ledger.json","sha256":"ED7B024652FCB84840168E00153A118ADDA01BB10BB63F813F5B9E0E969A7E02"}
+  ],
+  "immutable_authority_evidence": [
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/candidate_manifest.json","sha256":"D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/live_final_outcome.json","sha256":"EAABD0C7ECD37E7071F41FE260CE191B59B3E84F4309E089B2EC20E993769B34"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/live_independent_acceptance_result.json","sha256":"7DCE0302A773C2FD0D696391EA6A5D67D74F26EA411379F1B59812F16E48AA97"},
+    {"path":"outputs/v015_router_only_live_ledger.json","sha256":"FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321"},
+    {"path":"src/abalo_iching/application/sites_light_router_adapter_v015.py","sha256":"01F5DF3C7E3E119F96E7CA54898A81E8C837B6E04E86974E67C23584CA0B55A7"},
+    {"path":"evals/meihua/direct_reading_v2_pure_data_router_v014/candidate_manifest.json","sha256":"CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67"},
+    {"path":"src/abalo_iching/application/sites_pure_data_router_v014.py","sha256":"CB2A3827AC433403F1D0F38DE5E0B0456D1D4FC99B49DBF5F285B6814BCA51BB"},
+    {"path":"evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json","sha256":"DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v012/final_outcome.json","sha256":"D2EC3A91266C284BA7E3CB990A302A6559E8AEACE9ED17FD3B7E9D210D9B7FB1"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v013/design_stop.json","sha256":"C0A5D1B5B86749DB6E31DA25A2566C6F8E16944F74467B92D8CBDD2BDE5E4089"}
+  ],
+  "offline_verification": {
+    "focused":"29 passed",
+    "inherited_focused":"197 passed",
+    "full":"1361 passed plus one existing Windows socket interruption; unchanged test rerun passed",
+    "case_denominator":7,
+    "fixture_attempts":6,
+    "complete_receipts":2,
+    "response_id_count":2,
+    "usage_record_count":2,
+    "receipt_digest_count":2,
+    "live_calls":0,
+    "high_calls":0,
+    "cast_calls":0,
+    "automatic_retries":0
+  },
+  "external_state": {"new_live_authorized":false,"product_wiring":false,"deployment":false,"production":false,"default_replacement":false}
+}

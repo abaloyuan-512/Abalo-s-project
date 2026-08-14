@@ -1,0 +1,7 @@
+{
+  "contract_id":"DRV2-PARSE-EXCEPTION-EIGHT-CODE-V020-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "frozen_before_implementation":true,
+  "one_time_independent_acceptance":true,
+  "clauses":["K1","K2","K3","K4","K5","K6","K7","K8","K9","K10"],
+  "live_calls":0
+}

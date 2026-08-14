@@ -1,0 +1,46 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1D_HELDOUT_CRITICAL_ANSWERS_V1",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_before_contract_and_prompt_open": true,
+  "synthetic": true,
+  "prompt_exposure": "PROHIBITED",
+  "warning": "这些回答只用于一次性保护集评估中模拟最高价值单问后的流程，不代表真实用户认可，不得进入任何提议者或审查器提示词。",
+  "cases": [
+    {
+      "case_id": "GXID-H11",
+      "expected_dimension": "DECISION_LEVEL_DO_VS_HOW",
+      "target_gap": "进入第二座城市本身是否已经正式决定。",
+      "critical_answer": "董事会还没有批准进入第二座城市，我也没有独立决定权。我现在其实是在决定要不要向董事会正式提出进入建议；只有提案获批后，才会在直营店和联营试水之间选择。"
+    },
+    {
+      "case_id": "GXID-H12",
+      "expected_dimension": "CONTINUE_INVESTMENT_VS_PACE",
+      "target_gap": "继续增加投放本身是否已经决定，还是当前仍要先判断是否增加。",
+      "critical_answer": "继续增加投放本身还没有决定。我先要判断在合作顺利和现有数据达标的前提下，下季度是否值得增加投入；只有确定要增加后，才需要比较按月增加还是一次性快速追加。"
+    },
+    {
+      "case_id": "GXID-H13",
+      "expected_dimension": "MOTIVE_EXPECTATION_FEARED_COST",
+      "target_gap": "用户希望关系确认得到的具体结果，以及继续含糊时最不愿承担的关键代价。",
+      "critical_answer": "我希望得到的不是安慰，而是明确知道双方是否愿意建立排他的正式关系；如果对方仍不愿明确，我最不愿继续承担的是把时间和情感投入在长期不确定里，同时错过其他关系选择。我想判断的是是否值得进行一次有明确边界的最后沟通，而不是无限期继续推动。"
+    },
+    {
+      "case_id": "GXID-H14",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    },
+    {
+      "case_id": "GXID-H15",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    },
+    {
+      "case_id": "GXID-H16",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "case_id": "V009-CANARY-01",
+  "status": "SUCCESS",
+  "input": {
+    "question_text": "我和伴侣已经为共同搬家制定了预算和分工方案，但执行会暂时增加通勤与照护压力；我们应该按现方案开始搬家，还是继续维持现状？",
+    "numbers": [
+      27,
+      44,
+      16
+    ]
+  },
+  "call_ledger": {
+    "authorized_slot": 1,
+    "router_attempts": 0,
+    "high_attempts": 1,
+    "provider_attempts": 1,
+    "automatic_retries": 0,
+    "deterministic_cast_count": 1
+  },
+  "chart_facts": {
+    "base_hexagram": {
+      "role": "BASE",
+      "king_wen_number": 21,
+      "name": "火雷噬嗑",
+      "upper_trigram": "离",
+      "lower_trigram": "震"
+    },
+    "mutual_hexagram": {
+      "role": "MUTUAL",
+      "king_wen_number": 39,
+      "name": "水山蹇",
+      "upper_trigram": "坎",
+      "lower_trigram": "艮"
+    },
+    "changed_hexagram": {
+      "role": "CHANGED",
+      "king_wen_number": 27,
+      "name": "山雷颐",
+      "upper_trigram": "艮",
+      "lower_trigram": "震"
+    },
+    "moving_line": {
+      "position": 4,
+      "name": "九四",
+      "canonical_line_text": "噬乾胏，得金矢，利艱貞吉。",
+      "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
+    },
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+  },
+  "program_strength": {
+    "calendar_provider": "lunar_python/1.4.8",
+    "body_trigram": "震",
+    "initial_use_trigram": "离",
+    "changed_use_trigram": "艮",
+    "initial_relation": "BODY_GENERATES_USE",
+    "changed_relation": "BODY_CONTROLS_USE",
+    "body_strength": "DEAD",
+    "additional_casts": 0
+  },
+  "source_reading_utf8_sha256": "40376C23B51D91A36049242A3DCE24C2FD97C14AC57EBB17B0AD56AC3FF0CAAD",
+  "reconstructed_reading_utf8_sha256": "40376C23B51D91A36049242A3DCE24C2FD97C14AC57EBB17B0AD56AC3FF0CAAD",
+  "reconstructed_equals_source": true,
+  "model_calls_for_render": 0,
+  "page_path": "outputs/v009_canary_page8_page9.md"
+}

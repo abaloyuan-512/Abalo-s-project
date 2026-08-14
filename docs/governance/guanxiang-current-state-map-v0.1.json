@@ -1,0 +1,1594 @@
+{
+  "schemaVersion": "guanxiang.current-state-map/0.1",
+  "status": "UNCONFIRMED_BASELINE_DRAFT",
+  "observedAt": "2026-08-09T10:59:50+08:00",
+  "sourceBranch": "main",
+  "sourceHead": "d3d019d623956c460ea970d0b4bab4c370171a63",
+  "reconstructionBasis": {
+    "primaryView": "PRODUCT_SEMANTIC_WBS",
+    "hierarchy": [
+      "Project",
+      "Module",
+      "Stage",
+      "Task"
+    ],
+    "moduleRule": "A module is a product surface or a product capability that the owner can recognize and manage. A technical branch, Gate, Stage label, test run, or filename is never a project module by itself.",
+    "promotionRule": "When a task becomes a durable core capability with independent goals, risks, acceptance criteria, and multiple stages, it may be promoted to module level only after owner confirmation.",
+    "technicalEvidencePolicy": "Git branches, commits, Gate labels, Stage 1E, tests, and run records are implementation evidence attached to product work; they do not define the product hierarchy.",
+    "ownerStatement": "The intended product skeleton is a ten-page Guanxiang website. Pages 1-7 were completed; Page 8 was paused because the reading system did not meet the owner's expectations. On 2026-08-09 the owner formally promoted the reading system to Module 11 and made it the strategic product mainline, confirmed that Page 4 discernment Stage 1E must finish first and the reading module remains paused until then, and accepted the six reading-experience criteria as v0.1."
+  },
+  "worktreeState": {
+    "clean": false,
+    "upstream": "origin/main",
+    "ahead": 0,
+    "behind": 0,
+    "trackedChanges": [],
+    "governanceDrafts": [
+      "docs/governance/guanxiang-current-state-reconstruction-v0.1.md",
+      "docs/governance/guanxiang-current-state-map-v0.1.json"
+    ],
+    "preExistingUntracked": [
+      "docs/page8-art-direction-conversation-2026-08-04.md",
+      "evals/meihua/intelligence_diagnostic_v001/",
+      "evals/meihua/intelligence_optimization_stage1_v001/",
+      "evals/meihua/intelligence_optimization_stage1b_v001/",
+      "evals/meihua/intelligence_optimization_stage1c_v001/",
+      "evals/meihua/intelligence_optimization_stage1d_v001/",
+      "evals/meihua/intelligence_optimization_stage1e_v001/",
+      "outputs/",
+      "tests/test_stage1_intake_insight_experiment_v1.py",
+      "tests/test_stage1b_decision_frame_experiment_v1.py",
+      "tests/test_stage1c_readiness_veto_experiment_v1.py",
+      "tests/test_stage1d_critic_first_experiment_v1.py",
+      "tests/test_stage1e_wire_experiment_v1.py",
+      "tmp/"
+    ],
+    "interpretation": "The newest intelligence experiments are worktree evidence only and are not part of sourceHead or origin/main."
+  },
+  "project": {
+    "id": "PRJ-GX-001",
+    "name": "观象",
+    "productDefinition": "A ten-page Guanxiang website whose core user value depends on a trustworthy, question-aware reading experience.",
+    "status": "OWNER_CONFIRMED_STRUCTURE_REMAINING_DETAILS_UNCONFIRMED",
+    "originalModuleCount": 10,
+    "currentModuleCount": 11,
+    "completedProductPosition": "Pages 1-7 owner-confirmed complete at the product-design level.",
+    "visibleBlockedPosition": "Page 8 reading experience is paused.",
+    "blockingCapabilityModuleId": "MOD-GX-READING",
+    "strategicMainlineModuleId": "MOD-GX-READING",
+    "strategicMainlineStatus": "PAUSED_UNTIL_DISCERNMENT_COMPLETE",
+    "activeExecutionModuleId": "MOD-GX-P04",
+    "activeExecutionStageId": "STG-GX-P04-INTELLIGENCE",
+    "currentNextTaskId": "TSK-GX-P04-INT-1E-001",
+    "progressPercent": null,
+    "progressNote": "No owner-approved module or stage weights exist, so no percentage is asserted.",
+    "confidence": "HIGH",
+    "evidenceIds": [
+      "EVD-OWNER-001",
+      "EVD-PRODUCT-FLOW",
+      "EVD-PAGE8-DISCUSSION",
+      "EVD-INT-0"
+    ],
+    "conflictIds": [
+      "CFL-GX-001",
+      "CFL-GX-002",
+      "CFL-GX-005"
+    ]
+  },
+  "responsibilityFieldTemplate": {
+    "pmo": null,
+    "manager": null,
+    "qa": null,
+    "assetManager": null,
+    "executionAgent": null,
+    "assignmentStatus": "UNASSIGNED"
+  },
+  "modules": [
+    {
+      "id": "MOD-GX-P01",
+      "projectId": "PRJ-GX-001",
+      "sequence": 1,
+      "name": "第一页：首页·入境",
+      "kind": "PRODUCT_PAGE",
+      "status": "OWNER_CONFIRMED_COMPLETE",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW",
+        "EVD-VISUAL-HANDOFF"
+      ],
+      "conflictIds": [],
+      "stages": [
+        {
+          "id": "STG-GX-P01-DELIVERY",
+          "moduleId": "MOD-GX-P01",
+          "name": "视觉、交互与实现定稿",
+          "status": "COMPLETE_HISTORICAL",
+          "tasks": [
+            {
+              "id": "TSK-GX-P01-001",
+              "stageId": "STG-GX-P01-DELIVERY",
+              "name": "首页入境场景、题字、音画与进入动线定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "HISTORICAL_EVIDENCE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P02",
+      "projectId": "PRJ-GX-001",
+      "sequence": 2,
+      "name": "第二页：观象之法·准备",
+      "kind": "PRODUCT_PAGE",
+      "status": "OWNER_CONFIRMED_COMPLETE",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW"
+      ],
+      "conflictIds": [],
+      "stages": [
+        {
+          "id": "STG-GX-P02-DELIVERY",
+          "moduleId": "MOD-GX-P02",
+          "name": "观法说明与进入正问",
+          "status": "COMPLETE_HISTORICAL",
+          "tasks": [
+            {
+              "id": "TSK-GX-P02-001",
+              "stageId": "STG-GX-P02-DELIVERY",
+              "name": "观象方法、呼吸准备与进入正问动线定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "HISTORICAL_EVIDENCE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P03",
+      "projectId": "PRJ-GX-001",
+      "sequence": 3,
+      "name": "第三页：正问",
+      "kind": "PRODUCT_PAGE",
+      "status": "OWNER_CONFIRMED_COMPLETE",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW"
+      ],
+      "conflictIds": [],
+      "stages": [
+        {
+          "id": "STG-GX-P03-DELIVERY",
+          "moduleId": "MOD-GX-P03",
+          "name": "原始问题输入",
+          "status": "COMPLETE_HISTORICAL",
+          "tasks": [
+            {
+              "id": "TSK-GX-P03-001",
+              "stageId": "STG-GX-P03-DELIVERY",
+              "name": "原始问题书写、长度提示与进入辨识定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "HISTORICAL_EVIDENCE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P04",
+      "projectId": "PRJ-GX-001",
+      "sequence": 4,
+      "name": "第四页：辨识",
+      "kind": "PRODUCT_PAGE",
+      "status": "PAGE_COMPLETE_WITH_UNINTEGRATED_OPTIMIZATION_TRACK",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW",
+        "EVD-INT-0",
+        "EVD-INT-1E"
+      ],
+      "conflictIds": [
+        "CFL-GX-002",
+        "CFL-GX-005"
+      ],
+      "stages": [
+        {
+          "id": "STG-GX-P04-DELIVERY",
+          "moduleId": "MOD-GX-P04",
+          "name": "现有辨识页面交付",
+          "status": "OWNER_CONFIRMED_COMPLETE",
+          "tasks": [
+            {
+              "id": "TSK-GX-P04-001",
+              "stageId": "STG-GX-P04-DELIVERY",
+              "name": "辨识对话页面、用户提前结束与进入定问流程定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "HISTORICAL_EVIDENCE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW"
+              ],
+              "conflictIds": []
+            }
+          ]
+        },
+        {
+          "id": "STG-GX-P04-INTELLIGENCE",
+          "moduleId": "MOD-GX-P04",
+          "name": "辨识能力诊断与优化支线",
+          "status": "STAGE1E_CANARY_PASSED_FORMAL_EXPERIMENT_NOT_RUN",
+          "tasks": [
+            {
+              "id": "TSK-GX-P04-INT-HISTORY",
+              "stageId": "STG-GX-P04-INTELLIGENCE",
+              "name": "封存 Stage 1、1B、1C 负向方案与 Stage 1D 无效运行",
+              "status": "COMPLETE_HISTORY",
+              "track": "EXPERIMENT_HISTORY",
+              "completion": {
+                "documentation": "COMPLETE_UNTRACKED",
+                "code": "ISOLATED_EXPERIMENT_ONLY",
+                "localValidation": "HISTORICAL_PASS_COUNTS_RECORDED",
+                "realIntegration": "NOT_INTEGRATED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-INT-1",
+                "EVD-INT-1B",
+                "EVD-INT-1C",
+                "EVD-INT-1D"
+              ],
+              "conflictIds": [
+                "CFL-GX-005"
+              ]
+            },
+            {
+              "id": "TSK-GX-P04-INT-1E-001",
+              "stageId": "STG-GX-P04-INTELLIGENCE",
+              "name": "独立生成并冻结 Stage 1E 保护集 H17-H22 与关键答案",
+              "status": "CURRENT_NEXT_TASK_READY_FOR_ASSIGNMENT",
+              "track": "ACTIVE_EXECUTION_PREREQUISITE_TO_STRATEGIC_MAINLINE",
+              "completion": {
+                "documentation": "CANARY_COMPLETE_PROTECTION_SET_MISSING",
+                "code": "ISOLATED_EXPERIMENT_PRESENT_UNTRACKED",
+                "localValidation": "CANARY_3_OF_3_PATHS_PASSED_HISTORICAL",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-INT-1E"
+              ],
+              "conflictIds": [
+                "CFL-GX-005"
+              ]
+            },
+            {
+              "id": "TSK-GX-P04-INT-1E-002",
+              "stageId": "STG-GX-P04-INTELLIGENCE",
+              "name": "执行 Stage 1E 唯一一次正式能力运行并冻结结果",
+              "status": "BLOCKED_BY_PROTECTION_SET",
+              "track": "ACTIVE_EXECUTION_PREREQUISITE_TO_STRATEGIC_MAINLINE",
+              "blockedBy": [
+                "TSK-GX-P04-INT-1E-001"
+              ],
+              "completion": {
+                "documentation": "RUN_PLAN_EXISTS_UNTRACKED",
+                "code": "ISOLATED_EXPERIMENT_PRESENT_UNTRACKED",
+                "localValidation": "FORMAL_CAPABILITY_RUN_NOT_STARTED",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-INT-1E"
+              ],
+              "conflictIds": [
+                "CFL-GX-005"
+              ]
+            },
+            {
+              "id": "TSK-GX-P04-INT-1E-003",
+              "stageId": "STG-GX-P04-INTELLIGENCE",
+              "name": "完成 Stage 1E PMO 语义验收并关闭辨识优化阶段",
+              "status": "BLOCKED_BY_FORMAL_CAPABILITY_RUN",
+              "track": "ACTIVE_EXECUTION_PREREQUISITE_TO_STRATEGIC_MAINLINE",
+              "blockedBy": [
+                "TSK-GX-P04-INT-1E-002"
+              ],
+              "completion": {
+                "documentation": "CHECKLIST_EXISTS_UNTRACKED",
+                "code": "NOT_APPLICABLE",
+                "localValidation": "NOT_STARTED",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-INT-1E"
+              ],
+              "conflictIds": [
+                "CFL-GX-005"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P05",
+      "projectId": "PRJ-GX-001",
+      "sequence": 5,
+      "name": "第五页：定问",
+      "kind": "PRODUCT_PAGE",
+      "status": "OWNER_CONFIRMED_COMPLETE",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW"
+      ],
+      "conflictIds": [],
+      "stages": [
+        {
+          "id": "STG-GX-P05-DELIVERY",
+          "moduleId": "MOD-GX-P05",
+          "name": "最终问题确认",
+          "status": "COMPLETE_HISTORICAL",
+          "tasks": [
+            {
+              "id": "TSK-GX-P05-001",
+              "stageId": "STG-GX-P05-DELIVERY",
+              "name": "保留原问、接受建议题与最终确认动线定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "HISTORICAL_EVIDENCE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P06",
+      "projectId": "PRJ-GX-001",
+      "sequence": 6,
+      "name": "第六页：成卦",
+      "kind": "PRODUCT_PAGE",
+      "status": "OWNER_CONFIRMED_COMPLETE",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW",
+        "EVD-SPEC-RULE"
+      ],
+      "conflictIds": [],
+      "stages": [
+        {
+          "id": "STG-GX-P06-DELIVERY",
+          "moduleId": "MOD-GX-P06",
+          "name": "三数输入与确定性成卦",
+          "status": "COMPLETE_HISTORICAL",
+          "tasks": [
+            {
+              "id": "TSK-GX-P06-001",
+              "stageId": "STG-GX-P06-DELIVERY",
+              "name": "三次呼吸取数、输入校验与成卦提交定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "COMPLETE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW",
+                "EVD-SPEC-RULE"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P07",
+      "projectId": "PRJ-GX-001",
+      "sequence": 7,
+      "name": "第七页：卦象",
+      "kind": "PRODUCT_PAGE",
+      "status": "OWNER_CONFIRMED_COMPLETE",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PRODUCT-FLOW",
+        "EVD-PAGE8-DISCUSSION"
+      ],
+      "conflictIds": [],
+      "stages": [
+        {
+          "id": "STG-GX-P07-DELIVERY",
+          "moduleId": "MOD-GX-P07",
+          "name": "本卦结果概览",
+          "status": "COMPLETE_HISTORICAL",
+          "tasks": [
+            {
+              "id": "TSK-GX-P07-001",
+              "stageId": "STG-GX-P07-DELIVERY",
+              "name": "本卦卦象、卦名、卦辞与视觉呈现定稿",
+              "status": "COMPLETE",
+              "completion": {
+                "documentation": "OWNER_CONFIRMATION_AND_HISTORICAL_EVIDENCE",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PRODUCT-FLOW",
+                "EVD-PAGE8-DISCUSSION"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P08",
+      "projectId": "PRJ-GX-001",
+      "sequence": 8,
+      "name": "第八页：读卦·五幕",
+      "kind": "PRODUCT_PAGE",
+      "status": "PAUSED_BLOCKED_BY_READING_QUALITY",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-PAGE8-CODE",
+        "EVD-PAGE8-TEST",
+        "EVD-PAGE8-DISCUSSION",
+        "EVD-INT-0"
+      ],
+      "conflictIds": [
+        "CFL-GX-005"
+      ],
+      "stages": [
+        {
+          "id": "STG-GX-P08-MODEL",
+          "moduleId": "MOD-GX-P08",
+          "name": "五幕内容与数据模型",
+          "status": "MODEL_IMPLEMENTED_OWNER_ACCEPTANCE_UNCONFIRMED",
+          "tasks": [
+            {
+              "id": "TSK-GX-P08-MODEL-001",
+              "stageId": "STG-GX-P08-MODEL",
+              "name": "本卦、互卦、变卦、动爻、体用旺衰五幕数据模型",
+              "status": "CODE_COMPLETE_PRODUCT_ACCEPTANCE_PENDING",
+              "completion": {
+                "documentation": "DISCUSSION_RECORD_EXISTS",
+                "code": "PRESENT_ON_MAIN",
+                "localValidation": "HISTORICAL_PAGE8_TEST_PASS_NOT_RERUN",
+                "realIntegration": "DELIBERATELY_STOPS_BEFORE_PAGE9"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-PAGE8-CODE",
+                "EVD-PAGE8-TEST"
+              ],
+              "conflictIds": []
+            }
+          ]
+        },
+        {
+          "id": "STG-GX-P08-ART",
+          "moduleId": "MOD-GX-P08",
+          "name": "五幕美术与持续微动",
+          "status": "PAUSED_NO_APPROVED_DIRECTION",
+          "tasks": [
+            {
+              "id": "TSK-GX-P08-ART-001",
+              "stageId": "STG-GX-P08-ART",
+              "name": "五幕共同视觉母题与每幕背景图定稿",
+              "status": "PAUSED",
+              "blockedBy": [
+                "TSK-GX-P04-INT-1E-003"
+              ],
+              "completion": {
+                "documentation": "MULTIPLE_REJECTED_DIRECTIONS_RECORDED",
+                "code": "NOT_ACCEPTED_AS_FINAL_DESIGN",
+                "localValidation": "NOT_APPLICABLE",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-PAGE8-DISCUSSION"
+              ],
+              "conflictIds": []
+            },
+            {
+              "id": "TSK-GX-P08-ART-002",
+              "stageId": "STG-GX-P08-ART",
+              "name": "五幕持续氛围特效定稿",
+              "status": "PAUSED",
+              "blockedBy": [
+                "TSK-GX-P08-ART-001"
+              ],
+              "completion": {
+                "documentation": "REQUIREMENTS_RECORDED",
+                "code": "NOT_STARTED_AS_FINAL_DESIGN",
+                "localValidation": "NOT_STARTED",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-PAGE8-DISCUSSION"
+              ],
+              "conflictIds": []
+            },
+            {
+              "id": "TSK-GX-P08-ART-003",
+              "stageId": "STG-GX-P08-ART",
+              "name": "五幕文字排版与整页视觉验收",
+              "status": "BLOCKED_BY_ART_AND_READING",
+              "blockedBy": [
+                "TSK-GX-P08-ART-001",
+                "TSK-GX-P08-ART-002",
+                "TSK-GX-M11-QUALITY-002"
+              ],
+              "completion": {
+                "documentation": "PARTIAL",
+                "code": "REVIEW_LAYOUT_EXISTS_NOT_FINAL",
+                "localValidation": "NOT_FINAL",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-PAGE8-CODE",
+                "EVD-PAGE8-DISCUSSION"
+              ],
+              "conflictIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P09",
+      "projectId": "PRJ-GX-001",
+      "sequence": 9,
+      "name": "第九页：回到现实·个性化解读（暂定）",
+      "kind": "PRODUCT_PAGE",
+      "status": "CONFIRMED_PROVISIONAL_DEFINITION",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "MEDIUM",
+      "evidenceIds": [
+        "EVD-PRODUCT-FLOW",
+        "EVD-PAGE8-TEST"
+      ],
+      "conflictIds": [
+        "CFL-GX-006"
+      ],
+      "stages": [
+        {
+          "id": "STG-GX-P09-DEFINITION",
+          "moduleId": "MOD-GX-P09",
+          "name": "页面产品定义",
+          "status": "CONFIRMED_PROVISIONAL_DEFINITION",
+          "tasks": [
+            {
+              "id": "TSK-GX-P09-001",
+              "stageId": "STG-GX-P09-DEFINITION",
+              "name": "暂按现实映射、逐项回答与个性化解读保留第九页定义，后续再细化",
+              "status": "COMPLETE_OWNER_CONFIRMED_PROVISIONAL",
+              "completion": {
+                "documentation": "INFERRED_FROM_HIDDEN_FUTURE_SECTION",
+                "code": "HISTORICAL_HIDDEN_SECTION_EXISTS",
+                "localValidation": "NOT_APPLICABLE",
+                "realIntegration": "HIDDEN_NOT_RELEASED"
+              },
+              "confidence": "MEDIUM",
+              "evidenceIds": [
+                "EVD-PRODUCT-FLOW",
+                "EVD-PAGE8-TEST"
+              ],
+              "conflictIds": [
+                "CFL-GX-006"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-P10",
+      "projectId": "PRJ-GX-001",
+      "sequence": 10,
+      "name": "第十页：最终收束·行动与复盘（暂定）",
+      "kind": "PRODUCT_PAGE",
+      "status": "CONFIRMED_PROVISIONAL_DEFINITION",
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "MEDIUM",
+      "evidenceIds": [
+        "EVD-PRODUCT-FLOW",
+        "EVD-PAGE8-TEST"
+      ],
+      "conflictIds": [
+        "CFL-GX-006"
+      ],
+      "stages": [
+        {
+          "id": "STG-GX-P10-DEFINITION",
+          "moduleId": "MOD-GX-P10",
+          "name": "页面产品定义",
+          "status": "CONFIRMED_PROVISIONAL_DEFINITION",
+          "tasks": [
+            {
+              "id": "TSK-GX-P10-001",
+              "stageId": "STG-GX-P10-DEFINITION",
+              "name": "暂按最终判断、行动、转向条件与观事簿复盘保留第十页定义，后续再细化",
+              "status": "COMPLETE_OWNER_CONFIRMED_PROVISIONAL",
+              "completion": {
+                "documentation": "INFERRED_FROM_HIDDEN_FUTURE_SECTION",
+                "code": "HISTORICAL_HIDDEN_SECTION_EXISTS",
+                "localValidation": "NOT_APPLICABLE",
+                "realIntegration": "HIDDEN_NOT_RELEASED"
+              },
+              "confidence": "MEDIUM",
+              "evidenceIds": [
+                "EVD-PRODUCT-FLOW",
+                "EVD-PAGE8-TEST"
+              ],
+              "conflictIds": [
+                "CFL-GX-006"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MOD-GX-READING",
+      "projectId": "PRJ-GX-001",
+      "sequence": 11,
+      "name": "解卦系统",
+      "kind": "PROMOTED_CORE_CAPABILITY",
+      "status": "CONFIRMED_STRATEGIC_MAINLINE_PAUSED_UNTIL_DISCERNMENT_COMPLETE",
+      "promotion": {
+        "fromModuleId": "MOD-GX-P08",
+        "fromRole": "Page 8 dependent task/capability",
+        "reason": "It is the core source of perceived user value, has independent architecture, rules, quality gates, experiments, risks, and multiple unfinished stages.",
+        "ownerConfirmed": true
+      },
+      "responsibility": {
+        "pmo": null,
+        "manager": null,
+        "qa": null,
+        "assetManager": null,
+        "executionAgent": null,
+        "assignmentStatus": "UNASSIGNED"
+      },
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-SPEC-RULE",
+        "EVD-SPEC-P2",
+        "EVD-GATE2",
+        "EVD-INT-0"
+      ],
+      "conflictIds": [
+        "CFL-GX-001",
+        "CFL-GX-003",
+        "CFL-GX-004",
+        "CFL-GX-005"
+      ],
+      "stages": [
+        {
+          "id": "STG-GX-M11-ALIGN",
+          "moduleId": "MOD-GX-READING",
+          "name": "模块升格与产品目标重新对齐",
+          "status": "OWNER_ALIGNMENT_COMPLETE",
+          "tasks": [
+            {
+              "id": "TSK-GX-M11-ALIGN-001",
+              "stageId": "STG-GX-M11-ALIGN",
+              "name": "产品负责人确认：解卦系统升格为第十一模块，并成为当前产品主线",
+              "status": "COMPLETE_OWNER_CONFIRMED",
+              "completion": {
+                "documentation": "OWNER_DECISION_RECORDED",
+                "code": "NOT_APPLICABLE",
+                "localValidation": "NOT_APPLICABLE",
+                "realIntegration": "NOT_APPLICABLE"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-OWNER-001",
+                "EVD-INT-0"
+              ],
+              "conflictIds": [
+                "CFL-GX-001",
+                "CFL-GX-002"
+              ]
+            },
+            {
+              "id": "TSK-GX-M11-ALIGN-002",
+              "stageId": "STG-GX-M11-ALIGN",
+              "name": "用产品语言确认解卦系统完成定义与不可妥协的体验标准",
+              "status": "COMPLETE_OWNER_CONFIRMED_V0_1",
+              "proposedAcceptanceDimensions": [
+                "真正回答用户最终确认的问题",
+                "核心判断能说明为什么是这个卦而不是任何卦都成立",
+                "现实事实、卦象事实与解释推断清楚分开",
+                "判断具体、有差异，不坍缩成通用谨慎话术",
+                "行动建议可执行但不替用户决定、不读心、不承诺结果或具体日期",
+                "连续多次使用时能产生可解释的差异并保持产品声音"
+              ],
+              "completion": {
+                "documentation": "OWNER_CONFIRMED_V0_1",
+                "code": "NOT_APPLICABLE",
+                "localValidation": "NOT_APPLICABLE",
+                "realIntegration": "NOT_APPLICABLE"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-GATE01",
+                "EVD-INT-0"
+              ],
+              "conflictIds": []
+            },
+            {
+              "id": "TSK-GX-M11-ALIGN-003",
+              "stageId": "STG-GX-M11-ALIGN",
+              "name": "决定 Stage 1E 辨识支线继续、暂停或降级，不再让它自动代表解卦主线",
+              "status": "COMPLETE_OWNER_DECISION",
+              "completion": {
+                "documentation": "OWNER_CONFIRMED_STAGE1E_FIRST_READING_PAUSED",
+                "code": "NO_CHANGE",
+                "localValidation": "NOT_APPLICABLE",
+                "realIntegration": "NOT_APPLICABLE"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-INT-0",
+                "EVD-INT-1E"
+              ],
+              "conflictIds": [
+                "CFL-GX-002"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "STG-GX-M11-FOUNDATION",
+          "moduleId": "MOD-GX-READING",
+          "name": "确定性排盘与受控解释基础",
+          "status": "ENGINEERING_FOUNDATION_EXISTS",
+          "tasks": [
+            {
+              "id": "TSK-GX-M11-FOUND-001",
+              "stageId": "STG-GX-M11-FOUNDATION",
+              "name": "确定性本卦、互卦、变卦、动爻、体用、旺衰与证据链",
+              "status": "COMPLETE_FROZEN_FOUNDATION",
+              "completion": {
+                "documentation": "COMPLETE",
+                "code": "COMPLETE_AT_HISTORICAL_BASELINE",
+                "localValidation": "PHASE1_HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "USED_BY_CURRENT_SOURCE_CURRENT_DEPLOYMENT_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-SPEC-RULE",
+                "EVD-SPEC-P1"
+              ],
+              "conflictIds": []
+            },
+            {
+              "id": "TSK-GX-M11-FOUND-002",
+              "stageId": "STG-GX-M11-FOUNDATION",
+              "name": "程序结论、知识状态、模型叙述与验证器的信任边界",
+              "status": "HISTORICAL_ENGINEERING_COMPLETE_CURRENT_RELEASE_STATE_UNCONFIRMED",
+              "completion": {
+                "documentation": "COMPLETE_HISTORICAL",
+                "code": "COMPLETE_AT_PHASE2_BASELINE",
+                "localValidation": "PHASE2_HISTORICAL_PASS_NOT_RERUN",
+                "realIntegration": "CONFLICTING_EVIDENCE"
+              },
+              "confidence": "MEDIUM",
+              "evidenceIds": [
+                "EVD-SPEC-P2",
+                "EVD-PHASE2C"
+              ],
+              "conflictIds": [
+                "CFL-GX-003",
+                "CFL-GX-004"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "STG-GX-M11-QUALITY",
+          "moduleId": "MOD-GX-READING",
+          "name": "解卦质量验证与产品验收",
+          "status": "CORE_VALUE_NOT_YET_VALIDATED",
+          "tasks": [
+            {
+              "id": "TSK-GX-M11-QUALITY-001",
+              "stageId": "STG-GX-M11-QUALITY",
+              "name": "Gate 0/1：同质化基线与产品质量标准",
+              "status": "COMPLETE_HISTORICAL",
+              "completion": {
+                "documentation": "COMPLETE",
+                "code": "EVAL_ONLY",
+                "localValidation": "HISTORICAL_PASS",
+                "realIntegration": "NOT_AUTHORIZED_BY_GATE_ARTIFACTS"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-GATE01"
+              ],
+              "conflictIds": []
+            },
+            {
+              "id": "TSK-GX-M11-QUALITY-002",
+              "stageId": "STG-GX-M11-QUALITY",
+              "name": "完成 Gate 2 B/C/D 至少三名独立评审的冻结 Rubric 盲评",
+              "status": "BLOCKED_REVIEWERS_UNASSIGNED",
+              "completion": {
+                "documentation": "INPUTS_READY",
+                "code": "EXPERIMENT_CHAIN_COMPLETE",
+                "localValidation": "HISTORICAL_PASS_907",
+                "realIntegration": "NOT_AUTHORIZED_BY_GATE_ARTIFACTS"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-GATE2"
+              ],
+              "conflictIds": [
+                "CFL-GX-003"
+              ]
+            },
+            {
+              "id": "TSK-GX-M11-QUALITY-003",
+              "stageId": "STG-GX-M11-QUALITY",
+              "name": "冻结诊断：当前解卦不能稳定证明核心判断因该卦而成立",
+              "status": "COMPLETE_WITH_LIMITATIONS",
+              "completion": {
+                "documentation": "COMPLETE_UNTRACKED",
+                "code": "NO_PRODUCTION_CHANGE",
+                "localValidation": "HISTORICAL_PASS_956",
+                "realIntegration": "NOT_APPLICABLE"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-INT-0"
+              ],
+              "conflictIds": [
+                "CFL-GX-005"
+              ]
+            },
+            {
+              "id": "TSK-GX-M11-QUALITY-004",
+              "stageId": "STG-GX-M11-QUALITY",
+              "name": "设计并执行直接针对解卦核心的同现实换卦反事实验证",
+              "status": "PAUSED_UNTIL_DISCERNMENT_COMPLETE",
+              "blockedBy": [
+                "TSK-GX-P04-INT-1E-003"
+              ],
+              "completion": {
+                "documentation": "PROBLEM_RECORDED_ONLY",
+                "code": "NOT_STARTED",
+                "localValidation": "NOT_STARTED",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-INT-0"
+              ],
+              "conflictIds": []
+            },
+            {
+              "id": "TSK-GX-M11-QUALITY-005",
+              "stageId": "STG-GX-M11-QUALITY",
+              "name": "按主人确认的质量标准完成真实用户、易学结构、边界与可复用价值验收",
+              "status": "BLOCKED_BY_PREDECESSORS_AND_ROLES",
+              "blockedBy": [
+                "TSK-GX-M11-QUALITY-002",
+                "TSK-GX-M11-QUALITY-004"
+              ],
+              "completion": {
+                "documentation": "OPEN_ITEMS_RECORDED",
+                "code": "NOT_APPLICABLE",
+                "localValidation": "NOT_STARTED",
+                "realIntegration": "NOT_STARTED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-GATE2",
+                "EVD-INT-0"
+              ],
+              "conflictIds": []
+            }
+          ]
+        },
+        {
+          "id": "STG-GX-M11-INTEGRATION",
+          "moduleId": "MOD-GX-READING",
+          "name": "Page 8–10 产品接入与发布验收",
+          "status": "BLOCKED_BY_CORE_QUALITY",
+          "tasks": [
+            {
+              "id": "TSK-GX-M11-INTEG-001",
+              "stageId": "STG-GX-M11-INTEGRATION",
+              "name": "把验收通过的解卦能力接入第八至第十页并完成端到端验收",
+              "status": "BLOCKED",
+              "blockedBy": [
+                "TSK-GX-M11-QUALITY-005"
+              ],
+              "completion": {
+                "documentation": "NOT_STARTED",
+                "code": "HISTORICAL_PATHS_EXIST_BUT_NOT_ACCEPTED_AS_FINAL",
+                "localValidation": "NOT_CURRENTLY_VALIDATED",
+                "realIntegration": "CURRENT_RELEASE_STATE_UNCONFIRMED"
+              },
+              "confidence": "HIGH",
+              "evidenceIds": [
+                "EVD-PRODUCT-FLOW",
+                "EVD-PAGE8-CODE",
+                "EVD-GIT-HISTORY"
+              ],
+              "conflictIds": [
+                "CFL-GX-003",
+                "CFL-GX-004"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "historyBuckets": {
+    "formalProductMainline": [
+      {
+        "id": "HIS-GX-FML-001",
+        "name": "Pages 1-7",
+        "status": "OWNER_CONFIRMED_COMPLETE",
+        "moduleIds": [
+          "MOD-GX-P01",
+          "MOD-GX-P02",
+          "MOD-GX-P03",
+          "MOD-GX-P04",
+          "MOD-GX-P05",
+          "MOD-GX-P06",
+          "MOD-GX-P07"
+        ],
+        "evidenceIds": [
+          "EVD-OWNER-001",
+          "EVD-PRODUCT-FLOW"
+        ]
+      },
+      {
+        "id": "HIS-GX-FML-002",
+        "name": "Page 8",
+        "status": "PAUSED_AT_READING_QUALITY_BLOCKER",
+        "moduleIds": [
+          "MOD-GX-P08"
+        ],
+        "evidenceIds": [
+          "EVD-OWNER-001",
+          "EVD-PAGE8-DISCUSSION",
+          "EVD-PAGE8-CODE"
+        ]
+      },
+      {
+        "id": "HIS-GX-FML-003",
+        "name": "Pages 9-10",
+        "status": "NOT_STARTED_PROVISIONAL_DEFINITION_CONFIRMED",
+        "moduleIds": [
+          "MOD-GX-P09",
+          "MOD-GX-P10"
+        ],
+        "evidenceIds": [
+          "EVD-PRODUCT-FLOW",
+          "EVD-PAGE8-TEST"
+        ]
+      }
+    ],
+    "supportAndExperimentTracks": [
+      {
+        "id": "HIS-GX-EXP-001",
+        "name": "Personalization Gate 0-2",
+        "belongsToModuleId": "MOD-GX-READING",
+        "status": "GATE0_GATE1_COMPLETE_GATE2_AWAITING_BLIND_REVIEW",
+        "evidenceIds": [
+          "EVD-GATE01",
+          "EVD-GATE2"
+        ]
+      },
+      {
+        "id": "HIS-GX-EXP-002",
+        "name": "Intelligence Stage 1-1E",
+        "belongsToModuleId": "MOD-GX-P04",
+        "status": "SUPPORT_TRACK_STAGE1E_CANARY_PASSED_FORMAL_RUN_NOT_STARTED",
+        "evidenceIds": [
+          "EVD-INT-1",
+          "EVD-INT-1B",
+          "EVD-INT-1C",
+          "EVD-INT-1D",
+          "EVD-INT-1E"
+        ]
+      }
+    ],
+    "rejectedSolutions": [
+      {
+        "id": "HIS-GX-REJ-001",
+        "name": "Page 8 black-white-dot / chess-piece-like art directions",
+        "belongsToModuleId": "MOD-GX-P08",
+        "reason": "Owner rejected the visual direction.",
+        "evidenceIds": [
+          "EVD-PAGE8-DISCUSSION"
+        ]
+      },
+      {
+        "id": "HIS-GX-REJ-002",
+        "name": "Stage 1, 1B and 1C discernment approaches",
+        "belongsToModuleId": "MOD-GX-P04",
+        "reason": "Negative experiment results; not validated for user value or readiness control.",
+        "evidenceIds": [
+          "EVD-INT-1",
+          "EVD-INT-1B",
+          "EVD-INT-1C"
+        ]
+      }
+    ],
+    "invalidExperiments": [
+      {
+        "id": "HIS-GX-INV-001",
+        "name": "Stage 1D wire-schema run",
+        "belongsToModuleId": "MOD-GX-P04",
+        "reason": "Inference never ran; server rejected oneOf/discriminator before model execution.",
+        "evidenceIds": [
+          "EVD-INT-1D"
+        ]
+      }
+    ],
+    "pendingClassificationAnomalies": [
+      {
+        "id": "HIS-GX-ANM-001",
+        "name": "Untracked intelligence experiment directories and tests",
+        "reason": "They are current worktree evidence but not committed project truth.",
+        "evidenceIds": [
+          "EVD-GIT-001",
+          "EVD-INT-1E"
+        ]
+      },
+      {
+        "id": "HIS-GX-ANM-002",
+        "name": "Page 9 and Page 10 names/scopes",
+        "reason": "Inferred from hidden future-result sections; owner confirmation is required.",
+        "evidenceIds": [
+          "EVD-PRODUCT-FLOW",
+          "EVD-PAGE8-TEST"
+        ]
+      }
+    ]
+  },
+  "risks": [
+    {
+      "id": "RSK-GX-001",
+      "severity": "CRITICAL",
+      "status": "OPEN",
+      "statement": "Technical experiment labels can replace the owner's product map, causing work to continue without a recognizable product outcome.",
+      "mitigation": "Use the ten-page product skeleton plus owner-confirmed promoted modules as the only project/module layer.",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-INT-1E"
+      ]
+    },
+    {
+      "id": "RSK-GX-002",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "statement": "The project can keep optimizing Page 4 discernment while Page 8 remains blocked by the unvalidated reading system.",
+      "mitigation": "Owner confirmed the sequence: finish Page 4 Stage 1E first, keep Module 11 as the strategic mainline but paused, then resume the reading system.",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-INT-0",
+        "EVD-INT-1E"
+      ]
+    },
+    {
+      "id": "RSK-GX-003",
+      "severity": "HIGH",
+      "status": "MITIGATED_V0_1_ACCEPTED_NOT_YET_VALIDATED",
+      "statement": "The owner-confirmed v0.1 reading-system completion definition has not yet been validated by the required experiments and product acceptance.",
+      "mitigation": "Treat the six v0.1 criteria as the locked product target; every later experiment must trace to them, and any criteria change requires a new owner-confirmed version.",
+      "evidenceIds": [
+        "EVD-GATE01",
+        "EVD-INT-0"
+      ]
+    },
+    {
+      "id": "RSK-GX-004",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "statement": "All August intelligence artifacts are untracked; raw run records include provider identifiers and must not be staged blindly.",
+      "mitigation": "Perform a separate provenance/privacy/asset review before any Git write action.",
+      "evidenceIds": [
+        "EVD-GIT-001",
+        "EVD-INT-1E"
+      ]
+    },
+    {
+      "id": "RSK-GX-005",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "statement": "Current deployment, Release Gate, charging, persistence, and Gate 2 governance state are not reconciled.",
+      "mitigation": "Run a separate read-only release-state audit before claiming production completion.",
+      "evidenceIds": [
+        "EVD-PHASE2C",
+        "EVD-GATE2",
+        "EVD-GIT-HISTORY"
+      ]
+    },
+    {
+      "id": "RSK-GX-006",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "statement": "Module-level PMO, manager, QA, asset manager, reviewers, and execution agents are unassigned.",
+      "mitigation": "Assign real responsibilities only after the module tree is owner-confirmed.",
+      "evidenceIds": [
+        "EVD-OWNER-001",
+        "EVD-GATE2",
+        "EVD-INT-0"
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "CFL-GX-001",
+      "severity": "CRITICAL",
+      "status": "RESOLVED_BY_OWNER_2026_08_09",
+      "statement": "The previous reconstruction used technical stages as the project hierarchy, while the owner manages Guanxiang as ten product pages plus promotable core capabilities.",
+      "resolution": "Pages 1-10 remain product modules, and the owner formally promoted the reading system to Module 11.",
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-OWNER-001"
+      ]
+    },
+    {
+      "id": "CFL-GX-002",
+      "severity": "HIGH",
+      "status": "RESOLVED_BY_OWNER_2026_08_09",
+      "statement": "Stage 1E was previously called the project mainline, but its scope is pre-divination discernment on Page 4 rather than Page 8 reading quality.",
+      "resolution": "Stage 1E remains under MOD-GX-P04 and executes first; MOD-GX-READING is the confirmed strategic mainline but stays paused until discernment completes.",
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-INT-0",
+        "EVD-INT-1E",
+        "EVD-PRODUCT-FLOW"
+      ]
+    },
+    {
+      "id": "CFL-GX-003",
+      "severity": "HIGH",
+      "status": "RESOLVED_PROVISIONALLY_BY_OWNER_2026_08_09",
+      "statement": "Gate 2 stops at READY_FOR_BLIND_REVIEW and does not authorize formal product integration, while later main-ancestor commits launch personalized readings.",
+      "resolution": "A separate governance/release audit is required; later authorization must not be invented.",
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-GATE2",
+        "EVD-GIT-HISTORY"
+      ]
+    },
+    {
+      "id": "CFL-GX-004",
+      "severity": "HIGH",
+      "status": "UNRESOLVED",
+      "statement": "README and Phase 2C describe no live/public release and Narrative UNVERIFIED, while later source history contains live personalized-reading paths.",
+      "resolution": "Current external release state remains unconfirmed.",
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-README-001",
+        "EVD-PHASE2C",
+        "EVD-GIT-HISTORY"
+      ]
+    },
+    {
+      "id": "CFL-GX-005",
+      "severity": "HIGH",
+      "status": "UNRESOLVED",
+      "statement": "The latest Stage 0-1E records are untracked and therefore cannot be treated as committed project truth.",
+      "resolution": "Keep worktree and committed truth distinct until a separate asset/provenance review.",
+      "confidence": "HIGH",
+      "evidenceIds": [
+        "EVD-GIT-001",
+        "EVD-INT-0",
+        "EVD-INT-1E"
+      ]
+    },
+    {
+      "id": "CFL-GX-006",
+      "severity": "MEDIUM",
+      "status": "UNRESOLVED",
+      "statement": "Page 9 and Page 10 names and responsibilities are inferred from hidden future sections rather than an owner-provided ten-page specification.",
+      "resolution": "Owner retained both proposed names provisionally and deferred detailed scope refinement.",
+      "confidence": "MEDIUM",
+      "evidenceIds": [
+        "EVD-PRODUCT-FLOW",
+        "EVD-PAGE8-TEST"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EVD-OWNER-001",
+      "type": "OWNER_STATEMENT",
+      "path": null,
+      "locator": "Current conversation, 2026-08-09",
+      "scope": "Product hierarchy and owner intent",
+      "confidence": "HIGH",
+      "notes": "Owner states the product was conceived as ten pages, Pages 1-7 were completed, Page 8 was paused because the reading system was inadequate, and important oversized tasks should be promoted only after confirmation. On 2026-08-09 the owner confirmed Module 11 promotion, the Stage 1E-first execution sequence, the reading-system pause, provisional Page 9/10 names, and the six reading-experience criteria as v0.1."
+    },
+    {
+      "id": "EVD-GIT-001",
+      "type": "GIT_STATE",
+      "path": ".git",
+      "locator": "git branch --show-current; git rev-parse HEAD; git status --short --branch",
+      "scope": "main at d3d019d; current worktree",
+      "confidence": "HIGH",
+      "notes": "August intelligence directories and tests are untracked."
+    },
+    {
+      "id": "EVD-GIT-HISTORY",
+      "type": "GIT_HISTORY",
+      "path": ".git",
+      "locator": "git log and ancestor checks",
+      "scope": "Historical product and release commits",
+      "confidence": "HIGH",
+      "notes": "Later personalized-reading and guarded-public-reading source commits are ancestors of current main, but deployment and authorization are not proven by commit titles."
+    },
+    {
+      "id": "EVD-PRODUCT-FLOW",
+      "type": "SOURCE_AND_TEST_EVIDENCE",
+      "path": "sites/hosted-app/app/GuanxiangApp.tsx",
+      "locator": "flowPage 1-7, ResultView, hidden future-result-sections",
+      "scope": "Current product page flow",
+      "confidence": "HIGH",
+      "notes": "Code identifies Entry, Method, Inquiry, Discernment, Final Question, Casting, Result overview, Page 8 reading, and hidden later result sections."
+    },
+    {
+      "id": "EVD-PAGE8-CODE",
+      "type": "SOURCE_EVIDENCE",
+      "path": "sites/hosted-app/app/GuanxiangApp.tsx",
+      "locator": "Page8ModelReview and future-result-sections",
+      "scope": "Page 8 implementation state",
+      "confidence": "HIGH",
+      "notes": "Five-scene model exists and deliberately stops before Page 9."
+    },
+    {
+      "id": "EVD-PAGE8-TEST",
+      "type": "TEST_DEFINITION",
+      "path": "sites/hosted-app/tests/page8-model.test.mjs; sites/hosted-app/tests/rendered-html.test.mjs",
+      "locator": "Page 8 scene model and hidden later sections assertions",
+      "scope": "Page 8 intended boundary",
+      "confidence": "HIGH",
+      "notes": "Tests assert five scenes and no Page 9/action guidance display; tests were not rerun in this reconstruction."
+    },
+    {
+      "id": "EVD-PAGE8-DISCUSSION",
+      "type": "PRODUCT_DISCUSSION",
+      "path": "docs/page8-art-direction-conversation-2026-08-04.md",
+      "locator": "entire document",
+      "scope": "Page 8 art direction and rejected solutions",
+      "confidence": "HIGH_FOR_OWNER_FEEDBACK_LOW_FOR_TRACKED_PROVENANCE",
+      "notes": "Untracked document says Pages 1-7 are complete, Page 8 has five scenes, and multiple art directions were rejected."
+    },
+    {
+      "id": "EVD-VISUAL-HANDOFF",
+      "type": "HISTORICAL_HANDOFF",
+      "path": "docs/handoffs/2026-07-19-guanxiang-visual-freeze.md",
+      "locator": "entire document",
+      "scope": "Historical visual freeze",
+      "confidence": "MEDIUM",
+      "notes": "Historical branch/deployment snapshot only."
+    },
+    {
+      "id": "EVD-SPEC-RULE",
+      "type": "AUTHORITATIVE_SPEC",
+      "path": "docs/specs/MEIHUA_RULE_SPEC_V1.md",
+      "locator": "entire document",
+      "scope": "Deterministic chart rules",
+      "confidence": "HIGH",
+      "notes": "Authoritative under AGENTS.md."
+    },
+    {
+      "id": "EVD-SPEC-P1",
+      "type": "ACCEPTANCE_RECORD",
+      "path": "docs/specs/MEIHUA_PHASE1_ACCEPTANCE.md",
+      "locator": "entire document",
+      "scope": "Deterministic engine",
+      "confidence": "HIGH",
+      "notes": "Historical acceptance; not rerun at current HEAD."
+    },
+    {
+      "id": "EVD-SPEC-P2",
+      "type": "ACCEPTANCE_AND_CONTRACT_RECORD",
+      "path": "docs/specs/MEIHUA_PHASE2_ACCEPTANCE.md; docs/specs/MEIHUA_INTERPRETATION_SPEC_V1.md; docs/specs/MEIHUA_KNOWLEDGE_CONTRACT_V1.md",
+      "locator": "entire documents",
+      "scope": "Interpretation engineering and knowledge boundaries",
+      "confidence": "HIGH",
+      "notes": "Historical offline acceptance; knowledge and live release limitations remain."
+    },
+    {
+      "id": "EVD-PHASE2C",
+      "type": "CLOSEOUT_RECORD",
+      "path": "docs/phase2c_closeout.md",
+      "locator": "entire document",
+      "scope": "Phase 2C release boundary",
+      "confidence": "HIGH",
+      "notes": "Engineering/offline complete; exact live path blocked; Narrative UNVERIFIED at that observation."
+    },
+    {
+      "id": "EVD-GATE01",
+      "type": "EXPERIMENT_ACCEPTANCE",
+      "path": "evals/meihua/personalization_gate0_v001/audit_summary.json; evals/meihua/personalization_gate1_v001/gate1_status.json",
+      "locator": "entire files",
+      "scope": "Reading homogeneity baseline and value standard",
+      "confidence": "HIGH",
+      "notes": "Gate 0 and Gate 1 passed; locked test set not created."
+    },
+    {
+      "id": "EVD-GATE2",
+      "type": "EXPERIMENT_STATUS",
+      "path": "evals/meihua/personalization_gate2_v001/stage_c3_status.json; evals/meihua/personalization_gate2_v001/stage_c3_visible_chart_arms_result.md",
+      "locator": "entire files",
+      "scope": "Reading personalization experiment",
+      "confidence": "HIGH",
+      "notes": "Ready for blind review only; Gate 2 and formal integration not passed by these artifacts."
+    },
+    {
+      "id": "EVD-INT-0",
+      "type": "DIAGNOSTIC_ACCEPTANCE",
+      "path": "evals/meihua/intelligence_diagnostic_v001/stage0_acceptance_report_v2.md; evals/meihua/intelligence_diagnostic_v001/manifest.json",
+      "locator": "entire files",
+      "scope": "Discernment and reading-system diagnosis",
+      "confidence": "HIGH_FOR_WORKTREE_LOW_FOR_COMMITTED_PROVENANCE",
+      "notes": "Validates both discernment instability and unreadable chart causality; same-reality chart-swap effect remains unmeasured."
+    },
+    {
+      "id": "EVD-INT-1",
+      "type": "NEGATIVE_EXPERIMENT",
+      "path": "evals/meihua/intelligence_optimization_stage1_v001/stage1_acceptance_report.md",
+      "locator": "entire file",
+      "scope": "Page 4 discernment",
+      "confidence": "HIGH_FOR_WORKTREE",
+      "notes": "Bottleneck-confirmation MVP did not validate user value."
+    },
+    {
+      "id": "EVD-INT-1B",
+      "type": "NEGATIVE_EXPERIMENT",
+      "path": "evals/meihua/intelligence_optimization_stage1b_v001/stage1b_acceptance_report.md",
+      "locator": "entire file",
+      "scope": "Page 4 discernment",
+      "confidence": "HIGH_FOR_WORKTREE",
+      "notes": "Same-model pre-bottleneck gate was not validated."
+    },
+    {
+      "id": "EVD-INT-1C",
+      "type": "NEGATIVE_EXPERIMENT",
+      "path": "evals/meihua/intelligence_optimization_stage1c_v001/stage1c_acceptance_report.md",
+      "locator": "entire file",
+      "scope": "Page 4 discernment",
+      "confidence": "HIGH_FOR_WORKTREE",
+      "notes": "Independent readiness veto was not validated."
+    },
+    {
+      "id": "EVD-INT-1D",
+      "type": "INVALID_EXPERIMENT",
+      "path": "evals/meihua/intelligence_optimization_stage1d_v001/stage1d_acceptance_report.md",
+      "locator": "entire file",
+      "scope": "Page 4 discernment infrastructure",
+      "confidence": "HIGH_FOR_WORKTREE",
+      "notes": "No inference occurred because the server rejected the wire schema."
+    },
+    {
+      "id": "EVD-INT-1E",
+      "type": "ACTIVE_SUPPORT_EXPERIMENT",
+      "path": "evals/meihua/intelligence_optimization_stage1e_v001/manifest.json; evals/meihua/intelligence_optimization_stage1e_v001/governance/pmo_checklist.md",
+      "locator": "entire files",
+      "scope": "Page 4 critic-first discernment canary",
+      "confidence": "HIGH_FOR_WORKTREE_LOW_FOR_COMMITTED_PROVENANCE",
+      "notes": "Three wire paths passed canary; heldout set count 0; formal capability run count 0."
+    },
+    {
+      "id": "EVD-README-001",
+      "type": "REPOSITORY_OVERVIEW",
+      "path": "README.md",
+      "locator": "entire file",
+      "scope": "Historical repository/product overview",
+      "confidence": "MEDIUM",
+      "notes": "Stale relative to later product history."
+    }
+  ],
+  "userConfirmationChecklist": [
+    {
+      "id": "UCC-GX-001",
+      "question": "是否正式确认把解卦系统从第八页下属任务升格为第十一模块，并设为当前产品主线？",
+      "status": "CONFIRMED_2026_08_09",
+      "linkedTaskId": "TSK-GX-M11-ALIGN-001"
+    },
+    {
+      "id": "UCC-GX-002",
+      "question": "是否认可本草案提出的六项解卦系统体验验收标准，或需要逐项修改？",
+      "status": "CONFIRMED_V0_1_2026_08_09",
+      "linkedTaskId": "TSK-GX-M11-ALIGN-002"
+    },
+    {
+      "id": "UCC-GX-003",
+      "question": "Stage 1E 属于第四页辨识支线；请选择继续、暂停，或待解卦主线稳定后再恢复。",
+      "status": "CONFIRMED_CONTINUE_STAGE1E_FIRST_READING_PAUSED",
+      "linkedTaskId": "TSK-GX-M11-ALIGN-003"
+    },
+    {
+      "id": "UCC-GX-004",
+      "question": "请确认或修正第九页‘回到现实·个性化解读’与第十页‘最终收束·行动与复盘’的名称和职责。",
+      "status": "CONFIRMED_PROVISIONAL_NAMES_DEFER_DETAIL",
+      "linkedTaskIds": [
+        "TSK-GX-P09-001",
+        "TSK-GX-P10-001"
+      ]
+    },
+    {
+      "id": "UCC-GX-005",
+      "question": "是否确认这份产品语义树可替换上一版技术节点树，作为 AI 任务面板 Gate 1 输入？",
+      "status": "CONFIRMED_2026_08_09",
+      "linkedTaskId": "TSK-GX-M11-ALIGN-001"
+    }
+  ],
+  "taskBoardHandoff": {
+    "dispatchAllowed": false,
+    "reason": "RESPONSIBILITY_UNASSIGNED_AND_UNTRACKED_ASSET_GOVERNANCE",
+    "strategicMainline": "PRJ-GX-001 / MOD-GX-READING (PAUSED)",
+    "activeExecutionTrack": "PRJ-GX-001 / MOD-GX-P04 / STG-GX-P04-INTELLIGENCE",
+    "currentNextTask": "TSK-GX-P04-INT-1E-001",
+    "doNotDispatch": [
+      "TSK-GX-P04-INT-1E-002",
+      "TSK-GX-P04-INT-1E-003",
+      "TSK-GX-M11-QUALITY-004",
+      "TSK-GX-M11-INTEG-001"
+    ],
+    "note": "Module 11 is the confirmed strategic product mainline but is paused. Finish Page 4 Stage 1E first. The next boardable task is protection-set generation; do not run the formal capability experiment until protection assets, responsibility, and provenance controls are ready."
+  }
+}

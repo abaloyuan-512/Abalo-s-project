@@ -1,0 +1,15 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015",
+  "verdict": "OFFLINE_CANDIDATE_PASS",
+  "manifest_sha256": "D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F",
+  "independent_acceptance": "PASS",
+  "proved": "Fixture-only external light Router adapter safely produces strict V014 pure-data outcomes with one attempt maximum, zero retry, zero Router cast/high capability and byte-preserved original question.",
+  "not_proved": "Real model semantic quality, real provider availability, product wiring, default routing, deployment or production readiness.",
+  "next_required_gate": "Explicit numeric authorization for a minimal two-case Router-only live canary; no high call and no cast.",
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "product_wiring": false,
+  "page9_art": false
+}

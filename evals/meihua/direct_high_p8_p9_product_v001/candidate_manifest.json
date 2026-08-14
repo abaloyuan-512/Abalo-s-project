@@ -1,0 +1,189 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V001",
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-OFFLINE-PRODUCT-WIRING-ACCEPTANCE-V1",
+  "status": "FROZEN_OFFLINE_CANDIDATE_AWAITING_INDEPENDENT_QA",
+  "candidate_files": [
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/acceptance_contract.json",
+      "sha256": "8C8ED57114F43043574B55240826561DC35A2C3FAF2A1ED0FCFBCAEE95DAD372"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/scope_lock.json",
+      "sha256": "707B5DDCE2E73AA3136DF45E607D7F3853966160230DA59197D2B70BF778AFD9"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/build_offline_evidence.py",
+      "sha256": "FA44CBA935430CA748FA8DB1B96C9C19D8B89E84C98778C8D8E7C2DC6F7AA586"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/offline_ledger.json",
+      "sha256": "3EB0AB980D3BFED0BCE43FDAD8B388DB58EC13D8AFE91E33F4D12C1E53F9A483"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/verification_result.json",
+      "sha256": "5DFB2B1A9865682C0ECEF3F85B0F1D82E5FEAE1288501C60BD564971C77C99E3"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/freeze_manifest.py",
+      "sha256": "F5D90EA5F1C72A52B0E94078CE1F980B2AEA6AB35E08954AA654166FA126D888"
+    },
+    {
+      "path": "src/abalo_iching/application/sites_direct_high_product_v1.py",
+      "sha256": "BD0A3D356FDEFBE259200F2C6EB619086482C90624EDD28EC699A42B15FEDEFE"
+    },
+    {
+      "path": "scripts/run_hosted_api.py",
+      "sha256": "E7F57B221D8B4B7F9D2E7990244AAC27CA2BDB5D927F8A2BD0A98AABD6BB22DF"
+    },
+    {
+      "path": "sites/hosted-app/package.json",
+      "sha256": "E0BEBBF3DF7986B998735C691F394FF295624902B4C57FD2D592ED4F9521D9F7"
+    },
+    {
+      "path": "sites/hosted-app/app/api/direct-reading/v2/route.ts",
+      "sha256": "C2579247FAA0BE668FEEA7192B7EA968BFDB23FCEA11DC322E24DD6B9D3A5FDB"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/page.tsx",
+      "sha256": "DCF3C3AC648F723B8324EC7ABB0B9F0F9FE685B82FE52E4A537360B7B036F5C9"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/page.module.css",
+      "sha256": "A5D61B1D1BE258DF7809E6B4E628C73DFD29959BA84709EF75388395ADF2F27F"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/ProductPresentation.tsx",
+      "sha256": "D8E33CFB363BF9984350A5CD269B5F7E3385E4262F714F068F127BDC1B2CA7D8"
+    },
+    {
+      "path": "sites/hosted-app/tests/direct-reading-v2-route.test.mjs",
+      "sha256": "50C4EDB2BAE4E2370D96037F452905BDF7FA2FAFD518769883E11D3F8B1BA48D"
+    },
+    {
+      "path": "sites/hosted-app/tests/direct-reading-v2-preview.test.tsx",
+      "sha256": "D728211F97B05427ED5DFB21428F1AB8FD1568B5B8BDC66D040F47F8A218E610"
+    },
+    {
+      "path": "sites/hosted-app/tests/fixtures/direct-reading-python-server.py",
+      "sha256": "77299116CCF8795411CF1B574BE94976844F6308D533D80ED5D94C6D78B45C18"
+    },
+    {
+      "path": "tests/test_sites_direct_high_product_v1.py",
+      "sha256": "7AB327836EDA461EEE29DE0E4436EF7E1286C0F8494DF61B12E15931DAEA6FB4"
+    },
+    {
+      "path": "tests/test_hosted_api.py",
+      "sha256": "BD6A6B187D653FE47228BD6082541C2E6B5A92E69EA2C6ADF709D9C1F6192464"
+    }
+  ],
+  "authority_files": [
+    {
+      "path": "src/abalo_iching/application/sites_direct_reading_v2.py",
+      "sha256": "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"
+    },
+    {
+      "path": "src/abalo_iching/application/sites_question_context_v1.py",
+      "sha256": "C669C34ABC7C072E7BA2C870591E5627BF2E3A8F84C320E811CA80517B17E5A0"
+    },
+    {
+      "path": "src/abalo_iching/meihua/calendar_provider.py",
+      "sha256": "E836719DE6C1733223432E7782F1F60AE240892B742C27B468CE127BBA08F4FE"
+    },
+    {
+      "path": "src/abalo_iching/meihua/relations.py",
+      "sha256": "FCA3B29B8794CE86FD08FA668E7C645175BF0F97AABE1EB9401ED51E5BB89684"
+    },
+    {
+      "path": "src/abalo_iching/meihua/seasonal_strength.py",
+      "sha256": "8E6FCD110D6317F279846134B95D0BC3496DDCECE5F3505E626F5D7C95B44457"
+    },
+    {
+      "path": "docs/specs/MEIHUA_RULE_SPEC_V1.md",
+      "sha256": "BB93DF4F967C009F37B35748CCB1CA088F46A594066005E75B7523ACF0BD9E4F"
+    },
+    {
+      "path": "docs/specs/MEIHUA_DATA_CONTRACT_V1.md",
+      "sha256": "FC88C295BAD075015A24DE241A492386BBBB8E263B725223CAB46A0CC94158F5"
+    },
+    {
+      "path": "docs/specs/MEIHUA_INTERPRETATION_SPEC_V1.md",
+      "sha256": "329245EAFEFBC61B3F75A9762F5C5BD389587330D13D81024382721B4036E3E5"
+    },
+    {
+      "path": "outputs/v009_canary_real_result.json",
+      "sha256": "BE35C9632A9D65BD683E9AD36A213F79CC7533E93EF04FC1E83371EB876A56C6"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v009/candidate_manifest.json",
+      "sha256": "5BE1B84C1DACA4293B6AB7635459C08549770EBECB27DB418C93ED4555D792B3"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v009/final_outcome.json",
+      "sha256": "972AECED2687810C597B855385C832928A5061CAF31C73409C19F47D88501AC4"
+    },
+    {
+      "path": "outputs/v011_stability_run_ledger.json",
+      "sha256": "10E3DA2E3C57494352BA509DB22BFA98F587A2689C45B236047D4199EEBE4834"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/candidate_manifest.json",
+      "sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/independent_acceptance_result.json",
+      "sha256": "8067FE9450758AC7829F040EB5027B1E9774FB48CAC883C5EA05A0723874DC17"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json",
+      "sha256": "DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/live_independent_acceptance_result.json",
+      "sha256": "94D96AF72330D08E624AC307710524D721CDD1182818EB6B1B3AAD1B6E2FAE61"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_sdk_authoritative_origin_v024/design_stop.json",
+      "sha256": "C400FDE1B9480677CD355EB6391E8770010B6B396ADCC76AFB627B5EA9E0F1AB"
+    },
+    {
+      "path": "sites/hosted-app/db/direct-reading-preview-jobs.ts",
+      "sha256": "F5FC102384EF1AC9489329713ABEA09736BE2D57875E4C3FACDAED666B0D17E9"
+    },
+    {
+      "path": "sites/hosted-app/db/schema.ts",
+      "sha256": "9EAD7CBD3B77EDAEE8FB6EF68F70FB618711BE556F4E01E33658687E313CB6AA"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/SafeDirectReadingMarkdown.tsx",
+      "sha256": "F66FF53295F4FD229577E9F9C6938EEA77687E5C6A0A8EAC69C4387E62861704"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/pollPolicy.ts",
+      "sha256": "5EBAF5F292088DD1699EF3367AA87245B380F6165AB6364067C66E0E0F011BD4"
+    },
+    {
+      "path": "sites/hosted-app/tests/fixtures/run-final-sites-canary.mjs",
+      "sha256": "94FAEA8BABB463C0141B08E6405E102930D2253E18CAE58A6A8184B3F344981F"
+    },
+    {
+      "path": "streamlit_app.py",
+      "sha256": "F1DB85C6164BA4488B7FCF894D76F66BECF521715A7FA3E493A453DFB8DE0FE0"
+    },
+    {
+      "path": "iching_tools.py",
+      "sha256": "E840C1AB86007F92C77D1ACABECDDF0094BF3BFC12AC8D662AA2AE3687E03AD9"
+    }
+  ],
+  "offline_ledger_sha256": "3EB0AB980D3BFED0BCE43FDAD8B388DB58EC13D8AFE91E33F4D12C1E53F9A483",
+  "verification": {
+    "focused_python": "123 passed",
+    "sites_build": "PASS",
+    "sites_tests": "49 passed",
+    "full_pytest": "1459 passed"
+  },
+  "router_calls": 0,
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

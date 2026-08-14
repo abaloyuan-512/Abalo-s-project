@@ -1,0 +1,262 @@
+{
+  "dataset_version": "GUANXIANG_DIRECT_READING_V2_RESEARCH_CASES_V001",
+  "dataset_type": "FROZEN_DETERMINISTIC_RESEARCH_ONLY",
+  "case_count": 5,
+  "question_count": 9,
+  "model_input_policy": {
+    "include_question_text": true,
+    "include_chart_and_canonical_line": true,
+    "include_provenance_client_timestamp": false,
+    "include_seasonal_strength": false,
+    "include_discernment_or_intake": false,
+    "include_legacy_advice": false
+  },
+  "cases": [
+    {
+      "case_id": "DR-01-WORK-SWITCH",
+      "questions": [
+        {
+          "question_id": "DR-01-Q1",
+          "question_text": "我要不要考虑换工作这件事？"
+        }
+      ],
+      "numbers": [5, 6, 3],
+      "numbers_semantics": "EQUIVALENT_NORMALIZED_TRIPLE_NOT_ORIGINAL_RAW_INPUT",
+      "provenance_client_timestamp": null,
+      "chart": {
+        "base_hexagram": {
+          "king_wen_number": 59,
+          "name": "风水涣",
+          "upper_trigram": "巽",
+          "lower_trigram": "坎"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 27,
+          "name": "山雷颐",
+          "upper_trigram": "艮",
+          "lower_trigram": "震"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 57,
+          "name": "巽为风",
+          "upper_trigram": "巽",
+          "lower_trigram": "巽"
+        },
+        "moving_line": {
+          "position": 3,
+          "name": "六三",
+          "canonical_line_text": "渙其躬，无悔。"
+        }
+      },
+      "versions": {
+        "rule_version": "MEIHUA_RULE_SPEC_V1",
+        "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+        "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+        "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+        "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1",
+        "canonical_source_name": "王弼《周易注》底本公开镜像（冻结主文本，待逐条人工版本核对）",
+        "canonical_source_reference": "https://gist.githubusercontent.com/sui1491/52e8214c8e5f4a189b94f5ea2b8bdb05/raw/d628f824a90d7b41b5149199e0fa0767e030b3af/%E6%98%93%E7%BB%8F%E5%85%A8%E6%96%87"
+      }
+    },
+    {
+      "case_id": "DR-02-G0-WORK",
+      "questions": [
+        {
+          "question_id": "DR-02-Q1",
+          "question_text": "我是否应该继续争取这次晋升？"
+        },
+        {
+          "question_id": "DR-02-Q2",
+          "question_text": "我是否应该接受新的岗位安排？"
+        }
+      ],
+      "numbers": [1, 8, 5],
+      "numbers_semantics": "ORIGINAL_GATE0_INPUT",
+      "provenance_client_timestamp": "2026-07-18T10:30:00+08:00",
+      "chart": {
+        "base_hexagram": {
+          "king_wen_number": 12,
+          "name": "天地否",
+          "upper_trigram": "乾",
+          "lower_trigram": "坤"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 53,
+          "name": "风山渐",
+          "upper_trigram": "巽",
+          "lower_trigram": "艮"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 35,
+          "name": "火地晋",
+          "upper_trigram": "离",
+          "lower_trigram": "坤"
+        },
+        "moving_line": {
+          "position": 5,
+          "name": "九五",
+          "canonical_line_text": "休否，大人吉。其亡其亡，繫于苞桑。"
+        }
+      },
+      "versions": {
+        "rule_version": "MEIHUA_RULE_SPEC_V1",
+        "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+        "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+        "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+        "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1",
+        "canonical_source_name": "王弼《周易注》底本公开镜像（冻结主文本，待逐条人工版本核对）",
+        "canonical_source_reference": "https://gist.githubusercontent.com/sui1491/52e8214c8e5f4a189b94f5ea2b8bdb05/raw/d628f824a90d7b41b5149199e0fa0767e030b3af/%E6%98%93%E7%BB%8F%E5%85%A8%E6%96%87"
+      }
+    },
+    {
+      "case_id": "DR-03-G0-COOPERATION",
+      "questions": [
+        {
+          "question_id": "DR-03-Q1",
+          "question_text": "这次合作，我还应该继续投入吗？"
+        },
+        {
+          "question_id": "DR-03-Q2",
+          "question_text": "对方多次延期后，我还要继续追加预算吗？"
+        }
+      ],
+      "numbers": [7, 8, 3],
+      "numbers_semantics": "ORIGINAL_GATE0_INPUT",
+      "provenance_client_timestamp": "2026-07-18T10:30:00+08:00",
+      "chart": {
+        "base_hexagram": {
+          "king_wen_number": 23,
+          "name": "山地剥",
+          "upper_trigram": "艮",
+          "lower_trigram": "坤"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 2,
+          "name": "坤为地",
+          "upper_trigram": "坤",
+          "lower_trigram": "坤"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 52,
+          "name": "艮为山",
+          "upper_trigram": "艮",
+          "lower_trigram": "艮"
+        },
+        "moving_line": {
+          "position": 3,
+          "name": "六三",
+          "canonical_line_text": "剝之无咎。"
+        }
+      },
+      "versions": {
+        "rule_version": "MEIHUA_RULE_SPEC_V1",
+        "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+        "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+        "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+        "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1",
+        "canonical_source_name": "王弼《周易注》底本公开镜像（冻结主文本，待逐条人工版本核对）",
+        "canonical_source_reference": "https://gist.githubusercontent.com/sui1491/52e8214c8e5f4a189b94f5ea2b8bdb05/raw/d628f824a90d7b41b5149199e0fa0767e030b3af/%E6%98%93%E7%BB%8F%E5%85%A8%E6%96%87"
+      }
+    },
+    {
+      "case_id": "DR-04-G0-RELATIONSHIP",
+      "questions": [
+        {
+          "question_id": "DR-04-Q1",
+          "question_text": "这段关系，我还应该主动联系吗？"
+        },
+        {
+          "question_id": "DR-04-Q2",
+          "question_text": "我们反复争执后，我还要继续维持吗？"
+        }
+      ],
+      "numbers": [4, 3, 2],
+      "numbers_semantics": "ORIGINAL_GATE0_INPUT",
+      "provenance_client_timestamp": "2026-07-18T10:30:00+08:00",
+      "chart": {
+        "base_hexagram": {
+          "king_wen_number": 55,
+          "name": "雷火丰",
+          "upper_trigram": "震",
+          "lower_trigram": "离"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 28,
+          "name": "泽风大过",
+          "upper_trigram": "兑",
+          "lower_trigram": "巽"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 34,
+          "name": "雷天大壮",
+          "upper_trigram": "震",
+          "lower_trigram": "乾"
+        },
+        "moving_line": {
+          "position": 2,
+          "name": "六二",
+          "canonical_line_text": "豐其蔀，日中見斗。往得疑疾，有孚發若，吉。"
+        }
+      },
+      "versions": {
+        "rule_version": "MEIHUA_RULE_SPEC_V1",
+        "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+        "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+        "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+        "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1",
+        "canonical_source_name": "王弼《周易注》底本公开镜像（冻结主文本，待逐条人工版本核对）",
+        "canonical_source_reference": "https://gist.githubusercontent.com/sui1491/52e8214c8e5f4a189b94f5ea2b8bdb05/raw/d628f824a90d7b41b5149199e0fa0767e030b3af/%E6%98%93%E7%BB%8F%E5%85%A8%E6%96%87"
+      }
+    },
+    {
+      "case_id": "DR-05-G0-PERSONAL",
+      "questions": [
+        {
+          "question_id": "DR-05-Q1",
+          "question_text": "我还应该继续准备这次考试吗？"
+        },
+        {
+          "question_id": "DR-05-Q2",
+          "question_text": "这个副业方向，我还应该继续投入吗？"
+        }
+      ],
+      "numbers": [6, 4, 1],
+      "numbers_semantics": "ORIGINAL_GATE0_INPUT",
+      "provenance_client_timestamp": "2026-07-18T10:30:00+08:00",
+      "chart": {
+        "base_hexagram": {
+          "king_wen_number": 3,
+          "name": "水雷屯",
+          "upper_trigram": "坎",
+          "lower_trigram": "震"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 23,
+          "name": "山地剥",
+          "upper_trigram": "艮",
+          "lower_trigram": "坤"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 8,
+          "name": "水地比",
+          "upper_trigram": "坎",
+          "lower_trigram": "坤"
+        },
+        "moving_line": {
+          "position": 1,
+          "name": "初九",
+          "canonical_line_text": "磐桓，利居貞，利建侯。"
+        }
+      },
+      "versions": {
+        "rule_version": "MEIHUA_RULE_SPEC_V1",
+        "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+        "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+        "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+        "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1",
+        "canonical_source_name": "王弼《周易注》底本公开镜像（冻结主文本，待逐条人工版本核对）",
+        "canonical_source_reference": "https://gist.githubusercontent.com/sui1491/52e8214c8e5f4a189b94f5ea2b8bdb05/raw/d628f824a90d7b41b5149199e0fa0767e030b3af/%E6%98%93%E7%BB%8F%E5%85%A8%E6%96%87"
+      }
+    }
+  ]
+}

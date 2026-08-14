@@ -1,0 +1,33 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018_LIVE",
+  "verdict": "FAIL_STOP",
+  "terminal_status": "TERMINAL_UNKNOWN",
+  "ledger_sha256": "39AF9AB4DD4D3053D8D0C65E78691A945434EA8BB7F698FD0837EFE7762625EB",
+  "independent_acceptance": "FAIL",
+  "proven": {
+    "provider_attempts": 1,
+    "router_live_calls": 1,
+    "remaining_authorized_calls": 0,
+    "automatic_retries": 0,
+    "high_calls": 0,
+    "prepare_calls": 0,
+    "cast_calls": 0,
+    "process_calls": 0
+  },
+  "not_proven": [
+    "provider request receipt",
+    "response_id",
+    "provider model or status",
+    "usage or cost",
+    "Router outcome",
+    "V017 receipt reconstruction",
+    "V018 integration binding"
+  ],
+  "root_cause_boundary": "REQUEST_OR_PARSE_BOUNDARY_FAILURE_SUBTYPE_UNKNOWN",
+  "rerun_allowed": false,
+  "offline_candidate_verdict_unchanged": "PASS",
+  "product_wiring": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

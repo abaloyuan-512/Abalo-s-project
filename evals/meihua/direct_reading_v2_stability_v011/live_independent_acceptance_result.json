@@ -1,0 +1,52 @@
+{
+  "contract_id": "DRV2-STABILITY-V011-LIVE-QUALITY-V1",
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "verdict": "PASS",
+  "accepted_at": "2026-08-13",
+  "candidate_manifest_sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A",
+  "run_ledger_path": "outputs/v011_stability_run_ledger.json",
+  "run_ledger_sha256": "10E3DA2E3C57494352BA509DB22BFA98F587A2689C45B236047D4199EEBE4834",
+  "authorized_fixed_high_attempts": 2,
+  "actual_fixed_high_attempts": 2,
+  "router_attempts": 0,
+  "automatic_retries": 0,
+  "success_count": 2,
+  "success_denominator": 2,
+  "case_results": [
+    {
+      "case_id": "V010-01",
+      "verdict": "PASS",
+      "reading_utf8_sha256": "AA3197FB7656AC203B21923DE0F7206A74D5038036886A85E89C64A31D0204DA",
+      "usage": {
+        "input_tokens": 667,
+        "output_tokens": 2971,
+        "total_tokens": 3638
+      },
+      "latency_ms": 68790
+    },
+    {
+      "case_id": "V010-02",
+      "verdict": "PASS",
+      "reading_utf8_sha256": "76A802584788C41796643BAB5763D6A2E3F646E994B9E5CD41CA0EB8ED0DCCC9",
+      "usage": {
+        "input_tokens": 681,
+        "output_tokens": 3247,
+        "total_tokens": 3928
+      },
+      "latency_ms": 75684
+    }
+  ],
+  "checks": {
+    "authorization_and_accounting": "PASS",
+    "deterministic_chart_and_classics": "PASS",
+    "release_safety": "PASS",
+    "nine_chapter_contract": "PASS",
+    "reading_sha_provenance": "PASS",
+    "page8_page9_mechanical_mapping": "PASS",
+    "content_quality": "PASS"
+  },
+  "candidate_or_reading_modified_by_qa": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

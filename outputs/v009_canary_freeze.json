@@ -1,0 +1,42 @@
+{
+  "stage_id": "DIRECT_READING_V2_OUTPUT_BUDGET_V009",
+  "freeze_version": "V1",
+  "status": "FROZEN_BEFORE_LIVE_EXECUTION",
+  "source_case": {
+    "stage_id": "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+    "freeze_sha256": "2698FFB93AFE3693F8A73E60BB68E73067AE90252DAB63C527321E12B7300EE1",
+    "case_id": "V008-CANARY-01"
+  },
+  "case": {
+    "slot": 1,
+    "case_id": "V009-CANARY-01",
+    "domain": "RELATIONSHIP_SHARED_LIFE_DECISION",
+    "input_type": "EXPLICIT_USER_BACKGROUND_DIRECT_DECISION",
+    "question_text": "我和伴侣已经为共同搬家制定了预算和分工方案，但执行会暂时增加通勤与照护压力；我们应该按现方案开始搬家，还是继续维持现状？",
+    "numbers": [27, 44, 16],
+    "input_sha256": "FE3C0C36BAA4968EBCC2A2F83990613426F6BC8387A6D0762E0C76F378F83073",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "max_output_tokens": 12000
+  },
+  "call_policy": {
+    "authorized_high_attempts": 1,
+    "router_attempts": 0,
+    "automatic_retry_limit": 0,
+    "failure_consumes_slot": true,
+    "replacement_allowed": false,
+    "deterministic_cast_limit": 1,
+    "success_stops_execution": true
+  },
+  "excluded": {
+    "prompt_change": true,
+    "validator_change": true,
+    "timeout_change": true,
+    "router": true,
+    "medium": true,
+    "concise": true,
+    "deployment": true,
+    "production": true,
+    "page_product_implementation": true
+  }
+}

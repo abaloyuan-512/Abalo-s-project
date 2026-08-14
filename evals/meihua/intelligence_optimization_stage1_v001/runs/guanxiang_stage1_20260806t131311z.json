@@ -1,0 +1,283 @@
+{
+  "run_id": "GUANXIANG_STAGE1_20260806T131311Z",
+  "scope": "STAGE_1_DISCERNMENT_EXPERIMENT_ONLY",
+  "generated_at": "2026-08-06T13:13:11.734266+00:00",
+  "model": "gpt-5.6-luna",
+  "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+  "system_instructions_sha256": "d87f56c45ce20565c584be2d4df8fa43c21dfc2b480b67939721cd3459f114a2",
+  "arm_a_policy": "READ_FROZEN_STAGE0_BASELINE_ONLY",
+  "synthetic_confirmation_policy": "State-machine evidence only; never count as real user approval or user-value evidence.",
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "ASK",
+        "final_suggested_question": "你打算通过什么具体方式，在一个月内确认合作人的投入和第一轮交付所需资源？",
+        "usage_totals": {
+          "input_tokens": 7822,
+          "output_tokens": 3201,
+          "total_tokens": 11023
+        },
+        "latency_total_ms": 32917
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "evidence quote is not grounded in its declared source"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M02",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "未来三个月，我是否应在完成一轮交付、确认退款率和维护成本仍在预算内，并核实合作方能够稳定履约后，再分阶段增加投入？",
+        "usage_totals": {
+          "input_tokens": 7861,
+          "output_tokens": 3548,
+          "total_tokens": 11409
+        },
+        "latency_total_ms": 37948
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：早期数据很好，但我不知道完整交付后还能不能安全放大投入。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "evidence quote is not grounded in its declared source"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M03",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "在未来三个月内，我需要先核实哪些最低资源、交付责任和阶段验收条件，才能判断是否适合推动这个项目重新启动？",
+        "usage_totals": {
+          "input_tokens": 7828,
+          "output_tokens": 2918,
+          "total_tokens": 10746
+        },
+        "latency_total_ms": 32022
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "evidence quote is not grounded in its declared source"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M04",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "在接下来的六周里，我可以用哪些具体回应或见面安排来判断对方是否愿意共同推进稳定关系？",
+        "usage_totals": {
+          "input_tokens": 7904,
+          "output_tokens": 3567,
+          "total_tokens": 11471
+        },
+        "latency_total_ms": 38766
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M04-pre",
+          "status": "CONFIRM",
+          "assistant_message": "我的理解是：你现在卡住的，不只是对方是否愿意建立稳定关系，而是要不要在对方持续含糊、没有具体见面安排的情况下继续单方面推进。你已经设下了一个判断标准：只有对方正面回应关系期待，并给出具体见面安排，你才会继续了解；否则就停止推进。这个理解准确吗？如果不对，请直接说“不对”，并告诉我应该怎样改。",
+          "next_question": "这个理解准确吗？",
+          "hypothesis": {
+            "statement": "你目前无法决定，是因为你在“继续推动以争取明确回应”和“在对方没有实际回应时停止单方面推进”之间摇摆；核心判断取决于，对方未来六周内是否会用具体安排和正面回应表现出建立稳定关系的意愿。",
+            "why_decision_is_stuck": "你既还没有确认对方是否愿意建立稳定关系，也没有下一次见面的时间；但你又不想在信息不完整、回应含糊的情况下无限继续投入，因此难以判断现在应继续推动还是先停下来。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+              }
+            ],
+            "uncertainty_note": "我暂时把你的主要矛盾理解为“是否继续单方面推进”，而不是单纯等待对方给出答案；如果你的卡点其实不同，请纠正我。"
+          },
+          "confirmation": {
+            "state": "AWAITING",
+            "user_quote": null,
+            "corrected_statement": null
+          },
+          "unconfirmed_assumptions": [
+            "我暂时假设你更在意如何决定是否继续投入，而不只是想预测对方最终会不会同意建立关系。"
+          ],
+          "candidates": [],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1595,
+            "output_tokens": 801,
+            "total_tokens": 2396,
+            "latency_ms": 8652
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        },
+        "synthetic_confirmation": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。",
+        "completed": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M04-confirmed",
+          "status": "COMPLETE",
+          "assistant_message": "你的补充把卡点说得更清楚了：你不是要猜对方的想法，而是在判断，面对持续含糊的回应，是否还值得你继续单方面推进。基于这个理解，给出两个可辨识的问法：",
+          "next_question": null,
+          "hypothesis": {
+            "statement": "你现在无法决定，是因为对方没有明确表达未来安排，而你需要在“不再猜测、不再单方面推进”和“继续争取一次明确回应”之间做选择。",
+            "why_decision_is_stuck": "你既不想把对方的含糊回应解读成拒绝，也不想在没有具体见面安排和稳定关系意愿的情况下持续投入。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+              }
+            ],
+            "uncertainty_note": "这里判断的是你面对含糊回应时的决策卡点，不是对对方真实想法或关系结果的判断。"
+          },
+          "confirmation": {
+            "state": "CORRECTED",
+            "user_quote": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。",
+            "corrected_statement": "真正的卡点是：不猜对方心里怎么想，只判断含糊回应是否值得继续单方面推进。"
+          },
+          "unconfirmed_assumptions": [],
+          "candidates": [
+            {
+              "question": "未来六周，我是否适合在对方仍未明确表达关系期待和见面安排时，继续推动关系确认？",
+              "focus_type": "CORE_DECISION",
+              "what_it_tests": "直接检验在信息不完整、回应含糊的情况下，是否继续推进关系确认。",
+              "why_this_question": "它直接对应你要判断的行动选择，不要求先推测对方的内心。",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。"
+                }
+              ]
+            },
+            {
+              "question": "未来六周，我是否应把对方能否给出具体见面安排和正面回应，作为我继续单方面推进关系确认的条件？",
+              "focus_type": "TRADEOFF",
+              "what_it_tests": "检验继续投入与停止单方面推进之间，哪一项条件或代价更需要被优先考虑。",
+              "why_this_question": "它把你的选择落在已经说出的判断标准上，而不是要求你解释对方为什么含糊。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                }
+              ]
+            }
+          ],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1644,
+            "output_tokens": 1036,
+            "total_tokens": 2680,
+            "latency_ms": 9350
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        }
+      },
+      "machine_gates": {
+        "pre_confirmation_status_is_CONFIRM": true,
+        "no_candidates_before_confirmation": true,
+        "hypothesis_exists_before_confirmation": true,
+        "completed_only_after_confirmation": true,
+        "confirmation_state_is_CONFIRMED": false,
+        "candidate_count_is_one_or_two": true,
+        "candidate_focuses_are_distinct": true,
+        "no_stage2_terms_in_visible_output": true
+      }
+    }
+  ],
+  "correction_branches": [
+    {
+      "script_id": "CORR-M01-01",
+      "case_id": "GXID-M01",
+      "synthetic": true,
+      "correction_answer": "这个理解不对。更准确地说，我不是害怕公开，而是不确定两位潜在用户的反馈是否足以证明值得启动。",
+      "error": {
+        "type": "KeyError",
+        "message": "'GXID-M01'"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "script_id": "CORR-M03-01",
+      "case_id": "GXID-M03",
+      "synthetic": true,
+      "correction_answer": "这个理解不对。真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。",
+      "error": {
+        "type": "KeyError",
+        "message": "'GXID-M03'"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    }
+  ],
+  "aggregate": {
+    "api_call_count": 2,
+    "input_tokens": 3239,
+    "output_tokens": 1837,
+    "total_tokens": 5076,
+    "latency_total_ms": 18002,
+    "estimated_cost_usd": null,
+    "all_machine_gates_pass": false
+  }
+}

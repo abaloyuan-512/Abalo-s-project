@@ -1,0 +1,90 @@
+{
+    "stage_id":  "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+    "candidate_revision":  "R2",
+    "status":  "CANDIDATE_FROZEN_PRE_CANARY",
+    "supersedes_rejected_candidate_sha256":  "5C2CD55B1E640FE23C16302A3965F0AD8C6B7B453E2F29C0742DB186C806500F",
+    "rejection_reason":  "R1 allowed omission of trailing qualification and changed quoted-speaker pronouns",
+    "candidate_files":  [
+                            {
+                                "path":  "src/abalo_iching/application/sites_direct_reading_v2.py",
+                                "sha256":  "1CD09713EAE6A599C00C24BF51139A36FD93842556A6DB3C1C8A9F8FE1BCF13F"
+                            },
+                            {
+                                "path":  "tests/test_v008_reality_lineage_gate.py",
+                                "sha256":  "487FB936E8001900ACDB1353CA693F140A9CE7E0F6ED28F1140562CC2825A16A"
+                            },
+                            {
+                                "path":  "scripts/build_v008_offline_evidence.py",
+                                "sha256":  "FD93F4D3DC4055326BC3EC4A315B0B97CEBED230AA2250345BC44A4C6FC139A1"
+                            },
+                            {
+                                "path":  "scripts/run_v008_canary.py",
+                                "sha256":  "CD99309A531AA253766069F5D61C8CABBFAB4DEAF14F84D294C81A4833454C22"
+                            },
+                            {
+                                "path":  "scripts/build_v008_canary_output.py",
+                                "sha256":  "0F516E8B9460400DA2D82E2EBD3D1DA2609FC9E8B6AA2914FE56FC3B3C0D2734"
+                            },
+                            {
+                                "path":  "evals/meihua/direct_reading_v2_stability_v008/scope_lock.json",
+                                "sha256":  "57E23A96F31A75A858115C34739FDCEF164D62D23E4F8B7B3CFDAF4A02ACE393"
+                            },
+                            {
+                                "path":  "evals/meihua/direct_reading_v2_stability_v008/offline_gate_evidence.json",
+                                "sha256":  "2802D157E8255517AB2BFFB494BF39BFA9FD18365250BDA49E85C8193326A273"
+                            },
+                            {
+                                "path":  "outputs/v008_canary_freeze.json",
+                                "sha256":  "0E4057AFF7519704BE03FCA9321025FBED546067EB8D789D76AB62F7C0A325B2"
+                            },
+                            {
+                                "path":  "outputs/v008_canary_call_ledger.json",
+                                "sha256":  "CFC78949EBEF7AF4F12C84838A529FD89665E036D1C47CCA235DAEF4D31C8E36"
+                            }
+                        ],
+    "protected_locks":  [
+                            {
+                                "path":  "src/abalo_iching/meihua/engine.py",
+                                "sha256":  "702B8BEDB7D1B61585EC697860290A78C37E07414B6FA3820EE1BF7A22734E84"
+                            },
+                            {
+                                "path":  "streamlit_app.py",
+                                "sha256":  "F1DB85C6164BA4488B7FCF894D76F66BECF521715A7FA3E493A453DFB8DE0FE0"
+                            },
+                            {
+                                "path":  "iching_tools.py",
+                                "sha256":  "E840C1AB86007F92C77D1ACABECDDF0094BF3BFC12AC8D662AA2AE3687E03AD9"
+                            },
+                            {
+                                "path":  "sites/hosted-app/app/page.tsx",
+                                "sha256":  "1F599CC08E028C6D461E12E67247E1E9B7D7BF29F1CF871C42E6396826CF1B3F"
+                            },
+                            {
+                                "path":  "sites/hosted-app/app/GuanxiangApp.tsx",
+                                "sha256":  "DAB8D4D2F6782F55F771DD0C1DC4E58505DDE422B7ABC55C1D2D0022E52AA5E6"
+                            }
+                        ],
+    "offline_tests":  {
+                          "focused":  "140 passed",
+                          "full":  "1209 passed",
+                          "release_cases":  10,
+                          "block_cases":  21,
+                          "false_positive":  0,
+                          "false_negative":  0,
+                          "mutation":  0
+                      },
+    "live":  {
+                 "authorized":  1,
+                 "actual":  0,
+                 "remaining":  1,
+                 "retry":  0,
+                 "provider_instantiated":  false,
+                 "activation_condition_met":  false
+             },
+    "external":  {
+                     "deployment":  false,
+                     "production":  false,
+                     "default_replacement":  false
+                 }
+}
+

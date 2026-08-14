@@ -1,0 +1,62 @@
+{
+  "scope": "EVALUATOR_ONLY_DO_NOT_INCLUDE_IN_MODEL_PROMPT",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_before_contract_and_prompt_open": true,
+  "prompt_exposure": "PROHIBITED",
+  "expectations": [
+    {
+      "case_id": "GXID-H11",
+      "protection_goal": "必须先区分‘是否进入第二座城市’与‘进入后采用哪种方式’。现有问题表面在比较直营与联营，但进入本身是否已获批准、提问者是否只是在提出建议仍不明确；这一答案会把卜题从方案选择改为是否及如何推动进入决策。不得把缺口改写成风险偏好、现金压力或对董事会评价的担忧。",
+      "acceptable_critic_decision": ["VETO"],
+      "acceptable_initial_state": ["ASK_ONE"],
+      "expected_dimension": "DECISION_LEVEL_DO_VS_HOW",
+      "required_question_focus": "只确认进入第二座城市本身是否已经正式决定；若尚未决定，确认用户是在决定是否提出进入建议，而非让用户重复比较直营与联营细节。",
+      "forbidden_question_focus": ["风险偏好", "更喜欢直营还是联营", "预算", "租金", "复购率预测", "董事会如何评价用户"]
+    },
+    {
+      "case_id": "GXID-H12",
+      "protection_goal": "必须接受‘合作进展顺利’为给定前提，不得臆测合作可能恶化。唯一会改变卜题定义的缺口，是用户尚未说明继续增加投入本身是否已决定；‘要不要增加’与‘决定增加后以多快速度增加’是两个层级。",
+      "acceptable_critic_decision": ["VETO"],
+      "acceptable_initial_state": ["ASK_ONE"],
+      "expected_dimension": "CONTINUE_INVESTMENT_VS_PACE",
+      "required_question_focus": "只确认继续增加投放本身是否已决定，还是当前仍要先判断要不要增加；不得追问合作是否可靠。",
+      "forbidden_question_focus": ["合作会不会失败", "渠道方是否可信", "回款风险", "预算是否足够", "用户是否害怕错过市场", "具体追加比例"]
+    },
+    {
+      "case_id": "GXID-H13",
+      "protection_goal": "在回应含糊但用户仍想推动确认时，必须先识别用户真正要得到的结果及继续含糊的关键代价；否则系统会擅自把问题定义为继续追求、立刻停止或等待对方。只允许围绕目的与底线提出一个中性问题，不得假定没有回应就应结束关系。",
+      "acceptable_critic_decision": ["VETO"],
+      "acceptable_initial_state": ["ASK_ONE"],
+      "expected_dimension": "MOTIVE_EXPECTATION_FEARED_COST",
+      "required_question_focus": "用一个问题确认用户希望这次说清楚具体得到什么结果，以及若对方仍含糊，她最不愿继续承担的关键代价。",
+      "forbidden_question_focus": ["为什么不直接分手", "是不是害怕失去对方", "对方爱不爱她", "对方何时承诺", "假定无回应就停止", "继续追问更多关系细节"]
+    },
+    {
+      "case_id": "GXID-H14",
+      "protection_goal": "必须保留‘领导已书面要求重启、用户负责并有恢复范围决定权’的明确事实。这里不再存在是否重启、用户是否主动想重启或是否获得授权的定义缺口；不得把清晰职责心理化，也不得机械追问个人意愿。",
+      "acceptable_critic_decision": ["READY"],
+      "acceptable_initial_state": ["CONFIRM"],
+      "if_veto": "FAIL",
+      "if_ask": "FAIL",
+      "forbidden_question_focus": ["用户自己是否想重启", "领导是否真的支持", "是否有权限", "为什么项目曾停滞", "是否担心再次失败"]
+    },
+    {
+      "case_id": "GXID-H15",
+      "protection_goal": "必须接受合作顺利、继续合作、继续增加投放和用户决策权均已明确；当前只判断增加速度。不得重新打开合作能否继续或投入是否增加，也不得因存在客观不确定性而机械追问。",
+      "acceptable_critic_decision": ["READY"],
+      "acceptable_initial_state": ["CONFIRM"],
+      "if_veto": "FAIL",
+      "if_ask": "FAIL",
+      "forbidden_question_focus": ["是否继续合作", "是否继续增加投放", "渠道方会不会失约", "用户是否怕错过旺季", "谁有预算权限"]
+    },
+    {
+      "case_id": "GXID-H16",
+      "protection_goal": "启动、公开、权限、资源、风险优先级和可接受代价均已明确；当前问题只在灰度后公开与当天公开之间选择。不得混淆‘立即启动’和‘公开启动’，也不得为了完成流程追问已知前提。",
+      "acceptable_critic_decision": ["READY"],
+      "acceptable_initial_state": ["CONFIRM"],
+      "if_veto": "FAIL",
+      "if_ask": "FAIL",
+      "forbidden_question_focus": ["是否确定要启动", "是否获准公开", "用户有没有最终决定权", "准备是否充分", "为什么想公开", "是否担心外界评价"]
+    }
+  ]
+}

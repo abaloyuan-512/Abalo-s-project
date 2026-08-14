@@ -1,0 +1,11 @@
+src/abalo_iching/application/sites_direct_reading_v2.py
+tests/test_sites_direct_reading_v2.py
+evals/meihua/direct_reading_v2_implementation_v002/README.md
+evals/meihua/direct_reading_v2_implementation_v002/acceptance_report.md
+evals/meihua/direct_reading_v2_implementation_v002/reverse_test_matrix.md
+evals/meihua/direct_reading_v2_implementation_v002/pmo_checklist.md
+evals/meihua/direct_reading_v2_implementation_v002/post_final_remediation_files.txt
+evals/meihua/direct_reading_v2_implementation_v002/governance/execution_log.md
+evals/meihua/direct_reading_v2_implementation_v002/governance/decision_log.md
+evals/meihua/direct_reading_v2_implementation_v002/governance/risk_log.md
+evals/meihua/direct_reading_v2_implementation_v002/governance/deviation_log.md

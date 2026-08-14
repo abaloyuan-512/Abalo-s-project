@@ -147,6 +147,16 @@ class Phase3BRequestHandler(BaseHTTPRequestHandler):
         contract_version, service = route
         content_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
         if content_type != "application/json":
+            # On Windows, closing a keep-alive request while its small body is
+            # unread can reset the connection before the 415 response reaches
+            # the client. Drain only a bounded declared body; never trust an
+            # oversized or malformed length.
+            try:
+                rejected_length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                rejected_length = -1
+            if 0 < rejected_length <= MAX_BODY_BYTES:
+                self.rfile.read(rejected_length)
             response = _adapter_error(contract_version)
             self._send_json(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, response)
             self._safe_log(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, response, started)

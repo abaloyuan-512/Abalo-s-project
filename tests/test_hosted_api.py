@@ -2,13 +2,16 @@ import http.client
 import json
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
+from pathlib import Path
 
 import pytest
 
 from scripts import run_hosted_api as hosted_api
 
 ENGINE_KEY = "test-only-engine-key-that-is-long-enough"
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def valid_request() -> dict[str, object]:
@@ -88,6 +91,15 @@ def valid_guided_intake_request() -> dict[str, object]:
     }
 
 
+def valid_direct_reading_request() -> dict[str, object]:
+    return {
+        "contract_version": "SITES_DIRECT_READING_V2_NONPROD_V2",
+        "request_id": "drv2-5555555555555555",
+        "question_text": "我要不要考虑换工作这件事？",
+        "numbers": [5, 6, 3],
+    }
+
+
 @contextmanager
 def running_server():
     server = hosted_api.create_server("127.0.0.1", 0, ENGINE_KEY)
@@ -117,6 +129,16 @@ def request(port: int, method: str, path: str, *, key: str = "", payload: object
 def test_engine_key_is_mandatory_and_not_accepted_when_short() -> None:
     with pytest.raises(ValueError, match="32"):
         hosted_api.create_server("127.0.0.1", 0, "short")
+
+
+def test_direct_private_server_sinks_require_explicit_synthetic_confirmation() -> None:
+    with pytest.raises(ValueError, match="confirmed synthetic"):
+        hosted_api.create_server(
+            "127.0.0.1",
+            0,
+            ENGINE_KEY,
+            direct_reading_internal_audit_sink=lambda _value: None,
+        )
 
 
 def test_health_check_discloses_versions_but_no_secret_or_repository_path(monkeypatch) -> None:
@@ -338,3 +360,201 @@ def test_owner_preview_job_rejects_excess_concurrency_without_generation(monkeyp
     assert third == 429
     assert third_payload["status"] == "PREVIEW_BUSY"
     assert calls == 2
+
+
+def test_direct_reading_job_is_disabled_by_default(monkeypatch) -> None:
+    monkeypatch.delenv("ABALO_DIRECT_READING_V2_ENABLED", raising=False)
+    monkeypatch.setattr(
+        hosted_api,
+        "prepare_direct_reading_v2_request",
+        lambda *_a, **_k: pytest.fail("direct reading processor called"),
+    )
+    with running_server() as port:
+        status, _headers, payload = request(
+            port,
+            "POST",
+            "/api/preview/v2/direct-reading/jobs",
+            key=ENGINE_KEY,
+            payload=valid_direct_reading_request(),
+        )
+    assert status == 503
+    assert payload == {"status": "direct_reading_disabled"}
+
+
+def test_direct_reading_job_twenty_duplicates_call_processor_once(monkeypatch) -> None:
+    monkeypatch.setenv("ABALO_DIRECT_READING_V2_ENABLED", "true")
+    calls = 0
+    prepare_calls = 0
+    release = threading.Event()
+    real_prepare = hosted_api.prepare_direct_reading_v2_request
+
+    def prepare(*args, **kwargs):
+        nonlocal prepare_calls
+        prepare_calls += 1
+        return real_prepare(*args, **kwargs)
+
+    def processor(prepared, **kwargs):
+        nonlocal calls
+        calls += 1
+        kwargs["progress_callback"]("MODEL_STREAMING")
+        release.wait(timeout=3)
+        frozen = json.loads(
+            (ROOT / "outputs/v011_stability_run_ledger.json").read_text(encoding="utf-8")
+        )["cases"][0]["released_direct_reading"]
+        return {
+            "contract_version": "SITES_DIRECT_READING_V2_NONPROD_V2",
+            "status": "SUCCESS",
+            "direct_reading": frozen,
+            "audit": {"request_id": prepared.request_id, "model": "internal-only"},
+            "error_code": None,
+            "error_message": None,
+            "retryable": False,
+            "failure_stage": None,
+        }
+
+    monkeypatch.setattr(hosted_api, "prepare_direct_reading_v2_request", prepare)
+    monkeypatch.setattr(hosted_api, "process_prepared_direct_reading_v2_request", processor)
+    payload = {
+        **valid_direct_reading_request(),
+        "question_text": "我现在必须二选一：把主要资源集中到一个新产品并承担更大波动，还是继续平均分散在多个成熟方向？",
+        "numbers": [38, 71, 24],
+    }
+    with running_server() as port:
+        with ThreadPoolExecutor(max_workers=20) as pool:
+            futures = [
+                pool.submit(
+                    request,
+                    port,
+                    "POST",
+                    "/api/preview/v2/direct-reading/jobs",
+                    key=ENGINE_KEY,
+                    payload=payload,
+                )
+                for _ in range(20)
+            ]
+            time.sleep(0.1)
+            release.set()
+            responses = [future.result(timeout=5) for future in futures]
+        assert all(status in {200, 202} for status, _headers, _body in responses)
+        assert calls == 1
+        assert prepare_calls == 1
+        pending_bodies = [body for status, _headers, body in responses if status == 202]
+        assert pending_bodies
+        assert all("preview_meta" not in body for body in pending_bodies)
+        assert any(body["chart_facts"]["base_hexagram"]["name"] for body in pending_bodies)
+        conflict = request(
+            port,
+            "POST",
+            "/api/preview/v2/direct-reading/jobs",
+            key=ENGINE_KEY,
+            payload={**payload, "question_text": "这是另一个完全不同的问题。"},
+        )
+        assert conflict[0] == 409
+        terminal = request(
+            port,
+            "GET",
+            f"/api/preview/v2/direct-reading/jobs/{payload['request_id']}",
+            key=ENGINE_KEY,
+        )
+    assert terminal[0] == 200
+    assert terminal[2]["status"] == "SUCCESS"
+    serialized = json.dumps(terminal[2], ensure_ascii=False)
+    assert "internal-only" not in serialized
+    assert "usage" not in serialized
+
+
+def test_direct_reading_stage_is_top_level_monotonic_and_unknown_stages_are_ignored(monkeypatch) -> None:
+    monkeypatch.setenv("ABALO_DIRECT_READING_V2_ENABLED", "true")
+    release = threading.Event()
+
+    def processor(prepared, **kwargs):
+        callback = kwargs["progress_callback"]
+        callback("MODEL_STREAMING")
+        callback("MODEL_REQUESTED")
+        callback("UNTRUSTED_STAGE")
+        release.wait(timeout=3)
+        callback("VALIDATING")
+        return {
+            "contract_version": hosted_api.DIRECT_READING_CONTRACT_VERSION,
+            "status": "SUCCESS",
+            "direct_reading": {
+                "text": "## 判断\n完整正文",
+                "content_format": "MARKDOWN",
+                "chart_facts": prepared.chart_facts.model_dump(mode="json"),
+            },
+            "audit": {"request_id": prepared.request_id},
+            "error_code": None,
+            "error_message": None,
+            "retryable": False,
+            "failure_stage": None,
+        }
+
+    monkeypatch.setattr(hosted_api, "process_prepared_direct_reading_v2_request", processor)
+    payload = {**valid_direct_reading_request(), "request_id": "drv2-7777777777777777"}
+    with running_server() as port:
+        submitted = request(port, "POST", hosted_api.DIRECT_READING_JOB_PATH, key=ENGINE_KEY, payload=payload)
+        assert submitted[0] == 202
+        running = request(
+            port,
+            "GET",
+            f"{hosted_api.DIRECT_READING_JOB_PREFIX}{payload['request_id']}",
+            key=ENGINE_KEY,
+        )
+        assert running[0] == 202
+        assert running[2]["stage"] == "MODEL_STREAMING"
+        assert "preview_meta" not in running[2]
+        assert running[2]["chart_facts"]["base_hexagram"]["name"]
+        release.set()
+
+
+def test_direct_reading_unhandled_error_log_does_not_include_exception_message(monkeypatch, caplog) -> None:
+    monkeypatch.setenv("ABALO_DIRECT_READING_V2_ENABLED", "true")
+    secret = "用户原问秘密不得进入日志"
+
+    def processor(*_args, **_kwargs):
+        raise RuntimeError(secret)
+
+    monkeypatch.setattr(hosted_api, "process_prepared_direct_reading_v2_request", processor)
+    payload = {**valid_direct_reading_request(), "request_id": "drv2-8888888888888888"}
+    with running_server() as port:
+        assert request(port, "POST", hosted_api.DIRECT_READING_JOB_PATH, key=ENGINE_KEY, payload=payload)[0] == 202
+        deadline = time.monotonic() + 3
+        terminal = None
+        while time.monotonic() < deadline:
+            terminal = request(
+                port,
+                "GET",
+                f"{hosted_api.DIRECT_READING_JOB_PREFIX}{payload['request_id']}",
+                key=ENGINE_KEY,
+            )
+            if terminal[0] == 200:
+                break
+            time.sleep(0.01)
+    assert terminal is not None and terminal[2]["status"] == "UNAVAILABLE"
+    assert secret not in caplog.text
+    assert "error_code=UNHANDLED" in caplog.text
+
+
+def test_direct_reading_prepare_error_log_does_not_include_exception_message(monkeypatch, caplog) -> None:
+    monkeypatch.setenv("ABALO_DIRECT_READING_V2_ENABLED", "true")
+    secret = "同步排盘异常携带用户原问"
+
+    def prepare(*_args, **_kwargs):
+        raise RuntimeError(secret)
+
+    monkeypatch.setattr(hosted_api, "prepare_direct_reading_v2_request", prepare)
+    payload = {**valid_direct_reading_request(), "request_id": "drv2-bbbbbbbbbbbbbbbb"}
+    with running_server() as port:
+        response = request(
+            port,
+            "POST",
+            hosted_api.DIRECT_READING_JOB_PATH,
+            key=ENGINE_KEY,
+            payload=payload,
+        )
+    assert response[0] == 500
+    assert response[2]["status"] == "UNAVAILABLE"
+    assert response[2]["failure_stage"] == "ENGINE"
+    assert secret not in caplog.text
+    assert "direct_reading_submit" in caplog.text
+    assert "error_code=UNHANDLED" in caplog.text

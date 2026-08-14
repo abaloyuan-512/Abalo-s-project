@@ -1,0 +1,173 @@
+{
+  "run_id": "GUANXIANG_STAGE1_20260806T130422Z",
+  "scope": "STAGE_1_DISCERNMENT_EXPERIMENT_ONLY",
+  "generated_at": "2026-08-06T13:04:22.471953+00:00",
+  "model": "gpt-5.6-luna",
+  "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+  "system_instructions_sha256": "fec8809cdb3888d01c76ba58ae9371cada5053cf8c87b71d234725ab73676df2",
+  "arm_a_policy": "READ_FROZEN_STAGE0_BASELINE_ONLY",
+  "synthetic_confirmation_policy": "State-machine evidence only; never count as real user approval or user-value evidence.",
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "ASK",
+        "final_suggested_question": "你打算通过什么具体方式，在一个月内确认合作人的投入和第一轮交付所需资源？",
+        "usage_totals": {
+          "input_tokens": 7822,
+          "output_tokens": 3201,
+          "total_tokens": 11023
+        },
+        "latency_total_ms": 32917
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "stage1 model request failed",
+        "cause_type": "APIConnectionError",
+        "cause_message": "Connection error."
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M02",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "未来三个月，我是否应在完成一轮交付、确认退款率和维护成本仍在预算内，并核实合作方能够稳定履约后，再分阶段增加投入？",
+        "usage_totals": {
+          "input_tokens": 7861,
+          "output_tokens": 3548,
+          "total_tokens": 11409
+        },
+        "latency_total_ms": 37948
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：早期数据很好，但我不知道完整交付后还能不能安全放大投入。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "stage1 model request failed",
+        "cause_type": "APIConnectionError",
+        "cause_message": "Connection error."
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M03",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "在未来三个月内，我需要先核实哪些最低资源、交付责任和阶段验收条件，才能判断是否适合推动这个项目重新启动？",
+        "usage_totals": {
+          "input_tokens": 7828,
+          "output_tokens": 2918,
+          "total_tokens": 10746
+        },
+        "latency_total_ms": 32022
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "stage1 model request failed",
+        "cause_type": "APIConnectionError",
+        "cause_message": "Connection error."
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M04",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "在接下来的六周里，我可以用哪些具体回应或见面安排来判断对方是否愿意共同推进稳定关系？",
+        "usage_totals": {
+          "input_tokens": 7904,
+          "output_tokens": 3567,
+          "total_tokens": 11471
+        },
+        "latency_total_ms": 38766
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": null,
+        "synthetic_confirmation": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "stage1 model request failed",
+        "cause_type": "APIConnectionError",
+        "cause_message": "Connection error."
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    }
+  ],
+  "correction_branches": [
+    {
+      "script_id": "CORR-M01-01",
+      "case_id": "GXID-M01",
+      "synthetic": true,
+      "correction_answer": "这个理解不对。更准确地说，我不是害怕公开，而是不确定两位潜在用户的反馈是否足以证明值得启动。",
+      "error": {
+        "type": "KeyError",
+        "message": "'GXID-M01'"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "script_id": "CORR-M03-01",
+      "case_id": "GXID-M03",
+      "synthetic": true,
+      "correction_answer": "这个理解不对。真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。",
+      "error": {
+        "type": "KeyError",
+        "message": "'GXID-M03'"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    }
+  ],
+  "aggregate": {
+    "api_call_count": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "latency_total_ms": 0,
+    "estimated_cost_usd": null,
+    "all_machine_gates_pass": false
+  }
+}

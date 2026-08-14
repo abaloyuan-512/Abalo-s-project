@@ -1,0 +1,68 @@
+.shell {
+  min-height: 100vh;
+  padding: 48px 20px 80px;
+  color: #292219;
+  background: #f1e9d9;
+}
+
+.panel, .chart, .reading, :global(.productPage) {
+  width: min(860px, 100%);
+  margin: 0 auto;
+  padding: 32px;
+  border: 1px solid rgb(86 65 40 / 18%);
+  border-radius: 18px;
+  background: rgb(255 252 245 / 82%);
+  box-shadow: 0 20px 50px rgb(69 47 24 / 9%);
+}
+
+.reading { margin-top: 24px; line-height: 1.9; }
+.chart { margin-top: 24px; }
+.chartGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.chartGrid div { display: grid; gap: 7px; padding: 16px; border-radius: 12px; background: #f4ead9; }
+.chartGrid span { color: #9a4e35; font-size: 12px; }
+.chartGrid strong { font-size: 18px; }
+.chartGrid small { color: #705b46; line-height: 1.55; }
+.reading h2 { margin: 1.8em 0 .55em; color: #7d3324; }
+.reading h3 { margin: 1.5em 0 .5em; }
+.reading blockquote { margin: 1.2em 0; padding: 10px 18px; border-left: 3px solid #b66b46; background: #f4ead9; }
+.reading li { margin: .45em 0; }
+.eyebrow, :global(.eyebrow) { color: #9a4e35; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.lead { max-width: 680px; line-height: 1.75; color: #625548; }
+.form { display: grid; gap: 22px; margin-top: 28px; }
+.form label, .form fieldset { display: grid; gap: 9px; border: 0; padding: 0; font-weight: 650; }
+.form textarea, .form input { border: 1px solid #bcaa93; border-radius: 10px; background: #fffdf8; color: inherit; font: inherit; }
+.form textarea { min-height: 110px; padding: 14px; resize: vertical; }
+.numbers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.numbers input { min-width: 0; padding: 12px; }
+.form button { justify-self: start; padding: 12px 24px; border: 0; border-radius: 999px; background: #8e3f2c; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+.form button:disabled { cursor: wait; opacity: .6; }
+.status { margin-top: 22px; color: #705b46; }
+.requestId { color: #877665; font-size: 12px; overflow-wrap: anywhere; }
+.restore { padding: 0; border: 0; background: none; color: #8e3f2c; text-decoration: underline; cursor: pointer; }
+.error { color: #a12e24; }
+.entryModes { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+.entryModes label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: 7px; font-weight: 500; }
+.entryModes input { width: 16px; height: 16px; }
+:global(.productPage) { margin-top: 24px; }
+:global(.productPage > h2) { margin: 6px 0 8px; color: #5d2f24; }
+:global(.productBoundary) { max-width: 720px; margin: 0 0 24px; color: #705b46; line-height: 1.75; }
+:global(.productScenes), :global(.page9Sections) { display: grid; gap: 16px; }
+:global(.productScene), :global(.page9Sections article) { padding: 20px; border: 1px solid rgb(86 65 40 / 14%); border-radius: 14px; background: #fffdf8; line-height: 1.85; }
+:global(.productScene header) { display: grid; gap: 5px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgb(86 65 40 / 12%); }
+:global(.productScene header span) { color: #9a4e35; font-size: 12px; letter-spacing: .08em; }
+:global(.productScene header strong) { font-size: 19px; }
+:global(.productScene header small) { color: #705b46; }
+:global(.productScene h2), :global(.page9Sections h2) { margin: 0 0 .55em; color: #7d3324; font-size: 20px; }
+:global(.programOnly) { background: #f4ead9; }
+:global(.strengthGrid) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+:global(.strengthGrid div) { padding: 12px; border-radius: 10px; background: rgb(255 253 248 / 72%); }
+:global(.strengthGrid dt) { color: #8e3f2c; font-size: 12px; }
+:global(.strengthGrid dd) { margin: 5px 0 0; font-weight: 650; }
+:global(.lineage) { width: min(860px, 100%); margin: 12px auto 0; color: #877665; font-size: 11px; overflow-wrap: anywhere; }
+
+@media (max-width: 620px) {
+  .shell { padding: 24px 12px 56px; }
+  .panel, .chart, .reading, :global(.productPage) { padding: 22px 18px; border-radius: 14px; }
+  .chartGrid { grid-template-columns: 1fr 1fr; }
+  :global(.strengthGrid) { grid-template-columns: 1fr; }
+}

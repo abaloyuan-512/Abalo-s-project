@@ -1,0 +1,747 @@
+{
+  "run_id": "GUANXIANG_STAGE1_20260806T131643Z",
+  "scope": "STAGE_1_DISCERNMENT_EXPERIMENT_ONLY",
+  "generated_at": "2026-08-06T13:16:43.482593+00:00",
+  "model": "gpt-5.6-luna",
+  "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+  "system_instructions_sha256": "82952330ae3078a360f456cb13f649906a07a5788e78a00ef0c8a51096ca4fc0",
+  "arm_a_policy": "READ_FROZEN_STAGE0_BASELINE_ONLY",
+  "synthetic_confirmation_policy": "State-machine evidence only; never count as real user approval or user-value evidence.",
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "ASK",
+        "final_suggested_question": "你打算通过什么具体方式，在一个月内确认合作人的投入和第一轮交付所需资源？",
+        "usage_totals": {
+          "input_tokens": 7822,
+          "output_tokens": 3201,
+          "total_tokens": 11023
+        },
+        "latency_total_ms": 32917
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M01-pre",
+          "status": "CONFIRM",
+          "assistant_message": "我的理解是：你现在无法决定，不是因为项目完全没有验证，而是因为公开启动会让你承担明确承诺；但合作人的投入和第一轮交付所需资源还没确定，所以你只能把“一个月内确认这些条件”当作是否启动的门槛。这个理解准确吗？如果不对，请直接说“这个理解不对”，并告诉我真正卡住你的地方。",
+          "next_question": "这个理解准确吗？如果不准确，你认为真正让你无法决定的是什么？",
+          "hypothesis": {
+            "statement": "你现在无法决定，是因为项目已有初步方案和小范围正面反馈，但公开启动意味着对外作出承诺；合作人的投入和第一轮交付资源尚未确定，使你无法判断自己是否能兑现承诺，因此把一个月内确认这些条件作为启动与否的门槛。",
+            "why_decision_is_stuck": "你在“尽快公开启动、获得进一步验证”和“避免在资源与合作人未稳时作出无法兑现的承诺”之间拉扯；现有反馈支持尝试，但还不足以消除交付能力的不确定性。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 0,
+                "quote": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+              }
+            ],
+            "uncertainty_note": "我还不确定你最在意的是兑现承诺的风险、错过尽快启动的机会，还是对合作人和资源本身缺乏掌控；请你确认或纠正。"
+          },
+          "confirmation": {
+            "state": "AWAITING",
+            "user_quote": null,
+            "corrected_statement": null
+          },
+          "unconfirmed_assumptions": [
+            "你把公开启动理解为需要对外作出较明确的交付承诺。",
+            "合作人的投入和第一轮交付资源，是当前最主要的启动门槛。"
+          ],
+          "candidates": [],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1648,
+            "output_tokens": 705,
+            "total_tokens": 2353,
+            "latency_ms": 7381
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        },
+        "synthetic_confirmation": "基本准确。真正卡住的是：正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。",
+        "completed": null
+      },
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "evidence quote is not grounded in its declared source"
+      },
+      "rejected_model_output": {
+        "status": "COMPLETE",
+        "assistant_message": "你的确认让我把卡点看得更清楚了：你不是看不到项目机会，而是在权衡“现在抓住机会”与“资源不足、无法兑现公开承诺”的风险。下面是两个可直接检验的方向。",
+        "next_question": null,
+        "hypothesis": {
+          "statement": "你现在无法决定，是因为正面反馈让你看到立即公开启动的机会，但合作人投入和第一轮交付资源尚未确定，你担心公开后承担的承诺超出现有资源的承受能力。",
+          "why_decision_is_stuck": "机会信号已经出现，但能否兑现公开启动后的承诺仍不确定；你因此无法判断应当先公开启动，还是继续准备。",
+          "evidence_refs": [
+            {
+              "source": "QUESTION_TEXT",
+              "turn_index": null,
+              "quote": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 0,
+              "quote": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 4,
+              "quote": "真正卡住的是：正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。"
+            }
+          ],
+          "uncertainty_note": "这是基于你目前回答形成的判断；尚未进一步区分你更担心错过机会，还是更担心承诺无法兑现。"
+        },
+        "confirmation": {
+          "state": "CONFIRMED",
+          "user_quote": "基本准确。真正卡住的是：正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。",
+          "corrected_statement": null
+        },
+        "unconfirmed_assumptions": [],
+        "candidates": [
+          {
+            "question": "未来三个月，我是否适合立即公开启动这个尚未准备充分的新项目？",
+            "focus_type": "CORE_DECISION",
+            "what_it_tests": "直接检验是否应在未来三个月立即公开启动。",
+            "why_this_question": "它对应你的原始选择，聚焦于现在启动还是继续准备。",
+            "evidence_refs": [
+              {
+                "source": "QUESTION_TEXT",
+                "turn_index": null,
+                "quote": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+              }
+            ]
+          },
+          {
+            "question": "在正面反馈带来机会、但现有资源能否承担公开承诺尚未确定的情况下，我是否适合现在公开启动？",
+            "focus_type": "BLOCKING_TENSION",
+            "what_it_tests": "检验机会信号与兑现承诺能力之间的关键拉扯。",
+            "why_this_question": "它直接触及让你卡住的矛盾：不想错过机会，也不想在资源不足时作出无法兑现的承诺。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "正面反馈说明有机会，但我还不知道现有资源能不能承担公开之后的承诺。"
+              }
+            ]
+          }
+        ]
+      },
+      "rejected_generation_metrics": {
+        "model": "gpt-5.6-luna",
+        "input_tokens": 1707,
+        "output_tokens": 975,
+        "total_tokens": 2682,
+        "latency_ms": 7951
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "case_id": "GXID-M02",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "未来三个月，我是否应在完成一轮交付、确认退款率和维护成本仍在预算内，并核实合作方能够稳定履约后，再分阶段增加投入？",
+        "usage_totals": {
+          "input_tokens": 7861,
+          "output_tokens": 3548,
+          "total_tokens": 11409
+        },
+        "latency_total_ms": 37948
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M02-pre",
+          "status": "CONFIRM",
+          "assistant_message": "我的理解是：你现在无法决定，不是因为没有看到增长信号，而是因为“获客和成交优于预期”与“完整交付后的风险还没验证”同时存在。你愿意增加投入，但前提是先确认一轮交付后的退款率和维护成本仍在预算内；在此之前，你不确定是否该快速加码。这个理解准确吗？如果不对，也可以直接说哪里不对并纠正我。",
+          "next_question": "这个理解准确吗？",
+          "hypothesis": {
+            "statement": "你现在无法决定是否在未来三个月快速增加投入，是因为早期数据向好，但完整交付后的退款率、维护成本和高负荷履约稳定性尚未验证；你倾向于把“完成一轮交付后退款率和维护成本仍在预算内”作为分阶段加大投入的前提。",
+            "why_decision_is_stuck": "增长结果支持继续投入，但尚未完成的交付验证使你无法判断这些结果能否稳定承受更大投入。",
+            "evidence_refs": [
+              {
+                "source": "QUESTION_TEXT",
+                "turn_index": null,
+                "quote": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+              }
+            ],
+            "uncertainty_note": "尚未确认高负荷履约稳定性是否是与你同等重要的决策前提，或主要只是对完整交付风险的补充担忧。"
+          },
+          "confirmation": {
+            "state": "AWAITING",
+            "user_quote": null,
+            "corrected_statement": null
+          },
+          "unconfirmed_assumptions": [
+            "高负荷履约稳定性是否是独立的关键前提，仍未得到确认。"
+          ],
+          "candidates": [],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1679,
+            "output_tokens": 613,
+            "total_tokens": 2292,
+            "latency_ms": 5622
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        },
+        "synthetic_confirmation": "基本准确。真正卡住的是：早期数据很好，但我不知道完整交付后还能不能安全放大投入。",
+        "completed": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M02-confirmed",
+          "status": "COMPLETE",
+          "assistant_message": "收到，你把卡点进一步说清了：不是数据好不好，而是完整交付后的表现是否足以支持安全放大投入。以下是基于你确认后的两个候选问题。",
+          "next_question": null,
+          "hypothesis": {
+            "statement": "你现在无法决定，是因为早期获客和成交数据很好，但完整交付后的退款率、维护成本和高负荷履约表现还没有被验证，所以你无法判断未来三个月是否能安全地快速增加投入。",
+            "why_decision_is_stuck": "“继续快速增加投入”依赖于早期数据可以延续并承受放大；而你目前最关键的安全依据，要等完整交付后才能看到。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "基本准确。真正卡住的是：早期数据很好，但我不知道完整交付后还能不能安全放大投入。"
+              }
+            ],
+            "uncertainty_note": "这是基于你目前描述的决策瓶颈；完整交付后的实际结果尚未出现。"
+          },
+          "confirmation": {
+            "state": "CORRECTED",
+            "user_quote": "基本准确。真正卡住的是：早期数据很好，但我不知道完整交付后还能不能安全放大投入。",
+            "corrected_statement": "真正的卡点是：早期数据很好，但完整交付后是否还能安全放大投入尚未确定。"
+          },
+          "unconfirmed_assumptions": [],
+          "candidates": [
+            {
+              "question": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+              "focus_type": "CORE_DECISION",
+              "what_it_tests": "直接检验在当前信息下，是否支持继续快速增加投入这一核心选择。",
+              "why_this_question": "它对应你的原始问题，并把判断重点放在“能否安全放大投入”上。",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "早期数据很好，但我不知道完整交付后还能不能安全放大投入。"
+                }
+              ]
+            },
+            {
+              "question": "早期数据很好但完整交付后的表现尚未验证时，我是否应选择分阶段增加投入，而不是快速放大？",
+              "focus_type": "BLOCKING_TENSION",
+              "what_it_tests": "检验“抓住早期增长”与“等完整交付验证风险”之间的关键拉扯。",
+              "why_this_question": "它直接针对让你卡住的矛盾：增长信号已经出现，但安全放大的依据还不完整。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "目前获客和成交都比原计划好。"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "早期数据很好，但我不知道完整交付后还能不能安全放大投入。"
+                }
+              ]
+            }
+          ],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1721,
+            "output_tokens": 1158,
+            "total_tokens": 2879,
+            "latency_ms": 9686
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        }
+      },
+      "machine_gates": {
+        "pre_confirmation_status_is_CONFIRM": true,
+        "no_candidates_before_confirmation": true,
+        "hypothesis_exists_before_confirmation": true,
+        "completed_only_after_confirmation": true,
+        "confirmation_state_is_resolved": true,
+        "candidate_count_is_one_or_two": true,
+        "candidate_focuses_are_distinct": true,
+        "no_stage2_terms_in_visible_output": true
+      }
+    },
+    {
+      "case_id": "GXID-M03",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "在未来三个月内，我需要先核实哪些最低资源、交付责任和阶段验收条件，才能判断是否适合推动这个项目重新启动？",
+        "usage_totals": {
+          "input_tokens": 7828,
+          "output_tokens": 2918,
+          "total_tokens": 10746
+        },
+        "latency_total_ms": 32022
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M03-pre",
+          "status": "CONFIRM",
+          "assistant_message": "我的理解是：你现在无法决定，不是因为不愿意重启，而是因为管理层的投入和责任安排还没有落定。你愿意先做小范围尝试，但前提是至少明确项目负责人、最低资源和阶段验收；在这些条件尚未确认前，你不知道现在推动重启是否合适。这个理解准确吗？如果不对，也请直接说“不对”，并告诉我应如何修正。",
+          "next_question": "这个理解准确吗？",
+          "hypothesis": {
+            "statement": "你现在无法决定，不是因为不愿意重启，而是因为管理层的投入和责任安排还没有落定；你愿意先做小范围尝试，但前提是明确项目负责人、最低资源和阶段验收。",
+            "why_decision_is_stuck": "如果没有这些基本承诺，你担心重启仍会停滞，或责任最终落到你身上；但如果条件能够明确，你又愿意推动一个小范围里程碑，因此卡在“先推动，还是等承诺明确”之间。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+              }
+            ],
+            "uncertainty_note": "“担心重启仍会停滞，或责任最终落到你身上”是根据资源、责任尚未明确作出的推测，尚未得到你直接确认。"
+          },
+          "confirmation": {
+            "state": "AWAITING",
+            "user_quote": null,
+            "corrected_statement": null
+          },
+          "unconfirmed_assumptions": [
+            "你是否确实担心在承诺不明确时，重启后的停滞或交付责任会由你承担。"
+          ],
+          "candidates": [],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1651,
+            "output_tokens": 605,
+            "total_tokens": 2256,
+            "latency_ms": 5756
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        },
+        "synthetic_confirmation": "基本准确。真正卡住的是：管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。",
+        "completed": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M03-confirmed",
+          "status": "COMPLETE",
+          "assistant_message": "你的补充说明把卡点说得更清楚了：你不是单纯在判断项目条件是否成熟，而是在判断自己是否要在责任和资源尚未承诺时，继续承担推动重启的人。下面是基于这个卡点整理的候选问题。",
+          "next_question": null,
+          "hypothesis": {
+            "statement": "你现在无法决定，是因为管理层已经表现出兴趣，但负责人、资源和阶段安排都还没有明确承诺；因此你在犹豫，是否要先承担推动项目重启的责任，再等待条件逐步落实。",
+            "why_decision_is_stuck": "项目重新启动的可能性出现了，但支持条件仍不确定。你既不想错过窗口，也不想在责任和资源没有着落时，独自承担推动失败的风险。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+              }
+            ],
+            "uncertainty_note": "目前已确认你的主要卡点是是否在承诺不足时继续承担推动角色；但尚未判断你对风险、主动权和项目机会的相对取舍。"
+          },
+          "confirmation": {
+            "state": "CORRECTED",
+            "user_quote": "基本准确。真正卡住的是：管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。",
+            "corrected_statement": "真正的卡点是：在责任和资源尚未承诺时，你是否还要继续承担推动项目重启的人。"
+          },
+          "unconfirmed_assumptions": [],
+          "candidates": [
+            {
+              "question": "未来三个月，在责任和资源尚未明确承诺前，我是否适合继续推动这个项目重启？",
+              "focus_type": "CORE_DECISION",
+              "what_it_tests": "直接检验在当前承诺不足的情况下，是否继续推动项目重启。",
+              "why_this_question": "它对应你最核心的选择：继续主动推动，还是等责任和资源明确后再行动。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "我不知道该不该在责任和资源没有承诺前继续做推动的人。"
+                }
+              ]
+            },
+            {
+              "question": "未来三个月，我是否愿意承担责任和资源不确定的风险，换取这个长期停滞项目重新启动的可能？",
+              "focus_type": "TRADEOFF",
+              "what_it_tests": "检验继续推动所带来的机会，与责任不清、资源不足的个人风险之间如何取舍。",
+              "why_this_question": "你卡住的不只是条件是否齐备，也是在权衡重启机会与自己可能承担的代价。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 0,
+                  "quote": "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "管理层有兴趣，但我不知道该不该在责任和资源没有承诺前继续做推动的人。"
+                }
+              ]
+            }
+          ],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1698,
+            "output_tokens": 1112,
+            "total_tokens": 2810,
+            "latency_ms": 12586
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        }
+      },
+      "machine_gates": {
+        "pre_confirmation_status_is_CONFIRM": true,
+        "no_candidates_before_confirmation": true,
+        "hypothesis_exists_before_confirmation": true,
+        "completed_only_after_confirmation": true,
+        "confirmation_state_is_resolved": true,
+        "candidate_count_is_one_or_two": true,
+        "candidate_focuses_are_distinct": true,
+        "no_stage2_terms_in_visible_output": true
+      }
+    },
+    {
+      "case_id": "GXID-M04",
+      "synthetic": true,
+      "arm_a_frozen": {
+        "source_dataset": "GUANXIANG_CURRENT_GUIDED_INTAKE_SNAPSHOTS_V1",
+        "terminal_status": "COMPLETE",
+        "final_suggested_question": "在接下来的六周里，我可以用哪些具体回应或见面安排来判断对方是否愿意共同推进稳定关系？",
+        "usage_totals": {
+          "input_tokens": 7904,
+          "output_tokens": 3567,
+          "total_tokens": 11471
+        },
+        "latency_total_ms": 38766
+      },
+      "arm_b": {
+        "same_original_question": true,
+        "same_four_frozen_answers": true,
+        "pre_confirmation": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M04-pre",
+          "status": "CONFIRM",
+          "assistant_message": "我的理解是：你现在无法决定，不只是因为对方回复含糊，而是你在“继续争取一次明确回应”和“停止单方面推进、保护自己的投入”之间拉扯。你还没有确认对方是否愿意建立稳定关系，也没有下一次见面的安排；因此，你想把“是否给出具体见面安排并正面回应关系期待”作为继续推进的条件。这个理解准确吗？如果不对，请直接说哪里不对，并按你的实际情况纠正我。",
+          "next_question": "这个理解准确吗？如果不对，请直接纠正我：你现在真正卡住的原因是什么？",
+          "hypothesis": {
+            "statement": "你现在无法决定，是因为你在继续争取一次明确回应与停止单方面推进、保护自己的投入之间拉扯；而对方是否愿意建立稳定关系、是否愿意安排下一次见面都还没有明确。",
+            "why_decision_is_stuck": "你需要判断未来六周是否继续推进，但目前缺少能让你安心继续的具体回应；同时你已经设下了一个边界：只有对方给出具体见面安排并正面回应关系期待，你才会继续了解，否则停止单方面推进。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+              }
+            ],
+            "uncertainty_note": "我暂时把你的主要卡点理解为“是否继续单方面投入”的拉扯；如果你更在意的是别的事情，请直接纠正。"
+          },
+          "confirmation": {
+            "state": "AWAITING",
+            "user_quote": null,
+            "corrected_statement": null
+          },
+          "unconfirmed_assumptions": [
+            "我暂时假设你设定的“具体见面安排并正面回应关系期待”是判断是否继续推进的主要标准。",
+            "我暂时假设你最担心的是继续单方面投入，而不是担心错过关系机会或其他后果。"
+          ],
+          "candidates": [],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1675,
+            "output_tokens": 658,
+            "total_tokens": 2333,
+            "latency_ms": 6051
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        },
+        "synthetic_confirmation": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。",
+        "completed": {
+          "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+          "session_id": "GXID-M04-confirmed",
+          "status": "COMPLETE",
+          "assistant_message": "根据你的确认，你现在卡住的不是要猜对方的内心，而是要判断：在对方没有明确回应、也没有具体安排的情况下，继续单方面推进是否仍值得。",
+          "next_question": null,
+          "hypothesis": {
+            "statement": "你现在无法决定，是因为对方的含糊回应没有提供足够的明确依据，而你又不想用猜测替代对方的真实表态；因此你卡在“继续投入并推动关系确认”与“把含糊本身视为停止单方面推进的信号”之间。",
+            "why_decision_is_stuck": "你需要在信息不完整时作出行动判断，但不愿替对方解释或猜测，只能依据对方是否给出具体安排和正面回应来决定是否继续。",
+            "evidence_refs": [
+              {
+                "source": "QUESTION_TEXT",
+                "turn_index": null,
+                "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。"
+              }
+            ],
+            "uncertainty_note": "这只是对你当前决策卡点的归纳，不判断对方真实想法，也不把对方的含糊回应解释成确定的意图。"
+          },
+          "confirmation": {
+            "state": "CONFIRMED",
+            "user_quote": "基本准确。真正卡住的是：我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。",
+            "corrected_statement": null
+          },
+          "unconfirmed_assumptions": [],
+          "candidates": [
+            {
+              "question": "未来六周，在对方仍未明确表达关系期待、也未给出具体见面安排的情况下，我是否适合继续推动关系确认？",
+              "focus_type": "CORE_DECISION",
+              "what_it_tests": "直接检验未来六周是否继续单方面推动关系确认这一核心选择。",
+              "why_this_question": "它对应你的原始问题，并把判断依据落在对方是否给出明确回应和具体安排上，而不是猜测对方内心。",
+              "evidence_refs": [
+                {
+                  "source": "QUESTION_TEXT",
+                  "turn_index": null,
+                  "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 3,
+                  "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                }
+              ]
+            },
+            {
+              "question": "未来六周，对方的含糊回应是否已经足以让我停止单方面推进，而不必再等待或猜测？",
+              "focus_type": "BLOCKING_TENSION",
+              "what_it_tests": "检验“含糊本身能否作为停止推进的依据”这一关键阻碍。",
+              "why_this_question": "它直接触及你不想猜测、却又需要在信息不足时作决定的拉扯。",
+              "evidence_refs": [
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 1,
+                  "quote": "对方只说最近很忙，之后没有给出具体安排。"
+                },
+                {
+                  "source": "TURN_ANSWER",
+                  "turn_index": 4,
+                  "quote": "我不想猜对方心里怎么想，只想判断含糊回应是否值得我继续单方面推进。"
+                }
+              ]
+            }
+          ],
+          "generation_metrics": {
+            "model": "gpt-5.6-luna",
+            "input_tokens": 1742,
+            "output_tokens": 1113,
+            "total_tokens": 2855,
+            "latency_ms": 9344
+          },
+          "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+        }
+      },
+      "machine_gates": {
+        "pre_confirmation_status_is_CONFIRM": true,
+        "no_candidates_before_confirmation": true,
+        "hypothesis_exists_before_confirmation": true,
+        "completed_only_after_confirmation": true,
+        "confirmation_state_is_resolved": true,
+        "candidate_count_is_one_or_two": true,
+        "candidate_focuses_are_distinct": true,
+        "no_stage2_terms_in_visible_output": true
+      }
+    }
+  ],
+  "correction_branches": [
+    {
+      "script_id": "CORR-M01-01",
+      "case_id": "GXID-M01",
+      "synthetic": true,
+      "correction_answer": "这个理解不对。更准确地说，我不是害怕公开，而是不确定两位潜在用户的反馈是否足以证明值得启动。",
+      "error": {
+        "type": "Stage1ExperimentError",
+        "message": "stage1 model request failed",
+        "cause_type": "ValidationError",
+        "cause_message": "1 validation error for Stage1ModelOutput\n  Value error, COMPLETE cannot retain unconfirmed assumptions [type=value_error, input_value={'status': 'COMPLETE', 'a...明值得启动。'}]}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+      },
+      "machine_gates": {
+        "experiment_call_succeeded": false
+      }
+    },
+    {
+      "script_id": "CORR-M03-01",
+      "case_id": "GXID-M03",
+      "synthetic": true,
+      "correction_answer": "这个理解不对。真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。",
+      "response": {
+        "contract_version": "GUANXIANG_DISCERNMENT_EXPERIMENT_V1",
+        "session_id": "GXID-M03-corr-m03-01",
+        "status": "COMPLETE",
+        "assistant_message": "你刚刚纠正后，我的理解是：现在真正让你无法决定的，不是资源多少，而是责任人尚未明确时，你是否还要继续承担推动重启的责任。以下候选问题分别从核心选择和关键阻碍切入。",
+        "next_question": null,
+        "hypothesis": {
+          "statement": "你现在无法决定，是因为项目责任人尚未明确，而你不确定自己是否应该继续承担推动重启的责任。",
+          "why_decision_is_stuck": "如果继续推动，可能意味着由你承担主要推动责任；但如果不推动，项目又可能继续停滞。这个责任归属上的拉扯，使你难以判断未来三个月是否适合重启。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 4,
+              "quote": "真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。"
+            }
+          ],
+          "uncertainty_note": "目前只确认了责任归属是主要卡点，尚不清楚你对继续承担推动责任最在意的是风险、边界，还是项目本身的价值。"
+        },
+        "confirmation": {
+          "state": "CORRECTED",
+          "user_quote": "这个理解不对。真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。",
+          "corrected_statement": "真正卡住的不是资源多少，而是我是否应该在没有明确责任人的情况下继续承担推动责任。"
+        },
+        "unconfirmed_assumptions": [],
+        "candidates": [
+          {
+            "question": "未来三个月，我是否适合在责任人尚未明确的情况下继续推动这个长期停滞的内部项目？",
+            "focus_type": "CORE_DECISION",
+            "what_it_tests": "直接检验在责任人未明确时，是否仍应推动项目重启。",
+            "why_this_question": "它正面对应你要判断的未来三个月是否适合重启项目这一核心选择。",
+            "evidence_refs": [
+              {
+                "source": "QUESTION_TEXT",
+                "turn_index": null,
+                "quote": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？"
+              }
+            ]
+          },
+          {
+            "question": "我是否应把“责任人未明确”视为暂不重启这个项目的关键阻碍？",
+            "focus_type": "BLOCKING_TENSION",
+            "what_it_tests": "检验责任归属不清是否足以阻止你继续推动。",
+            "why_this_question": "它直指你所说的责任承担拉扯，而不再把资源多少当作主要判断依据。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "我是否应该在没有明确责任人的情况下继续承担推动责任。"
+              }
+            ]
+          }
+        ],
+        "generation_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 1699,
+          "output_tokens": 1013,
+          "total_tokens": 2712,
+          "latency_ms": 8731
+        },
+        "boundary_note": "本结果仅用于阶段1辨识实验；不解卦、不排盘、不替用户决定，合成确认也不代表真实用户认可。"
+      },
+      "machine_gates": {
+        "status_is_COMPLETE": true,
+        "confirmation_state_is_CORRECTED": true,
+        "corrected_hypothesis_exists": true,
+        "candidate_count_is_one_or_two": true,
+        "no_stage2_terms_in_visible_output": true
+      }
+    }
+  ],
+  "aggregate": {
+    "api_call_count": 8,
+    "input_tokens": 13513,
+    "output_tokens": 6977,
+    "total_tokens": 20490,
+    "latency_total_ms": 65157,
+    "estimated_cost_usd": null,
+    "all_machine_gates_pass": false
+  }
+}

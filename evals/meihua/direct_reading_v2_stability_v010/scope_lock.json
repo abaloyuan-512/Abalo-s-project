@@ -1,0 +1,24 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V010",
+  "status": "OFFLINE_SCOPE_FROZEN",
+  "objective": "Freeze the minimum two-case stability execution candidate anchored to V009 without making a live call.",
+  "only_authorized_work": [
+    "inherit and verify the V009 fixed-high candidate and V007/V008/V009 authority evidence",
+    "freeze two anti-bias cases before casting",
+    "implement one-cast one-fixed-high zero-retry sequential accounting with first-failure stop",
+    "mechanically prove nine-section Page 8/Page 9 mapping and unchanged source SHA",
+    "run mock-only tests and one independent frozen-contract acceptance"
+  ],
+  "forbidden": [
+    "live model call before explicit numeric user authorization",
+    "Router, medium, concise, retry, repair, replacement case, V005 or cross-service ledger",
+    "prompt, validator, deterministic engine, docs/specs, calendar adapter or legacy entry changes",
+    "Page 9 art, formal product wiring, Sites ingress, deployment, production or default switch"
+  ],
+  "historical_lock": {
+    "v007_s1": "S1_FAIL_STOP_2_OF_3",
+    "v008": "V008_CANARY_FAIL_STOP_INCOMPLETE",
+    "v009": "SUCCESS_1_CAST_1_PROVIDER_0_RETRY_SHA_40376C23B51D91A36049242A3DCE24C2FD97C14AC57EBB17B0AD56AC3FF0CAAD"
+  },
+  "acceptance_contract": "DRV2-STABILITY-OFFLINE-ACCEPTANCE-V1"
+}

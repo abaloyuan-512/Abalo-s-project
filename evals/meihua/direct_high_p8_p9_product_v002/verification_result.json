@@ -1,0 +1,26 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V002_EVIDENCE",
+  "status": "READY_FOR_MANIFEST_REVIEW",
+  "offline_ledger_sha256": "73627BD3F7976CA1F9734484D08760A8D14EE83C258CC3FE58815BCEC4B0A305",
+  "checks": [
+    {"name": "v002_specialty", "result": "4 passed"},
+    {"name": "v002_plus_direct_reading_inherited_focused", "result": "148 passed + 1 isolated environmental rerun passed"},
+    {"name": "sites_vinext_build", "result": "passed"},
+    {"name": "sites_node_and_component_tests_inherited_unchanged_v001", "result": "49 passed"},
+    {"name": "full_pytest_external_basetemp", "result": "1459 passed"},
+    {"name": "git_diff_check", "result": "passed"}
+  ],
+  "known_environmental_rerun": {
+    "test": "test_owner_preview_route_is_authenticated_and_disabled_by_default",
+    "first_result": "WINDOWS_SOCKET_10053",
+    "combined_run": "148 passed + 1 Windows socket 10053 environmental interruption",
+    "isolated_rerun": "1 passed"
+  },
+  "v001_candidate_hashes": {"matched": 18, "denominator": 18, "mismatched": 0},
+  "v001_candidate_modified": false,
+  "live_calls": 0,
+  "router_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

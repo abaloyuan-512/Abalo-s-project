@@ -1,0 +1,20 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V001",
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-OFFLINE-PRODUCT-WIRING-ACCEPTANCE-V1",
+  "scope": "OFFLINE_P8_P9_PRODUCT_WIRING_AND_DIRECT_HIGH_ONLY",
+  "entry_modes": ["CLEAR", "CONFIRMED", "SKIP"],
+  "router_engineering": "STOP_NO_V025",
+  "live_calls_authorized": false,
+  "deployment_authorized": false,
+  "production_authorized": false,
+  "default_replacement_authorized": false,
+  "p9_art_authorized": false,
+  "p8_responsibility": ["BASE", "MUTUAL", "MOVING_LINE", "CHANGED", "PROGRAM_BODY_USE_STRENGTH"],
+  "p9_responsibility": ["JUDGMENT", "SUITABLE_ACTIONS", "UNSUITABLE_ACTIONS", "REVERSE_RISK", "CHANGE_SIGNALS"],
+  "program_strength_source": "PROGRAM_ONLY_BODY_USE_AND_SEASONAL_STRENGTH",
+  "quality_anchors": {
+    "v009_reading_utf8_sha256": "40376C23B51D91A36049242A3DCE24C2FD97C14AC57EBB17B0AD56AC3FF0CAAD",
+    "v009_authority": "outputs/v009_canary_real_result.json",
+    "v011_authority": "outputs/v011_stability_run_ledger.json"
+  }
+}

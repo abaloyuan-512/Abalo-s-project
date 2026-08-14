@@ -1,0 +1,67 @@
+{
+  "stage_id": "DIRECT_READING_V2_HIGH_STABILITY_S1_V007",
+  "freeze_version": "V2",
+  "freeze_sha256": "4AD16E382AFD00B0A38740669644EC8895A2876FA834DFC74022B336BA09BD8C",
+  "verdict_before_independent_acceptance": "S1_FAIL_STOP",
+  "reason": "技术/释放成功为2/3，未达到冻结合同要求的3/3。",
+  "call_ledger": {
+    "authorized_high_attempts": 3,
+    "actual_high_attempts": 3,
+    "remaining_high_attempts": 0,
+    "router_attempts": 0,
+    "automatic_retries": 0,
+    "replacement_cases": 0
+  },
+  "cases": [
+    {
+      "case_id": "S1-01",
+      "domain": "WORK_CAREER",
+      "status": "SUCCESS",
+      "latency_ms": 57003,
+      "direct_answer": true,
+      "core_items_complete": true,
+      "boilerplate_or_forced": false,
+      "content_note": "明确偏向接受新机会，但把学习支持、权责相称与资源承接设为条件。",
+      "page8_page9_path": "outputs/v007_s1_01_page8_page9.md"
+    },
+    {
+      "case_id": "S1-02",
+      "domain": "RELATIONSHIP_COMMUNICATION",
+      "status": "BLOCKED_OUTPUT",
+      "latency_ms": 47163,
+      "validation_errors": ["UNSUPPORTED_REALITY_FACT"],
+      "direct_answer": null,
+      "core_items_complete": null,
+      "boilerplate_or_forced": null,
+      "content_note": "安全策略未保存被拒正文，无法客观判定模型是否越界；该案保留为失败。"
+    },
+    {
+      "case_id": "S1-03",
+      "domain": "PROJECT_COOPERATION",
+      "status": "SUCCESS",
+      "latency_ms": 55499,
+      "direct_answer": true,
+      "core_items_complete": true,
+      "boilerplate_or_forced": false,
+      "content_note": "支持有条件的深度合作和主力集中，但明确反对无保障的全面独家绑定。",
+      "page8_page9_path": "outputs/v007_s1_03_page8_page9.md"
+    }
+  ],
+  "aggregate": {
+    "hard_safety_released_outputs": "2/2 PASS; blocked output was not released",
+    "technical_and_release_success": "2/3",
+    "end_to_end_content_success": "2/3",
+    "successful_output_latency_ms": [57003, 55499],
+    "blocked_output_latency_ms": [47163]
+  },
+  "defect": {
+    "id": "D-V007-S1-001",
+    "title": "用户明确提供的现实背景可能被UNSUPPORTED_REALITY_FACT硬门误拦",
+    "status": "OPEN_SOLVABLE_NOT_REMEDIATED_IN_S1",
+    "evidence": "离线正例显示，对用户明确背景的忠实归因复述仍触发现有硬门；同时伪造现实负例也被正确拦截，因此不能删除该检测器。",
+    "next_step": "设计问题谱系感知的窄化允许规则，保持虚构现实硬阻断；离线正反语料通过后再申请任何新调用。"
+  },
+  "production": false,
+  "deployed": false,
+  "next_live_calls_authorized": 0
+}

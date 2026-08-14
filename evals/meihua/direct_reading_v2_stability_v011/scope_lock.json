@@ -1,0 +1,22 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "status": "OFFLINE_SCOPE_FROZEN_BEFORE_IMPLEMENTATION",
+  "objective": "Repair only the missing per-case NOT_EXECUTED ledger rows after the first frozen-case failure.",
+  "acceptance_contract": "DRV2-STABILITY-LEDGER-COMPLETENESS-V011-DIFF-V1",
+  "allowed": [
+    "new V011 runner that reuses the frozen V010 cases and executor read-only",
+    "NOT_EXECUTED_DUE_TO_PRIOR_FAILURE rows for every remaining frozen case",
+    "minimal V011 ledger, tests, manifest and governance evidence"
+  ],
+  "forbidden": [
+    "modifying any V010 candidate, manifest, outcome or independent acceptance result",
+    "changing cases, numbers, order, model, prompt, validator, engine, calendar, Page 8 or Page 9 mapping",
+    "Router, retry, repair, replacement, live call, provider instantiation during offline work",
+    "Sites, product wiring, Page 9 art, deployment, production or default switch"
+  ],
+  "historical_lock": {
+    "v010_verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v010_manifest_sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E",
+    "v010_failed_contract_item": 3
+  }
+}

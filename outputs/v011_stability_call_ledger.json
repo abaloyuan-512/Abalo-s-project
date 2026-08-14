@@ -1,0 +1,17 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "status": "OFFLINE_NOT_LIVE_AUTHORIZED",
+  "proposed_fixed_high_attempts": 2,
+  "authorized_fixed_high_attempts": 0,
+  "actual_fixed_high_attempts": 0,
+  "router_attempts": 0,
+  "automatic_retries": 0,
+  "provider_instantiated": false,
+  "failure_consumes_slot": true,
+  "stop_on_first_failure": true,
+  "replacement_cases_allowed": false,
+  "cases": [],
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

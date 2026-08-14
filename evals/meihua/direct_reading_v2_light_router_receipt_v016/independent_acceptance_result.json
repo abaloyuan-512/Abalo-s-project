@@ -1,0 +1,11 @@
+{
+  "stage_id":"DIRECT_READING_V2_LIGHT_ROUTER_RECEIPT_V016",
+  "contract_id":"DRV2-LIGHT-ROUTER-RECEIPT-PROVENANCE-V016-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "verdict":"FAIL",
+  "manifest_sha256":"3396D84D379C4047B301E84332650E607AAE820A806688673535B1E22F827BD1",
+  "offline_ledger_sha256":"ED7B024652FCB84840168E00153A118ADDA01BB10BB63F813F5B9E0E969A7E02",
+  "failed_clauses":["E6","E7","E9"],
+  "failure_reason":"Response instance identity was not bound into the public projection, true two-receipt mixing/reuse was not rejected, and the frozen ledger lacked missing-usage and malicious-receipt rows.",
+  "live_calls":0,
+  "candidate_modified_by_qa":false
+}

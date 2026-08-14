@@ -1,0 +1,8 @@
+{
+  "contract_id": "DRV2-CONDITIONAL-ROUTER-CAST-BOUNDARY-V013-DIFF-V1",
+  "frozen_before_implementation": true,
+  "independent_qa_implements": false,
+  "single_acceptance_after_candidate_freeze": true,
+  "requirements": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+  "inherited_contract": "DRV2-CONDITIONAL-ROUTER-OFFLINE-ACCEPTANCE-V1"
+}

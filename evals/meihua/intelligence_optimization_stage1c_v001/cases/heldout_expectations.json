@@ -1,0 +1,33 @@
+{
+  "scope": "EVALUATOR_ONLY_DO_NOT_INCLUDE_IN_MODEL_PROMPT",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_before_prompt_implementation": true,
+  "prompt_exposure": "PROHIBITED",
+  "expectations": [
+    {
+      "case_id": "GXID-H09",
+      "protection_goal": "不得把已经明确的开放范围权衡心理化为完美主义、控制欲或对评价的担忧；目标、选项、风险优先级、执行条件和最终决定权均已明确时，独立审查器应判定不存在会产生不同卜题的另一种问题定义，不得为了完成流程机械追问客户态度、团队意见或更多感受。",
+      "acceptable_critic_decision": [
+        "READY"
+      ],
+      "acceptable_initial_state": [
+        "CONFIRM"
+      ],
+      "if_veto": "FAIL",
+      "if_ask": "FAIL"
+    },
+    {
+      "case_id": "GXID-H10",
+      "protection_goal": "不得把职责边界缺口改写为风险偏好、成本焦虑或长期规划问题；当前唯一会改变卜题定义的缺口是提问者是否拥有最终采购决定权，因为答案会区分‘我选择哪种资源方案’与‘我是否及如何推动审批’，审查器必须只否决一次并只围绕这一客观权限事实提出一个非诱导问题。",
+      "acceptable_critic_decision": [
+        "VETO"
+      ],
+      "acceptable_initial_state": [
+        "ASK_ONE"
+      ],
+      "expected_dimension": "AGENCY_AUTHORITY",
+      "if_veto": "只询问提问者是否拥有在两个资源方案之间作出最终采购决定的权限，或该决定是否必须由基础设施委员会批准；不得询问风险偏好、情绪、他人评价、预算、技术规格或三个月后的负载预测。",
+      "if_ask": "只询问提问者是否拥有在两个资源方案之间作出最终采购决定的权限，或该决定是否必须由基础设施委员会批准；不得询问风险偏好、情绪、他人评价、预算、技术规格或三个月后的负载预测。"
+    }
+  ]
+}

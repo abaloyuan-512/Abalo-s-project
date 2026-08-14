@@ -1,0 +1,93 @@
+{
+  "evidence_type": "V007_S1_REAL_HIGH_CASE",
+  "stage_id": "DIRECT_READING_V2_HIGH_STABILITY_S1_V007",
+  "freeze_version": "V2",
+  "freeze_sha256": "4AD16E382AFD00B0A38740669644EC8895A2876FA834DFC74022B336BA09BD8C",
+  "slot": 2,
+  "case_id": "S1-02",
+  "domain": "RELATIONSHIP_COMMUNICATION",
+  "input_type": "IMPLEMENT_NOW_OR_DELAY",
+  "input": {
+    "question_text": "我和伴侣已经就未来生活安排形成了共同方案，但执行会改变双方现有节奏；我们应该现在开始落实，还是把计划推迟到条件更宽裕时？",
+    "numbers": [
+      24,
+      39,
+      8
+    ]
+  },
+  "input_sha256": "FB2F970B483D9C36F31BF3FDB4A7CD93AF8BF4D9B7125D28EFFC308ABD56BD44",
+  "request_id": "drv2-5d17d58eb64db728ac0c98a1edc02c2a",
+  "started_at": "2026-08-13T06:17:18.352063+08:00",
+  "finished_at": "2026-08-13T06:18:05.613782+08:00",
+  "call_ledger": {
+    "authorized_slot": 2,
+    "router_attempts": 0,
+    "high_attempts": 1,
+    "provider_attempts": 1,
+    "automatic_retries": 0,
+    "deterministic_cast_count": 1
+  },
+  "status": "BLOCKED_OUTPUT",
+  "validation_errors": [
+    "UNSUPPORTED_REALITY_FACT"
+  ],
+  "chart_facts": {
+    "base_hexagram": {
+      "role": "BASE",
+      "king_wen_number": 15,
+      "name": "地山谦",
+      "upper_trigram": "坤",
+      "lower_trigram": "艮"
+    },
+    "mutual_hexagram": {
+      "role": "MUTUAL",
+      "king_wen_number": 40,
+      "name": "雷水解",
+      "upper_trigram": "震",
+      "lower_trigram": "坎"
+    },
+    "changed_hexagram": {
+      "role": "CHANGED",
+      "king_wen_number": 46,
+      "name": "地风升",
+      "upper_trigram": "坤",
+      "lower_trigram": "巽"
+    },
+    "moving_line": {
+      "position": 2,
+      "name": "六二",
+      "canonical_line_text": "鳴謙，貞吉。",
+      "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
+    },
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+  },
+  "direct_reading": null,
+  "reading_utf8_sha256": null,
+  "audit": {
+    "request_id": "drv2-5d17d58eb64db728ac0c98a1edc02c2a",
+    "request_sha256": "FB2F970B483D9C36F31BF3FDB4A7CD93AF8BF4D9B7125D28EFFC308ABD56BD44",
+    "question_sha256": "1244AEEA7B1090D5B483EFD9551D78B3F7615214B857BD1A0F4168D6EFAFFFCE",
+    "chart_sha256": "A8B5127404B6C8828D9E5B84B6463FEBB69D5742BA2FF083D912D34F6F3E27E0",
+    "prompt_sha256": "423DECD240150FA1CDD1A2D26359E98A50F1E9338E6CDC327217C38D900AFD0D",
+    "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V2_EXACT_SECTIONS_V1",
+    "model": "gpt-5.6-sol",
+    "response_id": "resp_0c01e2dfbf49c2c6016a7cf0f04f68819b97cca25a4a85ba72",
+    "usage": {
+      "input_tokens": 583,
+      "output_tokens": 2395,
+      "total_tokens": 2978
+    },
+    "latency_ms": 47163,
+    "phase_timings": {
+      "deterministic_prepare_ms": 9,
+      "provider_first_response_ms": 7363,
+      "provider_generation_ms": 39800,
+      "provider_total_ms": 47163,
+      "validation_ms": 87,
+      "service_total_ms": 47260
+    },
+    "shadow_signals": [],
+    "generated_at": "2026-08-13T06:17:18.352063+08:00"
+  }
+}

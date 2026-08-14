@@ -1,0 +1,22 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1C_HELDOUT_CRITICAL_ANSWERS_V1",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_before_prompt_implementation": true,
+  "synthetic": true,
+  "prompt_exposure": "PROHIBITED",
+  "warning": "这些回答只用于测试独立审查器最高价值单问后的流程，不代表真实用户认可，不得进入Frame Proposer或Readiness Critic的Prompt。",
+  "cases": [
+    {
+      "case_id": "GXID-H09",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    },
+    {
+      "case_id": "GXID-H10",
+      "expected_dimension": "AGENCY_AUTHORITY",
+      "target_gap": "确认提问者是否拥有在两个资源方案之间作出最终采购决定的权限。",
+      "critical_answer": "公司制度规定这类采购必须由基础设施委员会作出最终决定；我没有批准权限，只能提交方案并决定是否推动委员会本轮审议。"
+    }
+  ]
+}

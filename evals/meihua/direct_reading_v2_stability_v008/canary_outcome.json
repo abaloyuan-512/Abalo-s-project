@@ -1,0 +1,43 @@
+{
+  "stage_id": "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+  "case_id": "V008-CANARY-01",
+  "verdict": "V008_CANARY_FAIL_STOP",
+  "offline_defect_status": "OFFLINE_CLOSED_NOT_LIVE_CONFIRMED",
+  "terminal_status": "INCOMPLETE",
+  "failure_class": "MAX_OUTPUT_TOKENS_EXHAUSTED_BEFORE_COMPLETION",
+  "call_accounting": {
+    "authorized_high_attempts": 1,
+    "actual_high_attempts": 1,
+    "remaining_high_attempts": 0,
+    "router_attempts": 0,
+    "automatic_retries": 0,
+    "deterministic_cast_count": 1,
+    "replacement_allowed": false
+  },
+  "provider_evidence": {
+    "model": "gpt-5.6-sol",
+    "input_tokens": 687,
+    "output_tokens": 4000,
+    "total_tokens": 4687,
+    "latency_ms": 80591,
+    "first_response_ms": 40429,
+    "generation_ms": 40162,
+    "reading_released": false,
+    "validation_reached": false
+  },
+  "historical_integrity": {
+    "v007_s1_verdict_unchanged": "S1_FAIL_STOP",
+    "v007_s1_02_rerun": false,
+    "v008_replacement_or_retry": false
+  },
+  "external_state": {
+    "deployment": false,
+    "production": false,
+    "default_replacement": false
+  },
+  "solvability": {
+    "technical_assessment": "SOLVABLE_WITH_SEPARATE_OFFLINE_OUTPUT_BUDGET_OR_PROMPT_COMPRESSION_STAGE",
+    "current_authority_for_more_calls": 0,
+    "notes": "The response consumed the full frozen 4000 output-token budget. No model text was released, no validation occurred, and no retry is permitted under V008."
+  }
+}

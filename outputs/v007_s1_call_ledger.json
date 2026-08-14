@@ -1,0 +1,57 @@
+{
+  "stage_id": "DIRECT_READING_V2_HIGH_STABILITY_S1_V007",
+  "freeze_version": "V2",
+  "freeze_sha256": "4AD16E382AFD00B0A38740669644EC8895A2876FA834DFC74022B336BA09BD8C",
+  "authorized_high_attempts": 3,
+  "actual_high_attempts": 3,
+  "remaining_high_attempts": 0,
+  "router_attempts": 0,
+  "automatic_retries": 0,
+  "provider_instantiated": true,
+  "cases": [
+    {
+      "slot": 1,
+      "case_id": "S1-01",
+      "input_sha256": "3EF12ACD00AC1136298A809D0E4F1DD4B2B8E5731300AE31BB4985C23AD5401D",
+      "result_path": "outputs/v007_s1_01_real_result.json",
+      "status": "SUCCESS",
+      "deterministic_cast_count": 1,
+      "provider_attempts": 1,
+      "automatic_retries": 0,
+      "validation_errors": [],
+      "reading_utf8_sha256": "74291CC8C7ABEFBB0DC4D839587797C1A60BD8B852EB0DA81DBC9368D38ED025",
+      "latency_ms": 57003,
+      "consumed": true
+    },
+    {
+      "slot": 2,
+      "case_id": "S1-02",
+      "input_sha256": "FB2F970B483D9C36F31BF3FDB4A7CD93AF8BF4D9B7125D28EFFC308ABD56BD44",
+      "result_path": "outputs/v007_s1_02_real_result.json",
+      "status": "BLOCKED_OUTPUT",
+      "deterministic_cast_count": 1,
+      "provider_attempts": 1,
+      "automatic_retries": 0,
+      "validation_errors": [
+        "UNSUPPORTED_REALITY_FACT"
+      ],
+      "reading_utf8_sha256": null,
+      "latency_ms": 47163,
+      "consumed": true
+    },
+    {
+      "slot": 3,
+      "case_id": "S1-03",
+      "input_sha256": "E6EA96C5A30B8501810125F9543C9E655C37EDD82D8EE21B075183DC3CC096D5",
+      "result_path": "outputs/v007_s1_03_real_result.json",
+      "status": "SUCCESS",
+      "deterministic_cast_count": 1,
+      "provider_attempts": 1,
+      "automatic_retries": 0,
+      "validation_errors": [],
+      "reading_utf8_sha256": "BD76B24501A9BB229BC2370569867B53358E291D80E5BAEA09E9EB8429039E7A",
+      "latency_ms": 55499,
+      "consumed": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "stage_id": "DIRECT_READING_V2_PURE_DATA_ROUTER_V014",
+  "objective": "Prove an offline Router outcome orchestrator whose Router side is pure JSON data and has no executable or casting capability.",
+  "historical_locks": {
+    "v012": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v012_manifest_sha256": "D838188446B232C3946F3EAE75CFE758DB5818F2DA43FED51CF6490CF3C2378C",
+    "v013": "DESIGN_STOP_BEFORE_CANDIDATE_FREEZE"
+  },
+  "allowed": ["one isolated pure-data orchestrator", "fixture-only tests and evidence", "governance and manifest records"],
+  "forbidden": ["Router callback, provider, adapter, Protocol, callable, reflection, pickle, eval", "arbitrary high invoker or provider injection", "live calls", "engine, specs, calendar, fixed-high prompt, validator, P8/P9, safety or legacy changes", "HTTP, UI, database, queue, P9 art, deployment, production, default replacement"],
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

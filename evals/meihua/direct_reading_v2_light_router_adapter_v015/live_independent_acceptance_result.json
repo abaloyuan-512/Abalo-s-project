@@ -1,0 +1,18 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015_ROUTER_ONLY_LIVE",
+  "contract_id": "DRV2-EXTERNAL-LIGHT-ROUTER-ADAPTER-V015-ROUTER-ONLY-LIVE-ACCEPTANCE-V1",
+  "verdict": "FAIL",
+  "ledger_sha256": "FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321",
+  "semantic_outcomes": "2/2 matched frozen expectations",
+  "failed_clauses": ["L4", "L7", "L9", "L10"],
+  "failure_reason": "The frozen adapter did not expose API response_id, provider usage or a true provider receipt digest; normalized decision hashes cannot substitute for those records.",
+  "provider_attempts": 2,
+  "router_live_calls": 2,
+  "receipt_count": 0,
+  "usage_record_count": 0,
+  "conservative_budget_charge_usd": "0.022016",
+  "high_calls": 0,
+  "cast_calls": 0,
+  "automatic_retries": 0,
+  "rerun_allowed": false
+}

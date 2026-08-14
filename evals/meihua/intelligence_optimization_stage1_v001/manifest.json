@@ -1,0 +1,22 @@
+{
+  "experiment_id": "GUANXIANG_INTELLIGENCE_OPTIMIZATION_STAGE1_V1",
+  "stage": 1,
+  "authorized_on": "2026-08-06",
+  "authorization_source": "USER_EXPLICIT_APPROVAL",
+  "status": "EXPERIMENT_CONCLUDED_VALUE_NOT_VALIDATED",
+  "scope": "DISCERNMENT_MINIMUM_EXPERIMENT_ONLY",
+  "production_integration": false,
+  "next_stage_authorized": false,
+  "baseline": "../intelligence_diagnostic_v001/baselines/current_guided_intake_snapshots.json",
+  "input_cases": "../intelligence_diagnostic_v001/guided_intake_synthetic_inputs.json",
+  "user_value_rubric": "../intelligence_diagnostic_v001/review/user_value_rubric_v2.json",
+  "target_case_count": 4,
+  "governance_status": "FINAL_PMO_PASS_STAGE1_CLOSED_NEGATIVE_RESULT",
+  "final_candidate_run": "runs/guanxiang_stage1_20260806t132031z_revalidated_v1.json",
+  "final_candidate_sha256": "EA730A149A8DE0A3D1C20642003645153CF40E8133B6127D31534097F3C9B957",
+  "owner_review_packet": "review/owner_ab_review_packet.md",
+  "owner_review_pending": false,
+  "owner_review_result": "review/owner_ab_review_result.md",
+  "acceptance_report": "stage1_acceptance_report.md",
+  "value_validation_passed": false
+}

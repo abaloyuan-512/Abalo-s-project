@@ -1,0 +1,37 @@
+{
+  "stage_id": "DIRECT_READING_V2_NONPROD_IMPLEMENTATION_V001",
+  "status": "FAILED_CLOSED",
+  "model_call_count": 1,
+  "automatic_retries": 0,
+  "started_at": "2026-08-11T09:05:41.991311+08:00",
+  "finished_at": "2026-08-11T09:06:54.905709+08:00",
+  "response": {
+    "contract_version": "SITES_DIRECT_READING_V2_NONPROD_V1",
+    "status": "BLOCKED_OUTPUT",
+    "direct_reading": null,
+    "audit": {
+      "request_id": "drv2-5f6d3a2026081101",
+      "request_sha256": "79921B9393123E64E8784A02880F8AE24DFB59A05BD6E11C2895D41A33D330B8",
+      "question_sha256": "DE7AAF37256ACCE31C58B6CEA404B3D8103693ECB01A2A6BF4FF452CAD139B66",
+      "chart_sha256": "10903180A825C2F44EEE1C5F90AA12C211F6D2C96F1E790E9FFD375F8B6D7B94",
+      "prompt_sha256": "0675C4CCAC60FBFAF0F53E5D137BA4443BBCFE1B314407F1A95733F609171FBD",
+      "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V1_1",
+      "model": "gpt-5.6-sol",
+      "response_id": "resp_08c9afc399453658016a7a7567bfa481988f4b89c4aad97b28",
+      "usage": {
+        "input_tokens": 322,
+        "output_tokens": 3543,
+        "total_tokens": 3865
+      },
+      "latency_ms": 72873,
+      "generated_at": "2026-08-11T09:05:41.991311+08:00"
+    },
+    "error_code": "OUTPUT_VALIDATION_FAILED:本卦_MISMATCH",
+    "error_message": "本次解卦未通过内容核验，未作为完整结果发布。",
+    "validation_errors": [
+      "本卦_MISMATCH"
+    ],
+    "retryable": false,
+    "failure_stage": "CONTENT"
+  }
+}

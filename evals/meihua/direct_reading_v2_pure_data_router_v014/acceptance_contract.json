@@ -1,0 +1,6 @@
+{
+  "contract_id": "DRV2-PURE-DATA-ROUTER-OUTCOME-V014-OFFLINE-ACCEPTANCE-V1",
+  "frozen_before_implementation": true,
+  "single_acceptance_after_candidate_freeze": true,
+  "requirements": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10", "O11", "O12", "O13"]
+}

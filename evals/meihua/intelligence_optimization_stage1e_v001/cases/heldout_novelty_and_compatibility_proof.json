@@ -1,0 +1,102 @@
+{
+  "proof_id": "GUANXIANG_STAGE1E_HELDOUT_NOVELTY_AND_COMPATIBILITY_PROOF_V1",
+  "content_status": "FROZEN_WITH_HELDOUT",
+  "comparison_baseline": "STAGE1D_GXID_H11_TO_H16",
+  "normalization": {
+    "unicode": "NFKC",
+    "case": "LOWERCASE_INVARIANT",
+    "ignored_characters": "ALL_NON_LETTER_NON_DIGIT",
+    "hash": "SHA256_UTF8"
+  },
+  "newness_checks": {
+    "old_case_count": 6,
+    "new_case_count": 6,
+    "id_overlap_count": 0,
+    "normalized_field_hash_count": 33,
+    "normalized_field_hash_overlap_count": 0,
+    "new_internal_field_hash_duplicate_count": 0,
+    "normalized_full_case_hash_overlap_count": 0,
+    "new_internal_full_case_hash_duplicate_count": 0,
+    "old_normalized_field_set_digest": "8BD5E9F33A920791BCE72A7D80B7DE98F48CB2852CBEB07B860D2EE3718812F0",
+    "new_normalized_field_set_digest": "41815F4565E3B7C8AE3EC5372763E4C82DD32D1029364A60AC5C1532C82952F9",
+    "new_full_case_hashes": [
+      "90D271B52A92FC9C205FA9D32B64090C877CF351C90E28B187C44FCEA723C839",
+      "CC98C117DC55142E9C1A2E0CCBC4321ADF7B3D14892E9E998805F0844E293D03",
+      "F247E245490C60E4CBA2FDEB3DDF4D2D594D59A0F2E89CC5C8F6C04CF3BCD677",
+      "2084AFE78C497FAA0202029640F235974F706384BF2855A1F13438A965FD7B6C",
+      "4181F0C8133A2252A08BF7A3B0CA5F07787A8660471C5F2A3177947C447093A5",
+      "066862C2F0F4ECA375AD4491392E583577F461C4B02E81F5DC96080ED99294DF"
+    ]
+  },
+  "semantic_newness_review": {
+    "status": "PASS",
+    "method": "Manual comparison of domain, actor role, decision object, option topology, gap type and frozen-answer consequence against H11-H16.",
+    "materially_new_combinations": [
+      {
+        "domain": "HOUSEHOLD_PROPERTY",
+        "actor_role": "SOLE_OWNER",
+        "decision_object": "ASSET_DISPOSITION_BEFORE_RENTAL_EXECUTION",
+        "gap_family": "DECISION_AXIS"
+      },
+      {
+        "domain": "NONPROFIT_FUND_ALLOCATION",
+        "actor_role": "PROGRAM_LEAD_UNDER_BOARD",
+        "decision_object": "RECOMMENDATION_VS_FINAL_ALLOCATION",
+        "gap_family": "AGENCY_AUTHORITY"
+      },
+      {
+        "domain": "STARTUP_FOUNDER_ROLE",
+        "actor_role": "ADVISOR_INVITED_FULL_TIME",
+        "decision_object": "ROLE_BOUNDARY_BEFORE_COMMITMENT",
+        "gap_family": "MOTIVE_COST"
+      },
+      {
+        "domain": "HOSPITAL_SYSTEM_TRAINING",
+        "actor_role": "IMPLEMENTATION_OWNER",
+        "decision_object": "TRAINING_SEQUENCE_WITH_REGULATORY_PREMISE",
+        "gap_family": "READY_PROTECTION"
+      },
+      {
+        "domain": "MANUFACTURING_LINE_REPLACEMENT",
+        "actor_role": "IMPLEMENTATION_DECISION_OWNER",
+        "decision_object": "PHASED_VS_CONCENTRATED_CUTOVER",
+        "gap_family": "READY_PROTECTION"
+      },
+      {
+        "domain": "OUTSOURCING_CONTRACT_TERMINATION",
+        "actor_role": "AUTHORIZED_SIGNATORY",
+        "decision_object": "NOTICE_PERIOD_VS_IMMEDIATE_EXIT",
+        "gap_family": "READY_PROTECTION"
+      }
+    ],
+    "renamed_or_numeric_only_reuse_detected": false
+  },
+  "balance_and_contract_checks": {
+    "case_count": 6,
+    "answer_count_per_case": 4,
+    "ask_one_count": 3,
+    "ready_count": 3,
+    "three_file_case_id_bijection": true,
+    "unique_case_ids": true,
+    "ask_has_exactly_one_non_null_dimension_and_critical_answer": true,
+    "ready_dimension_target_gap_and_critical_answer_are_null": true,
+    "allowed_dimension_enum": [
+      "DECISION_AXIS",
+      "STATED_PREMISE",
+      "AGENCY_AUTHORITY",
+      "MOTIVE_COST"
+    ],
+    "distinct_non_null_dimensions_used": [
+      "DECISION_AXIS",
+      "AGENCY_AUTHORITY",
+      "MOTIVE_COST"
+    ],
+    "dimension_enum_violation_count": 0,
+    "initial_expectation_enum": [
+      "ASK_ONE",
+      "READY"
+    ],
+    "initial_expectation_enum_violation_count": 0,
+    "status": "PASS"
+  }
+}

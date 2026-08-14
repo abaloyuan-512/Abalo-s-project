@@ -1,0 +1,28 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015_ROUTER_ONLY_LIVE",
+  "frozen_before_calls": true,
+  "synthetic_non_sensitive": true,
+  "case_order": ["V015-LIVE-01-PASS-SUBJECT", "V015-LIVE-02-ASK-JUDGMENT"],
+  "cases": [
+    {
+      "slot": 1,
+      "case_id": "V015-LIVE-01-PASS-SUBJECT",
+      "original_question": "我正在决定一个副业项目的去留：是继续每周投入十小时，还是停止这个副业项目并把时间转回主业？",
+      "critical_ambiguity": {
+        "kind": "SUBJECT",
+        "description": "原问题同时出现“副业项目”和“主业”，需判断所问主体是否已经明确。"
+      },
+      "expected_outcome": {"status": "PASS"}
+    },
+    {
+      "slot": 2,
+      "case_id": "V015-LIVE-02-ASK-JUDGMENT",
+      "original_question": "甲、乙两个合作方都给了新方案，条件分别是长期独家绑定和允许保留其他合作。我倾向接受其中一个；我应该接受这个方案吗？",
+      "critical_ambiguity": {
+        "kind": "JUDGMENT_OBJECT",
+        "description": "“其中一个”和“这个方案”未指明对应甲或乙，两个方案的约束相反。"
+      },
+      "expected_outcome": {"status": "ASK_ONCE", "ambiguity_kind": "JUDGMENT_OBJECT"}
+    }
+  ]
+}

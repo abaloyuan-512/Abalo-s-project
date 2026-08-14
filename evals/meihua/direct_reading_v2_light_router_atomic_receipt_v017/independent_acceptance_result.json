@@ -1,0 +1,13 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ATOMIC_RECEIPT_V017",
+  "contract_id": "DRV2-LIGHT-ROUTER-ATOMIC-RECEIPT-V017-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "verdict": "PASS",
+  "manifest_sha256": "3EAED990E1F03DE10A7B44598F5B5D16BE71D51909B46AFD77BF76D655467EC6",
+  "offline_ledger_sha256": "374A8D8C13F892E944BC18DE3D2BFB7F52D1D020F6762BE7B235AF1228B137A9",
+  "candidate_files_verified": 10,
+  "authority_files_verified": 11,
+  "focused_tests": "17 passed",
+  "full_tests_verified": 1379,
+  "live_calls": 0,
+  "candidate_modified_by_qa": false
+}

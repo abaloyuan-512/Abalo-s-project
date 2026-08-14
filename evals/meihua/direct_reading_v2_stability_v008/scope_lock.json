@@ -1,0 +1,40 @@
+{
+  "stage_id": "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+  "status": "FROZEN_BEFORE_IMPLEMENTATION_AND_LIVE_CALL",
+  "objective": "Narrowly release faithful user-provided reality background while continuing to block invented, strengthened, cross-case, mind-reading, date, guarantee, and hexagram-as-reality claims; then run one new fixed-high canary.",
+  "authorized_changes": [
+    "question-lineage-aware reality release gate",
+    "bounded prompt instruction for attributed user-background excerpts",
+    "paired offline regression corpus and evidence",
+    "one new fixed-high canary runner, evidence, and P8/P9 mechanical rendering"
+  ],
+  "forbidden": [
+    "rerun, replace, or relabel V007 S1-02",
+    "delete or globally weaken the reality-fact detector",
+    "semantic matching by another model, embeddings, edit distance, or a fact graph",
+    "V005 experiment control or slot-ledger work",
+    "Router, medium, concise, deployment, production, default-flow change, Page 8 or Page 9 product implementation",
+    "docs/specs, deterministic casting algorithm, engine, calendar adapter, legacy entry, Streamlit, or iching_tools changes"
+  ],
+  "live_authority": {
+    "fixed_high_authorized_cap": 1,
+    "router_cap": 0,
+    "automatic_retry_cap": 0,
+    "failure_consumes_slot": true,
+    "replacement_allowed": false,
+    "activation_condition": "all V008 offline acceptance gates pass before provider instantiation"
+  },
+  "historical_lock": {
+    "v007_s1_verdict": "S1_FAIL_STOP",
+    "v007_s1_authorized": 3,
+    "v007_s1_actual": 3,
+    "v007_s1_retry": 0,
+    "v007_s1_02_may_be_rewritten": false
+  },
+  "external_state": {
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "default_replacement_authorized": false
+  }
+}
+

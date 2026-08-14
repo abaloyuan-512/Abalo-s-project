@@ -1,0 +1,15 @@
+{
+  "contract_id": "DRV2-CONDITIONAL-ROUTER-OFFLINE-ACCEPTANCE-V1",
+  "stage_id": "DIRECT_READING_V2_CONDITIONAL_ROUTER_V012",
+  "verdict": "FAIL",
+  "candidate_manifest_sha256": "D838188446B232C3946F3EAE75CFE758DB5818F2DA43FED51CF6490CF3C2378C",
+  "candidate_modified_by_qa": false,
+  "passed_requirements": ["R1", "R2", "R3", "R4", "R5", "R6", "R8", "R9", "R12"],
+  "failed_requirements": ["R7", "R10"],
+  "single_root_cause": "The injected Router callback can directly or indirectly invoke deterministic prepare/cast; V012 neither blocks nor counts that Router-stage cast, so two real casts can be reported as one.",
+  "live_calls": 0,
+  "real_provider_instantiated": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

@@ -1,0 +1,7 @@
+{
+  "contract_id": "DRV2-REAL-ADAPTER-RESPONSE-TO-V017-TELEMETRY-V018-OFFLINE-ACCEPTANCE-V1",
+  "frozen_before_implementation": true,
+  "one_time_independent_acceptance": true,
+  "clauses": ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"],
+  "live_calls": 0
+}

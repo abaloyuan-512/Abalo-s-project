@@ -1,0 +1,16 @@
+{
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-OFFLINE-PRODUCT-WIRING-ACCEPTANCE-V1",
+  "verdict": "FAIL",
+  "manifest_sha256": "3A8B644C2D685F208EA815DE60A15E3785B1EB07C8F10FC4FCD42DE8DE498B4D",
+  "offline_ledger_sha256": "3EB0AB980D3BFED0BCE43FDAD8B388DB58EC13D8AFE91E33F4D12C1E53F9A483",
+  "failed_gates": ["D12", "D13", "D14", "D15"],
+  "passed_gates": ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11"],
+  "reason_codes": [
+    "NEGATIVE_FIXTURES_NOT_IN_FROZEN_DENOMINATOR",
+    "INCOMPLETE_DENOMINATOR_ACCOUNTING",
+    "INCOMPLETE_NEGATIVE_SPECIALTY_MATRIX",
+    "INCOMPLETE_HISTORICAL_FAIL_STOP_AUTHORITY_LOCKS"
+  ],
+  "candidate_modified_during_acceptance": false,
+  "rerun_authorized": false
+}

@@ -1,0 +1,39 @@
+{
+  "assignment_id": "GXID_STAGE0_OWNER_REVIEW_ASSIGNMENT_V1",
+  "assigned_on": "2026-08-05",
+  "reviewer_id": "OWNER_REVIEWER_01",
+  "roles": [
+    "USER_VALUE_REVIEWER",
+    "ICHING_STRUCTURE_REVIEWER",
+    "PRODUCT_BOUNDARY_REVIEWER"
+  ],
+  "assignment_source": "USER_EXPLICITLY_CONFIRMED_NO_OTHER_REVIEWERS_AND_ACCEPTED_ALL_THREE_ROLES",
+  "role_separation_required": true,
+  "review_order": [
+    "USER_VALUE_REVIEW",
+    "ICHING_STRUCTURE_REVIEW",
+    "PRODUCT_BOUNDARY_REVIEW"
+  ],
+  "blind_material_rule": "评审期间只读取对应 reviewer_cases，不读取 cases.json、case_index.json、reveal_key.json、历史反馈或治理日志。",
+  "independence_status": "SAME_PRODUCT_OWNER_ACROSS_ALL_ROLES_NOT_EXTERNAL_INDEPENDENT_REVIEW",
+  "limitations": [
+    "同一人承担三类角色，不能声称已获得独立普通用户或独立易学专家共识。",
+    "产品负责人已了解项目背景，用户价值评审存在设计者偏差。",
+    "评审结果可以完成当前内部诊断闭环，但阶段报告必须保留外部有效性限制。"
+  ],
+  "review_workbook_path": "outputs/guanxiang_stage0_review_20260805/观象阶段0三角色盲评工作簿.xlsx",
+  "review_workbook_sha256": "56f2a693a74b6475a9254646d199a1f5913d43cc7a9a4f979bebf9207dc2fb7f",
+  "review_workbook_validation": {
+    "reimported_and_inspected": true,
+    "formula_error_scan": "PASS_ZERO_MATCHES",
+    "formula_count": 34,
+    "data_validation_count": 7,
+    "blind_forbidden_field_scan": "PASS_ZERO_HITS",
+    "visual_reviewed_sheets": 4
+  },
+  "pmo_incremental_gate": "PASS_WORKBOOK_READY_TO_FILL",
+  "review_status": "COMPLETED_FROZEN_INTERNAL_QUALITATIVE_REVIEW",
+  "submission_manifest": "submissions/OWNER_REVIEWER_01/submission_manifest.json",
+  "review_results_manifest": "submissions/OWNER_REVIEWER_01/review_results_manifest.json",
+  "acceptance_interpretation": "INTERNAL_PRODUCT_OWNER_QUALITATIVE_REVIEW_NOT_EXTERNAL_USER_OR_EXPERT_CONSENSUS"
+}

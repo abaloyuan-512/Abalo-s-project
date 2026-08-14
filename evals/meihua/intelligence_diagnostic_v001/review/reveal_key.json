@@ -1,0 +1,245 @@
+{
+  "packet_id": "GXID_BLIND_REVIEW_PACKET_V1",
+  "reveal_condition": "ALL_ASSIGNED_REVIEWS_FROZEN",
+  "review_results_manifest_sha256": "947d117f7de8f987f5ca1ca5cdd833a9746ef0d81dce3897e20b7aeb6468a2b7",
+  "revealed_by": "PRIMARY_AGENT_AFTER_REVIEW_FREEZE",
+  "revealed_at": "2026-08-06",
+  "reveal_reason": "ALL_ASSIGNED_OWNER_REVIEW_ROWS_FROZEN; REVEAL_REQUIRED_FOR_STAGE0_DIAGNOSTIC_ANALYSIS",
+  "cases": [
+    {
+      "review_case_id": "R-7C2A",
+      "internal_case_id": "GXID-M03",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-006-low",
+      "author_kind": "CURRENT_MODEL_SNAPSHOT",
+      "known_feedback": [
+        "低/中推理输出均技术验证通过；human review 为空。"
+      ],
+      "tier_rationale": "PENDING_HUMAN_REVIEW",
+      "internal_capability_scope": null,
+      "reference_packet_sha256": "35554a86557d00328648cfb80bc258d44cf67f7cedcf354c169bcc6262427736",
+      "expected_material_limits": [],
+      "user_value_payload_sha256": "ebe3ddd4f5a79bb84cadc245d76f75f0a5ccf60d50a54e5d7bb7013a40f43d62",
+      "iching_payload_sha256": "21e686d72d6cd922157739aa52d90b38617492c179503aa6a040bb8d26898516",
+      "product_boundary_payload_sha256": "b3ccdc258a882e37994461eca9ca323040348a0c67507b8355deb8798b65eb07",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-19F4",
+      "internal_case_id": "GXID-P01",
+      "quality_tier": "PROTECTION",
+      "source_type": "PRODUCT_CALIBRATION",
+      "source_locator": "evals/meihua/personalization_gate1_v001/product_calibration_round3_refined_voice.md",
+      "author_kind": "PRODUCT_CALIBRATION_ARTIFACT",
+      "known_feedback": [
+        "产品负责人：更好，这一版已经可以给到 85 分以上。"
+      ],
+      "tier_rationale": [
+        "先给判断。",
+        "卦象解释、现实矛盾和行动形成连续链条。",
+        "仍是实验性解释，不是已审核规则。"
+      ],
+      "internal_capability_scope": null,
+      "reference_packet_sha256": "642846e91d3f40dfbe39a7e5f8a1d45779aee784d6f27901c64ad4e50bef52be",
+      "expected_material_limits": [
+        "缺少足够还原语境的辨识对话、改问过程或用户可见理由。",
+        "缺少与输出逐项对应的完整确定性盘面与证据映射。"
+      ],
+      "user_value_payload_sha256": "fb8bca80b47025f96440516490cf4b3fc95ece0a33c81fa181ca0c1cbaf48d51",
+      "iching_payload_sha256": "d4cec8f78a67a52ec940f51ae12ab0203be0044a0b223b692a8609099373bac7",
+      "product_boundary_payload_sha256": "8750951d321875a93ee00aebab5dd467bd6c9cb64f39d54ebd5e84db43f8d524",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-B603",
+      "internal_case_id": "GXID-F02",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-COOPERATION",
+      "author_kind": "DETERMINISTIC_BASELINE",
+      "known_feedback": [
+        "Gate 0 审计确认两份报告逐字段相同。"
+      ],
+      "tier_rationale": [
+        "一般合作继续投入与三次延期后的追加预算没有被区分。",
+        "追加预算的责任与既有延期事实未进入判断。"
+      ],
+      "internal_capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "reference_packet_sha256": "3f2f402833b3a6108131fc1ed96247ccf0685258f9ddc3b699ff513afecd418e",
+      "expected_material_limits": [
+        "缺少足够还原语境的辨识对话、改问过程或用户可见理由。",
+        "缺少与输出逐项对应的完整确定性盘面与证据映射。"
+      ],
+      "user_value_payload_sha256": "78e84595541c8c2e5592d68c752e2ce828d7c86e53fed7cc327b9aa51eccf6dd",
+      "iching_payload_sha256": "ee922d84c55cf2b5fcffb0501b6d1d485bbd6c57412123d84ebb8bca3dd4e2d8",
+      "product_boundary_payload_sha256": "0c3f523507a154b4084c04ef492f6d8c7c56caace2d7b592d9dcf94f93293bc1",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-4D8E",
+      "internal_case_id": "GXID-M01",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-001-low",
+      "author_kind": "CURRENT_MODEL_SNAPSHOT",
+      "known_feedback": [
+        "技术 validator 通过；human review 为空。"
+      ],
+      "tier_rationale": "PENDING_HUMAN_REVIEW",
+      "internal_capability_scope": null,
+      "reference_packet_sha256": "59f608b2774b0746499f560f2aaa36e70687aa23ceb46d99e8b307b93d611fd4",
+      "expected_material_limits": [],
+      "user_value_payload_sha256": "3d9df8751ee945a6ed5de187ac21c622a39b655befe5efa3be58067ee0ad86b8",
+      "iching_payload_sha256": "7de0d9fea1136c33d1ec0ff5907cd2805fb34bd4925a9d7ccd00bf6f83fa58ce",
+      "product_boundary_payload_sha256": "40cece299a968a1bdf698e254b2f8c04657f2467b3584f2c8f5eff2b76d11156",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-A271",
+      "internal_case_id": "GXID-F04",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-PERSONAL",
+      "author_kind": "DETERMINISTIC_BASELINE",
+      "known_feedback": [
+        "Gate 0 审计确认考试和副业两个问题的报告逐字段相同。"
+      ],
+      "tier_rationale": [
+        "报告中的“彼此是否真心靠近、愿意同行”泄漏了关系领域语言。",
+        "考试与副业的关键条件没有被区分。"
+      ],
+      "internal_capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "reference_packet_sha256": "5f43069ab4120810633c5327963b301a78a6d7392e680e58d12c517244d496a9",
+      "expected_material_limits": [
+        "缺少足够还原语境的辨识对话、改问过程或用户可见理由。",
+        "缺少与输出逐项对应的完整确定性盘面与证据映射。"
+      ],
+      "user_value_payload_sha256": "779552ef61e9b6a249b0d7b152a5e714e87a79b114dc5ae433eec0e024f34d55",
+      "iching_payload_sha256": "817479867d3e5855a87b9da3ff3292dc576e72d90222f3eef1c03cc6883ff89f",
+      "product_boundary_payload_sha256": "c0d229c850af8d7df3a7f8d9be8ac5f92af7d0e802f426e2906a5f30d86b7ce3",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-52C9",
+      "internal_case_id": "GXID-M04",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-008-low",
+      "author_kind": "CURRENT_MODEL_SNAPSHOT",
+      "known_feedback": [
+        "低/中推理输出均技术验证通过；human review 为空。"
+      ],
+      "tier_rationale": "PENDING_HUMAN_REVIEW",
+      "internal_capability_scope": null,
+      "reference_packet_sha256": "2f49b44e4ee32fa9a932dd50fed0fabd21a43c8c9634b39d4074f5bbdfc1e66f",
+      "expected_material_limits": [],
+      "user_value_payload_sha256": "1d88be123e058226b898db11b49a576aa625f976bce5f95edadbdd9397e977e3",
+      "iching_payload_sha256": "a1d165d53a07847d9816920e621701115916c5597dedd39c41cde6d602d3b3e0",
+      "product_boundary_payload_sha256": "b5d0e6d1e97e24d157ff3a2df4085c6d69ef6939c0d5e75c02aa9bbb8001497f",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-E148",
+      "internal_case_id": "GXID-P02",
+      "quality_tier": "PROTECTION",
+      "source_type": "PRODUCT_CALIBRATION",
+      "source_locator": "evals/meihua/personalization_gate1_v001/product_calibration_round4_transfer_packet.md#案例二",
+      "author_kind": "PRODUCT_CALIBRATION_ARTIFACT",
+      "known_feedback": [
+        "产品负责人评分 85，内容好、行文平常、完全可以通过。"
+      ],
+      "tier_rationale": [
+        "把一次主动与长期替双方维持关系区分开。",
+        "避免读心，同时给出清晰行动边界。",
+        "仍需独立易学评审。"
+      ],
+      "internal_capability_scope": null,
+      "reference_packet_sha256": "0ca95c021607d7414f17227b88c30b2e10a9a4fad38cca177f2e97d64e0cee24",
+      "expected_material_limits": [
+        "缺少足够还原语境的辨识对话、改问过程或用户可见理由。",
+        "缺少与输出逐项对应的完整确定性盘面与证据映射。"
+      ],
+      "user_value_payload_sha256": "6ac8e38ffd8e6de26ee302f83c375e2a98af1e2aae2e891496e9321269feec79",
+      "iching_payload_sha256": "d3bab31f82c5079a3b179ddb4afeb2a82e5ca9ed2646b3260c76aab28bc79945",
+      "product_boundary_payload_sha256": "91defb0fc030a51c9789cac0f1833acfbe277b35f362403e1a85ebb68d277bee",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-8B35",
+      "internal_case_id": "GXID-F01",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-WORK",
+      "author_kind": "DETERMINISTIC_BASELINE",
+      "known_feedback": [
+        "Gate 0 审计确认 request hash 改变，但 clarity_report 逐字段完全相同。"
+      ],
+      "tier_rationale": [
+        "两个实质不同的问题没有进入报告决策层。",
+        "结论无法证明针对最终问题。"
+      ],
+      "internal_capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "reference_packet_sha256": "e78e3d723ad47c6b901ddab6e431d95589d5dab0125c9a8238bf6c4196089a99",
+      "expected_material_limits": [
+        "缺少足够还原语境的辨识对话、改问过程或用户可见理由。",
+        "缺少与输出逐项对应的完整确定性盘面与证据映射。"
+      ],
+      "user_value_payload_sha256": "6347437a47775d9217662bfe5ba2de0bd7b0a6d5ef90822def406141fd15a7d2",
+      "iching_payload_sha256": "474638eb4ec697d726eb3b98159f8ab74bd196f5b6ba24e3d57f15006d457cb6",
+      "product_boundary_payload_sha256": "390b5738d87428e2f1e66f93452850a5db1cb438ee9d3f749283fdecac0729a1",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-3F76",
+      "internal_case_id": "GXID-M02",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-005-low",
+      "author_kind": "CURRENT_MODEL_SNAPSHOT",
+      "known_feedback": [
+        "低/中推理输出均技术验证通过；human review 为空。"
+      ],
+      "tier_rationale": "PENDING_HUMAN_REVIEW",
+      "internal_capability_scope": null,
+      "reference_packet_sha256": "e71013f9ab74b80bfaf9af7daf2480c24a9699f0f3df8b6ac475d77c62671d25",
+      "expected_material_limits": [],
+      "user_value_payload_sha256": "eb84fbab05d5dc7a05b424534f66dfea61f76ef8782ce083cc665239780f62f7",
+      "iching_payload_sha256": "f349901d48467a1c67794284d3fc536a725a8ca971943eb5b66c482e33d371d3",
+      "product_boundary_payload_sha256": "b6308ba1c7dff04e7cc32c8e37ebf40046f3ea1d2467080c6912f99fe5d7804d",
+      "reveal_status": "REVEALED"
+    },
+    {
+      "review_case_id": "R-C904",
+      "internal_case_id": "GXID-F03",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-RELATIONSHIP",
+      "author_kind": "DETERMINISTIC_BASELINE",
+      "known_feedback": [
+        "Gate 0 审计确认两份报告逐字段相同。"
+      ],
+      "tier_rationale": [
+        "一次主动联系与是否继续维持长期关系是不同决策，但输出未区分。"
+      ],
+      "internal_capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "reference_packet_sha256": "15d7b9dec6c1dfe772a8f3cb724c61e7f9518327a13dfab53359e8294c090e50",
+      "expected_material_limits": [
+        "缺少足够还原语境的辨识对话、改问过程或用户可见理由。",
+        "缺少与输出逐项对应的完整确定性盘面与证据映射。"
+      ],
+      "user_value_payload_sha256": "cb256fcf70ec266d32b8456307a74a639ee4af839904f1c349a5e139c14d0c80",
+      "iching_payload_sha256": "9ed33ee4d8ee8a68867ccd7634d5c149b90903415937fc2a2c15da8348b5afd4",
+      "product_boundary_payload_sha256": "1adaecee8a7dad35d7453e039fab48166fbf30b8ac1d99164e3ff7db24b4051b",
+      "reveal_status": "REVEALED"
+    }
+  ]
+}

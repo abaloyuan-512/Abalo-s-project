@@ -1,0 +1,240 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V002_EVIDENCE",
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-V002-EVIDENCE-COMPLETENESS-OFFLINE-ACCEPTANCE-V1",
+  "status": "FROZEN_OFFLINE_EVIDENCE_CANDIDATE_AWAITING_INDEPENDENT_QA",
+  "candidate_files": [
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/acceptance_contract.json",
+      "sha256": "2A5E3D5A8885E1BDCF2FB91E8CDDAD3ACD2B980B2AE3A21BB4C44B8EE3B1010F"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/scope_lock.json",
+      "sha256": "77601CBFB7B8A8FF17768721D20E83CD2CCCF215225FDD58A75950CDC7AE7E45"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/decision_log.md",
+      "sha256": "3EF6CA61247EC2D8C0000AECE75E9B588893301D7B37FB57BB45E2073F0A3A84"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/build_offline_evidence.py",
+      "sha256": "41ACA8D8EEA76705BF6261616C22C5AD27F94D8E3CDA3A40BD052E99D22DDDEC"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/route_boundary_probe.mjs",
+      "sha256": "77571616A8A4BEEB8788740CB6DB4FBA764B0E43865BA675B5267855ABD17917"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/test_evidence.py",
+      "sha256": "30D3BE52A303A7FE56D256F0A535D96B049C092C89ED9B75B13ED0B91770DBD3"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/offline_ledger.json",
+      "sha256": "73627BD3F7976CA1F9734484D08760A8D14EE83C258CC3FE58815BCEC4B0A305"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/verification_result.json",
+      "sha256": "46E5C2DB145656BABE04467541A25DAE189D3DB706D759BE6F04A9836C115832"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v002/freeze_manifest.py",
+      "sha256": "2099F7B53B0D484840F39D093AA69C09DB2B4C89145C1AB5E668ED6F9AEA3DC7"
+    }
+  ],
+  "authority_files": [
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/candidate_manifest.json",
+      "sha256": "3A8B644C2D685F208EA815DE60A15E3785B1EB07C8F10FC4FCD42DE8DE498B4D"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/offline_ledger.json",
+      "sha256": "3EB0AB980D3BFED0BCE43FDAD8B388DB58EC13D8AFE91E33F4D12C1E53F9A483"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/verification_result.json",
+      "sha256": "5DFB2B1A9865682C0ECEF3F85B0F1D82E5FEAE1288501C60BD564971C77C99E3"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/independent_acceptance_result.json",
+      "sha256": "94339A677360E19CB517E88E5F3FF4838326E12E039FF6B5874A6531E57C6D01"
+    },
+    {
+      "path": "evals/meihua/direct_high_p8_p9_product_v001/final_outcome.json",
+      "sha256": "551A1E4AAEE734828D646709D58A1C4E0C231086811C2632398852BF2C6DCB3A"
+    },
+    {
+      "path": "outputs/v007_s1_stage_summary.json",
+      "sha256": "8265C3676EB1E4F5FB4B44DFFB76C317B3A63AA8DF069F3D8257E5953572A032"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v008/canary_outcome.json",
+      "sha256": "A47E940CBDC32019F1A611131992E9D29CD27B79CE100C79CAF3E4AD1B20D069"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v010/final_outcome.json",
+      "sha256": "39A888E64519B76FD863B9E3B168BDCD24222F4DEF189B878060B07E295E734C"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v010/independent_acceptance_result.json",
+      "sha256": "F54A5A2F172FCA3EA8A2AB8E8CCB242E5703F5E7149D55167095E81E68ACBE32"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_conditional_router_v012/final_outcome.json",
+      "sha256": "D2EC3A91266C284BA7E3CB990A302A6559E8AEACE9ED17FD3B7E9D210D9B7FB1"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_conditional_router_v012/independent_acceptance_result.json",
+      "sha256": "9CE3F179F479940780478E4F345E0B9BB3F31084EC77732AB996A28FC1F932F2"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_conditional_router_v013/design_stop.json",
+      "sha256": "C0A5D1B5B86749DB6E31DA25A2566C6F8E16944F74467B92D8CBDD2BDE5E4089"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_parse_exception_v019/final_outcome.json",
+      "sha256": "A905E26B81193A2CC4386C4DFED1D4231B58F50A8F6C32BC3E912125BC3947E7"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_parse_exception_v019/independent_acceptance_result.json",
+      "sha256": "2A691866564DDA993EA6001487B2CA348EC0B34556D5C755E0303DEE4BD5B021"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_parse_exception_v020/final_outcome.json",
+      "sha256": "80FC18A2622AF0F040B5D5B669D94C1EBD947E0AFF1EDF9A901DA5C20900808F"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_parse_exception_v020/independent_acceptance_result.json",
+      "sha256": "8BB5CA701F4FA4EAB71C2C1F9BC65EA174A0DDF731AA1B78993D26EFD07B1E49"
+    },
+    {
+      "path": "outputs/v022_classified_router_only_live_ledger.json",
+      "sha256": "041443510A27ADE9BBC6C54788A006E235A5C91AEE2BE51267ABE4498E46C2A1"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_parse_exception_v021/v022_final_outcome.json",
+      "sha256": "9BDB0AE4C3A82A2EE3E3882327729D2EE129F186A9A5EA7FE5743EE5FE86B3FC"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_parse_exception_v021/v022_independent_acceptance_result.json",
+      "sha256": "825C4885A9668A6C6AD8EBD84BA633B7468924F6A7CD8482F18A6E3169BFE78B"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_sdk_runtime_diagnostic_v023/candidate_manifest.json",
+      "sha256": "F1C96F6DF9527938D34CB4BC7AFA4356342ADA2704665DA99ADFEDE3B920DF4A"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_sdk_runtime_diagnostic_v023/final_outcome.json",
+      "sha256": "47B748E912ACB7C746042589C3D6C9BA70FB592A00E698B09E1AD6AEF63C26AD"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_sdk_runtime_diagnostic_v023/independent_acceptance_result.json",
+      "sha256": "125E03A5805355B6C2E206238576FDE423A9BFB36E05EF9475EF90D6671BA4B7"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_sdk_authoritative_origin_v024/design_stop.json",
+      "sha256": "C400FDE1B9480677CD355EB6391E8770010B6B396ADCC76AFB627B5EA9E0F1AB"
+    },
+    {
+      "path": "outputs/v009_canary_real_result.json",
+      "sha256": "BE35C9632A9D65BD683E9AD36A213F79CC7533E93EF04FC1E83371EB876A56C6"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v009/candidate_manifest.json",
+      "sha256": "5BE1B84C1DACA4293B6AB7635459C08549770EBECB27DB418C93ED4555D792B3"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v009/final_outcome.json",
+      "sha256": "972AECED2687810C597B855385C832928A5061CAF31C73409C19F47D88501AC4"
+    },
+    {
+      "path": "outputs/v011_stability_run_ledger.json",
+      "sha256": "10E3DA2E3C57494352BA509DB22BFA98F587A2689C45B236047D4199EEBE4834"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/candidate_manifest.json",
+      "sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/independent_acceptance_result.json",
+      "sha256": "8067FE9450758AC7829F040EB5027B1E9774FB48CAC883C5EA05A0723874DC17"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json",
+      "sha256": "DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"
+    },
+    {
+      "path": "evals/meihua/direct_reading_v2_stability_v011/live_independent_acceptance_result.json",
+      "sha256": "94D96AF72330D08E624AC307710524D721CDD1182818EB6B1B3AAD1B6E2FAE61"
+    },
+    {
+      "path": "src/abalo_iching/application/sites_direct_reading_v2.py",
+      "sha256": "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"
+    },
+    {
+      "path": "src/abalo_iching/application/sites_direct_high_product_v1.py",
+      "sha256": "BD0A3D356FDEFBE259200F2C6EB619086482C90624EDD28EC699A42B15FEDEFE"
+    },
+    {
+      "path": "scripts/run_hosted_api.py",
+      "sha256": "E7F57B221D8B4B7F9D2E7990244AAC27CA2BDB5D927F8A2BD0A98AABD6BB22DF"
+    },
+    {
+      "path": "sites/hosted-app/package.json",
+      "sha256": "E0BEBBF3DF7986B998735C691F394FF295624902B4C57FD2D592ED4F9521D9F7"
+    },
+    {
+      "path": "sites/hosted-app/app/api/direct-reading/v2/route.ts",
+      "sha256": "C2579247FAA0BE668FEEA7192B7EA968BFDB23FCEA11DC322E24DD6B9D3A5FDB"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/page.tsx",
+      "sha256": "DCF3C3AC648F723B8324EC7ABB0B9F0F9FE685B82FE52E4A537360B7B036F5C9"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/page.module.css",
+      "sha256": "A5D61B1D1BE258DF7809E6B4E628C73DFD29959BA84709EF75388395ADF2F27F"
+    },
+    {
+      "path": "sites/hosted-app/app/direct-reading-v2-preview/ProductPresentation.tsx",
+      "sha256": "D8E33CFB363BF9984350A5CD269B5F7E3385E4262F714F068F127BDC1B2CA7D8"
+    },
+    {
+      "path": "docs/specs/MEIHUA_RULE_SPEC_V1.md",
+      "sha256": "BB93DF4F967C009F37B35748CCB1CA088F46A594066005E75B7523ACF0BD9E4F"
+    },
+    {
+      "path": "docs/specs/MEIHUA_DATA_CONTRACT_V1.md",
+      "sha256": "FC88C295BAD075015A24DE241A492386BBBB8E263B725223CAB46A0CC94158F5"
+    },
+    {
+      "path": "docs/specs/MEIHUA_INTERPRETATION_SPEC_V1.md",
+      "sha256": "329245EAFEFBC61B3F75A9762F5C5BD389587330D13D81024382721B4036E3E5"
+    },
+    {
+      "path": "streamlit_app.py",
+      "sha256": "F1DB85C6164BA4488B7FCF894D76F66BECF521715A7FA3E493A453DFB8DE0FE0"
+    },
+    {
+      "path": "iching_tools.py",
+      "sha256": "E840C1AB86007F92C77D1ACABECDDF0094BF3BFC12AC8D662AA2AE3687E03AD9"
+    }
+  ],
+  "offline_ledger_sha256": "73627BD3F7976CA1F9734484D08760A8D14EE83C258CC3FE58815BCEC4B0A305",
+  "v001_candidate_hashes": {
+    "matched": 18,
+    "denominator": 18,
+    "mismatched": 0
+  },
+  "verification": {
+    "v002_specialty": "4 passed",
+    "v002_plus_direct_reading_inherited_focused": "148 passed + 1 isolated environmental rerun passed",
+    "sites_build": "PASS",
+    "sites_tests": "49 passed",
+    "full_pytest": "1459 passed"
+  },
+  "router_calls": 0,
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "p9_artwork": false
+}

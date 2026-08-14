@@ -1,0 +1,11 @@
+{
+  "scope": "STAGE_1_OWNER_AB_REVIEW_ONLY",
+  "packet": "owner_ab_review_packet.md",
+  "mapping": {
+    "GXID-M01": {"甲": "FROZEN_CURRENT_BASELINE", "乙": "STAGE1_EXPERIMENT"},
+    "GXID-M02": {"甲": "STAGE1_EXPERIMENT", "乙": "FROZEN_CURRENT_BASELINE"},
+    "GXID-M03": {"甲": "FROZEN_CURRENT_BASELINE", "乙": "STAGE1_EXPERIMENT"},
+    "GXID-M04": {"甲": "STAGE1_EXPERIMENT", "乙": "FROZEN_CURRENT_BASELINE"}
+  },
+  "note": "Do not reveal mapping before owner submits the two choices per case."
+}

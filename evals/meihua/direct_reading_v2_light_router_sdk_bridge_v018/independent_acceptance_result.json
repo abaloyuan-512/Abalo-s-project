@@ -1,0 +1,13 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018",
+  "contract_id": "DRV2-REAL-ADAPTER-RESPONSE-TO-V017-TELEMETRY-V018-OFFLINE-ACCEPTANCE-V1",
+  "verdict": "PASS",
+  "manifest_sha256": "30C1E24EB0675B7FC5091431AA1599CBAD9D0A14314713CDCDC812956D432109",
+  "offline_ledger_sha256": "15ED13DA5C1CD4E430A5DFC1B342A0F2D7F27FEE76D65BC68968568977057CCE",
+  "candidate_files_verified": 10,
+  "authority_files_verified": 12,
+  "focused_tests": "16 passed",
+  "full_tests": "1395 passed",
+  "live_calls": 0,
+  "candidate_modified_by_qa": false
+}

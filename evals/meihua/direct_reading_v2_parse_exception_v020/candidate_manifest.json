@@ -1,0 +1,30 @@
+{
+  "stage_id":"DIRECT_READING_V2_PARSE_EXCEPTION_V020",
+  "status":"OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract":"DRV2-PARSE-EXCEPTION-EIGHT-CODE-V020-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "candidate_files":[
+    {"path":"src/abalo_iching/application/sites_parse_exception_classifier_v020.py","sha256":"42D82073E03CA26B99A02F86219E2090B72B441328476CA4C6DF48FA6FE2620E"},
+    {"path":"tests/test_sites_parse_exception_classifier_v020.py","sha256":"4668F0D1E397A563C0576FC99AF8C42439593F8D4A4C0F7D9AB9D4382C4F440C"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/scope_lock.json","sha256":"E59ED61E4C48431C56BC41D47516DDF0A2A8BE1089892788819A78D63991EA81"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/acceptance_contract.json","sha256":"FCB81D4D23B6F44CF4E7E064D788E20759527A936DA8C8052252E9F914C8235A"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/decision_log.md","sha256":"11DBEC3F85AF542455BBFB6C0C4A8BA8F2D6EA98CE948EB4D35C598AC6D490D5"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/execution_log.md","sha256":"0A46ED70A380D970A1A30EFFF9010469556E7607B138B105848F48A5228B3B51"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/risk_log.md","sha256":"44109F8D4EA7773B00759D717AA64921D07D0E5A903BEF0487D7584950A1F91E"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/deviation_log.md","sha256":"927512A312D4A0C837F708DB3561C5DAE5EF4146A9B17F64880C64C903419D45"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/build_offline_evidence.py","sha256":"F666BF262B4B7EB1C4339D4E1AE1634F0CC2BF9B39D12DE93482A198DB8A3F2C"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v020/offline_ledger.json","sha256":"44E1A28FCDD96124415D3DF88462959DF78EABD31B619F2855AEF8714E7FA9A2"}
+  ],
+  "immutable_authority_evidence":[
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/candidate_manifest.json","sha256":"291CFAA1546B089E6FAA51D86013C0936772B460E31D4330D5EDAE72ED7B196E"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/final_outcome.json","sha256":"A905E26B81193A2CC4386C4DFED1D4231B58F50A8F6C32BC3E912125BC3947E7"},
+    {"path":"evals/meihua/direct_reading_v2_parse_exception_v019/independent_acceptance_result.json","sha256":"2A691866564DDA993EA6001487B2CA348EC0B34556D5C755E0303DEE4BD5B021"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/candidate_manifest.json","sha256":"30C1E24EB0675B7FC5091431AA1599CBAD9D0A14314713CDCDC812956D432109"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_sdk_bridge_v018/live_final_outcome.json","sha256":"BE54651D5BDC2AE67B6866CA235EB9EB0CCEFE32047F16AC0011024542C60DB5"},
+    {"path":"outputs/v018_router_only_live_ledger.json","sha256":"39AF9AB4DD4D3053D8D0C65E78691A945434EA8BB7F698FD0837EFE7762625EB"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/candidate_manifest.json","sha256":"3EAED990E1F03DE10A7B44598F5B5D16BE71D51909B46AFD77BF76D655467EC6"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/candidate_manifest.json","sha256":"D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F"},
+    {"path":"evals/meihua/direct_reading_v2_pure_data_router_v014/candidate_manifest.json","sha256":"CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67"}
+  ],
+  "offline_verification":{"focused":"13 passed","inherited_focused":"40 passed","full":"1419 passed","case_denominator":11,"classified_count":11,"frozen_failure_codes":8,"malicious_side_effects":0,"provider_calls":0,"live_calls":0,"real_provider_instantiated":false,"high_calls":0,"cast_calls":0,"automatic_retries":0},
+  "external_state":{"new_live_authorized":false,"product_wiring":false,"deployment":false,"production":false,"default_replacement":false}
+}

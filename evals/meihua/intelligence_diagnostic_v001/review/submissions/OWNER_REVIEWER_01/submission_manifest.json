@@ -1,0 +1,16 @@
+{
+  "submission_id": "GXID_OWNER_REVIEW_SUBMISSION_V1",
+  "reviewer_id": "OWNER_REVIEWER_01",
+  "received_on": "2026-08-06",
+  "source_filename": "观象阶段0三角色盲评工作簿(1).xlsx",
+  "stored_filename": "filled_review_workbook.xlsx",
+  "sha256": "d23a6dffc787ba9628b7c5a64652b304cda6ad3018bf2acae4f55364d104d4af",
+  "roles": [
+    "USER_VALUE_REVIEWER",
+    "ICHING_STRUCTURE_REVIEWER",
+    "PRODUCT_BOUNDARY_REVIEWER"
+  ],
+  "review_frozen_before_reveal": true,
+  "independence_status": "SAME_PRODUCT_OWNER_ACROSS_ALL_ROLES_NOT_EXTERNAL_INDEPENDENT_REVIEW",
+  "submission_status": "FROZEN_FOR_ANALYSIS"
+}

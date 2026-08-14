@@ -1,0 +1,88 @@
+{
+    "stage_id":  "DIRECT_READING_V2_OUTPUT_BUDGET_V009",
+    "status":  "CANDIDATE_FROZEN_PRE_CANARY",
+    "single_variable":  {
+                            "name":  "MAX_OUTPUT_TOKENS",
+                            "from":  4000,
+                            "to":  12000
+                        },
+    "candidate_files":  [
+                            {
+                                "path":  "src/abalo_iching/application/sites_direct_reading_v2.py",
+                                "sha256":  "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"
+                            },
+                            {
+                                "path":  "tests/test_sites_direct_reading_v2.py",
+                                "sha256":  "6ADC0908B8CDFA57902CCC7A8C50C30E559CD13FD3121BA34F84AAAF6087D4E4"
+                            },
+                            {
+                                "path":  "evals/meihua/direct_reading_v2_stability_v009/scope_lock.json",
+                                "sha256":  "F984714D0F92E0F926BA035503FD5303B3DA67631B39CF6AC30575AC070A39E1"
+                            },
+                            {
+                                "path":  "outputs/v009_canary_freeze.json",
+                                "sha256":  "8E3AE6EF43CC104A295C6CBCBE9848CA47DB95A96A858D2AFB9540731C01FA15"
+                            },
+                            {
+                                "path":  "outputs/v009_canary_call_ledger.json",
+                                "sha256":  "C384827999A19DF52569D88A852A50EA106F9EF1B5C2930249D9CC27871305A9"
+                            },
+                            {
+                                "path":  "scripts/run_v009_canary.py",
+                                "sha256":  "A59B1A40600479B0D6426663333D19ED4CCACB8D5BDE0F758C3EBEABC30105EC"
+                            },
+                            {
+                                "path":  "scripts/build_v009_canary_output.py",
+                                "sha256":  "5D4AF7817EF3143D32ABC10FFCD9109F168DD6A41F7D242B7E245CC98AEBD595"
+                            }
+                        ],
+    "immutable_locks":  [
+                            {
+                                "path":  "outputs/v008_canary_freeze.json",
+                                "sha256":  "2698FFB93AFE3693F8A73E60BB68E73067AE90252DAB63C527321E12B7300EE1"
+                            },
+                            {
+                                "path":  "evals/meihua/direct_reading_v2_stability_v008/candidate_manifest.json",
+                                "sha256":  "0E6145B01007CA278EBA956718480F60EE6AC5DE716D0678E8362B5197162184"
+                            },
+                            {
+                                "path":  "src/abalo_iching/meihua/engine.py",
+                                "sha256":  "702B8BEDB7D1B61585EC697860290A78C37E07414B6FA3820EE1BF7A22734E84"
+                            },
+                            {
+                                "path":  "streamlit_app.py",
+                                "sha256":  "F1DB85C6164BA4488B7FCF894D76F66BECF521715A7FA3E493A453DFB8DE0FE0"
+                            },
+                            {
+                                "path":  "iching_tools.py",
+                                "sha256":  "E840C1AB86007F92C77D1ACABECDDF0094BF3BFC12AC8D662AA2AE3687E03AD9"
+                            },
+                            {
+                                "path":  "sites/hosted-app/app/page.tsx",
+                                "sha256":  "1F599CC08E028C6D461E12E67247E1E9B7D7BF29F1CF871C42E6396826CF1B3F"
+                            },
+                            {
+                                "path":  "sites/hosted-app/app/GuanxiangApp.tsx",
+                                "sha256":  "DAB8D4D2F6782F55F771DD0C1DC4E58505DDE422B7ABC55C1D2D0022E52AA5E6"
+                            }
+                        ],
+    "offline":  {
+                    "focused":  "140 passed",
+                    "full":  "1209 passed",
+                    "max_retries":  0,
+                    "provider_instantiated":  false
+                },
+    "live":  {
+                 "authorized":  1,
+                 "actual":  0,
+                 "remaining":  1,
+                 "retry":  0,
+                 "activation":  false
+             },
+    "external":  {
+                     "deployment":  false,
+                     "production":  false,
+                     "default_replacement":  false
+                 }
+}
+

@@ -1,0 +1,32 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1B_DEVELOPMENT_CRITICAL_ANSWERS_V1",
+  "synthetic": true,
+  "warning": "这些回答只用于测试最高价值追问后的流程，不代表真实用户认可。",
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "expected_dimension": "DECISION_AXIS",
+      "target_gap": "区分立即启动的时间压力与公开启动的外部承诺风险。",
+      "critical_answer": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。"
+    },
+    {
+      "case_id": "GXID-M02",
+      "expected_dimension": "DECISION_AXIS",
+      "target_gap": "尊重合作进展顺利的固定前提，并区分是否继续投入与以多快速度投入。",
+      "critical_answer": "合作进展顺利是这次判断的固定前提。我已经决定继续增加投入，真正犹豫的是应该快速扩大，还是分阶段缓慢增加。"
+    },
+    {
+      "case_id": "GXID-M03",
+      "expected_dimension": "AGENCY_AUTHORITY",
+      "target_gap": "确认重启由谁发起、是否得到明确授权，以及用户是否在决定主动承担推动责任。",
+      "critical_answer": "是我主动想借管理层重新关注的机会推动，领导没有明确要求我负责重启；我在决定要不要主动承担推动责任。"
+    },
+    {
+      "case_id": "GXID-M04",
+      "expected_dimension": "MOTIVE_COST",
+      "target_gap": "确认为什么仍想推动、希望获得什么，以及继续主动的真正代价。",
+      "critical_answer": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。"
+    }
+  ]
+}
+

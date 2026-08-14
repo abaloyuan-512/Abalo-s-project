@@ -1,0 +1,16 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_RECEIPT_V016",
+  "objective": "Prove a zero-live, fixture-only provenance contract for response_id, usage, provider-bound receipt projection digest and reconstructable token cost.",
+  "history_lock": {
+    "v015_offline": "PASS",
+    "v015_router_only_live": "FAIL_STOP",
+    "v015_live_ledger_sha256": "FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321",
+    "v015_calls_remaining": 0
+  },
+  "allowed": ["one typed receipt provenance module", "fixture-only tests and ledger", "governance and candidate manifest"],
+  "forbidden": ["live/network/key access", "editing V015 history or backfilling its ledger", "Router semantic changes", "V014/high/engine/cast changes", "product/default/deployment/production/P9", "database, queue or telemetry platform"],
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

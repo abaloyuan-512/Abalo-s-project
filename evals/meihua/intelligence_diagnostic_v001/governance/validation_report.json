@@ -1,0 +1,78 @@
+{
+  "validation_id": "GXID_STAGE0_CLOSEOUT_VALIDATION_V2",
+  "validated_on": "2026-08-06",
+  "status": "PASS_WITH_OPEN_ITEMS",
+  "scope": "STAGE_0_ONLY_NO_PRODUCT_IMPLEMENTATION_CHANGES",
+  "case_count": 10,
+  "composition": {
+    "FAILURE": 4,
+    "MEDIUM_CANDIDATE": 4,
+    "PROTECTION": 2
+  },
+  "review_submission": {
+    "reviewer_id": "OWNER_REVIEWER_01",
+    "interpretation": "INTERNAL_PRODUCT_OWNER_QUALITATIVE_REVIEW",
+    "workbook_sha256": "d23a6dffc787ba9628b7c5a64652b304cda6ad3018bf2acae4f55364d104d4af",
+    "normalized_submission_sha256": "960f83bad092c9e8266979910985802df7f342cf7a613d6d1a805397de2cab43",
+    "rows": {
+      "user_value": 10,
+      "iching_structure": 10,
+      "product_boundary": 10
+    },
+    "case_id_alignment": "PASS_3_SECTIONS_X_10",
+    "frozen_before_reveal": true,
+    "revealed_case_count": 10
+  },
+  "objective_boundary_audit": {
+    "case_count": 10,
+    "cases_with_confirmed_hard_fail": 7,
+    "cases_without_confirmed_hard_fail_but_incomplete": 3,
+    "exact_quote_records": 11,
+    "exact_quote_source_match": "PASS_11_OF_11",
+    "knowledge_status_check": "CANNOT_CHECK_REQUIRES_REFERENCE_CHAIN",
+    "sensitive_retention_check": "CANNOT_CHECK_REQUIRES_SYSTEM_STORAGE_EVIDENCE"
+  },
+  "content_validation": {
+    "json_files_parsed": 22,
+    "json_parse": "PASS",
+    "semantic_encoding_scan": "PASS_ZERO_FINDINGS",
+    "sensitive_pattern_scan": "PASS_ZERO_FINDINGS_IN_STAGE0_TEXT_ARTIFACTS",
+    "scoring_anchor_files": 3,
+    "acceptance_report": "stage0_acceptance_report_v2.md"
+  },
+  "engineering_regression": {
+    "current_closeout_run": "NOT_RUN_NO_ENGINE_OR_PRODUCT_CODE_CHANGED",
+    "packet_baseline_regression": "956 passed in 73.62s with cacheprovider disabled"
+  },
+  "closeout_file_hashes": {
+    "README.md": "58159a00e800a5b67c69fcab9d49c034497f98bfe934ef4fc976b792f2439fbf",
+    "case_index.json": "babca19073ae98e0a7c37c4469867525bf37c8502acbf066890285a9a788b3bd",
+    "stage0_diagnostic_report.md": "4ec59942d01ed8be0ede64e0fab0a08cbfb3cd160fb058df119bb2e81a7c29b6",
+    "stage0_acceptance_report_v2.md": "b00b1f6c84df8f0ef3641f18046ef305e521631552c641f4284223337f1f4115",
+    "governance/execution_log.md": "8f6e9d7642107035973239af5187e031505e9b112cf575956c7e60c2585dd26a",
+    "governance/decision_log.md": "7d2cbf0457e70d6cb5ffea49c36d56c1ba137c2ecd9b248a16117017b40a6ee2",
+    "governance/risk_log.md": "08f97364116de1d19c4abbe18a2ef212dd7c126507362565a3c3ab0fc0c3298b",
+    "governance/deviation_log.md": "50ff3898c7a99b3230d75dd5102a68d7246823493c87b14f786912faca6f7798",
+    "governance/pmo_checklist.md": "ff032f1af30a450d5df57acc6018dd51d4861823f24d06f92955e41afa878136",
+    "review/reveal_key.json": "b42ffea2e28e1f6febae35920f75cb363d1a484feb67bacba1767897c3760ad2",
+    "review/review_assignment.json": "693e58f29eff2b0c442e2490c6eae879a07b25df4d08b62002d17cfe1121772b",
+    "review/user_value_rubric_v2.json": "ef5fb8dec16f1dc70872ee0c7bdcddf10e198451e516a103016c39f21fb5e1f9",
+    "review/iching_structure_rubric_v2.json": "7bbadb5485f6e8fe2c0983437542c6a30c740ddb0513b02e88ec3d7ce82385a2",
+    "review/product_boundary_rules_v2.json": "fa0ed4ab4b1ce502dea13dba2846eac83280d14ee4fa38b1e4a3cd91b8928171",
+    "review/objective_product_boundary_audit_v1.json": "fd456e597a91ea5d88ed3604752b4d1cb2620194dbbd670358d6f64e2a6218b0",
+    "review/submissions/OWNER_REVIEWER_01/filled_review_workbook.xlsx": "d23a6dffc787ba9628b7c5a64652b304cda6ad3018bf2acae4f55364d104d4af",
+    "review/submissions/OWNER_REVIEWER_01/submission_manifest.json": "4225184339ea00f6be65ee7f850d8fe4719a81ab6515531cb7901de1f7db55f4",
+    "review/submissions/OWNER_REVIEWER_01/normalized_review_submission.json": "960f83bad092c9e8266979910985802df7f342cf7a613d6d1a805397de2cab43",
+    "review/submissions/OWNER_REVIEWER_01/review_results_manifest.json": "947d117f7de8f987f5ca1ca5cdd833a9746ef0d81dce3897e20b7aeb6468a2b7",
+    "review/submissions/OWNER_REVIEWER_01/owner_feedback_evidence_v1.md": "abf27a58f6394c9e7aa038bcc2f10cf2313ffaab2cc2678959b901e9d32e2a2c"
+  },
+  "open_items": [
+    "independent_target_user_review",
+    "independent_iching_expert_review",
+    "knowledge_reference_chain_audit",
+    "sensitive_data_lifecycle_audit",
+    "stage2_same_reality_chart_swap_counterfactual"
+  ],
+  "next_stage_authorized": false,
+  "errors": []
+}

@@ -1,0 +1,8 @@
+{
+  "stage_id":"DIRECT_READING_V2_PARSE_EXCEPTION_V020",
+  "objective":"Repair only V019 J3/J8/J9 with the frozen exact eight-code table and complete offline ledger.",
+  "history_lock":{"v019":"PERMANENT_FAIL_STOP","v019_manifest_sha256":"291CFAA1546B089E6FAA51D86013C0936772B460E31D4330D5EDAE72ED7B196E","v018_live":"FAIL_STOP_TERMINAL_UNKNOWN","v018_live_ledger_sha256":"39AF9AB4DD4D3053D8D0C65E78691A945434EA8BB7F698FD0837EFE7762625EB"},
+  "allowed":["one independent exact-type classifier","fixture-only tests and ledger","governance and manifest"],
+  "forbidden":["editing V014-V019","live, client, key, network or retry","exception text, body, headers, raw response or trace","high, cast, product, default, deployment or production"],
+  "live_calls":0,"real_provider_instantiated":false,"automatic_retries":0,"deployment":false,"production":false,"default_replacement":false
+}

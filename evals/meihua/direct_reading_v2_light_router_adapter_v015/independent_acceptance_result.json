@@ -1,0 +1,16 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015",
+  "contract_id": "DRV2-EXTERNAL-LIGHT-ROUTER-ADAPTER-V015-OFFLINE-ACCEPTANCE-V1",
+  "verdict": "PASS",
+  "manifest_sha256": "D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F",
+  "candidate_hashes": "10/10 MATCH",
+  "authority_hashes": "12/12 MATCH",
+  "offline_ledger_sha256": "11C401E33857B2EB51B06324564C8FFDBA1F0D7741614B0D823093211B9046B1",
+  "accepted_clauses": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13"],
+  "focused_tests": "40 passed",
+  "inherited_tests": "229 passed",
+  "full_tests": "1332 passed plus one existing Windows socket environment interruption; unchanged test rerun passed",
+  "live_calls": 0,
+  "real_provider_instantiated": false,
+  "candidate_modified_by_qa": false
+}

@@ -1,0 +1,10 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "candidate_manifest_sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A",
+  "explicit_user_authorization": true,
+  "authorized_fixed_high_attempts": 2,
+  "router_attempts": 0,
+  "automatic_retries": 0,
+  "replacement_cases_allowed": false,
+  "stop_on_first_failure": true
+}

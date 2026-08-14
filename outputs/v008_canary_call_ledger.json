@@ -1,0 +1,53 @@
+{
+  "stage_id": "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+  "freeze_path": "outputs/v008_canary_freeze.json",
+  "freeze_sha256": "2698FFB93AFE3693F8A73E60BB68E73067AE90252DAB63C527321E12B7300EE1",
+  "authorized_high_attempts": 1,
+  "actual_high_attempts": 1,
+  "remaining_high_attempts": 0,
+  "router_attempts": 0,
+  "automatic_retries": 0,
+  "failed_attempt_consumes_slot": true,
+  "replacement_cases_allowed": false,
+  "provider_instantiated": true,
+  "activation_condition": "V008_OFFLINE_ACCEPTANCE_PASS",
+  "activation_condition_met": true,
+  "candidate_manifest_sha256": "0E6145B01007CA278EBA956718480F60EE6AC5DE716D0678E8362B5197162184",
+  "activation_authority": "V008 R2 independent offline acceptance PASS",
+  "pre_provider_preflight_rejections": [
+    {
+      "code": "V008_INPUT_HASH_MISMATCH",
+      "provider_instantiated": false,
+      "provider_attempts": 0,
+      "deterministic_casts": 0,
+      "slot_consumed": false,
+      "resolution": "Freeze V2 corrects only the UTF-8 input hash; question and numbers are unchanged."
+    }
+  ],
+  "historical_v007_s1": {
+    "verdict": "S1_FAIL_STOP",
+    "authorized_high_attempts": 3,
+    "actual_high_attempts": 3,
+    "automatic_retries": 0,
+    "rerun_or_relabel_allowed": false
+  },
+  "cases": [
+    {
+      "slot": 1,
+      "case_id": "V008-CANARY-01",
+      "input_sha256": "FE3C0C36BAA4968EBCC2A2F83990613426F6BC8387A6D0762E0C76F378F83073",
+      "result_path": "outputs/v008_canary_real_result.json",
+      "status": "INCOMPLETE",
+      "deterministic_cast_count": 1,
+      "provider_attempts": 1,
+      "automatic_retries": 0,
+      "validation_errors": [],
+      "reading_utf8_sha256": null,
+      "latency_ms": 80591,
+      "consumed": true
+    }
+  ],
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

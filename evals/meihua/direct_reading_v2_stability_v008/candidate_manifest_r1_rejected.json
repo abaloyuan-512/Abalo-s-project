@@ -1,0 +1,87 @@
+{
+    "stage_id":  "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+    "status":  "CANDIDATE_FROZEN_PRE_CANARY",
+    "candidate_files":  [
+                            {
+                                "path":  "src/abalo_iching/application/sites_direct_reading_v2.py",
+                                "sha256":  "69D350C1BDACD295481003333A80409709F647F169F400A6B4452FB6176672BC"
+                            },
+                            {
+                                "path":  "tests/test_v008_reality_lineage_gate.py",
+                                "sha256":  "82229921A40D450686024205E15858EB19D65D964BEAA649B394690AD4FAF9DA"
+                            },
+                            {
+                                "path":  "scripts/build_v008_offline_evidence.py",
+                                "sha256":  "8F11C735823A43E054008976478B0FB8F7FFDE9114AEB9F0C69BBF1EE28F4D8B"
+                            },
+                            {
+                                "path":  "scripts/run_v008_canary.py",
+                                "sha256":  "CD99309A531AA253766069F5D61C8CABBFAB4DEAF14F84D294C81A4833454C22"
+                            },
+                            {
+                                "path":  "scripts/build_v008_canary_output.py",
+                                "sha256":  "0F516E8B9460400DA2D82E2EBD3D1DA2609FC9E8B6AA2914FE56FC3B3C0D2734"
+                            },
+                            {
+                                "path":  "evals/meihua/direct_reading_v2_stability_v008/scope_lock.json",
+                                "sha256":  "57E23A96F31A75A858115C34739FDCEF164D62D23E4F8B7B3CFDAF4A02ACE393"
+                            },
+                            {
+                                "path":  "evals/meihua/direct_reading_v2_stability_v008/offline_gate_evidence.json",
+                                "sha256":  "EDC4387894AA37A8BAB899D654E44B51106207D8DF13ECCEA2F28E61166FE058"
+                            },
+                            {
+                                "path":  "outputs/v008_canary_freeze.json",
+                                "sha256":  "0E4057AFF7519704BE03FCA9321025FBED546067EB8D789D76AB62F7C0A325B2"
+                            },
+                            {
+                                "path":  "outputs/v008_canary_call_ledger.json",
+                                "sha256":  "CFC78949EBEF7AF4F12C84838A529FD89665E036D1C47CCA235DAEF4D31C8E36"
+                            }
+                        ],
+    "protected_locks":  [
+                            {
+                                "path":  "src/abalo_iching/meihua/engine.py",
+                                "sha256":  "702B8BEDB7D1B61585EC697860290A78C37E07414B6FA3820EE1BF7A22734E84"
+                            },
+                            {
+                                "path":  "streamlit_app.py",
+                                "sha256":  "F1DB85C6164BA4488B7FCF894D76F66BECF521715A7FA3E493A453DFB8DE0FE0"
+                            },
+                            {
+                                "path":  "iching_tools.py",
+                                "sha256":  "E840C1AB86007F92C77D1ACABECDDF0094BF3BFC12AC8D662AA2AE3687E03AD9"
+                            },
+                            {
+                                "path":  "sites/hosted-app/app/page.tsx",
+                                "sha256":  "1F599CC08E028C6D461E12E67247E1E9B7D7BF29F1CF871C42E6396826CF1B3F"
+                            },
+                            {
+                                "path":  "sites/hosted-app/app/GuanxiangApp.tsx",
+                                "sha256":  "DAB8D4D2F6782F55F771DD0C1DC4E58505DDE422B7ABC55C1D2D0022E52AA5E6"
+                            }
+                        ],
+    "offline_tests":  {
+                          "focused":  "135 passed",
+                          "full":  "1204 passed",
+                          "release_cases":  9,
+                          "block_cases":  17,
+                          "false_positive":  0,
+                          "false_negative":  0,
+                          "mutation":  0
+                      },
+    "live":  {
+                 "authorized":  1,
+                 "actual":  0,
+                 "remaining":  1,
+                 "retry":  0,
+                 "provider_instantiated":  false,
+                 "activation_condition_met":  false
+             },
+    "external":  {
+                     "deployment":  false,
+                     "production":  false,
+                     "default_replacement":  false
+                 }
+}
+

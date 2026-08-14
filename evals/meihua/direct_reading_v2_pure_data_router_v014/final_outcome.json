@@ -1,0 +1,17 @@
+{
+  "stage_id": "DIRECT_READING_V2_PURE_DATA_ROUTER_V014",
+  "verdict": "OFFLINE_CANDIDATE_PASS",
+  "candidate_manifest_sha256": "CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67",
+  "independent_acceptance": "PASS",
+  "proven_scope": "Pure-data PASS/ASK_ONCE/FAILED outcome orchestration with no executable Router boundary and an authoritative fixture-only high path.",
+  "not_authorized": ["real Router adapter", "live Router or high call", "HTTP/UI product wiring", "default switch", "deployment", "production", "P9 visual design"],
+  "historical_locks": {
+    "v012": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v013": "DESIGN_STOP_BEFORE_CANDIDATE_FREEZE",
+    "v011": "LIVE_BATCH_PASS"
+  },
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

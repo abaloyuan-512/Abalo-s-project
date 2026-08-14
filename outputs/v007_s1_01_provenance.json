@@ -1,0 +1,66 @@
+{
+  "case_id": "S1-01",
+  "status": "SUCCESS",
+  "input": {
+    "question_text": "我获得了一个薪酬更高但职责跨度明显增大的工作机会；我应该接受，还是继续留在现在相对稳定但成长变慢的岗位？",
+    "numbers": [
+      31,
+      46,
+      11
+    ]
+  },
+  "call_ledger": {
+    "authorized_slot": 1,
+    "router_attempts": 0,
+    "high_attempts": 1,
+    "provider_attempts": 1,
+    "automatic_retries": 0,
+    "deterministic_cast_count": 1
+  },
+  "chart_facts": {
+    "base_hexagram": {
+      "role": "BASE",
+      "king_wen_number": 4,
+      "name": "山水蒙",
+      "upper_trigram": "艮",
+      "lower_trigram": "坎"
+    },
+    "mutual_hexagram": {
+      "role": "MUTUAL",
+      "king_wen_number": 24,
+      "name": "地雷复",
+      "upper_trigram": "坤",
+      "lower_trigram": "震"
+    },
+    "changed_hexagram": {
+      "role": "CHANGED",
+      "king_wen_number": 59,
+      "name": "风水涣",
+      "upper_trigram": "巽",
+      "lower_trigram": "坎"
+    },
+    "moving_line": {
+      "position": 5,
+      "name": "六五",
+      "canonical_line_text": "童蒙，吉。",
+      "canonical_data_version": "MEIHUA_CANONICAL_TEXTS_V1"
+    },
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+  },
+  "program_strength": {
+    "calendar_provider": "lunar_python/1.4.8",
+    "body_trigram": "坎",
+    "initial_use_trigram": "艮",
+    "changed_use_trigram": "巽",
+    "initial_relation": "USE_CONTROLS_BODY",
+    "changed_relation": "BODY_GENERATES_USE",
+    "body_strength": "SUPPORTED",
+    "additional_casts": 0
+  },
+  "source_reading_utf8_sha256": "74291CC8C7ABEFBB0DC4D839587797C1A60BD8B852EB0DA81DBC9368D38ED025",
+  "reconstructed_reading_utf8_sha256": "74291CC8C7ABEFBB0DC4D839587797C1A60BD8B852EB0DA81DBC9368D38ED025",
+  "reconstructed_equals_source": true,
+  "model_calls_for_render": 0,
+  "page_path": "outputs/v007_s1_01_page8_page9.md"
+}

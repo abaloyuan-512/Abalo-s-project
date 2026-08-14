@@ -1,0 +1,32 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015_ROUTER_ONLY_LIVE",
+  "authorized_by_user": true,
+  "authorized_router_only_calls": 2,
+  "authorized_cost_usd": "0.05",
+  "reuse_existing_api_key": true,
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "low",
+  "max_output_tokens_per_call": 128,
+  "sdk_max_retries": 0,
+  "stop_on_first_failure": true,
+  "replacement_cases": false,
+  "high_calls": 0,
+  "prepare_calls": 0,
+  "cast_calls": 0,
+  "process_calls": 0,
+  "pricing": {
+    "source": "INTERNAL_CONSERVATIVE_BUDGET_CHARGE_NOT_ACTUAL_INVOICE",
+    "checked_date": "2026-08-13",
+    "conservative_input_usd_per_million": "1.00",
+    "cache_write_input_multiplier": "1.25",
+    "conservative_output_usd_per_million": "6.00",
+    "conservative_input_tokens_per_call": 8192,
+    "conservative_output_tokens_per_call": 128,
+    "conservative_cost_per_call_usd": "0.011008",
+    "conservative_batch_cost_usd": "0.022016"
+  },
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "product_wiring": false
+}

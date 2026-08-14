@@ -1,0 +1,21 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018",
+  "verdict": "OFFLINE_CANDIDATE_PASS",
+  "manifest_sha256": "30C1E24EB0675B7FC5091431AA1599CBAD9D0A14314713CDCDC812956D432109",
+  "independent_acceptance": "PASS",
+  "proven_scope": "Zero-live exact SDK response snapshot to V017 receipt telemetry, with one-shot source binding and rebuildable integration digest.",
+  "not_proven": "A real provider response carrying complete response_id and usage through this path.",
+  "recommended_next_authorization": {
+    "router_only_live_calls": 1,
+    "cost_cap_usd": "0.025",
+    "automatic_retries": 0,
+    "high_calls": 0,
+    "cast_calls": 0,
+    "stop_on_any_failure": true
+  },
+  "new_live_authorized": false,
+  "product_wiring": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

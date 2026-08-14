@@ -1,0 +1,563 @@
+{
+  "run_id": "GUANXIANG_STAGE1D_20260807T000532Z",
+  "scope": "STAGE1D_SINGLE_FROZEN_RUN",
+  "generated_at": "2026-08-07T00:05:32.053056+00:00",
+  "run_status": "COMPLETED",
+  "model": "gpt-5.6-luna",
+  "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+  "critic_prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+  "proposer_prompt_sha256": "2b3f3a21698933170b02a52b5542f202e43c5d83fa88e91d4a5495a00eb4e726",
+  "contract_file_sha256": "325E63A424373199BE0C37CB241C68ED8C0FB610D5C53DAAE56090AEA617BA6C",
+  "runner_file_sha256": "0523E80B80FE27147A6E6137CB1ED1A7159506405228B4FC2251A784E1BD7ABC",
+  "heldout_run_number": 1,
+  "model_retry_count": 0,
+  "max_experiment_calls": 30,
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？",
+      "frozen_answers": [
+        "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。",
+        "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。",
+        "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。",
+        "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "DECISION_AXIS",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-M01-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 1,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 1964,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。",
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": false,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-M02",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+      "frozen_answers": [
+        "合作当前数据良好，但尚未经历完整交付周期。我在考虑现在就快速增加投入，还是先建立回调和风险控制。",
+        "我已经增加过一次小额投入，目前获客和成交都比原计划好。",
+        "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。",
+        "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "DECISION_AXIS",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-M02-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 2,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 522,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "合作进展顺利是这次判断的固定前提。我已经决定继续增加投入，真正犹豫的是应该快速扩大，还是分阶段缓慢增加。",
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": false,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-M03",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？",
+      "frozen_answers": [
+        "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。我想判断现在推动重启是否合适。",
+        "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。",
+        "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。",
+        "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "AGENCY_AUTHORITY",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-M03-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 3,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 971,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "是我主动想借管理层重新关注的机会推动，领导没有明确要求我负责重启；我在决定要不要主动承担推动责任。",
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": false,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-M04",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？",
+      "frozen_answers": [
+        "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊，我在考虑是否继续推动关系确认。",
+        "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。",
+        "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。",
+        "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "MOTIVE_COST",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-M04-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 4,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 611,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。",
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": false,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-H11",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "品牌准备进入第二座城市，我是先开一家直营店，还是先找三家联营店试水？",
+      "frozen_answers": [
+        "团队已经完成当地客群、租金和竞品调研；按十二个月测算，一家直营店和三家联营店都在现有预算承受范围内。",
+        "直营店最快四个月开业，需要总部派驻五人；联营试水最快六周开始，现有拓展团队可以同时管理三家合作方。",
+        "两种方案都不涉及牌照障碍，供应链也能覆盖；当前最大的客观不确定性是当地真实复购率，而不是开店资格或资金是否到位。",
+        "我是品牌拓展负责人，负责比较进入方案并向董事会提交建议；现有材料没有说明董事会是否已经批准进入这座城市，也没有说明我能否独立决定进入。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "DECISION_AXIS",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-H11-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 5,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 918,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": true,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-H12",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "与渠道方的合作目前进展顺利，下一季度我是继续增加投放，还是快速追加预算抢市场？",
+      "frozen_answers": [
+        "合作按计划推进，渠道方履约正常，没有回款争议、排他冲突或关系恶化迹象；合作进展顺利是当前已知前提。",
+        "过去八周新增客户成本比目标低百分之十二，复购率达到既定门槛；现有数据支持扩大测试，但还不足以预测大规模投放后的边际回报。",
+        "预算允许按月增加百分之十，也允许在季度初一次性增加百分之四十；我拥有本季度投放预算的最终配置权。",
+        "当前材料没有说明‘继续增加投放’本身是否已经决定，也没有说明用户是在判断要不要继续增加，还是只在已决定增加的前提下判断增加速度。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "DECISION_AXIS",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-H12-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 6,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 703,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": true,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-H13",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "对方这两个月回应一直含糊，我还要不要继续推动我们把关系说清楚？",
+      "frozen_answers": [
+        "这两个月双方平均每周联系两到三次，对方愿意见面，也会主动分享日常，但每次谈到关系定位时都会转开话题。",
+        "双方没有明确约定排他关系，对方也没有给出承诺期限；用户已经两次直接询问，对方都只说‘再相处看看’。",
+        "目前没有已知的异地、家庭反对或工作调动等外部障碍；继续联系或停止推进都由用户自己决定。",
+        "现有材料没有说明用户希望这次确认得到哪一种具体结果、为什么在回应含糊时仍想继续推动，也没有说明她最担心继续含糊会付出什么代价。"
+      ],
+      "expected_initial_verdict": "ASK_ONE",
+      "expected_dimension": "MOTIVE_COST",
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-H13-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 7,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 892,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": false,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": true,
+        "ready_confirms_without_question": true
+      }
+    },
+    {
+      "case_id": "GXID-H14",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "领导明确要求本季度重启停了九个月的数据平台项目，我是先恢复核心报表，还是一次性恢复全部模块？",
+      "frozen_answers": [
+        "分管副总已经书面要求本季度重启，并指定我担任项目负责人；是否重启不再由我决定，我有权在两种恢复范围之间作最终选择。",
+        "核心报表可在六周恢复，覆盖当前百分之七十的使用需求；全部模块需要十四周，其中两个低频模块的需求方尚未确认后续使用量。",
+        "两种方案的预算都已批准，原供应商和内部数据团队都能按对应排期投入，不存在等待额外授权的前置条件。",
+        "我的首要目标是先恢复稳定可用的数据服务，其次才是本季度内覆盖全部历史功能；我能接受低频模块延后，但不能接受核心报表再次延期。"
+      ],
+      "expected_initial_verdict": "READY",
+      "expected_dimension": null,
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-H14-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 8,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 691,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": true,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": true,
+        "ready_confirms_without_question": false
+      }
+    },
+    {
+      "case_id": "GXID-H15",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "与渠道方的合作进展顺利，而且我已经决定下季度继续增加投放；我是季度初一次性增加百分之四十，还是每月增加百分之十？",
+      "frozen_answers": [
+        "渠道方过去两个季度按约履行，回款、排期和数据共享都正常；双方已经确认下季度继续合作，不存在是否维持合作的争议。",
+        "我已经批准增加下季度投放，当前只选择增加速度；两种节奏都在预算内，并且投放配置由我最终决定。",
+        "一次性增加有机会提前覆盖旺季流量，但如果转化下降，调整会慢两周；按月增加会少获得一部分旺季曝光，但每月都能根据新增客户成本调整。",
+        "我的首要目标是在新增客户成本不超过目标百分之十的前提下扩大市场份额；若连续两周超过该阈值，我会暂停后续增量。"
+      ],
+      "expected_initial_verdict": "READY",
+      "expected_dimension": null,
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-H15-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 9,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 982,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": true,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": true,
+        "ready_confirms_without_question": false
+      }
+    },
+    {
+      "case_id": "GXID-H16",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "新会员服务已经决定下周启动，也已获准对外公开；我是先向五十名老用户灰度三天再公开，还是启动当天就公开发布？",
+      "frozen_answers": [
+        "产品、支付、客服和隐私流程都已验收，通过日期就是下周一；启动决定与公开发布批准都已完成，不再需要额外审批。",
+        "灰度三天会把全面公开推迟到周四，能先观察真实咨询量；当天公开能覆盖周一的联合推广，但首日问题会同时暴露给全部用户。",
+        "我负责本次发布并拥有灰度或当天公开的最终决定权；两种方案的人力和服务器容量都已落实。",
+        "我的首要目标是控制首轮问题的影响范围，其次才是完整承接周一推广流量；我接受晚三天公开，但不能接受大面积用户同时遇到未发现的问题。"
+      ],
+      "expected_initial_verdict": "READY",
+      "expected_dimension": null,
+      "initial": {
+        "contract_version": "GUANXIANG_CRITIC_FIRST_EXPERIMENT_V1",
+        "session_id": "GXID-H16-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "独立就绪审查失败，本次不能形成瓶颈。",
+        "next_question": null,
+        "review": null,
+        "proposal": null,
+        "hypothesis": null,
+        "call_records": [
+          {
+            "sequence": 10,
+            "role": "CRITIC",
+            "attempted": true,
+            "model": "gpt-5.6-luna",
+            "prompt_sha256": "9a858d52304b443830d4c06462f71770d17bdde9fc258d5d3d287e9a0a66bcea",
+            "latency_ms": 613,
+            "response_id": null,
+            "raw_output_text": "{\"message\": \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", \"type\": \"invalid_request_error\", \"param\": \"text.format.schema\", \"code\": \"invalid_json_schema\"}",
+            "raw_parsed_output": null,
+            "usage": null,
+            "outcome": "TRANSPORT_ERROR",
+            "error_detail": "BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}"
+          }
+        ],
+        "review_error": "CRITIC_TRANSPORT_ERROR:BadRequestError:Error code: 400 - {'error': {'message': \"Invalid schema for response_format 'CriticOutput': In context=('properties', 'decision'), 'oneOf' is not permitted.\", 'type': 'invalid_request_error', 'param': 'text.format.schema', 'code': 'invalid_json_schema'}}",
+        "boundary_note": "本结果仅用于阶段1D Critic-first就绪实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_verdict_matches": false,
+        "initial_dimension_matches": true,
+        "veto_has_one_question": true,
+        "veto_did_not_call_proposer": true,
+        "no_review_error": false,
+        "core_veto_resolves_to_confirm": true,
+        "ready_confirms_without_question": false
+      }
+    }
+  ],
+  "aggregate": {
+    "attempted_call_count": 10,
+    "successful_call_count": 0,
+    "failed_call_count": 10,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "latency_total_ms": 8867,
+    "usage_missing_count": 10,
+    "sequence_is_contiguous": true,
+    "within_call_budget": true,
+    "estimated_cost_usd": null,
+    "all_mechanical_gates_pass": false,
+    "semantic_review_required": true
+  },
+  "completed_at": "2026-08-07T00:05:40.952527+00:00"
+}

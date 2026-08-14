@@ -1,0 +1,19 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V002_EVIDENCE",
+  "verdict": "OFFLINE_EVIDENCE_CANDIDATE_PASS",
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-V002-EVIDENCE-COMPLETENESS-OFFLINE-ACCEPTANCE-V1",
+  "candidate_manifest_sha256": "89B394465EDD4C7F689C29137E9E1050697C7EC81BE69EADE1ED46B9FDED5BDB",
+  "offline_ledger_sha256": "73627BD3F7976CA1F9734484D08760A8D14EE83C258CC3FE58815BCEC4B0A305",
+  "independent_acceptance_sha256": "13196300EEA8D2EC71A48AF3814A7FFBBC607EAD1F1217A237AE176DF9E07779",
+  "v001_historical_verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+  "v001_rewritten": false,
+  "scope": "OFFLINE_P8_P9_DIRECT_HIGH_EVIDENCE_ONLY",
+  "live_calls": 0,
+  "router_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false,
+  "p9_artwork": false,
+  "release_authorized": false,
+  "next_boundary": "Separate authorization is required for deployment, production, default replacement, live calls, or P9 artwork."
+}

@@ -1,0 +1,28 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ATOMIC_RECEIPT_V017",
+  "objective": "Repair only V016 E6/E7/E9 by binding one immutable receipt instance and request to the public projection, rejecting mixed or reused receipts, and completing the frozen failure matrix.",
+  "history_lock": {
+    "v015_router_only_live": "FAIL_STOP",
+    "v015_live_ledger_sha256": "FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321",
+    "v015_calls_remaining": 0,
+    "v016": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v016_manifest_sha256": "3396D84D379C4047B301E84332650E607AAE820A806688673535B1E22F827BD1",
+    "v016_failed_clauses": ["E6", "E7", "E9"]
+  },
+  "allowed": [
+    "one atomic fixture receipt wrapper and projection",
+    "fixture-only adversarial tests and offline ledger",
+    "governance and candidate manifest"
+  ],
+  "forbidden": [
+    "live, network, key access or OpenAI instantiation",
+    "editing V015 or V016 history",
+    "Router semantic, V014, high, engine, cast or safety changes",
+    "product, HTTP, UI, database, queue, default, deployment, production or P9 work",
+    "retry, second Router call or telemetry platform"
+  ],
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

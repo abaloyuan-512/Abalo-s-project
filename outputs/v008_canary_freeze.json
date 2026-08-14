@@ -1,0 +1,50 @@
+{
+  "stage_id": "DIRECT_READING_V2_REALITY_LINEAGE_V008",
+  "freeze_version": "V2",
+  "status": "FROZEN_BEFORE_IMPLEMENTATION_AND_LIVE_EXECUTION",
+  "case_order": [
+    "V008-CANARY-01"
+  ],
+  "case": {
+    "slot": 1,
+    "case_id": "V008-CANARY-01",
+    "domain": "RELATIONSHIP_SHARED_LIFE_DECISION",
+    "input_type": "EXPLICIT_USER_BACKGROUND_DIRECT_DECISION",
+    "question_text": "我和伴侣已经为共同搬家制定了预算和分工方案，但执行会暂时增加通勤与照护压力；我们应该按现方案开始搬家，还是继续维持现状？",
+    "input_sha256": "FE3C0C36BAA4968EBCC2A2F83990613426F6BC8387A6D0762E0C76F378F83073",
+    "numbers": [
+      27,
+      44,
+      16
+    ],
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "required_user_background_lineage": true
+  },
+  "supersedes": {
+    "freeze_version": "V1",
+    "sha256": "0E4057AFF7519704BE03FCA9321025FBED546067EB8D789D76AB62F7C0A325B2",
+    "provider_attempts": 0,
+    "deterministic_casts": 0,
+    "reason": "PowerShell pipeline encoding produced an incorrect input_sha256; UTF-8 question text and numbers are unchanged."
+  },
+  "call_policy": {
+    "authorized_high_attempts": 1,
+    "router_attempts": 0,
+    "automatic_retry_limit": 0,
+    "failure_consumes_slot": true,
+    "replacement_allowed": false,
+    "deterministic_cast_limit": 1
+  },
+  "excluded": {
+    "v007_s1_02_rerun": true,
+    "router": true,
+    "medium": true,
+    "concise": true,
+    "deployment": true,
+    "production": true,
+    "v005": true,
+    "page_product_implementation": true
+  }
+}
+

@@ -1,0 +1,18 @@
+{
+  "authorization_id": "V018_ROUTER_ONLY_LIVE_AUTH_2026_08_14",
+  "candidate_manifest_sha256": "30C1E24EB0675B7FC5091431AA1599CBAD9D0A14314713CDCDC812956D432109",
+  "authorized_router_only_calls": 1,
+  "authorized_cost_cap_usd": null,
+  "reuse_existing_api_key": true,
+  "automatic_retries": 0,
+  "high_calls": 0,
+  "prepare_calls": 0,
+  "cast_calls": 0,
+  "process_calls": 0,
+  "replacement_cases": false,
+  "stop_after_terminal_result": true,
+  "product_wiring": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

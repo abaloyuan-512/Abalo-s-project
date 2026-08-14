@@ -1,0 +1,30 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V010",
+  "acceptance_contract": "DRV2-STABILITY-OFFLINE-ACCEPTANCE-V1",
+  "candidate_manifest_path": "evals/meihua/direct_reading_v2_stability_v010/candidate_manifest.json",
+  "candidate_manifest_sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E",
+  "review_mode": "ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "verdict": "FAIL",
+  "failed_contract_items": [3],
+  "failure": {
+    "code": "FROZEN_CASE_LEDGER_ROW_MISSING_AFTER_PRIOR_FAILURE",
+    "detail": "After the first frozen case fails, the runner stops without writing an explicit NOT_EXECUTED_DUE_TO_PRIOR_FAILURE ledger row for the remaining frozen case, so frozen case IDs and ledger case IDs are not one-to-one. A denominator of two does not replace the missing per-case record.",
+    "also_impacts_contract_item": 2
+  },
+  "passed_evidence": {
+    "manifest_and_authority_hashes": "27/27 MATCH",
+    "offline_ledger": {
+      "authorized_fixed_high_attempts": 0,
+      "actual_fixed_high_attempts": 0,
+      "provider_instantiated": false
+    },
+    "independent_focused_tests": "142 passed",
+    "independent_full_tests": "1192 passed",
+    "historical_locks": "V009 SUCCESS; V008 FAIL_STOP/INCOMPLETE; S1 FAIL_STOP unchanged"
+  },
+  "candidate_modified_by_reviewer": false,
+  "repair_or_retest_in_this_stage": false,
+  "live_model_calls": 0,
+  "v010_real_casts": 0,
+  "provider_instantiated": false
+}

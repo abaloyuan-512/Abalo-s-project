@@ -1,0 +1,22 @@
+{
+  "form_id": "GXID_ICHING_STRUCTURE_V1",
+  "purpose": "易学结构盲评，不评价文案喜好",
+  "reviewer_status": "UNASSIGNED",
+  "required_case_source": "reviewer_cases/iching_structure_cases.json",
+  "blind_rule": "不得读取 reveal_key.json、cases.json、案例分层、来源、旧反馈或作者信息。",
+  "scale": ["SUPPORTED", "PARTIAL", "UNSUPPORTED", "UNCERTAIN"],
+  "checks": [
+    "盘面事实是否准确",
+    "结构判断是否受盘面支持",
+    "从卦象证据到判断的解释是否连贯",
+    "是否存在先写结论再贴卦象或牵强附会",
+    "是否遗漏了需要说明的合理替代解释",
+    "是否明确了这个卦不能支持哪些结论"
+  ],
+  "required_evidence": [
+    "引用具体盘面结构或爻位",
+    "说明支持、部分支持或不支持的原因",
+    "记录争议而不是强制统一答案"
+  ],
+  "forced_rule": "材料缺少动爻、体用、旺衰或引用依据时必须填 UNCERTAIN，不得把材料缺失记为 UNSUPPORTED。"
+}

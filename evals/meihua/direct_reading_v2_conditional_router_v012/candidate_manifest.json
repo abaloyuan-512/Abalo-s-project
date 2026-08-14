@@ -1,0 +1,48 @@
+{
+  "stage_id": "DIRECT_READING_V2_CONDITIONAL_ROUTER_V012",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-CONDITIONAL-ROUTER-OFFLINE-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path": "src/abalo_iching/application/sites_conditional_router_v1.py", "sha256": "08992D520D213798368897AB83AB9FC9E6A5E801385950825B566EC44434700F"},
+    {"path": "tests/test_sites_conditional_router_v1.py", "sha256": "26147228C363429A6198A8FDB23DAE54B41F722A4FF33C1F2AE88D2D78A7D998"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/scope_lock.json", "sha256": "53B4EDAC572DEED7F9451DA5AB3B78F410B6FE030A84B53793252097D111322F"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/acceptance_contract.json", "sha256": "26C113148E22D74E5007781432FCD50593EB692C6564E055732074895BCB8363"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/decision_log.md", "sha256": "1DC7840C5F2F2DA0DE66C173588211DBB9D2BE0237B735E194B97C1AF4FD185A"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/execution_log.md", "sha256": "C082D003F073D5FCA8D28E25AA8E1660FFA756AEAB5D7CB355999D92163B3EBE"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/risk_log.md", "sha256": "164F8A6032BA5A585140B025704B23AF6DEEAEC4A14F26B67690A72F72E3A02B"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/deviation_log.md", "sha256": "D0DB4D6F7F73ED4A6796A7D32F519D78E199640C93E7962E11D87C3ECD4D968F"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/build_offline_evidence.py", "sha256": "192CA443CF9B12DC503567FDA31E0051D6AC76E060ADCD0A214D823BD2F36721"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/offline_ledger.json", "sha256": "55261D582B884BF51062E354BA072FFF8D10161F029681D831BC650AB2A3C0B4"}
+  ],
+  "immutable_authority_evidence": [
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/candidate_manifest.json", "sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json", "sha256": "DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/live_independent_acceptance_result.json", "sha256": "94D96AF72330D08E624AC307710524D721CDD1182818EB6B1B3AAD1B6E2FAE61"},
+    {"path": "outputs/v011_stability_run_ledger.json", "sha256": "10E3DA2E3C57494352BA509DB22BFA98F587A2689C45B236047D4199EEBE4834"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/candidate_manifest.json", "sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/final_outcome.json", "sha256": "39A888E64519B76FD863B9E3B168BDCD24222F4DEF189B878060B07E295E734C"},
+    {"path": "src/abalo_iching/application/sites_direct_reading_v2.py", "sha256": "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"},
+    {"path": "outputs/v009_canary_real_result.json", "sha256": "BE35C9632A9D65BD683E9AD36A213F79CC7533E93EF04FC1E83371EB876A56C6"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/canary_outcome.json", "sha256": "A47E940CBDC32019F1A611131992E9D29CD27B79CE100C79CAF3E4AD1B20D069"},
+    {"path": "outputs/v007_s1_stage_summary.json", "sha256": "8265C3676EB1E4F5FB4B44DFFB76C317B3A63AA8DF069F3D8257E5953572A032"}
+  ],
+  "offline_verification": {
+    "router_focused": "40 passed",
+    "inherited_focused": "194 passed",
+    "full": "1240 passed",
+    "fixture_case_count": 10,
+    "fixture_router_attempts": 6,
+    "fixture_high_attempts": 10,
+    "fixture_cast_count": 10,
+    "live_calls": 0,
+    "real_router_provider_instantiated": false,
+    "real_high_provider_instantiated": false
+  },
+  "external_state": {
+    "http_or_ui_wiring": false,
+    "deployment": false,
+    "production": false,
+    "default_replacement": false,
+    "page9_art_or_product_implementation": false
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "rubric_id": "GXID_ICHING_STRUCTURE_RUBRIC_V2",
+  "purpose": "核验易学结构，不评价文案喜好；当前阶段不冒充独立专家共识",
+  "common_scale": {
+    "SUPPORTED": "材料充分，主要判断得到明确支持",
+    "PARTIAL": "主要方向有支持，但存在可定位的缺口或过度延伸",
+    "UNSUPPORTED": "材料充分，且可指出错误、冲突或无依据跳跃",
+    "UNCERTAIN": "材料、规则或方法依据不足；不是中间分"
+  },
+  "dimensions": {
+    "chart_fact_accuracy": {
+      "SUPPORTED": "所引本卦、变卦、动爻、体用、旺衰均与确定性盘面一致，无新增盘面事实",
+      "PARTIAL": "核心事实正确，仅有不改变判断的小处误写或指代不清",
+      "UNSUPPORTED": "关键卦、爻、体用或旺衰写错，或捏造盘面事实",
+      "UNCERTAIN": "缺少完整盘面、规则版本或可核对来源"
+    },
+    "structural_support": {
+      "SUPPORTED": "行动姿态和核心判断受主要结构共同支持，并处理正反混合信号",
+      "PARTIAL": "部分判断有支持，但结论强度过高或遗漏重要相反信号",
+      "UNSUPPORTED": "核心结论与主要结构冲突，或所引结构无法推出该结论",
+      "UNCERTAIN": "缺少动爻、体用、旺衰或必要方法依据"
+    },
+    "evidence_chain_coherence": {
+      "SUPPORTED": "清楚呈现盘面事实→易理含义→本题判断，每一步可定位",
+      "PARTIAL": "主判断有链条，但关键过渡依赖常识或隐含推断",
+      "UNSUPPORTED": "只有引用没有解释桥梁，或证据与结论无关",
+      "UNCERTAIN": "缺少逐项证据映射，无法重建推理"
+    },
+    "chart_constrained_not_post_hoc": {
+      "SUPPORTED": "判断先受卦象约束，现实信息只用于落地；换卦会改变核心判断",
+      "PARTIAL": "卦象判断和现实建议混杂，部分内容通用但无明确误用",
+      "UNSUPPORTED": "现实结论先行，卦象可任意替换或仅为既定建议背书",
+      "UNCERTAIN": "缺少独立卦象判断或映射，无法判断"
+    },
+    "alternative_explanations": {
+      "SUPPORTED": "对混合或含糊结构给出合理替代解释和区分条件，或说明为何无重要替代",
+      "PARTIAL": "承认不确定性，但未说明具体替代方向或区分条件",
+      "UNSUPPORTED": "存在明显相反信号，却把单一解释说成唯一答案",
+      "UNCERTAIN": "材料或方法不足，无法确认替代解释"
+    },
+    "conclusion_boundary": {
+      "SUPPORTED": "明确说明卦不能证明什么，并把第三方意图、最终结果、具体日期和现实事实留给核实",
+      "PARTIAL": "有一般性保留措辞，但未点明最关键的不可推断项",
+      "UNSUPPORTED": "保证结果、第三方读心、生成无依据日期或把现实背景说成卦象证明",
+      "UNCERTAIN": "输出或上下文缺失，无法检查"
+    }
+  },
+  "required_evidence": "每一项非 UNCERTAIN 判断都必须引用具体盘面或输出原文，并说明从事实到判断的关系"
+}

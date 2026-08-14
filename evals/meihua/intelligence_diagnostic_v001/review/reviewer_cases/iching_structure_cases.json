@@ -1,0 +1,1711 @@
+{
+  "packet_id": "GXID_BLIND_REVIEW_PACKET_V1",
+  "dataset_version": "1.0.0",
+  "blind_status": "BLINDED",
+  "case_order_frozen": true,
+  "source_cases_sha256": "09c5ad3d7b36c52f23bee048a2aec9cc20423006566a36c04250b7e4fb9291b5",
+  "allowed_form_id": "GXID_ICHING_STRUCTURE_V1",
+  "cases": [
+    {
+      "review_case_id": "R-7C2A",
+      "question": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？",
+      "anonymized_context": "管理层开始重新关注该项目，但资源和责任机制仍不稳定。",
+      "chart_snapshot": {
+        "base_hexagram": {
+          "king_wen_number": 12,
+          "name_zh": "否",
+          "full_name_zh": "天地否",
+          "unicode_symbol": "䷋",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 53,
+          "name_zh": "渐",
+          "full_name_zh": "风山渐",
+          "unicode_symbol": "䷴",
+          "upper_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 7,
+            "name_zh": "艮",
+            "symbol": "☶",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            0,
+            1,
+            0,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 35,
+          "name_zh": "晋",
+          "full_name_zh": "火地晋",
+          "unicode_symbol": "䷢",
+          "upper_trigram": {
+            "number": 3,
+            "name_zh": "离",
+            "symbol": "☲",
+            "element": "火",
+            "lines_bottom_up": [
+              1,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "moving_line": 5
+      },
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "这类停滞更值得先从协作方式、责任边界和资源配置中找原因，而不宜仅靠加大投入来重复原有做法。",
+            "evidence_ids": [
+              "E02"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "若要推动项目，需要把修复思路落实为可执行的分工、沟通和风险控制，而非只处理表面进度。",
+            "evidence_ids": [
+              "E03"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑先梳理项目中已经失效的审批、协作或交接环节，并暂停对这些环节的重复消耗。",
+            "evidence_ids": [
+              "E02"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "可以考虑将责任人、决策权限、资源承诺和升级路径写入明确机制，并设置检查与备选方案。",
+            "evidence_ids": [
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证重启方案是否保留了关键资源与退出边界，避免为推动进展而承担不可控的额外风险。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "项目当前最主要的阻塞，是否已经被具体定位为责任、资源、决策或跨团队协作中的某一类问题？",
+            "evidence_ids": [
+              "E02"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "是否已有被明确授权的责任人，能够协调资源并对关键决策承担后续责任？",
+            "evidence_ids": [
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "重启方案中是否包含可核对的检查点、风险升级路径和资源不足时的止损安排？",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "evidence_reference_catalog": {
+        "catalog_version": "MEIHUA_EVIDENCE_REFERENCE_CATALOG_V1",
+        "entries": [
+          {
+            "evidence_ref": "EV01",
+            "canonical_evidence_id": "D-H-12",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_HEXAGRAM_PREVIEW",
+            "display_payload_hash": "a9f7a6380be7a364fd2dfa60d3883d05e33f065dc0b398dd872e3f9ea64d139f",
+            "safe_display_payload": {
+              "core_theme": "闭塞、上下不交、结构失灵与守住底线。",
+              "literal_paraphrase": null,
+              "favorable_conditions": [
+                "识别真正的结构性阻塞",
+                "停止无效消耗",
+                "保留核心资源",
+                "坚持基本原则",
+                "等待或创造沟通结构改变。"
+              ],
+              "risk_conditions": [
+                "为求短期通行而放弃底线，反复向失效系统投入，或把暂时闭塞理解成永远无解。"
+              ],
+              "action_tendency": "先止损、收缩和保护关键资源，再评估是否存在可改变的结构条件；不宜用更大力气重复同一种无效方法。",
+              "prohibited_inferences": [
+                "不得断言关系必然结束或对方已经变心",
+                "不得断言必然失业、破产或合作失败",
+                "不得把结构性阻塞归咎为某个人道德败坏",
+                "不得鼓励无期限等待或持续投入失效系统"
+              ],
+              "polarity": "NEGATIVE",
+              "strength": "STRONG",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV02",
+            "canonical_evidence_id": "D-L-12-5",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_LINE_PREVIEW",
+            "display_payload_hash": "5fc932bcdfa63d58e6b67c37b03b5f0eb7213965491d79cbeb21a1a08e95a1c4",
+            "safe_display_payload": {
+              "core_theme": "扭转闭塞、核心责任与在转机中保持危机意识。",
+              "literal_paraphrase": "闭塞开始得到整顿，有能力承担责任的人可获得转机；但必须反复警惕局势重新失控，把安全系在牢固的根基上。",
+              "favorable_conditions": [
+                "核心责任人明确",
+                "修复制度与沟通",
+                "保留危机意识",
+                "建立冗余、检查和止损机制。"
+              ],
+              "risk_conditions": [
+                "刚见好转就放松",
+                "把个人能力当作永久保障",
+                "只处理表面症状而未加固根基。"
+              ],
+              "action_tendency": "可以推动修复，但必须边推进边加固；把“可能再失去”转化为制度、备份和风险检查。",
+              "prohibited_inferences": [
+                "不得承诺闭塞一定结束或关系必然修复",
+                "不得把“大人吉”解释为某位权贵必然帮助",
+                "不得因出现转机而忽视风险检查",
+                "不得把“苞桑”解释为具体人物或地点"
+              ],
+              "polarity": "POSITIVE",
+              "strength": "STRONG",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV03",
+            "canonical_evidence_id": "E02",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "CONDITION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_BODY_USE_RELATION",
+            "display_payload_hash": "4372994abe999fbdafb874e0586a641e7de2746be1219ee1797aeaaf7ed72efc",
+            "safe_display_payload": {
+              "fact": "初始体用关系为体生用",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "NEGATIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV04",
+            "canonical_evidence_id": "E03",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "CONDITION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_BODY_USE_RELATION",
+            "display_payload_hash": "496abc589e86b0d3edaba50cedc46859416c6a78c54ac1fb8d00f941bf830f3d",
+            "safe_display_payload": {
+              "fact": "变化后体用关系为用生体",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "POSITIVE",
+              "strength": "STRONG"
+            }
+          },
+          {
+            "evidence_ref": "EV05",
+            "canonical_evidence_id": "E06",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "BODY_SEASONAL_STRENGTH",
+            "display_payload_hash": "ce63d1a5e2a5adbfdd60cbf31e26f643e97c0cea6094160b8cb7012cc8b62055",
+            "safe_display_payload": {
+              "fact": "体卦五行在未月为旺",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "STRONG"
+            }
+          },
+          {
+            "evidence_ref": "EV06",
+            "canonical_evidence_id": "E07",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "21b668fd4072086a54491cb7d656ea9865e4215f8a865cd5f761d746c25ae81d",
+            "safe_display_payload": {
+              "fact": "初始用卦五行在未月为相",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV07",
+            "canonical_evidence_id": "E08",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "5533b4d5ea5e5848ab8ab3aee82bddadc8d18b95030207e58b2addfdc5e3d97d",
+            "safe_display_payload": {
+              "fact": "变化后用卦五行在未月为休",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "NEUTRAL",
+              "strength": "WEAK"
+            }
+          },
+          {
+            "evidence_ref": "EV08",
+            "canonical_evidence_id": "E09",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "MOVING_LINE_STAGE",
+            "display_payload_hash": "f4f7faa713340ee6c54e381a258270dc44aa567828a39e283199b642a4b97f4d",
+            "safe_display_payload": {
+              "fact": "第5爻对应核心决断",
+              "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+              "polarity": "NEUTRAL",
+              "strength": "WEAK"
+            }
+          }
+        ],
+        "catalog_sha256": "ea931743cf12f0baa51d21259467b1c8e1ec174be738a51804e42ab13420056b"
+      },
+      "review_scope": "FULL_CHART_TO_JUDGMENT",
+      "required_missing_materials": [],
+      "payload_sha256": "21e686d72d6cd922157739aa52d90b38617492c179503aa6a040bb8d26898516"
+    },
+    {
+      "review_case_id": "R-19F4",
+      "question": "这次合作，我还应该继续投入吗？",
+      "anonymized_context": null,
+      "chart_snapshot": "离为火，三爻动，变火雷噬嗑；初始体用比和，变化后用生体；体休、初用休、变用囚。",
+      "reading_output": {
+        "core_judgment": "这次不宜直接追加投入。",
+        "reading": "离为两火相承，也有附丽之义：火有所附，方能成明。体用起初比和，说明这段合作并非根本相悖，双方也曾有过彼此照应、同向发力的基础。但三爻所见是“日昃之离”——日势已斜，光还在，阶段却已经变了。此时若仍循旧法，只靠原来的热度、承诺或你的持续投入维持，所得未必是推进，更多可能只是耗损。变而为噬嗑。噬嗑之象，是颐中有物，梗在其间；不先把它辨清、处置，彼此便难以重新相合。落到这次合作，眼下真正要处理的不是“你还能再投入多少”，而是责任、交付、分配或延期代价中，究竟哪一处始终含混，迟迟没有落定。",
+        "action": "在新增资金、时间或资源以前，先要求对方完成一个足以消除当前梗碍的实际动作：补上关键交付、重新划清责任、承担已经发生的延期成本，或者把后续资源与回报明确下来。先见承担，再谈继续。"
+      },
+      "evidence_reference_catalog": null,
+      "review_scope": "PARTIAL_MATERIAL_UNCERTAIN_REQUIRED",
+      "required_missing_materials": [
+        "完整确定性盘面或逐项证据映射"
+      ],
+      "payload_sha256": "d4cec8f78a67a52ec940f51ae12ab0203be0044a0b223b692a8609099373bac7"
+    },
+    {
+      "review_case_id": "R-B603",
+      "question": {
+        "question_a": "这次合作，我还应该继续投入吗？",
+        "question_b": "对方多次延期后，我还要继续追加预算吗？"
+      },
+      "anonymized_context": null,
+      "chart_snapshot": {
+        "base": "山地剥",
+        "changed": "艮为山",
+        "source": "existing_deterministic_output"
+      },
+      "reading_output": {
+        "answer": "山地剥把重点放在“旧结构正在脱落，先保住最重要的部分”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "what_it_means": "本卦是山地剥，先提醒你：旧结构正在脱落，先保住最重要的部分。动爻之后变为艮为山，局面的下一层重点转向：知道什么时候停下来，才能重新看清。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。"
+      },
+      "evidence_reference_catalog": null,
+      "review_scope": "PARTIAL_MATERIAL_UNCERTAIN_REQUIRED",
+      "required_missing_materials": [
+        "完整确定性盘面或逐项证据映射"
+      ],
+      "payload_sha256": "ee922d84c55cf2b5fcffb0501b6d1d485bbd6c57412123d84ebb8bca3dd4e2d8"
+    },
+    {
+      "review_case_id": "R-4D8E",
+      "question": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？",
+      "anonymized_context": "已经有初步方案，但资源、合作人和交付流程尚未稳定。",
+      "chart_snapshot": {
+        "base_hexagram": {
+          "king_wen_number": 1,
+          "name_zh": "乾",
+          "full_name_zh": "乾为天",
+          "unicode_symbol": "䷀",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 1,
+          "name_zh": "乾",
+          "full_name_zh": "乾为天",
+          "unicode_symbol": "䷀",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 44,
+          "name_zh": "姤",
+          "full_name_zh": "天风姤",
+          "unicode_symbol": "䷫",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "moving_line": 1
+      },
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "这件事更适合把“主动”理解为有边界的筹划与验证，而不是用公开承诺来替代准备。",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "现有方案可以继续推进，但资源、协作和交付安排是否能承接公开启动，仍是需要优先核对的现实环节。",
+            "evidence_ids": [
+              "D-L-1-1",
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑先把项目拆成较小的验证单元，分别确认资源来源、合作分工和交付标准。",
+            "evidence_ids": [
+              "D-L-1-1",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "可先尝试设定明确的公开启动门槛，例如关键资源到位、协作责任确认，以及交付流程能够实际运转。",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证你的行动强度是否与可承担的承诺相匹配，避免为了证明能力而扩大范围。",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "目前哪些资源已经落实，哪些仍依赖口头意向或不稳定的外部配合？",
+            "evidence_ids": [
+              "D-L-1-1",
+              "E02"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "合作人是否已明确各自的责任、权限和交付接口？",
+            "evidence_ids": [
+              "D-H-1",
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "如果公开启动后出现需求变化或协作缺口，现有流程能否承受并及时调整？",
+            "evidence_ids": [
+              "D-H-1",
+              "D-L-1-1",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "evidence_reference_catalog": {
+        "catalog_version": "MEIHUA_EVIDENCE_REFERENCE_CATALOG_V1",
+        "entries": [
+          {
+            "evidence_ref": "EV01",
+            "canonical_evidence_id": "D-H-1",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_HEXAGRAM_PREVIEW",
+            "display_payload_hash": "6972ba0420626fc41b445daa4b13bcda3d2d4ad038b0a69e5161c3f95049275b",
+            "safe_display_payload": {
+              "core_theme": "主动创造、持续进取，并以原则约束力量。",
+              "literal_paraphrase": null,
+              "favorable_conditions": [
+                "目标明确",
+                "行动与承诺一致",
+                "能够持续投入",
+                "愿意接受规则、协作和现实反馈。"
+              ],
+              "risk_conditions": [
+                "自信膨胀、急于证明、把强势当执行力，或在条件尚未成熟时过度扩张。"
+              ],
+              "action_tendency": "可以主动筹划和分阶段推进，但应先确认方向、边界与长期承受力。",
+              "prohibited_inferences": [
+                "不得解释为“只要主动就一定成功”",
+                "不得断言对方会被说服、征服或必然接受",
+                "不得把强势、控制欲包装成乾卦应有表现",
+                "不得承诺升职、创业成功或财富增长"
+              ],
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV02",
+            "canonical_evidence_id": "D-L-1-1",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_LINE_PREVIEW",
+            "display_payload_hash": "cd9145d983e3c4700c39c859a76f254a4e3c32cd51c1bc0df9beb1022ee4ddc9",
+            "safe_display_payload": {
+              "core_theme": "潜藏蓄力、等待条件、暂不显用。",
+              "literal_paraphrase": "力量仍处在潜藏、积累的位置，现在不是公开施展或强行推进的时候。",
+              "favorable_conditions": [
+                "继续准备",
+                "积累能力和证据",
+                "观察环境",
+                "设定启动条件",
+                "不因暂时沉默否定长期潜力。"
+              ],
+              "risk_conditions": [
+                "为了证明自己而过早暴露、承诺或推进",
+                "把等待变成消极拖延",
+                "反复起卦替代准备。"
+              ],
+              "action_tendency": "暂缓公开或高成本行动，把重点放在准备、验证和等待明确启动信号。",
+              "prohibited_inferences": [
+                "不得断言对方在隐藏感情",
+                "不得承诺等待后必然成功",
+                "不得把“勿用”解释为永久不行动",
+                "不得以卦象代替现实启动条件"
+              ],
+              "polarity": "MIXED",
+              "strength": "STRONG",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV03",
+            "canonical_evidence_id": "E02",
+            "allowed_roles": [
+              "EXPLANATION",
+              "CONDITION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_BODY_USE_RELATION",
+            "display_payload_hash": "f4df3dbfced978b52d611d82aac272f23a9d7fe4221b39575a1357f808060422",
+            "safe_display_payload": {
+              "fact": "初始体用关系为比和",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "MIXED",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV04",
+            "canonical_evidence_id": "E03",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "CONDITION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_BODY_USE_RELATION",
+            "display_payload_hash": "c23a300c29666fc604ed18187a95f036810132346d5646a687b378446702ac85",
+            "safe_display_payload": {
+              "fact": "变化后体用关系为体克用",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV05",
+            "canonical_evidence_id": "E06",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "BODY_SEASONAL_STRENGTH",
+            "display_payload_hash": "570fd8ab71b216ea5d50c79dbf9e2f222ad017ed3c5db132ec1bc1a3a6297cec",
+            "safe_display_payload": {
+              "fact": "体卦五行在未月为相",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV06",
+            "canonical_evidence_id": "E07",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "21b668fd4072086a54491cb7d656ea9865e4215f8a865cd5f761d746c25ae81d",
+            "safe_display_payload": {
+              "fact": "初始用卦五行在未月为相",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV07",
+            "canonical_evidence_id": "E08",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "a4b440f0ef3e7bd8b495915a998d1a9a4319d7dcbb3d46b309ea8faafda258df",
+            "safe_display_payload": {
+              "fact": "变化后用卦五行在未月为囚",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "NEGATIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV08",
+            "canonical_evidence_id": "E09",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "MOVING_LINE_STAGE",
+            "display_payload_hash": "898d8fa4ac23e1e115233b1b1edcc366887cade8dd3120741bc9fec85e1ff2ee",
+            "safe_display_payload": {
+              "fact": "第1爻对应萌芽阶段",
+              "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+              "polarity": "NEUTRAL",
+              "strength": "WEAK"
+            }
+          }
+        ],
+        "catalog_sha256": "296381598638471361e106de8cbc2d6c0bcecf92a27d65efae535cd705a77990"
+      },
+      "review_scope": "FULL_CHART_TO_JUDGMENT",
+      "required_missing_materials": [],
+      "payload_sha256": "7de0d9fea1136c33d1ec0ff5907cd2805fb34bd4925a9d7ccd00bf6f83fa58ce"
+    },
+    {
+      "review_case_id": "R-A271",
+      "question": {
+        "question_a": "我还应该继续准备这次考试吗？",
+        "question_b": "这个副业方向，我还应该继续投入吗？"
+      },
+      "anonymized_context": null,
+      "chart_snapshot": {
+        "base": "水雷屯",
+        "changed": "水地比",
+        "source": "existing_deterministic_output"
+      },
+      "reading_output": {
+        "answer": "水雷屯把重点放在“事情刚起步，先把混乱一件件理顺”。这项个人计划目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+        "what_it_means": "本卦是水雷屯，先提醒你：事情刚起步，先把混乱一件件理顺。动爻之后变为水地比，局面的下一层重点转向：确认彼此是否真心靠近、愿意同行。当前结构对你的消耗或约束偏强，先保护可用资源更重要。回到现实，重点看时间、精力与资源能否承受这项计划。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你正在准备行动，写下可承受的时间、精力与预算上限，只先投入其中最小的一部分。保留调整空间，让每个阶段的事实决定下一阶段。"
+      },
+      "evidence_reference_catalog": null,
+      "review_scope": "PARTIAL_MATERIAL_UNCERTAIN_REQUIRED",
+      "required_missing_materials": [
+        "完整确定性盘面或逐项证据映射"
+      ],
+      "payload_sha256": "817479867d3e5855a87b9da3ff3292dc576e72d90222f3eef1c03cc6883ff89f"
+    },
+    {
+      "review_case_id": "R-52C9",
+      "question": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？",
+      "anonymized_context": "双方有持续联系，但对未来安排没有形成明确共识。",
+      "chart_snapshot": {
+        "base_hexagram": {
+          "king_wen_number": 55,
+          "name_zh": "丰",
+          "full_name_zh": "雷火丰",
+          "unicode_symbol": "䷶",
+          "upper_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 3,
+            "name_zh": "离",
+            "symbol": "☲",
+            "element": "火",
+            "lines_bottom_up": [
+              1,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 28,
+          "name_zh": "大过",
+          "full_name_zh": "泽风大过",
+          "unicode_symbol": "䷛",
+          "upper_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 34,
+          "name_zh": "大壮",
+          "full_name_zh": "雷天大壮",
+          "unicode_symbol": "䷡",
+          "upper_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "moving_line": 2
+      },
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "在信息尚未清晰、回应也缺少可核对内容时，继续加大推动力度可能更容易形成压力与消耗；把重点放在厘清事实和边界，会更利于判断下一步。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "事情处于尚待落实和验证的状态，现阶段更适合区分“已有共识”和“仍是推测”的部分，避免把含糊回应直接当作确认。",
+            "evidence_ids": [
+              "E09"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑以一次具体、可回应的沟通来核实双方对未来安排的理解，例如确认各自愿意讨论的议题、可接受的边界和需要补充的信息。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证对方的回应是否包含可落实的内容，而不只看态度是否友好；如信息仍不完整，可先尝试降低承诺成本，保留继续观察和调整的空间。",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "USER",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "对方是否能够清楚说明其对未来安排的理解、顾虑和可接受边界？",
+            "evidence_ids": [
+              "E09"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "双方目前已经明确一致的事项有哪些，哪些仍主要依赖猜测或模糊表述？",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "在提出确认需求后，沟通是否让信息更清楚，还是让彼此的压力和误解增加？",
+            "evidence_ids": [
+              "E02",
+              "E03"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "evidence_reference_catalog": {
+        "catalog_version": "MEIHUA_EVIDENCE_REFERENCE_CATALOG_V1",
+        "entries": [
+          {
+            "evidence_ref": "EV01",
+            "canonical_evidence_id": "D-H-55",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_HEXAGRAM_PREVIEW",
+            "display_payload_hash": "d41b71e9b33a1b667b3632342444e5645380955b25152aecfa2967a036627fc8",
+            "safe_display_payload": {
+              "core_theme": "盛大、聚光、高峰期的决断与防止遮蔽。",
+              "literal_paraphrase": null,
+              "favorable_conditions": [
+                "核心负责人到位",
+                "信息公开",
+                "决策及时",
+                "抓住高峰窗口",
+                "提前安排高峰后的维护和收缩。"
+              ],
+              "risk_conditions": [
+                "被表面繁盛迷惑、信息被遮挡、决策拖延、过度乐观，或把高峰当成永久状态。"
+              ],
+              "action_tendency": "可以推进和集中资源，但必须提高透明度、缩短反馈周期，并准备高峰后的承接方案。",
+              "prohibited_inferences": [
+                "不得把丰盛解释为长期无风险",
+                "不得承诺财富、名望或关系结果必然达到高峰",
+                "不得忽略信息遮蔽和高峰后的回落",
+                "不得以“勿忧”否定真实风险"
+              ],
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV02",
+            "canonical_evidence_id": "D-L-55-2",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_LINE_PREVIEW",
+            "display_payload_hash": "4744e56a5ad6935804c66a25408579fcfcc36e368d8ee2c8eb856b0459e9f071",
+            "safe_display_payload": {
+              "core_theme": "信息遮蔽、被怀疑，以及以可信行动恢复清晰。",
+              "literal_paraphrase": "遮蔽物厚重，即使在最明亮的时候也像能看见夜星；贸然前往容易遭到怀疑，只有以真实、可信的方式逐步澄清，才可能转为有利。",
+              "favorable_conditions": [
+                "提高透明度",
+                "提供可核验事实",
+                "保持一致",
+                "允许对方观察",
+                "通过小步行动累积信任。"
+              ],
+              "risk_conditions": [
+                "急于证明、强行解释、制造更大声量",
+                "把怀疑解读成恶意",
+                "在信息不清时作高成本承诺。"
+              ],
+              "action_tendency": "先澄清事实和建立可信度，再推进关键行动；用可验证的一致行为代替催促和辩解。",
+              "prohibited_inferences": [
+                "不得断言对方在欺骗、暗恋或故意试探",
+                "不得把“疑疾”解释为疾病诊断",
+                "不得承诺只要真诚就必然获得信任",
+                "不得给出未经程序支持的具体澄清时间"
+              ],
+              "polarity": "MIXED",
+              "strength": "STRONG",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV03",
+            "canonical_evidence_id": "E02",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_BODY_USE_RELATION",
+            "display_payload_hash": "4372994abe999fbdafb874e0586a641e7de2746be1219ee1797aeaaf7ed72efc",
+            "safe_display_payload": {
+              "fact": "初始体用关系为体生用",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "NEGATIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV04",
+            "canonical_evidence_id": "E03",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_BODY_USE_RELATION",
+            "display_payload_hash": "a7e7c25a56c7f7017bfdd7e358d424007dd01e026bbebcffffc681140140b536",
+            "safe_display_payload": {
+              "fact": "变化后体用关系为用克体",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "NEGATIVE",
+              "strength": "STRONG"
+            }
+          },
+          {
+            "evidence_ref": "EV05",
+            "canonical_evidence_id": "E06",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "BODY_SEASONAL_STRENGTH",
+            "display_payload_hash": "be0208d8bfa3b099b6f592659524007bddef7906a3533c0acd2cff6a65260f2d",
+            "safe_display_payload": {
+              "fact": "体卦五行在未月为囚",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "NEGATIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV06",
+            "canonical_evidence_id": "E07",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "c2a3f7a1cf472f4a64325de9b31e954263b8409eedcd64ed3e5f6fe267a900e9",
+            "safe_display_payload": {
+              "fact": "初始用卦五行在未月为休",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "NEUTRAL",
+              "strength": "WEAK"
+            }
+          },
+          {
+            "evidence_ref": "EV07",
+            "canonical_evidence_id": "E08",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "58fb9f82e59c34de455d2bdb7ee5d68657ec7c02ccd58d5b4e2df9516ff1e1e0",
+            "safe_display_payload": {
+              "fact": "变化后用卦五行在未月为相",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV08",
+            "canonical_evidence_id": "E09",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "MOVING_LINE_STAGE",
+            "display_payload_hash": "d8a1507ce6e51cb47d7deaf6e1873494cb59e703bfa2eb898e50e5a5bdccad0b",
+            "safe_display_payload": {
+              "fact": "第2爻对应初步成形",
+              "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+              "polarity": "NEUTRAL",
+              "strength": "WEAK"
+            }
+          }
+        ],
+        "catalog_sha256": "76e44d7d3e3dd87d5bf3b094e112d97f70bdd225caf93b7d0d25c75599d37e48"
+      },
+      "review_scope": "FULL_CHART_TO_JUDGMENT",
+      "required_missing_materials": [],
+      "payload_sha256": "a1d165d53a07847d9816920e621701115916c5597dedd39c41cde6d602d3b3e0"
+    },
+    {
+      "review_case_id": "R-E148",
+      "question": "这段关系，我还应该主动联系吗？",
+      "anonymized_context": null,
+      "chart_snapshot": "雷火丰，六二动，变雷天大壮；体用由体生用转为用克体；体囚。",
+      "reading_output": {
+        "core_judgment": "可以主动联系一次，但这次是为了把关系说清，不是为了再次替两个人维持关系。",
+        "reading": "丰本是盛大明亮之象，六二所见却是“日中见斗”：本应光明的时候，眼前反而有了遮蔽。落到关系里，这常不是全无情意，而是表面的热度、争执或反复联系太多，真正需要回答的问题却一直没有见光。爻辞又说“往得疑疾，有孚发若”。此时一味向前追问，容易让猜疑更重；真正能解开遮蔽的，是一次诚实而不纠缠的表达。变为大壮，力量会变强，但大壮只说“利贞”——有力量，不等于可以步步紧逼；守住分寸，力量才不致反过来伤身。",
+        "action": "主动一次，把想确认的关系状态、需要的回应或不能再接受的相处方式说清。说完以后，不再补充长篇解释，也不连续追问；接下来看对方会不会主动承担沟通。"
+      },
+      "evidence_reference_catalog": null,
+      "review_scope": "PARTIAL_MATERIAL_UNCERTAIN_REQUIRED",
+      "required_missing_materials": [
+        "完整确定性盘面或逐项证据映射"
+      ],
+      "payload_sha256": "d3bab31f82c5079a3b179ddb4afeb2a82e5ca9ed2646b3260c76aab28bc79945"
+    },
+    {
+      "review_case_id": "R-8B35",
+      "question": {
+        "question_a": "我是否应该继续争取这次晋升？",
+        "question_b": "我是否应该接受新的岗位安排？"
+      },
+      "anonymized_context": null,
+      "chart_snapshot": {
+        "base": "天地否",
+        "changed": "火地晋",
+        "source": "existing_deterministic_output"
+      },
+      "reading_output": {
+        "answer": "天地否把重点放在“沟通受阻时先疏通关系，不要硬推”。这份工作或职业选择眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "what_it_means": "本卦是天地否，先提醒你：沟通受阻时先疏通关系，不要硬推。动爻之后变为火地晋，局面的下一层重点转向：局面有向前的机会，要让成果被看见。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看职责、资源与评价标准是否真正匹配。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你正在等待反馈，向关键决策者提出一个可明确回答的问题，并只根据实际答复更新判断。把判断拆成阶段复盘，不一次承诺全部投入。"
+      },
+      "evidence_reference_catalog": null,
+      "review_scope": "PARTIAL_MATERIAL_UNCERTAIN_REQUIRED",
+      "required_missing_materials": [
+        "完整确定性盘面或逐项证据映射"
+      ],
+      "payload_sha256": "474638eb4ec697d726eb3b98159f8ab74bd196f5b6ba24e3d57f15006d457cb6"
+    },
+    {
+      "review_case_id": "R-3F76",
+      "question": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+      "anonymized_context": "合作当前数据良好，但尚未经历完整交付周期。",
+      "chart_snapshot": {
+        "base_hexagram": {
+          "king_wen_number": 11,
+          "name_zh": "泰",
+          "full_name_zh": "地天泰",
+          "unicode_symbol": "䷊",
+          "upper_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 54,
+          "name_zh": "归妹",
+          "full_name_zh": "雷泽归妹",
+          "unicode_symbol": "䷵",
+          "upper_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            0,
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 19,
+          "name_zh": "临",
+          "full_name_zh": "地泽临",
+          "unicode_symbol": "䷒",
+          "upper_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "moving_line": 3
+      },
+      "reading_output": {
+        "plain_language_explanation": [
+          {
+            "text": "当前更值得关注的是协作中的信息是否透明、目标是否一致，以及资源能否顺畅衔接；这些因素会影响推进过程是否稳健。",
+            "evidence_ids": [
+              "D-H-11"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "即使合作进展较顺，也应保留对变化和回落的准备，避免把阶段性成果直接当作长期保障。",
+            "evidence_ids": [
+              "D-L-11-3"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "CHART_EVIDENCE"
+          },
+          {
+            "text": "当前处在需要兼顾内部衔接与后续执行质量的位置，局部的小问题是否被及时处理，可能比单纯追求速度更重要。",
+            "evidence_ids": [
+              "E09",
+              "D-L-11-3"
+            ],
+            "narrative_kind": "EXPLANATION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "CHART_EVIDENCE"
+          }
+        ],
+        "real_world_advice": [
+          {
+            "text": "可以考虑将新增投入拆分为可核验的阶段，并为每个阶段设置交付、质量和资源使用的检查点。",
+            "evidence_ids": [
+              "D-H-11",
+              "D-L-11-3"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "建议验证合作各方对责任边界、资源调配和异常处理方式是否已有明确共识，再决定是否扩大承诺。",
+            "evidence_ids": [
+              "D-H-11"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          },
+          {
+            "text": "可先尝试建立回调方案，例如预先约定出现交付偏差、成本失控或沟通阻塞时的暂停、复盘和调整机制。",
+            "evidence_ids": [
+              "D-L-11-3"
+            ],
+            "narrative_kind": "ACTION_OPTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "ACTION_OPTION"
+          }
+        ],
+        "conditions_that_change_outcome": [],
+        "review_questions": [
+          {
+            "text": "合作各方是否已经就目标、职责和资源投入形成了可执行且可核对的约定？",
+            "evidence_ids": [
+              "D-H-11"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "目前的数据表现是否已经覆盖了完整交付、质量验收和问题处理等关键环节？",
+            "evidence_ids": [
+              "D-L-11-3",
+              "E09"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "SITUATION",
+            "epistemic_basis": "UNCERTAINTY"
+          },
+          {
+            "text": "当出现小范围偏差时，团队是否能够及时共享信息、明确责任并完成调整？",
+            "evidence_ids": [
+              "D-H-11",
+              "D-L-11-3"
+            ],
+            "narrative_kind": "REVIEW_QUESTION",
+            "subject_scope": "PROCESS",
+            "epistemic_basis": "UNCERTAINTY"
+          }
+        ]
+      },
+      "evidence_reference_catalog": {
+        "catalog_version": "MEIHUA_EVIDENCE_REFERENCE_CATALOG_V1",
+        "entries": [
+          {
+            "evidence_ref": "EV01",
+            "canonical_evidence_id": "D-H-11",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_HEXAGRAM_PREVIEW",
+            "display_payload_hash": "f12ad8d730cacf0a9d3bf95486d3947915f8fec2b642039318ab04adfc4a2f8d",
+            "safe_display_payload": {
+              "core_theme": "沟通畅通、上下相交、资源进入与协同推进。",
+              "literal_paraphrase": null,
+              "favorable_conditions": [
+                "信息透明",
+                "上下目标一致",
+                "资源能够流动",
+                "各方愿意承担责任",
+                "在顺利时仍保留风险意识。"
+              ],
+              "risk_conditions": [
+                "把阶段性顺利当成永久保障，扩张过快，忽视弱小信号，或因局势有利而停止维护关系与规则。"
+              ],
+              "action_tendency": "适合推进、协作和整合资源，同时建立持续沟通与回调机制，为局势变化留出余地。",
+              "prohibited_inferences": [
+                "不得把泰卦解释为从此一帆风顺",
+                "不得承诺感情必成或事业必升",
+                "不得忽略顺境中的周期变化",
+                "不得因局势有利而省略合同与风险控制"
+              ],
+              "polarity": "POSITIVE",
+              "strength": "STRONG",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV02",
+            "canonical_evidence_id": "D-L-11-3",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "DRAFT_LINE_PREVIEW",
+            "display_payload_hash": "9460bf7820f60ddecf1b93048db07ee24d319ee1f2983907f80269dd8a3288c9",
+            "safe_display_payload": {
+              "core_theme": "顺境中的周期意识、守正与预防转折。",
+              "literal_paraphrase": "没有永远平坦的道路，也没有只去不回的趋势；在变化临近时保持艰难中的守正，便可避免过失，并能安然承受所得。",
+              "favorable_conditions": [
+                "提前复盘",
+                "留有余地",
+                "降低过度扩张",
+                "守住核心原则",
+                "接受阶段性回落。"
+              ],
+              "risk_conditions": [
+                "沉迷顺境、透支资源、忽略小问题，或一见回落便恐慌和全面否定此前成果。"
+              ],
+              "action_tendency": "继续推进但收紧风险控制，建立回调方案；不必因变化焦虑，也不能假设顺利永不结束。",
+              "prohibited_inferences": [
+                "不得断言顺境之后必然发生灾祸",
+                "不得把周期变化写成具体日期",
+                "不得因可能回落而否定当前成果",
+                "不得承诺只要守正就一定得到物质福报"
+              ],
+              "polarity": "MIXED",
+              "strength": "STRONG",
+              "review_status": "DRAFT",
+              "preview": true
+            }
+          },
+          {
+            "evidence_ref": "EV03",
+            "canonical_evidence_id": "E02",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "CONDITION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_BODY_USE_RELATION",
+            "display_payload_hash": "4372994abe999fbdafb874e0586a641e7de2746be1219ee1797aeaaf7ed72efc",
+            "safe_display_payload": {
+              "fact": "初始体用关系为体生用",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "NEGATIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV04",
+            "canonical_evidence_id": "E03",
+            "allowed_roles": [
+              "EXPLANATION",
+              "ACTION_OPTION",
+              "CONDITION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_BODY_USE_RELATION",
+            "display_payload_hash": "08ed8536fc82b9237db96bbd3f9ea213e297cf12b806e26172659d3e242bbc64",
+            "safe_display_payload": {
+              "fact": "变化后体用关系为体生用",
+              "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+              "polarity": "NEGATIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV05",
+            "canonical_evidence_id": "E06",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "BODY_SEASONAL_STRENGTH",
+            "display_payload_hash": "ce63d1a5e2a5adbfdd60cbf31e26f643e97c0cea6094160b8cb7012cc8b62055",
+            "safe_display_payload": {
+              "fact": "体卦五行在未月为旺",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "STRONG"
+            }
+          },
+          {
+            "evidence_ref": "EV06",
+            "canonical_evidence_id": "E07",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "21b668fd4072086a54491cb7d656ea9865e4215f8a865cd5f761d746c25ae81d",
+            "safe_display_payload": {
+              "fact": "初始用卦五行在未月为相",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV07",
+            "canonical_evidence_id": "E08",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "display_payload_hash": "58fb9f82e59c34de455d2bdb7ee5d68657ec7c02ccd58d5b4e2df9516ff1e1e0",
+            "safe_display_payload": {
+              "fact": "变化后用卦五行在未月为相",
+              "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+              "polarity": "POSITIVE",
+              "strength": "MEDIUM"
+            }
+          },
+          {
+            "evidence_ref": "EV08",
+            "canonical_evidence_id": "E09",
+            "allowed_roles": [
+              "EXPLANATION",
+              "REVIEW_QUESTION"
+            ],
+            "evidence_source_type": "MOVING_LINE_STAGE",
+            "display_payload_hash": "848143f4691af30a4d7e0610bb0907ab0c70122271d74bc68014a0c1f323a3e2",
+            "safe_display_payload": {
+              "fact": "第3爻对应内部临界",
+              "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+              "polarity": "NEUTRAL",
+              "strength": "WEAK"
+            }
+          }
+        ],
+        "catalog_sha256": "8429d62cd971bf27872055fdd6be07120fd4194b5c9db5e9e21120431436f832"
+      },
+      "review_scope": "FULL_CHART_TO_JUDGMENT",
+      "required_missing_materials": [],
+      "payload_sha256": "f349901d48467a1c67794284d3fc536a725a8ca971943eb5b66c482e33d371d3"
+    },
+    {
+      "review_case_id": "R-C904",
+      "question": {
+        "question_a": "这段关系，我还应该主动联系吗？",
+        "question_b": "我们反复争执后，我还要继续维持吗？"
+      },
+      "anonymized_context": null,
+      "chart_snapshot": {
+        "base": "雷火丰",
+        "changed": "雷天大壮",
+        "source": "existing_deterministic_output"
+      },
+      "reading_output": {
+        "answer": "雷火丰把重点放在“局面正盛时也要为转折和收束做准备”。这段关系或沟通目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+        "what_it_means": "本卦是雷火丰，先提醒你：局面正盛时也要为转折和收束做准备。动爻之后变为雷天大壮，局面的下一层重点转向：力量正在增强，更需要克制和正确用力。当前结构对你的消耗或约束偏强，先保护可用资源更重要。回到现实，重点看回应是否稳定、边界是否被尊重、说法能否落到行动。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你已经在推进，清楚表达一次需要与边界，然后只观察对方的实际回应，不替对方补答案。在这段观察范围内，只用阶段反馈更新判断。"
+      },
+      "evidence_reference_catalog": null,
+      "review_scope": "PARTIAL_MATERIAL_UNCERTAIN_REQUIRED",
+      "required_missing_materials": [
+        "完整确定性盘面或逐项证据映射"
+      ],
+      "payload_sha256": "9ed33ee4d8ee8a68867ccd7634d5c149b90903415937fc2a2c15da8348b5afd4"
+    }
+  ]
+}

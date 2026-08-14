@@ -1,0 +1,21 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ADAPTER_V015",
+  "objective": "Prove an offline external light Router adapter that converts one provider receipt into a strict V014 pure-data outcome.",
+  "necessity": "V014 consumes outcomes but no trusted production component currently produces them; an external adapter is required before real conditional routing can exist.",
+  "allowed": [
+    "one isolated typed adapter",
+    "bounded OpenAI request construction without live use",
+    "fixture-only tests, evidence, governance and manifest"
+  ],
+  "forbidden": [
+    "live or network calls before separate numeric authorization",
+    "numbers, chart facts, optional context, dates, high callback or casting capability in the adapter",
+    "guided intake, S1, multiple turns, retry, repair or fallback model",
+    "modifying V014, Direct Reading high, engine, specs, calendar, P8/P9, validators, safety or legacy entrypoints",
+    "HTTP, UI, database, queue, P9 art, deployment, production or default replacement"
+  ],
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

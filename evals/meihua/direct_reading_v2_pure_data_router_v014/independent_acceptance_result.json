@@ -1,0 +1,17 @@
+{
+  "contract_id": "DRV2-PURE-DATA-ROUTER-OUTCOME-V014-OFFLINE-ACCEPTANCE-V1",
+  "stage_id": "DIRECT_READING_V2_PURE_DATA_ROUTER_V014",
+  "verdict": "PASS",
+  "candidate_manifest_sha256": "CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67",
+  "offline_ledger_sha256": "0706669955937B9A927B128F6998AB257CFC8370C5B96F891FDC7DD27EBC33A3",
+  "passed_requirements": ["O1", "O2", "O3", "O4", "O5", "O6", "O7", "O8", "O9", "O10", "O11", "O12", "O13"],
+  "candidate_modified_by_qa": false,
+  "focused_tests": 35,
+  "inherited_focused_tests": 229,
+  "full_tests": 1293,
+  "live_calls": 0,
+  "real_provider_instantiated": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

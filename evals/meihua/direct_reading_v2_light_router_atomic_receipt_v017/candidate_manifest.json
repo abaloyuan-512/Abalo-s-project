@@ -1,0 +1,54 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ATOMIC_RECEIPT_V017",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-LIGHT-ROUTER-ATOMIC-RECEIPT-V017-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path":"src/abalo_iching/application/sites_light_router_atomic_receipt_v017.py","sha256":"8E7F4C5BE1C5E555B88A2E2E04E6DA1A4218604E635D8C748730681505E49E90"},
+    {"path":"tests/test_sites_light_router_atomic_receipt_v017.py","sha256":"F4966C21663AAD13CBC5B5067D603FF60DC51BD3F2EF4494F49B3F5A633D654E"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/scope_lock.json","sha256":"4BCD7D3BA2C0E00D49AE55E49F52C4467DE57C007FB3A3912FAE76F6CA4C2571"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/acceptance_contract.json","sha256":"D79E49F094DB69E15656C0072944CDB91BEE9BFC191CD04C78A2A633B6E818FA"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/decision_log.md","sha256":"DDA5A9CE1ADEC2EC8000CA22728966536BD9A50077700634869A14EF5E2CFA7D"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/execution_log.md","sha256":"DCC33CC170CE1FE000751619F784AF620C71FB944D26DD89DFA28B4350710ACC"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/risk_log.md","sha256":"A705A03D0F3B02180E3C846EB23D3352AE42EFB6309C64B705C9E37C04623AC4"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/deviation_log.md","sha256":"D4D02C64506205080BDD96B821CFE62F8E996D67F75FF8E1C3E20C2D670E4B49"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/build_offline_evidence.py","sha256":"21DD2890677A7029AA79CCAF3D395F711860548D2768F8EBF461B0B2DAD4E62E"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/offline_ledger.json","sha256":"374A8D8C13F892E944BC18DE3D2BFB7F52D1D020F6762BE7B235AF1228B137A9"}
+  ],
+  "immutable_authority_evidence": [
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/candidate_manifest.json","sha256":"3396D84D379C4047B301E84332650E607AAE820A806688673535B1E22F827BD1"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/final_outcome.json","sha256":"7411ABF1982C265C7BA5A2339CFADD4B9E7BEB109E1DFE990179221517C01975"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_receipt_v016/independent_acceptance_result.json","sha256":"2BE19A38A9FE340364B2E4A4CF029C3542285EEB26CCE7C36D5AAE38E56DD612"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/candidate_manifest.json","sha256":"D88700084FBE154AFE7F4BB307D45C1015302C26C43645986B1D9AD4F40CD49F"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/live_final_outcome.json","sha256":"EAABD0C7ECD37E7071F41FE260CE191B59B3E84F4309E089B2EC20E993769B34"},
+    {"path":"evals/meihua/direct_reading_v2_light_router_adapter_v015/live_independent_acceptance_result.json","sha256":"7DCE0302A773C2FD0D696391EA6A5D67D74F26EA411379F1B59812F16E48AA97"},
+    {"path":"outputs/v015_router_only_live_ledger.json","sha256":"FAB59E6BC856C3EA217D7702C76D8252A670E7E2F17DB8639CB6E0A2EA491321"},
+    {"path":"evals/meihua/direct_reading_v2_pure_data_router_v014/candidate_manifest.json","sha256":"CAAF3FC09E7AFE33022F9A4E9A57E6D1F4F9D0AB79F5C01D05B409B7232B2C67"},
+    {"path":"evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json","sha256":"DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v012/final_outcome.json","sha256":"D2EC3A91266C284BA7E3CB990A302A6559E8AEACE9ED17FD3B7E9D210D9B7FB1"},
+    {"path":"evals/meihua/direct_reading_v2_conditional_router_v013/design_stop.json","sha256":"C0A5D1B5B86749DB6E31DA25A2566C6F8E16944F74467B92D8CBDD2BDE5E4089"}
+  ],
+  "offline_verification": {
+    "focused":"17 passed",
+    "inherited_focused":"216 passed",
+    "full":"1379 passed",
+    "case_denominator":11,
+    "fixture_attempts":9,
+    "complete_receipts":2,
+    "failed_or_invalid":9,
+    "response_id_count":2,
+    "usage_record_count":2,
+    "instance_token_evidence_count":2,
+    "receipt_digest_count":2,
+    "live_calls":0,
+    "high_calls":0,
+    "cast_calls":0,
+    "automatic_retries":0
+  },
+  "external_state": {
+    "new_live_authorized":false,
+    "product_wiring":false,
+    "deployment":false,
+    "production":false,
+    "default_replacement":false
+  }
+}

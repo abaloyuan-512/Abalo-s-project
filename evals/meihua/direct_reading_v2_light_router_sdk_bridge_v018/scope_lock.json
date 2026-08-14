@@ -1,0 +1,17 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018",
+  "objective": "Prove the zero-live seam from one exact OpenAI ParsedResponse instance to the frozen V017 atomic receipt telemetry.",
+  "history_lock": {
+    "v015_router_only_live": "FAIL_STOP",
+    "v016": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v017": "OFFLINE_CANDIDATE_PASS",
+    "v017_manifest_sha256": "3EAED990E1F03DE10A7B44598F5B5D16BE71D51909B46AFD77BF76D655467EC6"
+  },
+  "allowed": ["one SDK-response-to-V017 bridge", "fixture-only tests and ledger", "governance and manifest"],
+  "forbidden": ["live, network, API key or OpenAI client instantiation", "editing V015-V017 or older history", "Router semantic, prompt, V014, high, engine, cast or safety changes", "product, HTTP, UI, database, queue, default, deployment, production or P9", "retry or telemetry platform"],
+  "live_calls": 0,
+  "real_provider_instantiated": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

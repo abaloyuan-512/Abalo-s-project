@@ -1,0 +1,14 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_ATOMIC_RECEIPT_V017",
+  "verdict": "OFFLINE_CANDIDATE_PASS",
+  "manifest_sha256": "3EAED990E1F03DE10A7B44598F5B5D16BE71D51909B46AFD77BF76D655467EC6",
+  "independent_acceptance": "PASS",
+  "proven_scope": "Fixture-only atomic receipt instance, request binding, mixed/reused receipt rejection, usage and digest accounting.",
+  "not_proven": "Real OpenAI adapter integration or real provider receipt telemetry.",
+  "next_stage": "Minimal zero-live integration of the real Router adapter response path with the accepted receipt projection before any newly authorized live canary.",
+  "new_live_authorized": false,
+  "product_wiring": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

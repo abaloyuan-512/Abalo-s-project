@@ -1,0 +1,46 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1E_HELDOUT_CRITICAL_ANSWERS_V1",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_after_three_path_canary": true,
+  "synthetic": true,
+  "prompt_exposure": "PROHIBITED",
+  "warning": "这些回答只用于一次性保护集评估中模拟最高价值单问后的流程，不代表真实用户认可，不得进入Critic或Proposer提示词。",
+  "cases": [
+    {
+      "case_id": "GXID-H17",
+      "expected_dimension": "DECISION_AXIS",
+      "target_gap": "长期持有并出租是否已经决定，还是仍需先比较出租、出售和保留自用。",
+      "critical_answer": "我还没有决定长期持有并出租。现在真正需要先判断的是这套房应该出售、保留自用，还是作为长期出租资产；只有确定出租后，才需要比较按现状出租和翻新出租。"
+    },
+    {
+      "case_id": "GXID-H18",
+      "expected_dimension": "AGENCY_AUTHORITY",
+      "target_gap": "提问者是否拥有剩余资金用途的最终决定权。",
+      "critical_answer": "基金章程规定最终分配必须由理事会表决，我没有直接决定权。我能决定的是向理事会提交哪一个主方案并负责说明理由，因此当前应判断我更适合主推哪一种用途。"
+    },
+    {
+      "case_id": "GXID-H19",
+      "expected_dimension": "MOTIVE_COST",
+      "target_gap": "希望谈成的具体角色与权益，以及先承担全职责任再谈身份时不可接受的关键代价。",
+      "critical_answer": "我希望在全职加入前明确联合创始人身份、与产品责任相匹配的决策权和书面股权安排。我最不能接受的是先承担产品成败的全部责任，却长期没有相应权限和确定权益；我真正要判断的是是否应把这些边界作为加入前提。"
+    },
+    {
+      "case_id": "GXID-H20",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    },
+    {
+      "case_id": "GXID-H21",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    },
+    {
+      "case_id": "GXID-H22",
+      "expected_dimension": null,
+      "target_gap": null,
+      "critical_answer": null
+    }
+  ]
+}

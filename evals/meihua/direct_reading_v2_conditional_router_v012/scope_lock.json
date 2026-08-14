@@ -1,0 +1,29 @@
+{
+  "stage_id": "DIRECT_READING_V2_CONDITIONAL_ROUTER_V012",
+  "objective": "Prove the smallest fail-open conditional Router control flow offline without changing the frozen fixed-high service.",
+  "allowed": [
+    "one isolated typed Router orchestrator",
+    "fixture-only tests",
+    "scope, decision, execution, risk, deviation, ledger, manifest, and acceptance records"
+  ],
+  "forbidden": [
+    "live call or real provider instantiation",
+    "automatic clarity model or default Router gate",
+    "Router retry, repair, second question, or second Router call",
+    "modification of deterministic engine, calendar, specs, fixed-high prompt, validator, P8/P9 mapping, or historical evidence",
+    "guided-intake or S1 reuse",
+    "HTTP, UI, database, queue, product wiring, P9 art, deployment, production, or default replacement"
+  ],
+  "routing_order": [
+    "skip_router -> DIRECT_HIGH",
+    "user_confirmed -> DIRECT_HIGH",
+    "no preexisting critical ambiguity -> DIRECT_HIGH",
+    "one typed critical ambiguity -> at most one LIGHT_ROUTER",
+    "any Router failure -> DIRECT_HIGH with original question",
+    "ASK_ONCE -> one user answer or skip -> DIRECT_HIGH with original question"
+  ],
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

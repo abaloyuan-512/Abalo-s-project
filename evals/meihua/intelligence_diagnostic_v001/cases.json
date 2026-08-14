@@ -1,0 +1,1990 @@
+{
+  "dataset_id": "GUANXIANG_INTELLIGENCE_DIAGNOSTIC_V1_0",
+  "notice": "全部案例均为合成材料或产品校准材料，不是真实用户案例。reference_packet 不是标准答案。",
+  "cases": [
+    {
+      "case_id": "GXID-F01",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-WORK",
+      "anonymized": true,
+      "domain": "WORK_CAREER",
+      "capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "question_a": "我是否应该继续争取这次晋升？",
+      "question_b": "我是否应该接受新的岗位安排？",
+      "discernment_transcript_status": "NOT_AVAILABLE",
+      "chart_snapshot": {
+        "base": "天地否",
+        "changed": "火地晋",
+        "source": "existing_deterministic_output"
+      },
+      "current_baseline": {
+        "answer": "天地否把重点放在“沟通受阻时先疏通关系，不要硬推”。这份工作或职业选择眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "what_it_means": "本卦是天地否，先提醒你：沟通受阻时先疏通关系，不要硬推。动爻之后变为火地晋，局面的下一层重点转向：局面有向前的机会，要让成果被看见。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看职责、资源与评价标准是否真正匹配。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你正在等待反馈，向关键决策者提出一个可明确回答的问题，并只根据实际答复更新判断。把判断拆成阶段复盘，不一次承诺全部投入。",
+        "reports_equal_after_question_change": true,
+        "cost": "DETERMINISTIC_LOCAL_NOT_APPLICABLE"
+      },
+      "known_feedback": [
+        "Gate 0 审计确认 request hash 改变，但 clarity_report 逐字段完全相同。"
+      ],
+      "observed_failure_or_strength": [
+        "两个实质不同的问题没有进入报告决策层。",
+        "结论无法证明针对最终问题。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "INSUFFICIENT_EVIDENCE：缺少现实事实与辨识对话，不能替用户判断真实卡点。"
+        ],
+        "reasonable_question_directions": [
+          "晋升应重点检验组织是否愿意给出明确条件。",
+          "岗位安排应重点检验职责、资源和代价是否匹配。"
+        ],
+        "relevant_chart_structures": [
+          "天地否转火地晋是现有确定性事实；其现实接榫仍待易学评审。"
+        ],
+        "not_conclude": [
+          "不能因为同一盘面就把晋升与岗位安排视为同一决策。",
+          "不能保证晋升或岗位结果。"
+        ],
+        "alternative_interpretations": [
+          "相同盘面可以支持相近姿态，但仍应针对不同决策对象给出不同现实判断。"
+        ],
+        "confidence_boundary": "只确认问题敏感性失败，不确认哪一个领域化解释唯一正确。"
+      }
+    },
+    {
+      "case_id": "GXID-F02",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-COOPERATION",
+      "anonymized": true,
+      "domain": "PROJECT_COOPERATION",
+      "capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "question_a": "这次合作，我还应该继续投入吗？",
+      "question_b": "对方多次延期后，我还要继续追加预算吗？",
+      "discernment_transcript_status": "NOT_AVAILABLE",
+      "chart_snapshot": {
+        "base": "山地剥",
+        "changed": "艮为山",
+        "source": "existing_deterministic_output"
+      },
+      "current_baseline": {
+        "answer": "山地剥把重点放在“旧结构正在脱落，先保住最重要的部分”。这项项目或合作眼下有支持也有阻力，先别急着把整件事一次定死。",
+        "what_it_means": "本卦是山地剥，先提醒你：旧结构正在脱落，先保住最重要的部分。动爻之后变为艮为山，局面的下一层重点转向：知道什么时候停下来，才能重新看清。支持与阻力同时存在，继续猜测不会让局面更清楚。回到现实，重点看双方分工、资源与交付能否形成闭环。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你已经在推进，请对方确认一个可验收节点；只在实际回复和行动出现后，再决定是否追加投入。在这段观察范围内，只用阶段反馈更新判断。",
+        "reports_equal_after_question_change": true,
+        "cost": "DETERMINISTIC_LOCAL_NOT_APPLICABLE"
+      },
+      "known_feedback": [
+        "Gate 0 审计确认两份报告逐字段相同。"
+      ],
+      "observed_failure_or_strength": [
+        "一般合作继续投入与三次延期后的追加预算没有被区分。",
+        "追加预算的责任与既有延期事实未进入判断。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "问题 B 的决策瓶颈更可能是：追加资源是否能换来可核对的责任与交付，而不是一般性的合作信心。"
+        ],
+        "supporting_user_evidence": [
+          "问题文本明确出现“多次延期”和“追加预算”。"
+        ],
+        "reasonable_question_directions": [
+          "在既有延期未被解释和补救前，新增投入是否有足够依据？"
+        ],
+        "relevant_chart_structures": [
+          "山地剥转艮为山为确定性事实；其领域化含义待易学评审。"
+        ],
+        "not_conclude": [
+          "不能断言对方欺骗。",
+          "不能据卦保证继续或退出的结果。"
+        ],
+        "alternative_interpretations": [
+          "即便行动姿态相近，解释也应明确回应延期、预算和交付责任。"
+        ],
+        "confidence_boundary": "决策瓶颈为产品诊断假设，不是案例本人确认。"
+      }
+    },
+    {
+      "case_id": "GXID-F03",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-RELATIONSHIP",
+      "anonymized": true,
+      "domain": "RELATIONSHIP_COMMUNICATION",
+      "capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "question_a": "这段关系，我还应该主动联系吗？",
+      "question_b": "我们反复争执后，我还要继续维持吗？",
+      "discernment_transcript_status": "NOT_AVAILABLE",
+      "chart_snapshot": {
+        "base": "雷火丰",
+        "changed": "雷天大壮",
+        "source": "existing_deterministic_output"
+      },
+      "current_baseline": {
+        "answer": "雷火丰把重点放在“局面正盛时也要为转折和收束做准备”。这段关系或沟通目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+        "what_it_means": "本卦是雷火丰，先提醒你：局面正盛时也要为转折和收束做准备。动爻之后变为雷天大壮，局面的下一层重点转向：力量正在增强，更需要克制和正确用力。当前结构对你的消耗或约束偏强，先保护可用资源更重要。回到现实，重点看回应是否稳定、边界是否被尊重、说法能否落到行动。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你已经在推进，清楚表达一次需要与边界，然后只观察对方的实际回应，不替对方补答案。在这段观察范围内，只用阶段反馈更新判断。",
+        "reports_equal_after_question_change": true,
+        "cost": "DETERMINISTIC_LOCAL_NOT_APPLICABLE"
+      },
+      "known_feedback": [
+        "Gate 0 审计确认两份报告逐字段相同。"
+      ],
+      "observed_failure_or_strength": [
+        "一次主动联系与是否继续维持长期关系是不同决策，但输出未区分。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "问题 A 关注一次沟通是否合宜；问题 B 关注关系是否存在持续的双向承担。"
+        ],
+        "supporting_user_evidence": [
+          "问题 B 明确出现“反复争执”和“继续维持”。"
+        ],
+        "reasonable_question_directions": [
+          "若主动一次，目的是澄清什么？",
+          "停止单方面推动后，对方是否有持续参与的现实迹象？"
+        ],
+        "relevant_chart_structures": [
+          "雷火丰转雷天大壮为确定性事实；领域化解释待易学评审。"
+        ],
+        "not_conclude": [
+          "不能读心或断言对方爱不爱。",
+          "不能把一次联系直接等同于继续整段关系。"
+        ],
+        "alternative_interpretations": [
+          "相同姿态可能适用于两个问题，但现实落点必须不同。"
+        ],
+        "confidence_boundary": "缺少关系事实与案例本人反馈。"
+      }
+    },
+    {
+      "case_id": "GXID-F04",
+      "quality_tier": "FAILURE",
+      "source_type": "SYNTHETIC_DETERMINISTIC_BASELINE",
+      "source_locator": "evals/meihua/personalization_gate0_v001/question_text_pair_outputs.json#G0-TEXT-PERSONAL",
+      "anonymized": true,
+      "domain": "PERSONAL_PLANNING",
+      "capability_scope": [
+        "READING_QUESTION_SENSITIVITY"
+      ],
+      "question_a": "我还应该继续准备这次考试吗？",
+      "question_b": "这个副业方向，我还应该继续投入吗？",
+      "discernment_transcript_status": "NOT_AVAILABLE",
+      "chart_snapshot": {
+        "base": "水雷屯",
+        "changed": "水地比",
+        "source": "existing_deterministic_output"
+      },
+      "current_baseline": {
+        "answer": "水雷屯把重点放在“事情刚起步，先把混乱一件件理顺”。这项个人计划目前带来的牵制和消耗偏多，先守住边界，再谈是否继续。",
+        "what_it_means": "本卦是水雷屯，先提醒你：事情刚起步，先把混乱一件件理顺。动爻之后变为水地比，局面的下一层重点转向：确认彼此是否真心靠近、愿意同行。当前结构对你的消耗或约束偏强，先保护可用资源更重要。回到现实，重点看时间、精力与资源能否承受这项计划。这次先看眼前最该确认的那一步；等它有了实际回应，再决定后面怎么走。",
+        "next_action": "你正在准备行动，写下可承受的时间、精力与预算上限，只先投入其中最小的一部分。保留调整空间，让每个阶段的事实决定下一阶段。",
+        "reports_equal_after_question_change": true,
+        "cost": "DETERMINISTIC_LOCAL_NOT_APPLICABLE"
+      },
+      "known_feedback": [
+        "Gate 0 审计确认考试和副业两个问题的报告逐字段相同。"
+      ],
+      "observed_failure_or_strength": [
+        "报告中的“彼此是否真心靠近、愿意同行”泄漏了关系领域语言。",
+        "考试与副业的关键条件没有被区分。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "考试更可能受学习节奏、目标和持续能力影响；副业更可能受市场验证、交付和资源上限影响。"
+        ],
+        "supporting_user_evidence": [
+          "仅有两个问题文本，证据不足。"
+        ],
+        "reasonable_question_directions": [
+          "继续考试准备需要改变什么条件？",
+          "副业投入是否已有真实需求和交付依据？"
+        ],
+        "relevant_chart_structures": [
+          "水雷屯转水地比为确定性事实；领域化解释待易学评审。"
+        ],
+        "not_conclude": [
+          "不能把“比”机械解释为感情中的同行。",
+          "不能把考试与副业统一成最小投入模板。"
+        ],
+        "alternative_interpretations": [
+          "两者都可能需要建立支持结构，但支持对象和可观察结果应不同。"
+        ],
+        "confidence_boundary": "只确认报告不区分问题且存在领域语言泄漏。"
+      }
+    },
+    {
+      "case_id": "GXID-M01",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "tier_status": "PENDING_HUMAN_REVIEW",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-001-low",
+      "anonymized": true,
+      "domain": "职业",
+      "numbers": [
+        1,
+        1,
+        1
+      ],
+      "original_question": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？",
+      "decision_goal": "判断现在应公开启动，还是继续准备和验证。",
+      "real_world_context": "已经有初步方案，但资源、合作人和交付流程尚未稳定。",
+      "discernment_transcript_status": "FROZEN_CURRENT_FLOW_INCOMPLETE",
+      "current_baseline": {
+        "model": "gpt-5.6-terra",
+        "reasoning_effort": "low",
+        "terminal_status": "VALIDATION_PASSED",
+        "input_tokens": 2075,
+        "output_tokens": 768,
+        "total_tokens": 2843,
+        "latency_ms": 9011,
+        "explanation": [
+          "这件事更适合把“主动”理解为有边界的筹划与验证，而不是用公开承诺来替代准备。",
+          "现有方案可以继续推进，但资源、协作和交付安排是否能承接公开启动，仍是需要优先核对的现实环节。"
+        ],
+        "advice": [
+          "先把项目拆成较小的验证单元，分别确认资源来源、合作分工和交付标准。",
+          "设定明确的公开启动门槛，例如关键资源到位、协作责任确认，以及交付流程能够实际运转。",
+          "验证行动强度是否与可承担的承诺相匹配，避免为了证明能力而扩大范围。"
+        ],
+        "capture_scope": "DISPLAY_EXCERPT_ONLY",
+        "exact_safe_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M01"
+      },
+      "known_feedback": [
+        "技术 validator 通过；human review 为空。"
+      ],
+      "observed_failure_or_strength": [
+        "现实落点较具体。",
+        "是否真正由该盘面推出仍待盲评。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "公开承诺是否超过现有交付承接能力。"
+        ],
+        "supporting_user_evidence": [
+          "资源、合作人和交付流程尚未稳定。"
+        ],
+        "reasonable_question_directions": [
+          "当前更适合公开启动，还是先补足哪些启动条件？"
+        ],
+        "relevant_chart_structures": [
+          "PENDING_ICHING_REVIEW"
+        ],
+        "not_conclude": [
+          "不能保证项目成功。",
+          "不能把谨慎自动写成最小试错模板。"
+        ],
+        "alternative_interpretations": [
+          "可以推进筹备但暂缓公开；也可能在资源到位后立即启动。"
+        ],
+        "confidence_boundary": "现实诊断为待评假设；卦象支持度未评。"
+      },
+      "discernment_snapshot_ref": "baselines/current_guided_intake_snapshots.json#GXID-M01",
+      "discernment_terminal_status": "ASK",
+      "chart_snapshot": {
+        "input": {
+          "first_number": 1,
+          "second_number": 1,
+          "third_number": 1,
+          "cast_at": "2026-07-12 12:00:00+08:00",
+          "timezone_name": "Asia/Shanghai",
+          "question_id": null
+        },
+        "upper_trigram": {
+          "number": 1,
+          "name_zh": "乾",
+          "symbol": "☰",
+          "element": "金",
+          "lines_bottom_up": [
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "lower_trigram": {
+          "number": 1,
+          "name_zh": "乾",
+          "symbol": "☰",
+          "element": "金",
+          "lines_bottom_up": [
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "moving_line": 1,
+        "base_hexagram": {
+          "king_wen_number": 1,
+          "name_zh": "乾",
+          "full_name_zh": "乾为天",
+          "unicode_symbol": "䷀",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 1,
+          "name_zh": "乾",
+          "full_name_zh": "乾为天",
+          "unicode_symbol": "䷀",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 44,
+          "name_zh": "姤",
+          "full_name_zh": "天风姤",
+          "unicode_symbol": "䷫",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "body_use_assignment": {
+          "body_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "initial_use_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "changed_use_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          }
+        },
+        "initial_body_use_relation": "SAME_ELEMENT",
+        "changed_body_use_relation": "BODY_CONTROLS_USE",
+        "mutual_lower_to_body_relation": "SAME_ELEMENT",
+        "mutual_upper_to_body_relation": "SAME_ELEMENT",
+        "moving_line_stage": "GERMINATION",
+        "season_context": {
+          "current_solar_term": "小暑",
+          "current_solar_term_started_at": "2026-07-07 09:56:57+08:00",
+          "month_branch": "未",
+          "month_start_solar_term": "小暑",
+          "month_element": "土",
+          "element_strengths": [
+            {
+              "element": "木",
+              "state": "CONFINED",
+              "label_zh": "囚",
+              "rank": -1
+            },
+            {
+              "element": "火",
+              "state": "RESTING",
+              "label_zh": "休",
+              "rank": 0
+            },
+            {
+              "element": "土",
+              "state": "PROSPEROUS",
+              "label_zh": "旺",
+              "rank": 2
+            },
+            {
+              "element": "金",
+              "state": "SUPPORTED",
+              "label_zh": "相",
+              "rank": 1
+            },
+            {
+              "element": "水",
+              "state": "DEAD",
+              "label_zh": "死",
+              "rank": -2
+            }
+          ],
+          "body_strength": "SUPPORTED",
+          "initial_use_strength": "SUPPORTED",
+          "changed_use_strength": "CONFINED"
+        },
+        "evidence": [
+          {
+            "evidence_id": "E01",
+            "evidence_type": "BASE_HEXAGRAM",
+            "source_ref": "MEIHUA-V1-RULE-BASE-HEXAGRAM",
+            "polarity": "NEUTRAL",
+            "strength": "MEDIUM",
+            "fact": "本卦为第1卦乾为天",
+            "rule_statement": "下卦三爻在前、上卦三爻在后组成六爻。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E02",
+            "evidence_type": "INITIAL_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "MIXED",
+            "strength": "MEDIUM",
+            "fact": "初始体用关系为比和",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E03",
+            "evidence_type": "CHANGED_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "变化后体用关系为体克用",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E04",
+            "evidence_type": "MUTUAL_LOWER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "MIXED",
+            "strength": "MEDIUM",
+            "fact": "互卦下卦对体卦关系为比和",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E05",
+            "evidence_type": "MUTUAL_UPPER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "MIXED",
+            "strength": "MEDIUM",
+            "fact": "互卦上卦对体卦关系为比和",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E06",
+            "evidence_type": "BODY_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "体卦五行在未月为相",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E07",
+            "evidence_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "初始用卦五行在未月为相",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E08",
+            "evidence_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "变化后用卦五行在未月为囚",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E09",
+            "evidence_type": "MOVING_LINE_STAGE",
+            "source_ref": "MEIHUA-V1-RULE-MOVING-LINE-STAGE",
+            "polarity": "NEUTRAL",
+            "strength": "WEAK",
+            "fact": "第1爻对应萌芽阶段",
+            "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          }
+        ],
+        "timing": {
+          "exact_date_feature_enabled": false,
+          "level": "STAGE_ONLY",
+          "candidate_dates": []
+        },
+        "versions": {
+          "rule_version": "MEIHUA_RULE_SPEC_V1",
+          "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+          "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+          "calendar_provider": "lunar_python/1.4.8",
+          "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+        }
+      },
+      "reading_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M01",
+      "program_content_sha256": "22e73e652be718f2635fae7fe87530012cbd9e1aa37d283445a639ea9503b9ee",
+      "program_hash_verified": true,
+      "evidence_catalog_status": "RECONSTRUCTED_FROM_CURRENT_SAME_PROGRAM_CHAIN_HISTORICAL_HASH_NOT_STORED"
+    },
+    {
+      "case_id": "GXID-M02",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "tier_status": "PENDING_HUMAN_REVIEW",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-005-low",
+      "anonymized": true,
+      "domain": "合作",
+      "numbers": [
+        8,
+        1,
+        3
+      ],
+      "original_question": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+      "decision_goal": "判断应扩大投入还是同时建立回调和风险控制。",
+      "real_world_context": "合作当前数据良好，但尚未经历完整交付周期。",
+      "discernment_transcript_status": "FROZEN_CURRENT_FLOW_COMPLETE",
+      "current_baseline": {
+        "model": "gpt-5.6-terra",
+        "reasoning_effort": "low",
+        "terminal_status": "VALIDATION_PASSED",
+        "input_tokens": 2123,
+        "output_tokens": 920,
+        "total_tokens": 3043,
+        "latency_ms": 8460,
+        "explanation": [
+          "当前更值得关注的是协作中的信息是否透明、目标是否一致，以及资源能否顺畅衔接；这些因素会影响推进过程是否稳健。",
+          "即使合作进展较顺，也应保留对变化和回落的准备，避免把阶段性成果直接当作长期保障。",
+          "当前处在需要兼顾内部衔接与后续执行质量的位置，局部的小问题是否被及时处理，可能比单纯追求速度更重要。"
+        ],
+        "advice": [
+          "将新增投入拆分为可核验的阶段，并为每个阶段设置交付、质量和资源使用的检查点。",
+          "验证合作各方对责任边界、资源调配和异常处理方式是否已有明确共识，再决定是否扩大承诺。",
+          "建立回调方案，预先约定交付偏差、成本失控或沟通阻塞时的暂停、复盘和调整机制。"
+        ],
+        "capture_scope": "DISPLAY_EXCERPT_ONLY",
+        "exact_safe_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M02"
+      },
+      "known_feedback": [
+        "低/中推理输出均技术验证通过；human review 为空。"
+      ],
+      "observed_failure_or_strength": [
+        "覆盖完整交付周期这一现实缺口。",
+        "仍出现阶段、检查点、回调等常见咨询骨架。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "阶段性数据是否足以支撑跨过完整交付周期前扩大投入。"
+        ],
+        "supporting_user_evidence": [
+          "当前数据良好。",
+          "尚未经历完整交付周期。"
+        ],
+        "reasonable_question_directions": [
+          "当前优势是否足以支持扩大投入，还是应先验证完整交付？"
+        ],
+        "relevant_chart_structures": [
+          "PENDING_ICHING_REVIEW"
+        ],
+        "not_conclude": [
+          "不能因数据良好保证持续成功。",
+          "不能因需要边界而默认否定扩大投入。"
+        ],
+        "alternative_interpretations": [
+          "阶段性优势可能支持推进，但推进强度取决于盘面和承接条件。"
+        ],
+        "confidence_boundary": "是否具有卦象特异性待评。"
+      },
+      "discernment_snapshot_ref": "baselines/current_guided_intake_snapshots.json#GXID-M02",
+      "discernment_terminal_status": "COMPLETE",
+      "chart_snapshot": {
+        "input": {
+          "first_number": 8,
+          "second_number": 1,
+          "third_number": 3,
+          "cast_at": "2026-07-12 12:00:00+08:00",
+          "timezone_name": "Asia/Shanghai",
+          "question_id": null
+        },
+        "upper_trigram": {
+          "number": 8,
+          "name_zh": "坤",
+          "symbol": "☷",
+          "element": "土",
+          "lines_bottom_up": [
+            0,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "lower_trigram": {
+          "number": 1,
+          "name_zh": "乾",
+          "symbol": "☰",
+          "element": "金",
+          "lines_bottom_up": [
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "moving_line": 3,
+        "base_hexagram": {
+          "king_wen_number": 11,
+          "name_zh": "泰",
+          "full_name_zh": "地天泰",
+          "unicode_symbol": "䷊",
+          "upper_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 54,
+          "name_zh": "归妹",
+          "full_name_zh": "雷泽归妹",
+          "unicode_symbol": "䷵",
+          "upper_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            0,
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 19,
+          "name_zh": "临",
+          "full_name_zh": "地泽临",
+          "unicode_symbol": "䷒",
+          "upper_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "body_use_assignment": {
+          "body_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "initial_use_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "changed_use_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          }
+        },
+        "initial_body_use_relation": "BODY_GENERATES_USE",
+        "changed_body_use_relation": "BODY_GENERATES_USE",
+        "mutual_lower_to_body_relation": "BODY_GENERATES_USE",
+        "mutual_upper_to_body_relation": "USE_CONTROLS_BODY",
+        "moving_line_stage": "INTERNAL_THRESHOLD",
+        "season_context": {
+          "current_solar_term": "小暑",
+          "current_solar_term_started_at": "2026-07-07 09:56:57+08:00",
+          "month_branch": "未",
+          "month_start_solar_term": "小暑",
+          "month_element": "土",
+          "element_strengths": [
+            {
+              "element": "木",
+              "state": "CONFINED",
+              "label_zh": "囚",
+              "rank": -1
+            },
+            {
+              "element": "火",
+              "state": "RESTING",
+              "label_zh": "休",
+              "rank": 0
+            },
+            {
+              "element": "土",
+              "state": "PROSPEROUS",
+              "label_zh": "旺",
+              "rank": 2
+            },
+            {
+              "element": "金",
+              "state": "SUPPORTED",
+              "label_zh": "相",
+              "rank": 1
+            },
+            {
+              "element": "水",
+              "state": "DEAD",
+              "label_zh": "死",
+              "rank": -2
+            }
+          ],
+          "body_strength": "PROSPEROUS",
+          "initial_use_strength": "SUPPORTED",
+          "changed_use_strength": "SUPPORTED"
+        },
+        "evidence": [
+          {
+            "evidence_id": "E01",
+            "evidence_type": "BASE_HEXAGRAM",
+            "source_ref": "MEIHUA-V1-RULE-BASE-HEXAGRAM",
+            "polarity": "NEUTRAL",
+            "strength": "MEDIUM",
+            "fact": "本卦为第11卦地天泰",
+            "rule_statement": "下卦三爻在前、上卦三爻在后组成六爻。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E02",
+            "evidence_type": "INITIAL_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "初始体用关系为体生用",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E03",
+            "evidence_type": "CHANGED_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "变化后体用关系为体生用",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E04",
+            "evidence_type": "MUTUAL_LOWER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "互卦下卦对体卦关系为体生用",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E05",
+            "evidence_type": "MUTUAL_UPPER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "STRONG",
+            "fact": "互卦上卦对体卦关系为用克体",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E06",
+            "evidence_type": "BODY_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "STRONG",
+            "fact": "体卦五行在未月为旺",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E07",
+            "evidence_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "初始用卦五行在未月为相",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E08",
+            "evidence_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "变化后用卦五行在未月为相",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E09",
+            "evidence_type": "MOVING_LINE_STAGE",
+            "source_ref": "MEIHUA-V1-RULE-MOVING-LINE-STAGE",
+            "polarity": "NEUTRAL",
+            "strength": "WEAK",
+            "fact": "第3爻对应内部临界",
+            "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          }
+        ],
+        "timing": {
+          "exact_date_feature_enabled": false,
+          "level": "STAGE_ONLY",
+          "candidate_dates": []
+        },
+        "versions": {
+          "rule_version": "MEIHUA_RULE_SPEC_V1",
+          "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+          "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+          "calendar_provider": "lunar_python/1.4.8",
+          "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+        }
+      },
+      "reading_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M02",
+      "program_content_sha256": "ccee009feb1bf5725253dc7d24f2809616ba469c1aa18ac93542b08cfef8ee14",
+      "program_hash_verified": true,
+      "evidence_catalog_status": "RECONSTRUCTED_FROM_CURRENT_SAME_PROGRAM_CHAIN_HISTORICAL_HASH_NOT_STORED"
+    },
+    {
+      "case_id": "GXID-M03",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "tier_status": "PENDING_HUMAN_REVIEW",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-006-low",
+      "anonymized": true,
+      "domain": "职业",
+      "numbers": [
+        1,
+        8,
+        5
+      ],
+      "original_question": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？",
+      "decision_goal": "判断能否修复停滞局势，以及需要怎样的保障。",
+      "real_world_context": "管理层开始重新关注该项目，但资源和责任机制仍不稳定。",
+      "discernment_transcript_status": "FROZEN_CURRENT_FLOW_COMPLETE",
+      "current_baseline": {
+        "model": "gpt-5.6-terra",
+        "reasoning_effort": "low",
+        "terminal_status": "VALIDATION_PASSED",
+        "input_tokens": 2151,
+        "output_tokens": 958,
+        "total_tokens": 3109,
+        "latency_ms": 8924,
+        "explanation": [
+          "这类停滞更值得先从协作方式、责任边界和资源配置中找原因，而不宜仅靠加大投入来重复原有做法。",
+          "若要推动项目，需要把修复思路落实为可执行的分工、沟通和风险控制，而非只处理表面进度。"
+        ],
+        "advice": [
+          "梳理已经失效的审批、协作或交接环节，并暂停对这些环节的重复消耗。",
+          "将责任人、决策权限、资源承诺和升级路径写入明确机制，并设置检查与备选方案。",
+          "验证重启方案是否保留了关键资源与退出边界，避免承担不可控的额外风险。"
+        ],
+        "capture_scope": "DISPLAY_EXCERPT_ONLY",
+        "exact_safe_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M03"
+      },
+      "known_feedback": [
+        "低/中推理输出均技术验证通过；human review 为空。"
+      ],
+      "observed_failure_or_strength": [
+        "直接落到责任与资源机制。",
+        "仍需判断这些建议是否由盘面产生，还是现实信息已经足够推出。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "管理层关注能否转化为责任、资源和决策授权。"
+        ],
+        "supporting_user_evidence": [
+          "管理层重新关注。",
+          "资源和责任机制仍不稳定。"
+        ],
+        "reasonable_question_directions": [
+          "这次重启是否已出现足以改变停滞结构的支持条件？"
+        ],
+        "relevant_chart_structures": [
+          "PENDING_ICHING_REVIEW"
+        ],
+        "not_conclude": [
+          "不能把重新关注当成正式资源承诺。",
+          "不能保证重启成功。"
+        ],
+        "alternative_interpretations": [
+          "问题可能不是是否重启，而是以何种授权与责任结构重启。"
+        ],
+        "confidence_boundary": "现实瓶颈较明确，卦象增量未确认。"
+      },
+      "discernment_snapshot_ref": "baselines/current_guided_intake_snapshots.json#GXID-M03",
+      "discernment_terminal_status": "COMPLETE",
+      "chart_snapshot": {
+        "input": {
+          "first_number": 1,
+          "second_number": 8,
+          "third_number": 5,
+          "cast_at": "2026-07-12 12:00:00+08:00",
+          "timezone_name": "Asia/Shanghai",
+          "question_id": null
+        },
+        "upper_trigram": {
+          "number": 1,
+          "name_zh": "乾",
+          "symbol": "☰",
+          "element": "金",
+          "lines_bottom_up": [
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "lower_trigram": {
+          "number": 8,
+          "name_zh": "坤",
+          "symbol": "☷",
+          "element": "土",
+          "lines_bottom_up": [
+            0,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "moving_line": 5,
+        "base_hexagram": {
+          "king_wen_number": 12,
+          "name_zh": "否",
+          "full_name_zh": "天地否",
+          "unicode_symbol": "䷋",
+          "upper_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 53,
+          "name_zh": "渐",
+          "full_name_zh": "风山渐",
+          "unicode_symbol": "䷴",
+          "upper_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 7,
+            "name_zh": "艮",
+            "symbol": "☶",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            0,
+            1,
+            0,
+            1,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 35,
+          "name_zh": "晋",
+          "full_name_zh": "火地晋",
+          "unicode_symbol": "䷢",
+          "upper_trigram": {
+            "number": 3,
+            "name_zh": "离",
+            "symbol": "☲",
+            "element": "火",
+            "lines_bottom_up": [
+              1,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "body_use_assignment": {
+          "body_trigram": {
+            "number": 8,
+            "name_zh": "坤",
+            "symbol": "☷",
+            "element": "土",
+            "lines_bottom_up": [
+              0,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "initial_use_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "changed_use_trigram": {
+            "number": 3,
+            "name_zh": "离",
+            "symbol": "☲",
+            "element": "火",
+            "lines_bottom_up": [
+              1,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          }
+        },
+        "initial_body_use_relation": "BODY_GENERATES_USE",
+        "changed_body_use_relation": "USE_GENERATES_BODY",
+        "mutual_lower_to_body_relation": "SAME_ELEMENT",
+        "mutual_upper_to_body_relation": "USE_CONTROLS_BODY",
+        "moving_line_stage": "CORE_DECISION",
+        "season_context": {
+          "current_solar_term": "小暑",
+          "current_solar_term_started_at": "2026-07-07 09:56:57+08:00",
+          "month_branch": "未",
+          "month_start_solar_term": "小暑",
+          "month_element": "土",
+          "element_strengths": [
+            {
+              "element": "木",
+              "state": "CONFINED",
+              "label_zh": "囚",
+              "rank": -1
+            },
+            {
+              "element": "火",
+              "state": "RESTING",
+              "label_zh": "休",
+              "rank": 0
+            },
+            {
+              "element": "土",
+              "state": "PROSPEROUS",
+              "label_zh": "旺",
+              "rank": 2
+            },
+            {
+              "element": "金",
+              "state": "SUPPORTED",
+              "label_zh": "相",
+              "rank": 1
+            },
+            {
+              "element": "水",
+              "state": "DEAD",
+              "label_zh": "死",
+              "rank": -2
+            }
+          ],
+          "body_strength": "PROSPEROUS",
+          "initial_use_strength": "SUPPORTED",
+          "changed_use_strength": "RESTING"
+        },
+        "evidence": [
+          {
+            "evidence_id": "E01",
+            "evidence_type": "BASE_HEXAGRAM",
+            "source_ref": "MEIHUA-V1-RULE-BASE-HEXAGRAM",
+            "polarity": "NEUTRAL",
+            "strength": "MEDIUM",
+            "fact": "本卦为第12卦天地否",
+            "rule_statement": "下卦三爻在前、上卦三爻在后组成六爻。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E02",
+            "evidence_type": "INITIAL_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "初始体用关系为体生用",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E03",
+            "evidence_type": "CHANGED_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "POSITIVE",
+            "strength": "STRONG",
+            "fact": "变化后体用关系为用生体",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E04",
+            "evidence_type": "MUTUAL_LOWER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "MIXED",
+            "strength": "MEDIUM",
+            "fact": "互卦下卦对体卦关系为比和",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E05",
+            "evidence_type": "MUTUAL_UPPER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "STRONG",
+            "fact": "互卦上卦对体卦关系为用克体",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E06",
+            "evidence_type": "BODY_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "STRONG",
+            "fact": "体卦五行在未月为旺",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E07",
+            "evidence_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "初始用卦五行在未月为相",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E08",
+            "evidence_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "NEUTRAL",
+            "strength": "WEAK",
+            "fact": "变化后用卦五行在未月为休",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E09",
+            "evidence_type": "MOVING_LINE_STAGE",
+            "source_ref": "MEIHUA-V1-RULE-MOVING-LINE-STAGE",
+            "polarity": "NEUTRAL",
+            "strength": "WEAK",
+            "fact": "第5爻对应核心决断",
+            "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          }
+        ],
+        "timing": {
+          "exact_date_feature_enabled": false,
+          "level": "STAGE_ONLY",
+          "candidate_dates": []
+        },
+        "versions": {
+          "rule_version": "MEIHUA_RULE_SPEC_V1",
+          "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+          "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+          "calendar_provider": "lunar_python/1.4.8",
+          "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+        }
+      },
+      "reading_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M03",
+      "program_content_sha256": "ae4793351636937a31e231e06046581b0c496b9d0f6f81e1aa0653713805ab71",
+      "program_hash_verified": true,
+      "evidence_catalog_status": "RECONSTRUCTED_FROM_CURRENT_SAME_PROGRAM_CHAIN_HISTORICAL_HASH_NOT_STORED"
+    },
+    {
+      "case_id": "GXID-M04",
+      "quality_tier": "MEDIUM_CANDIDATE",
+      "tier_status": "PENDING_HUMAN_REVIEW",
+      "source_type": "SYNTHETIC_LIVE_MODEL_OUTPUT",
+      "source_locator": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl#CASE-008-low",
+      "anonymized": true,
+      "domain": "关系",
+      "numbers": [
+        4,
+        3,
+        2
+      ],
+      "original_question": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？",
+      "decision_goal": "判断应该催促确认，还是先澄清事实和建立可信度。",
+      "real_world_context": "双方有持续联系，但对未来安排没有形成明确共识。",
+      "discernment_transcript_status": "FROZEN_CURRENT_FLOW_COMPLETE",
+      "current_baseline": {
+        "model": "gpt-5.6-terra",
+        "reasoning_effort": "low",
+        "terminal_status": "VALIDATION_PASSED",
+        "input_tokens": 2225,
+        "output_tokens": 836,
+        "total_tokens": 3061,
+        "latency_ms": 7509,
+        "explanation": [
+          "在信息尚未清晰、回应也缺少可核对内容时，继续加大推动力度可能更容易形成压力与消耗；把重点放在厘清事实和边界，会更利于判断下一步。",
+          "事情处于尚待落实和验证的状态，现阶段更适合区分“已有共识”和“仍是推测”的部分，避免把含糊回应直接当作确认。"
+        ],
+        "advice": [
+          "以一次具体、可回应的沟通核实双方对未来安排的理解、可接受边界和需要补充的信息。",
+          "验证回应是否包含可落实内容，而不只看态度是否友好；信息仍不完整时降低承诺成本。"
+        ],
+        "capture_scope": "DISPLAY_EXCERPT_ONLY",
+        "exact_safe_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M04"
+      },
+      "known_feedback": [
+        "低/中推理输出均技术验证通过；human review 为空。"
+      ],
+      "observed_failure_or_strength": [
+        "避免了读心，现实边界清楚。",
+        "仅凭现实背景也可能得出相同建议，卦象增量待评。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "持续联系是否能转化为对未来安排的可落实共识。"
+        ],
+        "supporting_user_evidence": [
+          "双方持续联系。",
+          "未来安排没有明确共识。"
+        ],
+        "reasonable_question_directions": [
+          "继续推动确认是否会增加清晰度，还是只增加压力与消耗？"
+        ],
+        "relevant_chart_structures": [
+          "PENDING_ICHING_REVIEW"
+        ],
+        "not_conclude": [
+          "不能判断对方真实内心。",
+          "不能把含糊回应写成拒绝或承诺。"
+        ],
+        "alternative_interpretations": [
+          "一次清晰表达可能合宜，但不等于继续单方面维系。"
+        ],
+        "confidence_boundary": "安全边界较好，卦象因果性未确认。"
+      },
+      "discernment_snapshot_ref": "baselines/current_guided_intake_snapshots.json#GXID-M04",
+      "discernment_terminal_status": "COMPLETE",
+      "chart_snapshot": {
+        "input": {
+          "first_number": 4,
+          "second_number": 3,
+          "third_number": 2,
+          "cast_at": "2026-07-12 12:00:00+08:00",
+          "timezone_name": "Asia/Shanghai",
+          "question_id": null
+        },
+        "upper_trigram": {
+          "number": 4,
+          "name_zh": "震",
+          "symbol": "☳",
+          "element": "木",
+          "lines_bottom_up": [
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "lower_trigram": {
+          "number": 3,
+          "name_zh": "离",
+          "symbol": "☲",
+          "element": "火",
+          "lines_bottom_up": [
+            1,
+            0,
+            1
+          ],
+          "data_version": "MEIHUA_TRIGRAMS_V1"
+        },
+        "moving_line": 2,
+        "base_hexagram": {
+          "king_wen_number": 55,
+          "name_zh": "丰",
+          "full_name_zh": "雷火丰",
+          "unicode_symbol": "䷶",
+          "upper_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 3,
+            "name_zh": "离",
+            "symbol": "☲",
+            "element": "火",
+            "lines_bottom_up": [
+              1,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "mutual_hexagram": {
+          "king_wen_number": 28,
+          "name_zh": "大过",
+          "full_name_zh": "泽风大过",
+          "unicode_symbol": "䷛",
+          "upper_trigram": {
+            "number": 2,
+            "name_zh": "兑",
+            "symbol": "☱",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 5,
+            "name_zh": "巽",
+            "symbol": "☴",
+            "element": "木",
+            "lines_bottom_up": [
+              0,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "changed_hexagram": {
+          "king_wen_number": 34,
+          "name_zh": "大壮",
+          "full_name_zh": "雷天大壮",
+          "unicode_symbol": "䷡",
+          "upper_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lower_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "lines_bottom_up": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "data_version": "MEIHUA_HEXAGRAMS_V1"
+        },
+        "body_use_assignment": {
+          "body_trigram": {
+            "number": 4,
+            "name_zh": "震",
+            "symbol": "☳",
+            "element": "木",
+            "lines_bottom_up": [
+              1,
+              0,
+              0
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "initial_use_trigram": {
+            "number": 3,
+            "name_zh": "离",
+            "symbol": "☲",
+            "element": "火",
+            "lines_bottom_up": [
+              1,
+              0,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          },
+          "changed_use_trigram": {
+            "number": 1,
+            "name_zh": "乾",
+            "symbol": "☰",
+            "element": "金",
+            "lines_bottom_up": [
+              1,
+              1,
+              1
+            ],
+            "data_version": "MEIHUA_TRIGRAMS_V1"
+          }
+        },
+        "initial_body_use_relation": "BODY_GENERATES_USE",
+        "changed_body_use_relation": "USE_CONTROLS_BODY",
+        "mutual_lower_to_body_relation": "SAME_ELEMENT",
+        "mutual_upper_to_body_relation": "USE_CONTROLS_BODY",
+        "moving_line_stage": "EARLY_FORMATION",
+        "season_context": {
+          "current_solar_term": "小暑",
+          "current_solar_term_started_at": "2026-07-07 09:56:57+08:00",
+          "month_branch": "未",
+          "month_start_solar_term": "小暑",
+          "month_element": "土",
+          "element_strengths": [
+            {
+              "element": "木",
+              "state": "CONFINED",
+              "label_zh": "囚",
+              "rank": -1
+            },
+            {
+              "element": "火",
+              "state": "RESTING",
+              "label_zh": "休",
+              "rank": 0
+            },
+            {
+              "element": "土",
+              "state": "PROSPEROUS",
+              "label_zh": "旺",
+              "rank": 2
+            },
+            {
+              "element": "金",
+              "state": "SUPPORTED",
+              "label_zh": "相",
+              "rank": 1
+            },
+            {
+              "element": "水",
+              "state": "DEAD",
+              "label_zh": "死",
+              "rank": -2
+            }
+          ],
+          "body_strength": "CONFINED",
+          "initial_use_strength": "RESTING",
+          "changed_use_strength": "SUPPORTED"
+        },
+        "evidence": [
+          {
+            "evidence_id": "E01",
+            "evidence_type": "BASE_HEXAGRAM",
+            "source_ref": "MEIHUA-V1-RULE-BASE-HEXAGRAM",
+            "polarity": "NEUTRAL",
+            "strength": "MEDIUM",
+            "fact": "本卦为第55卦雷火丰",
+            "rule_statement": "下卦三爻在前、上卦三爻在后组成六爻。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E02",
+            "evidence_type": "INITIAL_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "初始体用关系为体生用",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E03",
+            "evidence_type": "CHANGED_BODY_USE_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "STRONG",
+            "fact": "变化后体用关系为用克体",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E04",
+            "evidence_type": "MUTUAL_LOWER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "MIXED",
+            "strength": "MEDIUM",
+            "fact": "互卦下卦对体卦关系为比和",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E05",
+            "evidence_type": "MUTUAL_UPPER_RELATION",
+            "source_ref": "MEIHUA-V1-RULE-BODY-USE",
+            "polarity": "NEGATIVE",
+            "strength": "STRONG",
+            "fact": "互卦上卦对体卦关系为用克体",
+            "rule_statement": "按木火土金水相生相克表，以体为参照计算关系。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E06",
+            "evidence_type": "BODY_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "NEGATIVE",
+            "strength": "MEDIUM",
+            "fact": "体卦五行在未月为囚",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E07",
+            "evidence_type": "INITIAL_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "NEUTRAL",
+            "strength": "WEAK",
+            "fact": "初始用卦五行在未月为休",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E08",
+            "evidence_type": "CHANGED_USE_SEASONAL_STRENGTH",
+            "source_ref": "MEIHUA-V1-RULE-SEASONAL-STRENGTH",
+            "polarity": "POSITIVE",
+            "strength": "MEDIUM",
+            "fact": "变化后用卦五行在未月为相",
+            "rule_statement": "以节气月令主五行，按旺相休囚死固定关系分类。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          },
+          {
+            "evidence_id": "E09",
+            "evidence_type": "MOVING_LINE_STAGE",
+            "source_ref": "MEIHUA-V1-RULE-MOVING-LINE-STAGE",
+            "polarity": "NEUTRAL",
+            "strength": "WEAK",
+            "fact": "第2爻对应初步成形",
+            "rule_statement": "动爻只映射确定性阶段标签，不生成吉凶或日期。",
+            "data_version": "MEIHUA_EVIDENCE_V1"
+          }
+        ],
+        "timing": {
+          "exact_date_feature_enabled": false,
+          "level": "STAGE_ONLY",
+          "candidate_dates": []
+        },
+        "versions": {
+          "rule_version": "MEIHUA_RULE_SPEC_V1",
+          "trigram_data_version": "MEIHUA_TRIGRAMS_V1",
+          "hexagram_data_version": "MEIHUA_HEXAGRAMS_V1",
+          "calendar_provider": "lunar_python/1.4.8",
+          "engine_version": "MEIHUA_ENGINE_PHASE1_V1"
+        }
+      },
+      "reading_snapshot_ref": "baselines/current_reading_safe_snapshots.json#GXID-M04",
+      "program_content_sha256": "3c68ec09cd94165d1057153a30d1dea5bf90dd3ef3d734720966c9141408760d",
+      "program_hash_verified": true,
+      "evidence_catalog_status": "RECONSTRUCTED_FROM_CURRENT_SAME_PROGRAM_CHAIN_HISTORICAL_HASH_NOT_STORED"
+    },
+    {
+      "case_id": "GXID-P01",
+      "quality_tier": "PROTECTION",
+      "source_type": "PRODUCT_CALIBRATION",
+      "source_locator": "evals/meihua/personalization_gate1_v001/product_calibration_round3_refined_voice.md",
+      "anonymized": true,
+      "domain": "PROJECT_COOPERATION",
+      "original_question": "这次合作，我还应该继续投入吗？",
+      "discernment_transcript_status": "NOT_AVAILABLE",
+      "chart_snapshot": "离为火，三爻动，变火雷噬嗑；初始体用比和，变化后用生体；体休、初用休、变用囚。",
+      "current_baseline": {
+        "baseline_kind": "PRODUCT_CALIBRATION_ARTIFACT_NOT_CURRENT_MODEL",
+        "core_judgment": "这次不宜直接追加投入。",
+        "reading": "离为两火相承，也有附丽之义：火有所附，方能成明。体用起初比和，说明这段合作并非根本相悖，双方也曾有过彼此照应、同向发力的基础。但三爻所见是“日昃之离”——日势已斜，光还在，阶段却已经变了。此时若仍循旧法，只靠原来的热度、承诺或你的持续投入维持，所得未必是推进，更多可能只是耗损。变而为噬嗑。噬嗑之象，是颐中有物，梗在其间；不先把它辨清、处置，彼此便难以重新相合。落到这次合作，眼下真正要处理的不是“你还能再投入多少”，而是责任、交付、分配或延期代价中，究竟哪一处始终含混，迟迟没有落定。",
+        "action": "在新增资金、时间或资源以前，先要求对方完成一个足以消除当前梗碍的实际动作：补上关键交付、重新划清责任、承担已经发生的延期成本，或者把后续资源与回报明确下来。先见承担，再谈继续。",
+        "cost": "NOT_APPLICABLE_HUMAN_CALIBRATION"
+      },
+      "known_feedback": [
+        "产品负责人：更好，这一版已经可以给到 85 分以上。"
+      ],
+      "observed_failure_or_strength": [
+        "先给判断。",
+        "卦象解释、现实矛盾和行动形成连续链条。",
+        "仍是实验性解释，不是已审核规则。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "新增投入之前，责任、交付和延期代价是否形成可核对交换。"
+        ],
+        "supporting_user_evidence": [
+          "原始校准包没有完整现实背景，待补。"
+        ],
+        "reasonable_question_directions": [
+          "当前是否应在对方先承担一项实际责任后，再决定继续投入？"
+        ],
+        "relevant_chart_structures": [
+          "离之附丽、三爻阶段变化、变噬嗑、体用变化；均为实验性解释，待专家评审。"
+        ],
+        "not_conclude": [
+          "不能断言对方欺骗。",
+          "不能保证继续或暂停的最终结果。"
+        ],
+        "alternative_interpretations": [
+          "离与噬嗑的现实接榫可能存在其他合理路径，需易学评审记录争议。"
+        ],
+        "confidence_boundary": "只确认产品负责人认可内容方向，不确认易理唯一正确。"
+      }
+    },
+    {
+      "case_id": "GXID-P02",
+      "quality_tier": "PROTECTION",
+      "source_type": "PRODUCT_CALIBRATION",
+      "source_locator": "evals/meihua/personalization_gate1_v001/product_calibration_round4_transfer_packet.md#案例二",
+      "anonymized": true,
+      "domain": "RELATIONSHIP_COMMUNICATION",
+      "original_question": "这段关系，我还应该主动联系吗？",
+      "discernment_transcript_status": "NOT_AVAILABLE",
+      "chart_snapshot": "雷火丰，六二动，变雷天大壮；体用由体生用转为用克体；体囚。",
+      "current_baseline": {
+        "baseline_kind": "PRODUCT_CALIBRATION_ARTIFACT_NOT_CURRENT_MODEL",
+        "core_judgment": "可以主动联系一次，但这次是为了把关系说清，不是为了再次替两个人维持关系。",
+        "reading": "丰本是盛大明亮之象，六二所见却是“日中见斗”：本应光明的时候，眼前反而有了遮蔽。落到关系里，这常不是全无情意，而是表面的热度、争执或反复联系太多，真正需要回答的问题却一直没有见光。爻辞又说“往得疑疾，有孚发若”。此时一味向前追问，容易让猜疑更重；真正能解开遮蔽的，是一次诚实而不纠缠的表达。变为大壮，力量会变强，但大壮只说“利贞”——有力量，不等于可以步步紧逼；守住分寸，力量才不致反过来伤身。",
+        "action": "主动一次，把想确认的关系状态、需要的回应或不能再接受的相处方式说清。说完以后，不再补充长篇解释，也不连续追问；接下来看对方会不会主动承担沟通。",
+        "cost": "NOT_APPLICABLE_HUMAN_CALIBRATION"
+      },
+      "known_feedback": [
+        "产品负责人评分 85，内容好、行文平常、完全可以通过。"
+      ],
+      "observed_failure_or_strength": [
+        "把一次主动与长期替双方维持关系区分开。",
+        "避免读心，同时给出清晰行动边界。",
+        "仍需独立易学评审。"
+      ],
+      "reference_packet": {
+        "status": "REFERENCE_NOT_GROUND_TRUTH",
+        "plausible_decision_bottlenecks": [
+          "用户能否用一次清晰表达换取对方的持续参与，而不是继续单方面维系。"
+        ],
+        "supporting_user_evidence": [
+          "完整现实背景在本校准包中缺失。"
+        ],
+        "reasonable_question_directions": [
+          "主动一次是否有助于看清双方是否愿意共同承担关系？"
+        ],
+        "relevant_chart_structures": [
+          "丰六二、变大壮、体用转为用克体；现实接榫为实验性解释。"
+        ],
+        "not_conclude": [
+          "不能判断对方爱或不爱。",
+          "不能把一次主动保证为关系修复。"
+        ],
+        "alternative_interpretations": [
+          "主动表达、暂缓联系或设定边界可能都是合理姿态，需结合盘面与现实证据复核。"
+        ],
+        "confidence_boundary": "只确认产品声音和行动边界获得产品负责人认可。"
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "case_id": "DR-01-Q1",
+  "diagnostics": [
+    {
+      "request_id": "drv2-a9075da6419a7790b78574139e59ccf3",
+      "outcome": "SUCCESS",
+      "audit": {
+        "request_id": "drv2-a9075da6419a7790b78574139e59ccf3",
+        "request_sha256": "79921B9393123E64E8784A02880F8AE24DFB59A05BD6E11C2895D41A33D330B8",
+        "question_sha256": "DE7AAF37256ACCE31C58B6CEA404B3D8103693ECB01A2A6BF4FF452CAD139B66",
+        "chart_sha256": "10903180A825C2F44EEE1C5F90AA12C211F6D2C96F1E790E9FFD375F8B6D7B94",
+        "prompt_sha256": "71083FDEBF891B460FDB48B6F61DDB1672AA8FFE4274802D10AD5273C5CD8E83",
+        "prompt_version": "GUANXIANG_DIRECT_READING_PROMPT_V2",
+        "model": "gpt-5.6-sol",
+        "response_id": "resp_0a8440c94f163e83016a7b10bfa93881988e3c140eff27082e",
+        "usage": {
+          "input_tokens": 386,
+          "output_tokens": 2938,
+          "total_tokens": 3324
+        },
+        "latency_ms": 68416,
+        "generated_at": "2026-08-11T20:08:30.105897+08:00"
+      }
+    }
+  ],
+  "stdout": "{\"submitted_http_status\":202,\"initial\":{\"contract_version\":\"SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1\",\"request_id\":\"drv2-a9075da6419a7790b78574139e59ccf3\",\"status\":\"RUNNING\",\"stage\":\"CAST_READY\",\"chart_facts\":{\"base_hexagram\":{\"role\":\"BASE\",\"king_wen_number\":59,\"name\":\"风水涣\",\"upper_trigram\":\"巽\",\"lower_trigram\":\"坎\"},\"mutual_hexagram\":{\"role\":\"MUTUAL\",\"king_wen_number\":27,\"name\":\"山雷颐\",\"upper_trigram\":\"艮\",\"lower_trigram\":\"震\"},\"changed_hexagram\":{\"role\":\"CHANGED\",\"king_wen_number\":57,\"name\":\"巽为风\",\"upper_trigram\":\"巽\",\"lower_trigram\":\"巽\"},\"moving_line\":{\"position\":3,\"name\":\"六三\",\"canonical_line_text\":\"渙其躬，无悔。\",\"canonical_data_version\":\"MEIHUA_CANONICAL_TEXTS_V1\"},\"rule_version\":\"MEIHUA_RULE_SPEC_V1\",\"engine_version\":\"MEIHUA_ENGINE_PHASE1_V1\"},\"direct_reading\":null,\"error_code\":null,\"error_message\":null,\"retryable\":false,\"failure_stage\":null},\"terminal_http_status\":200,\"terminal\":{\"contract_version\":\"SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1\",\"request_id\":\"drv2-a9075da6419a7790b78574139e59ccf3\",\"status\":\"SUCCESS\",\"chart_facts\":{\"base_hexagram\":{\"role\":\"BASE\",\"king_wen_number\":59,\"name\":\"风水涣\",\"upper_trigram\":\"巽\",\"lower_trigram\":\"坎\"},\"mutual_hexagram\":{\"role\":\"MUTUAL\",\"king_wen_number\":27,\"name\":\"山雷颐\",\"upper_trigram\":\"艮\",\"lower_trigram\":\"震\"},\"changed_hexagram\":{\"role\":\"CHANGED\",\"king_wen_number\":57,\"name\":\"巽为风\",\"upper_trigram\":\"巽\",\"lower_trigram\":\"巽\"},\"moving_line\":{\"position\":3,\"name\":\"六三\",\"canonical_line_text\":\"渙其躬，无悔。\",\"canonical_data_version\":\"MEIHUA_CANONICAL_TEXTS_V1\"},\"rule_version\":\"MEIHUA_RULE_SPEC_V1\",\"engine_version\":\"MEIHUA_ENGINE_PHASE1_V1\"},\"direct_reading\":{\"version\":\"SITES_DIRECT_READING_V2_NONPROD_V2\",\"content_format\":\"MARKDOWN\",\"text\":\"## 判断\\n\\n这份卦象对“要不要考虑换工作”的回答是：**要考虑，而且可以开始实际探索；但不宜因一时烦闷或焦虑而仓促裸辞。**眼下更合适的路径，是先把当前工作中纠缠、消耗和不再适合自己的部分看清，再以低风险方式接触外部机会，待去留标准和承接条件明确后行动。\\n\\n卦意并非断言“换了必好”，而是提示：**现状不宜只靠惯性维持，真正要换掉的首先是消耗你的工作结构与应对方式。**如果内部调整、沟通或岗位转移能够解除问题，未必一定离开公司；如果多次疏通仍无实质变化，则换工作会比勉强固守更顺势。\\n\\n## 本卦：风水涣——先解开困局，再决定去留\\n\\n本卦为第五十九卦“涣”，上巽为风，下坎为水。卦象是风行水上，使原本凝滞之处散开。“涣”有离散之象，但它的要义并不只是散伙、离职，也包括**疏通阻塞、解除积郁、重新聚合方向**。\\n\\n联系到换工作，卦象首先说明的不是“马上走”，而是当前的职业状态可能需要重新整理。这里的“需要整理”是卦象推断，并非断言你现实中一定遭遇了何种问题；它可能对应职责边界混乱、精力分散、发展停滞、人际牵扯，或只是内心已经不再认同原来的工作方式。无论具体落在哪一项，都不适合继续含混地耗着。\\n\\n下卦坎有险、有忧，上卦巽有顺入、适应之意。放在职业选择中，可理解为：**内里对风险有所顾虑，外在仍在维持配合。**这种格局容易让人表面如常，心里却反复思量。涣卦要求把忧虑拆开：你担心的是收入中断、能力不够、环境变化，还是舍不得已有身份与积累？把不同风险分别处理，去留才会由情绪题变成判断题。\\n\\n因此，本卦支持“启动换工作的考虑”，但首先应疏通信息、资源和选择，而不是用辞职本身代替解决问题。\\n\\n## 互卦：山雷颐——以能否养身、养能、养志为尺度\\n\\n互卦为第二十七卦“颐”。颐为养，也与口、言语、所得来源有关。互卦揭示事情内部的核心：这次职业选择最终应落在一个“养”字上。\\n\\n对现实而言，需要考察三层：其一，是否养身，即收入、作息和身心承受是否可持续；其二，是否养能，即工作能否继续形成技能、经验和可迁移的能力；其三，是否养志，即长期方向是否与你真正重视的东西相容。新工作若只有名头或短期涨幅，却持续损害这三项，便不算真正合卦；旧工作若仍能提供稳定积累，并且问题有修复空间，也不必为了“换而换”。\\n\\n颐又主言语与信息入口。落实到行动上，适合通过面试、同行交流、职位调查来校正判断，但不可只听传闻或招聘话术。你需要关注的是具体职责、考核方式、汇报关系、资源配置和离职成本，而非仅凭岗位名称想象前景。同时，颐也提醒先备“口粮”：若考虑离开，应对现金储备、过渡周期和必要支出心中有数。\\n\\n## 动爻：六三“涣其躬，无悔”——放下对旧身份的过度执着\\n\\n六三爻辞为：“涣其躬，无悔。”卦象事实是，此爻强调从“自身”处解散执著，不再让个人得失或自我牵绊成为最大的阻碍。\\n\\n对应换工作，真正需要松开的，可能不是某一份合同本身，而是对沉没成本、旧身份、熟悉感或“必须证明自己能撑下去”的执念。过去投入很多，并不能单独成为继续留下的理由；害怕换岗后显得退步，也不应压过长期发展。反过来说，“涣其躬”也不是任性地只顾自己，而是停止把全部精力耗在维护一个已经失衡的局面上。\\n\\n“无悔”有较正面的意味，但不能解释成“辞职后绝不会后悔”。更准确地说：**若你的行动是经过取舍，放下虚名与执拗，而非受一时情绪驱使，那么即使经历适应成本，事后较不容易陷入深重悔意。**这爻明显偏向卸下包袱、允许自己转向，所以它增强了“可以考虑换”的判断。\\n\\n## 变卦：巽为风——宜渐入，不宜骤断\\n\\n六三发动后，变卦为第五十七卦“巽为风”。巽有进入、渗透、顺势而行之义；上下皆巽，说明后续更适合通过持续而细致的行动打开局面。\\n\\n在求职上，这不是一锤定音的象，而是渐进之象：整理履历、测试市场反馈、联系可信渠道、参与面试、比较机会，也可以先尝试内部转岗、调整职责或争取资源。巽主“入”，故关键是进入真实信息，而非只在脑中反复设想。外部反馈会帮助你辨明：问题究竟来自当前平台，还是来自职业方向、能力结构或个人边界。\\n\\n巽的反面风险是过度顺从、犹疑和随风而动。若没有事先设定标准，容易这边不满、那边也觉得不够好，最终长期摇摆；也可能在谈判中为了尽快离开而接受模糊条件。因此，需要提前划定底线与优先级，例如薪酬下限、工作强度、成长空间、管理方式和通勤成本，并区分“必须满足”与“可以妥协”。\\n\\n## 适合做什么\\n\\n1. **开始探索，而非立即辞职。**更新履历、了解市场、投递少量高匹配职位，用真实反馈检验自己的选择空间。  \\n2. **梳理离开的根因。**把问题分成可修复与不可修复两类，避免把所有不满都归结为“公司不好”。  \\n3. **先争取一次有内容的改善。**可以是职责调整、资源支持、内部转岗或发展路径确认；重点看是否出现实际行动。  \\n4. **建立去留标准。**从收入、身心消耗、能力成长、长期方向四方面比较，不只看单一涨薪。  \\n5. **保留回旋余地。**在承接条件尚未清楚前，稳住现金流和职业信用，边走边看，顺势深入。\\n\\n## 不适合做什么\\n\\n不适合因一次冲突、短期疲惫或他人离职而仓促跟随；不适合尚未弄清新岗位实情便先行裸辞；也不适合一味迁就现状，以“再忍一忍”无限推迟决定。尤其不要只为逃离旧问题而接受一个标准更模糊的新职位，否则涣而不聚，换了环境仍可能重复原有困局。\\n\\n## 反向风险与改变判断的现实信号\\n\\n如果你选择继续留下，主要风险是问题长期得不到疏通，精力继续分散，最终在更被动的情况下离开。如果选择更换，主要风险则是标准不清、准备不足，造成收入压力或从一个消耗场转入另一个消耗场。\\n\\n以下信号若持续出现，会使判断更偏向尽快离开：明确沟通后仍无实际改善；职责或发展空间持续收缩；身心负担已明显影响正常生活；工作要求与你不能接受的原则发生稳定冲突；外部已有条件清楚、能够承接生活与成长的机会。\\n\\n相反，若当前岗位出现可验证的改善，例如职责边界落实、资源承诺真正兑现、内部转岗可行、成长路径重新清晰，而外部机会又普遍无法改善核心问题，则可暂缓离开，先观察调整后的实际效果。若存在人身安全、明显违法或严重健康损害，则不应拘泥于渐进之法，应优先保护自身并寻求现实中的专业支持。\\n\\n总的说，此卦不是劝你安守不动，而是劝你**散其困、养其本、徐徐而入**：可以换，但要换得有方向、有承接，不以冲动断旧，而以清醒开新。\",\"validation_status\":\"PASSED\",\"chart_facts\":{\"base_hexagram\":{\"role\":\"BASE\",\"king_wen_number\":59,\"name\":\"风水涣\",\"upper_trigram\":\"巽\",\"lower_trigram\":\"坎\"},\"mutual_hexagram\":{\"role\":\"MUTUAL\",\"king_wen_number\":27,\"name\":\"山雷颐\",\"upper_trigram\":\"艮\",\"lower_trigram\":\"震\"},\"changed_hexagram\":{\"role\":\"CHANGED\",\"king_wen_number\":57,\"name\":\"巽为风\",\"upper_trigram\":\"巽\",\"lower_trigram\":\"巽\"},\"moving_line\":{\"position\":3,\"name\":\"六三\",\"canonical_line_text\":\"渙其躬，无悔。\",\"canonical_data_version\":\"MEIHUA_CANONICAL_TEXTS_V1\"},\"rule_version\":\"MEIHUA_RULE_SPEC_V1\",\"engine_version\":\"MEIHUA_ENGINE_PHASE1_V1\"}},\"error_code\":null,\"error_message\":null,\"retryable\":false,\"failure_stage\":null},\"stages\":[\"CAST_READY\",\"MODEL_REQUESTED\",\"MODEL_STREAMING\"],\"persisted_state\":\"FINALIZED\",\"upstream_post_count\":1}",
+  "stderr": "",
+  "python_job": {
+    "status": "SUCCESS",
+    "stage": "COMPLETE",
+    "has_response": true
+  }
+}

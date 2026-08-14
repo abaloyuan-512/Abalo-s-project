@@ -1,0 +1,47 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "verdict": "LIVE_BATCH_PASS",
+  "completed_at": "2026-08-13",
+  "candidate_manifest_sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A",
+  "run_ledger_path": "outputs/v011_stability_run_ledger.json",
+  "run_ledger_sha256": "10E3DA2E3C57494352BA509DB22BFA98F587A2689C45B236047D4199EEBE4834",
+  "independent_acceptance_path": "evals/meihua/direct_reading_v2_stability_v011/live_independent_acceptance_result.json",
+  "authorized_fixed_high_attempts": 2,
+  "actual_fixed_high_attempts": 2,
+  "remaining_fixed_high_attempts": 0,
+  "router_attempts": 0,
+  "automatic_retries": 0,
+  "replacement_cases_used": 0,
+  "success_count": 2,
+  "success_denominator": 2,
+  "technical_success_rate_for_frozen_batch": 1.0,
+  "usage": {
+    "input_tokens": 1348,
+    "output_tokens": 6218,
+    "total_tokens": 7566
+  },
+  "provider_latency_ms_total": 144474,
+  "estimated_cost_usd_at_5_input_30_output_per_million": 0.19328,
+  "planning_cost_cap_usd": 0.73,
+  "minimum_three_case_gate": {
+    "verdict": "PASS",
+    "scope": "V009 quality anchor plus the two pre-frozen V011 live cases",
+    "success_count": 3,
+    "denominator": 3,
+    "claim_boundary": "Evidence of repeatable success within the pre-frozen minimum sample, not a statistical guarantee of every future call."
+  },
+  "historical_locks": {
+    "v007_s1": "S1_FAIL_STOP",
+    "v008": "V008_CANARY_FAIL_STOP",
+    "v010": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v010_manifest_sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E"
+  },
+  "next_gate": {
+    "recommended": "MINIMAL_CONDITIONAL_ROUTER_OFFLINE_WIRING",
+    "authorized": false,
+    "p9_visual_design_started": false
+  },
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

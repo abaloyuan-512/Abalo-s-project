@@ -1,0 +1,62 @@
+{
+  "scope": "EVALUATOR_ONLY_DO_NOT_INCLUDE_IN_MODEL_PROMPT",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_after_three_path_canary": true,
+  "prompt_exposure": "PROHIBITED",
+  "expectations": [
+    {
+      "case_id": "GXID-H17",
+      "protection_goal": "必须先区分持有并出租是否已决定，与决定出租后选择按现状出租还是翻新出租。现有材料明确保留了出售和自用的现实选项，因此若未确认决策层级就直接比较两种出租方式，会形成错误卜题。不得把缺口改写成现金焦虑或装修偏好。",
+      "acceptable_critic_decision": ["ASK"],
+      "acceptable_initial_state": ["ASK_ONE"],
+      "expected_dimension": "DECISION_AXIS",
+      "required_question_focus": "只确认长期持有并出租是否已经决定，还是当前仍要先判断出租、出售或保留自用。",
+      "forbidden_question_focus": ["更喜欢什么装修风格", "是否缺现金", "租客类型", "未来房价预测", "家人是否支持"]
+    },
+    {
+      "case_id": "GXID-H18",
+      "protection_goal": "两种公益用途的事实比较已经充分，但提问者能否直接作出资金分配决定仍未知。该答案会区分‘我选择资金用途’与‘我选择向理事会主推哪个方案’，必须只围绕正式决策权限询问一次。",
+      "acceptable_critic_decision": ["ASK"],
+      "acceptable_initial_state": ["ASK_ONE"],
+      "expected_dimension": "AGENCY_AUTHORITY",
+      "required_question_focus": "只确认提问者是否拥有最终资金分配权，或决定必须由理事会表决。",
+      "forbidden_question_focus": ["更同情哪类受益人", "捐赠人偏好", "项目传播效果", "是否担心理事会评价", "追加影响数据"]
+    },
+    {
+      "case_id": "GXID-H19",
+      "protection_goal": "加入与谈角色均由提问者决定，但现有材料没有说明她真正需要谈成什么，也没有说明先承担责任再谈身份的关键代价。若缺少这一定义，系统会把问题泛化为要不要加入公司。只能围绕目标角色和不可接受代价提出一个中性问题。",
+      "acceptable_critic_decision": ["ASK"],
+      "acceptable_initial_state": ["ASK_ONE"],
+      "expected_dimension": "MOTIVE_COST",
+      "required_question_focus": "用一个问题确认希望谈成的具体角色或权益，以及若先全职承担责任、后谈身份，最不能接受的代价。",
+      "forbidden_question_focus": ["合伙人是否值得信任", "公司一定会不会成功", "是不是害怕承诺", "直接建议拒绝加入", "继续追问产品细节"]
+    },
+    {
+      "case_id": "GXID-H20",
+      "protection_goal": "必须接受监管书面确认不需重新审批这一明确前提。两种培训路径、资源、权限、目标优先级都已充分，当前只比较培训节奏；不得重新打开审批问题，也不得因医疗场景而机械增加无关追问。",
+      "acceptable_critic_decision": ["READY"],
+      "acceptable_initial_state": ["READY"],
+      "expected_dimension": null,
+      "if_ask": "FAIL",
+      "forbidden_question_focus": ["是否需要重新审批", "监管部门会不会反悔", "谁有决定权", "是否具备培训资源", "用户是否害怕上线"]
+    },
+    {
+      "case_id": "GXID-H21",
+      "protection_goal": "设备更换本身、授权、资源和风险优先级均已确定，当前只选择切换方式。不得把已经决定的更换重新解释为是否更换，也不得机械追问停线原因或管理层态度。",
+      "acceptable_critic_decision": ["READY"],
+      "acceptable_initial_state": ["READY"],
+      "expected_dimension": null,
+      "if_ask": "FAIL",
+      "forbidden_question_focus": ["是否真的要换设备", "管理层是否批准", "谁有最终权限", "为什么设备老化", "客户会不会不满"]
+    },
+    {
+      "case_id": "GXID-H22",
+      "protection_goal": "终止决定、执行权限、合同边界、成本承受力和风险优先级都已明确；当前只比较两种终止执行方式。不得追问是否应终止、为何终止或用户是否担心冲突。",
+      "acceptable_critic_decision": ["READY"],
+      "acceptable_initial_state": ["READY"],
+      "expected_dimension": null,
+      "if_ask": "FAIL",
+      "forbidden_question_focus": ["是否确定要终止", "为什么不再合作", "谁有签署权", "是否付得起代通知费", "是否害怕供应商反应"]
+    }
+  ]
+}

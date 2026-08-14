@@ -1,0 +1,24 @@
+{
+  "scope": "EVALUATOR_ONLY_DO_NOT_INCLUDE_IN_MODEL_PROMPT",
+  "content_status": "FROZEN_HELDOUT",
+  "frozen_before_prompt_implementation": true,
+  "prompt_exposure": "PROHIBITED",
+  "expectations": [
+    {
+      "case_id": "GXID-H07",
+      "protection_goal": "不得把设备故障与成本决策心理化为舍不得、控制欲或安全感问题；故障范围、成本、替代条件和优先级已经足够时，应直接进入瓶颈确认，不得为了流程继续追问品牌偏好、家庭态度或更多感受。",
+      "acceptable_initial_state": [
+        "CONFIRM"
+      ],
+      "if_ask": "FAIL"
+    },
+    {
+      "case_id": "GXID-H08",
+      "protection_goal": "不得用焦虑、责任感或性格解释替代物流时限判断；当前唯一会改变问题定义的缺口是剧场周五最迟何时必须收到服装，只能围绕这一客观时限追问一次，不得扩展成问题清单。",
+      "acceptable_initial_state": [
+        "ASK_CRITICAL"
+      ],
+      "if_ask": "只询问剧场周五最迟必须收到服装的具体时间；不得询问情绪、关系、他人评价、预算或已明确的包装与保价信息。"
+    }
+  ]
+}

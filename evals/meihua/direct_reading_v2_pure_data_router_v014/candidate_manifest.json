@@ -1,0 +1,53 @@
+{
+  "stage_id": "DIRECT_READING_V2_PURE_DATA_ROUTER_V014",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-PURE-DATA-ROUTER-OUTCOME-V014-OFFLINE-ACCEPTANCE-V1",
+  "candidate_files": [
+    {"path": "src/abalo_iching/application/sites_pure_data_router_v014.py", "sha256": "CB2A3827AC433403F1D0F38DE5E0B0456D1D4FC99B49DBF5F285B6814BCA51BB"},
+    {"path": "tests/test_sites_pure_data_router_v014.py", "sha256": "58353CD1C7DD9A2C479601D8CCEB2F1581EDBC192122F77FBF0AD924990330FD"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/scope_lock.json", "sha256": "0011BA8365761E48A0D4005CD10A8546525F7C6FDE73F2EF30D9FE8D259D0D23"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/acceptance_contract.json", "sha256": "92D5C56F7C698DA33B7B2AA032A0B415B18642965A478B1B0D05C41092A3E16E"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/decision_log.md", "sha256": "8087A1EE354C9D956D161A3CFC10CDB1092422CE0D6A54C28F992D96F16F7DBA"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/execution_log.md", "sha256": "EF9C5A48D0AD945B333009E85F8745ACA44112E60D75346ADA03BE730C74140A"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/risk_log.md", "sha256": "EF9972E5C964F52B76D90C3DA10EAF2242F4EFA0F76A2F88E97B7E4DC5AC0A57"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/deviation_log.md", "sha256": "A26979B8D78F11CA82B04657441E2A81B67E5C0606C36F8198760A31042E513B"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/build_offline_evidence.py", "sha256": "8C8C7FAF754EE1072CE58CF573624F7B08AC717651BC685C593A61D708CC01C9"},
+    {"path": "evals/meihua/direct_reading_v2_pure_data_router_v014/offline_ledger.json", "sha256": "0706669955937B9A927B128F6998AB257CFC8370C5B96F891FDC7DD27EBC33A3"}
+  ],
+  "immutable_authority_evidence": [
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/candidate_manifest.json", "sha256": "D838188446B232C3946F3EAE75CFE758DB5818F2DA43FED51CF6490CF3C2378C"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/independent_acceptance_result.json", "sha256": "9CE3F179F479940780478E4F345E0B9BB3F31084EC77732AB996A28FC1F932F2"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v012/final_outcome.json", "sha256": "D2EC3A91266C284BA7E3CB990A302A6559E8AEACE9ED17FD3B7E9D210D9B7FB1"},
+    {"path": "evals/meihua/direct_reading_v2_conditional_router_v013/design_stop.json", "sha256": "C0A5D1B5B86749DB6E31DA25A2566C6F8E16944F74467B92D8CBDD2BDE5E4089"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/candidate_manifest.json", "sha256": "855532938F8B4579BC0A412D6F672CE6A530B5C684DFFA184B7D187513BF6C4A"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/live_final_outcome.json", "sha256": "DAF8544E22B70F51FCF41CA0542FB6B9C42405D7D91952E5AB7CC20DEC353624"},
+    {"path": "outputs/v011_stability_run_ledger.json", "sha256": "10E3DA2E3C57494352BA509DB22BFA98F587A2689C45B236047D4199EEBE4834"},
+    {"path": "src/abalo_iching/application/sites_direct_reading_v2.py", "sha256": "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"},
+    {"path": "outputs/v009_canary_real_result.json", "sha256": "BE35C9632A9D65BD683E9AD36A213F79CC7533E93EF04FC1E83371EB876A56C6"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/canary_outcome.json", "sha256": "A47E940CBDC32019F1A611131992E9D29CD27B79CE100C79CAF3E4AD1B20D069"},
+    {"path": "outputs/v007_s1_stage_summary.json", "sha256": "8265C3676EB1E4F5FB4B44DFFB76C317B3A63AA8DF069F3D8257E5953572A032"}
+  ],
+  "offline_verification": {
+    "focused": "35 passed",
+    "inherited_focused": "229 passed",
+    "full": "1293 passed",
+    "fixture_cases": 11,
+    "router_callback_executions": 0,
+    "router_cast_count": 0,
+    "prepare_calls": 11,
+    "deterministic_cast_count": 11,
+    "provider_calls": 11,
+    "high_attempts": 11,
+    "automatic_retries": 0,
+    "live_calls": 0,
+    "real_provider_instantiated": false
+  },
+  "external_state": {
+    "router_adapter_or_product_wiring": false,
+    "http_or_ui_wiring": false,
+    "deployment": false,
+    "production": false,
+    "default_replacement": false,
+    "page9_art": false
+  }
+}

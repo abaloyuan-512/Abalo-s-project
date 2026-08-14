@@ -1,0 +1,110 @@
+{
+  "dataset_id": "GUANXIANG_INTELLIGENCE_DIAGNOSTIC_V1_0",
+  "dataset_version": "1.0.0",
+  "created_on": "2026-08-05",
+  "status": "PASS_WITH_OPEN_ITEMS",
+  "repository_commit_at_start": "d3d019d623956c460ea970d0b4bab4c370171a63",
+  "scope": "STAGE_0_ONLY",
+  "next_stage_authorized": true,
+  "stage1_authorization": {
+    "authorized_on": "2026-08-06",
+    "authorization_source": "USER_EXPLICIT_APPROVAL_AFTER_STAGE0_REPORT",
+    "scope": "DISCERNMENT_MINIMUM_EXPERIMENT_ONLY"
+  },
+  "case_count": 10,
+  "case_composition": {
+    "FAILURE": 4,
+    "MEDIUM_CANDIDATE": 4,
+    "PROTECTION": 2
+  },
+  "material_provenance": {
+    "historical_real_user_cases": 0,
+    "synthetic_or_product_calibration_cases": 10,
+    "frozen_synthetic_guided_intake_cases": 4,
+    "complete_guided_intake_transcripts": 3,
+    "incomplete_guided_intake_transcripts": 1,
+    "case_owner_reviews": 1,
+    "assigned_target_user_reviewers": 0,
+    "assigned_iching_reviewers": 0
+  },
+  "frozen_product_coordinates_recorded_only": {
+    "guided_intake_contract": "SITES_GUIDED_INTAKE_CONTRACT_V1",
+    "guided_intake_default_model": "gpt-5.6-luna",
+    "guided_intake_system_instructions_sha256": "48ed517a82760d00dc3323b9837bd6c00d686a3329a21360da0c6d829b8f089d",
+    "owner_preview_model": "gpt-5.6-sol",
+    "owner_preview_prompt_version": "guanxiang_owner_preview_v8_page8_model",
+    "owner_preview_validator_version": "guanxiang_owner_preview_validator_v7_page8_model",
+    "owner_preview_max_output_tokens": 9000,
+    "deterministic_rule_version": "MEIHUA_RULE_SPEC_V1"
+  },
+  "stage0_execution_cost": {
+    "known_completed_external_model_calls": 44,
+    "possible_additional_unknown_outcome_calls": 1,
+    "semantically_valid_baseline_calls": 20,
+    "discarded_encoding_corrupted_calls": 24,
+    "valid_baseline_input_tokens": 31415,
+    "valid_baseline_output_tokens": 13234,
+    "valid_baseline_total_tokens": 44649,
+    "valid_baseline_total_latency_ms": 141653,
+    "new_external_cost_usd": "UNKNOWN",
+    "note": "The 24 encoding-corrupted calls are excluded from semantic baselines. Their complete token usage was not persisted; cost must not be reported as zero."
+  },
+  "external_source": {
+    "path": "D:/效率工具--GitHub/文件储存夹/Abalo-s-project_phase2c_live_eval_v001_live_results_r2/config_results.jsonl",
+    "sha256": "e014bdd6ff22c45c4d01870f72e251b8bd6cd02267a3d5692b629d7603633ecb",
+    "copied_sensitive_identifiers": false
+  },
+  "review_status": {
+    "user_value": "INTERNAL_OWNER_QUALITATIVE_REVIEW_COMPLETE",
+    "iching_structure": "OWNER_COMMENTS_COMPLETE_INDEPENDENT_EXPERT_OPEN",
+    "product_boundary": "OBJECTIVE_CONTENT_AUDIT_COMPLETE_SYSTEM_CHECKS_OPEN",
+    "pmo": "PASS_WITH_OPEN_ITEMS_FINAL_AWAITING_USER_STAGE1_DECISION"
+  },
+  "technical_validation": {
+    "json_parse": "PASS_12_CONTENT_FILES_PLUS_MANIFEST",
+    "blind_packet_case_counts": "PASS_3_PACKETS_X_10",
+    "blind_payload_hashes": "PASS",
+    "sensitive_pattern_scan": "PASS_ZERO_FINDINGS",
+    "pytest_first_run": "955_PASS_1_TRANSIENT_CONNECTION_ABORT",
+    "pytest_isolated_retry": "1_PASS",
+    "pytest_final_no_cacheprovider": "956_PASS",
+    "semantic_encoding_scan": "PASS_ZERO_FINDINGS",
+    "reveal_cross_hashes": "PASS",
+    "validation_report": "governance/validation_report.json",
+    "validation_report_sha256": "ea0d18f666313dcadc94304dc7fdede6817e5db1b43179711a0f7e9fb0887a30",
+    "closeout_json_parse": "PASS_22_JSON_FILES",
+    "objective_boundary_exact_quote_check": "PASS_11_OF_11",
+    "acceptance_report": "stage0_acceptance_report_v2.md"
+  },
+  "packet_baseline_files_sha256_at_packet_ready_state": {
+    "baselines/current_guided_intake_snapshots.json": "2d7354f0fc822c8a3cc29706ee0dd54584a5d9489b1f7a8d9ba8c4445a2bf46a",
+    "baselines/current_reading_safe_snapshots.json": "a2e5f4b64c2085c7af1fc4164ec72b1eb670f6d6a631bf1ce7b45a56f2737155",
+    "case_index.json": "a65a5b526a9ba0b49b96a5f3b28b6e40241bc74ebd385bfb4936d121b4c9de14",
+    "cases.json": "09c5ad3d7b36c52f23bee048a2aec9cc20423006566a36c04250b7e4fb9291b5",
+    "governance/decision_log.md": "605adcb4634c7fafc62adf926130fa30db2b2e8677d3ef2e548faf097c2c88ee",
+    "governance/deviation_log.md": "f84700f79713d430519a55ad02b0bbf2b46533ba56650cf746e9bba10fe361e4",
+    "governance/execution_log.md": "a01e756b0d4e58eab179656b468f6f7801bef0993d1a73fa0617bcfa05b2c333",
+    "governance/pmo_checklist.md": "0c62982c8cc043aa34a6b0045104e3f5fa899d3c39e2096a40edf6ee9439f6ec",
+    "governance/risk_log.md": "35a08f333e9251bbabb653533e8a222c5f04ea16f8f8beb372cbb00356177d20",
+    "governance/validation_report.json": "ebe28cea8853b3225c5e8f68041cca8a2f915ad1e5ea64bc7a61a71b7986d414",
+    "guided_intake_synthetic_inputs.json": "6a914ba67debcc6ef1f4cbaf04aedd7660a6f896aab2ea9af94580fb02d7b296",
+    "README.md": "8f139a6de9595e70b06afd33f10dc84dc61f2b20f0c21b432abf5ca7da2d6520",
+    "review/blind_review_packet.md": "012c84b1bd608414264850cf978d1fc43a82f82d481c02de9cd504e37c01b73f",
+    "review/iching_structure_form.json": "2da55caa37a1db28792135db8e58d2755eb82a59333f9de4dce3010b32d91b8c",
+    "review/product_boundary_checklist.json": "bb665c3d1ff516003b7b1d0cd9e324613abd2cc133ddd13ce6f55df13f55b825",
+    "review/reveal_key.json": "d017abb7dc7b4614f5a1d615d284acf525af401c15623c09f0f187691d3464ca",
+    "review/review_assignment.json": "d0e1d0f92cc34f5303e1f62702ae3e07a6297d05b36f13f436e9692d497627f8",
+    "review/reviewer_cases/iching_structure_cases.json": "4d07424bdf01f5013c83345d9d32b87c2f83c360426a30d015ba78df32f8bdc8",
+    "review/reviewer_cases/product_boundary_cases.json": "71c6c2b48f673a0121f1c3f9bfdb28d53bdf11d1abdca52f0d9e17533f0e0909",
+    "review/reviewer_cases/user_value_cases.json": "fdec8f6dd39ab27aff7cca48e1e6c78fc10e44d9f76d999e694fce474b9ed4f2",
+    "review/user_value_form.json": "7e1d5192ea826c376dacfc75f98d2eb4e4d0d17aac6d28faf8998b4f648f3d1e",
+    "source_index.md": "4419588188c50e7b9aa7aa8d5318ebdcdae2e9d8aa9e6b68fc009a7838ddfe6d",
+    "stage0_diagnostic_report.md": "d8f838198d8932ebb78970ff8823e0c78b2886b90c905834e92811cd2542a10c"
+  },
+  "review_assignment_limit": "SAME_PRODUCT_OWNER_ACROSS_ALL_ROLES_NOT_EXTERNAL_INDEPENDENT_REVIEW",
+  "review_workbook": {
+    "path": "outputs/guanxiang_stage0_review_20260805/观象阶段0三角色盲评工作簿.xlsx",
+    "sha256": "56f2a693a74b6475a9254646d199a1f5913d43cc7a9a4f979bebf9207dc2fb7f",
+    "bytes": 41331
+  }
+}

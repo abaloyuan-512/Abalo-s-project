@@ -1,0 +1,1 @@
+{"stage_id":"DIRECT_READING_V2_CLASSIFIED_ROUTER_LIVE_V022","contract_id":"DRV2-V021-CLASSIFIED-V018-V017-ROUTER-ONLY-LIVE-V022-ACCEPTANCE-V1","verdict":"FAIL","ledger_sha256":"041443510A27ADE9BBC6C54788A006E235A5C91AEE2BE51267ABE4498E46C2A1","failed_clauses":["N10","N12"],"provider_attempts":1,"router_live_calls":1,"remaining_authorized_calls":0,"rerun_allowed":false}

@@ -1,0 +1,31 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V010",
+  "status": "FROZEN_BEFORE_ANY_V010_CAST_OR_PROVIDER_CALL",
+  "case_order": ["V010-01", "V010-02"],
+  "cases": [
+    {
+      "slot": 1,
+      "case_id": "V010-01",
+      "domain": "PRODUCT_RESOURCE_ALLOCATION",
+      "input_type": "CLEAR_DIRECT_COMMITMENT_WITHOUT_ATTRIBUTED_BACKGROUND",
+      "question_text": "我现在必须二选一：把主要资源集中到一个新产品并承担更大波动，还是继续平均分散在多个成熟方向？",
+      "numbers": [38, 71, 24],
+      "input_sha256": "BE70F7E2507A14EE8DFD833EABBED48197065A2FD352DC1A75AC33649C036D38"
+    },
+    {
+      "slot": 2,
+      "case_id": "V010-02",
+      "domain": "SIDE_PROJECT_STOP_LOSS",
+      "input_type": "EXPLICIT_USER_BACKGROUND_CONTINUE_OR_EXIT",
+      "question_text": "我已经为一个副业项目投入了大量时间和预算，但核心付费转化仍未达到事前设定的最低标准；我应该继续追加投入，还是停止这个项目并退出？",
+      "numbers": [52, 19, 87],
+      "input_sha256": "F0565BF67E47DF60FE6514EBA7239CFD5D26654F81311D2EDC5285F557250AA5"
+    }
+  ],
+  "anti_bias_locks": [
+    "case 1 requires a real concentration-versus-dispersion commitment",
+    "case 2 is already in motion and permits a clear stop-loss conclusion",
+    "numbers are frozen before any deterministic cast",
+    "no case replacement, reorder, prompt change or validator change after freeze"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "stage_id": "DIRECT_HIGH_P8_P9_PRODUCT_V002_EVIDENCE",
+  "contract_id": "DRV2-P8-P9-DIRECT-HIGH-V002-EVIDENCE-COMPLETENESS-OFFLINE-ACCEPTANCE-V1",
+  "scope": "EVIDENCE_ONLY_D12_D13_D14_D15_REMEDIATION",
+  "v001_verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+  "v001_manifest_sha256": "3A8B644C2D685F208EA815DE60A15E3785B1EB07C8F10FC4FCD42DE8DE498B4D",
+  "v001_modified": false,
+  "product_code_changes_allowed": false,
+  "negative_matrix_minimum": 10,
+  "router_engineering": "STOP_NO_V025",
+  "live_authorized": false,
+  "deployment_authorized": false,
+  "production_authorized": false,
+  "default_replacement_authorized": false
+}

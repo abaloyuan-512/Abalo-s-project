@@ -1,0 +1,58 @@
+"""Safe, zero-live classification for one Responses parse boundary."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Literal
+
+from openai import (
+    APIConnectionError,
+    APIStatusError,
+    APITimeoutError,
+    AuthenticationError,
+    RateLimitError,
+)
+
+
+FailureCode = Literal[
+    "TIMEOUT", "CONNECTION", "AUTHENTICATION", "RATE_LIMIT",
+    "API_STATUS", "INVALID_RESPONSE", "UNKNOWN_PROVIDER_ERROR",
+]
+FailureStage = Literal["BEFORE_PARSE_BOUNDARY", "IN_PARSE_BOUNDARY", "AFTER_PARSE_RESPONSE"]
+
+
+@dataclass(frozen=True)
+class ParseOrSchemaFailure(Exception):
+    """Internal marker used only after a response object exists but cannot be parsed."""
+
+
+_EXACT_CODES: dict[type[BaseException], FailureCode] = {
+    APITimeoutError: "TIMEOUT",
+    APIConnectionError: "CONNECTION",
+    AuthenticationError: "AUTHENTICATION",
+    RateLimitError: "RATE_LIMIT",
+    APIStatusError: "API_STATUS",
+    ParseOrSchemaFailure: "INVALID_RESPONSE",
+}
+
+
+def classify_parse_boundary_failure(
+    *, failure: object, stage: FailureStage
+) -> dict[str, object]:
+    """Classify exact trusted types without inspecting exception attributes or text."""
+
+    valid_stages = {"BEFORE_PARSE_BOUNDARY", "IN_PARSE_BOUNDARY", "AFTER_PARSE_RESPONSE"}
+    safe_stage: FailureStage = stage if type(stage) is str and stage in valid_stages else "BEFORE_PARSE_BOUNDARY"
+    code: FailureCode = _EXACT_CODES.get(type(failure), "UNKNOWN_PROVIDER_ERROR")
+    boundary_entered = safe_stage != "BEFORE_PARSE_BOUNDARY"
+    return {
+        "failure_code": code,
+        "failure_stage": safe_stage,
+        "call_may_have_been_sent": boundary_entered,
+        "terminal_certainty": "TERMINAL_UNKNOWN" if boundary_entered else "FAIL_STOP",
+        "classification_attempts": 1,
+        "automatic_retries": 0,
+    }
+
+
+__all__ = ["ParseOrSchemaFailure", "classify_parse_boundary_failure"]

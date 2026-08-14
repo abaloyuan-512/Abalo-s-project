@@ -1,0 +1,1 @@
+{"stage_id":"DIRECT_READING_V2_CLASSIFIED_ROUTER_LIVE_V022","case_id":"V022-LIVE-01-ASK-JUDGMENT-OBJECT","synthetic":true,"request":{"original_question":"我手上有甲、乙两份租约草案，一份要求连续签三年，另一份允许按年续签；我应该签这份租约吗？","critical_ambiguity":{"kind":"JUDGMENT_OBJECT","description":"“这份租约”未指明是连续签三年的草案还是按年续签的草案，直接判断可能答错对象。"}},"expected_outcome":{"status":"ASK_ONCE","ambiguity_kind":"JUDGMENT_OBJECT"}}

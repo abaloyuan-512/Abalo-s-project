@@ -1,0 +1,8 @@
+{
+  "stage_id":"DIRECT_READING_V2_PARSE_EXCEPTION_V019",
+  "objective":"Zero-live safe classification of failures around one Responses parse boundary.",
+  "history_lock":{"v018_offline":"PASS","v018_live":"FAIL_STOP_TERMINAL_UNKNOWN","v018_live_ledger_sha256":"39AF9AB4DD4D3053D8D0C65E78691A945434EA8BB7F698FD0837EFE7762625EB"},
+  "allowed":["one pure exception classifier","fixture-only tests and ledger","governance and manifest"],
+  "forbidden":["live, client, key, network or retry","exception messages, repr, traceback, body, headers, prompt or raw response","editing V014-V018","high, cast, product, default, deployment or production"],
+  "live_calls":0,"real_provider_instantiated":false,"automatic_retries":0,"deployment":false,"production":false,"default_replacement":false
+}

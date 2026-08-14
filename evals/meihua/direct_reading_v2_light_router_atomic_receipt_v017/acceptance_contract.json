@@ -1,0 +1,7 @@
+{
+  "contract_id": "DRV2-LIGHT-ROUTER-ATOMIC-RECEIPT-V017-OFFLINE-DIFF-ACCEPTANCE-V1",
+  "frozen_before_implementation": true,
+  "one_time_independent_acceptance": true,
+  "clauses": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"],
+  "live_calls": 0
+}

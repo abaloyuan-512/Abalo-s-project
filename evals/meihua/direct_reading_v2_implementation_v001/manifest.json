@@ -1,0 +1,39 @@
+{
+  "stage_id": "DIRECT_READING_V2_NONPROD_IMPLEMENTATION_V001",
+  "status": "CANARY_FAILED_CLOSED",
+  "production_enabled": false,
+  "live_model_call_limit": 1,
+  "automatic_retry_limit": 0,
+  "research_prompt_sha256": "260B49B1EC50AE1C1488F9E3A79B8332819EF7452918BD70FB05C7A34F8C2D11",
+  "research_cases_sha256": "7EFE03E9C6AD9EE193748F6B6CB4881D9F3434F1ACAB1B0FE5CD8BE0348DCB25",
+  "deterministic_engine_sha256_before": "702B8BEDB7D1B61585EC697860290A78C37E07414B6FA3820EE1BF7A22734E84",
+  "service_sha256": "B8868B5884BBB48E6865E1A0D235F83790474B461BB52547DFDBA8C19C255108",
+  "test_sha256": "6A1BFA16BB5F90EF7D8ACA8478D4DEDCB1F66B932C27757C9931D5E3F1A4455C",
+  "canary_runner_sha256": "C4E5D94DA8EA6865FB39A7CD54B186F4F04D535AF1D020A005BDE1BCECF71B46",
+  "canary_execution_hash_note": "service_sha256/test_sha256/canary_runner_sha256 identify the exact files at call time; V001 bytes were untracked and were not snapshotted",
+  "post_canary_candidate_service_sha256": "D6B033320D2AA269EBF14210DE5B8AC06EE6DB200749E3A8A37F8FF0C81F07F9",
+  "post_canary_candidate_test_sha256": "ACB4B5DAB646AA36572764CFD47A0B1DE3B5A549DE1AE990DCAD5F847611F7B9",
+  "nonprod_canary_sha256": "72477D3DDD9C1142BBA0884D0B82990851B59D336962BA6EB3197F7C0E67CAA2",
+  "canary_outcome": "FAILED_CLOSED_OUTPUT_VALIDATION_BASE_HEXAGRAM_MISMATCH",
+  "canary_model_call_count": 1,
+  "canary_automatic_retries": 0,
+  "canary_output_tokens": 3543,
+  "canary_total_tokens": 3865,
+  "canary_latency_ms": 72873,
+  "canary_output_released": false,
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "verbosity": "medium",
+  "max_output_tokens": 4000,
+  "store": false,
+  "tools": [],
+  "implementation_files": [
+    "src/abalo_iching/application/sites_direct_reading_v2.py"
+  ],
+  "test_files": [
+    "tests/test_sites_direct_reading_v2.py"
+  ],
+  "live_model_calls_completed": 1,
+  "stage_acceptance": "FAIL_INCONCLUSIVE_NO_USABLE_DIRECT_READING_DELIVERED",
+  "next_stage": "REQUIRES_USER_APPROVAL_FOR_FRESH_V002_CANARY"
+}

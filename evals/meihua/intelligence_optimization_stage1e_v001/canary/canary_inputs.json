@@ -1,0 +1,43 @@
+{
+  "dataset_id": "GUANXIANG_STAGE1E_WIRE_CANARY_V1",
+  "synthetic": true,
+  "not_for_capability_scoring": true,
+  "cases": [
+    {
+      "case_id": "CANARY-CRITIC-ASK",
+      "role": "CRITIC",
+      "expected_verdict": "ASK_ONE",
+      "question_text": "这个周末，我是否要把阳台改成菜园并一次种满全部花盆？",
+      "answer_pool": [
+        "我还没有决定是否要把阳台改成菜园。",
+        "如果决定改，我也还没决定先种两个花盆，还是一次种满全部花盆。",
+        "阳台由我使用，两种种植范围都不影响其他人。",
+        "我需要先分清自己是在判断要不要改，还是已经决定改、只判断种植范围。"
+      ]
+    },
+    {
+      "case_id": "CANARY-CRITIC-READY",
+      "role": "CRITIC",
+      "expected_verdict": "READY",
+      "question_text": "这个周末，我是先种两个花盆，还是一次种满阳台全部花盆？",
+      "answer_pool": [
+        "我已经决定这个周末把阳台改成菜园。",
+        "阳台由我使用，种多少盆由我决定。",
+        "当前只在先种两个花盆与一次种满全部花盆之间选择。",
+        "我优先控制第一次养护的工作量；没有其他审批或预算条件。"
+      ]
+    },
+    {
+      "case_id": "CANARY-PROPOSER",
+      "role": "PROPOSER",
+      "expected_verdict": null,
+      "question_text": "这个周末，我是先种两个花盆，还是一次种满阳台全部花盆？",
+      "answer_pool": [
+        "我已经决定这个周末把阳台改成菜园。",
+        "阳台由我使用，种多少盆由我决定。",
+        "当前只在先种两个花盆与一次种满全部花盆之间选择。",
+        "我优先控制第一次养护的工作量；没有其他审批或预算条件。"
+      ]
+    }
+  ]
+}

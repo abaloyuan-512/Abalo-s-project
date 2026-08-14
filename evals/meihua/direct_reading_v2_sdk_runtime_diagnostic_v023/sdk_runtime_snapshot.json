@@ -1,0 +1,1 @@
+{"openai_version":"2.53.0","parsed_response_module":"openai.types.responses.parsed_response","parsed_response_qualname":"ParsedResponse","v018_expected_type_module":"openai.types.responses.parsed_response","v018_expected_type_qualname":"ParsedResponse[ModelDecision]","parameterized_identity_stable_in_process":true,"network_used":false}

@@ -1,0 +1,1422 @@
+{
+  "run_id": "GUANXIANG_STAGE1C_20260806T145604Z",
+  "scope": "STAGE1C_SINGLE_FROZEN_RUN",
+  "generated_at": "2026-08-06T14:56:04.150144+00:00",
+  "model": "gpt-5.6-luna",
+  "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+  "proposer_prompt_sha256": "f89dd8444adcd9b14ae84199642292bf3fd05f6c0fcb67fad2c11f0266552ee9",
+  "critic_prompt_sha256": "7d7a4180432692723961d67c05c6b094e050387fb598fbd6313f35c6daf970be",
+  "contract_file_sha256": "B0099F8DC53F853CEFAC1D8FD10784DD8ACCEFC9C2AF92B0C13E825EE6DC1640",
+  "core_initial_proposal_policy": "REUSE_EXACT_STAGE1B_OUTPUT_NO_REGENERATION",
+  "heldout_run_number": 1,
+  "model_retry_count": 0,
+  "cases": [
+    {
+      "case_id": "GXID-M01",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？",
+      "frozen_answers": [
+        "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。",
+        "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。",
+        "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。",
+        "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+      ],
+      "initial_proposal_source": "FROZEN_STAGE1B",
+      "initial": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M01-initial",
+        "status": "ASK_CRITICAL",
+        "assistant_message": "在形成瓶颈前，还需要先澄清一个会改变卜题定义的问题。",
+        "next_question": "你现在需要决定的是是否启动项目，还是已经决定启动、只是在公开启动与小范围试运行之间选择方式？",
+        "proposal": {
+          "frame": {
+            "decision_axes": [
+              {
+                "name": "是否在未来三个月内立即公开启动",
+                "option_a": "立即公开启动",
+                "option_b": "否则继续准备",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "QUESTION_TEXT",
+                    "turn_index": null,
+                    "quote": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我现在最纠结的是要不要公开启动。"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "否则继续准备。"
+                  }
+                ]
+              },
+              {
+                "name": "启动范围与方式",
+                "option_a": "公开启动",
+                "option_b": "先小范围试运行",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "QUESTION_TEXT",
+                    "turn_index": null,
+                    "quote": "立即公开启动"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我愿意先小范围试运行"
+                  }
+                ]
+              }
+            ],
+            "stated_premises": [
+              {
+                "statement": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。"
+                  }
+                ]
+              },
+              {
+                "statement": "已经做过一次小范围内部测试，并收到两位潜在用户的正面反馈。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+                  }
+                ]
+              },
+              {
+                "statement": "目前尚未知道合作人能否按时投入，也未确认第一轮交付需要多少资源。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 2,
+                    "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+                  }
+                ]
+              },
+              {
+                "statement": "如果一个月内能确定合作人的投入和第一轮交付资源，就先小范围试运行；否则继续准备。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+                  }
+                ]
+              }
+            ],
+            "agency_and_authority": {
+              "initiator": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "authorizer": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "decision_owner": {
+                "status": "GROUNDED",
+                "value": "我",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我现在最纠结的是要不要公开启动。"
+                  }
+                ]
+              },
+              "action_owner": {
+                "status": "GROUNDED",
+                "value": "我",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我愿意先小范围试运行"
+                  }
+                ]
+              }
+            },
+            "motive_and_feared_cost": {
+              "desired_outcome": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "feared_cost": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              }
+            },
+            "highest_value_unknown": null
+          },
+          "candidate_hypothesis": {
+            "statement": "决策瓶颈可能不是是否存在初步用户兴趣，而是能否在一个月内确认合作人的投入和第一轮交付所需资源；这两个条件的不确定性使“立即公开启动”与“继续准备”之间无法确定。",
+            "why_decision_is_stuck": "用户明确表示尚不知道合作人能否按时投入，也未确认第一轮交付需要多少资源，并将这两项是否在一个月内确定作为选择小范围试运行或继续准备的条件。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+              }
+            ],
+            "uncertainty_note": "尚未明确用户希望通过该决定获得的具体结果，以及公开启动失败或延后的具体担忧；以上瓶颈仅基于用户明确给出的决策条件。"
+          },
+          "proposal_note": "冻结的阶段1B候选框架；未重新生成。"
+        },
+        "review": {
+          "verdict": "VETO_ASK",
+          "critical_gap": "尚未区分“是否在未来三个月启动项目”与“若启动，应公开启动还是先小范围试运行”这两个决策轴；当前表述把启动与启动方式合并为同一个选择。",
+          "alternative_problem_definition": "真正的问题可能是：在合作人投入和第一轮交付资源尚未完全确定时，是否先以小范围试运行的方式启动项目，而不是判断是否立即公开启动。",
+          "definition_change_reason": "前者判断的是未来三个月是否启动项目，后者判断的是启动范围与方式；两者的卜题对象和选择轴不同，即使结论都涉及“启动”，所判断的行动并不相同。",
+          "question": "你现在需要决定的是是否启动项目，还是已经决定启动、只是在公开启动与小范围试运行之间选择方式？",
+          "ready_reason": null,
+          "evidence_refs": [
+            {
+              "source": "QUESTION_TEXT",
+              "turn_index": null,
+              "quote": "未来三个月，我是否适合立即公开启动一个尚未准备充分的新项目？"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+            }
+          ]
+        },
+        "hypothesis": null,
+        "proposer_metrics": {
+          "model": "frozen-stage1b-no-new-call",
+          "input_tokens": null,
+          "output_tokens": null,
+          "total_tokens": 0,
+          "latency_ms": 0
+        },
+        "critic_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2381,
+          "output_tokens": 509,
+          "total_tokens": 2890,
+          "latency_ms": 8951
+        },
+        "review_error": null,
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。",
+      "after_critical": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M01-after",
+        "status": "CONFIRM",
+        "assistant_message": "独立审查没有发现仍会改变卜题定义的关键缺口，可以请你确认当前理解。",
+        "next_question": "我的理解是：当前决策的候选瓶颈不是是否开始项目，而是合作人投入与第一轮交付资源尚未确定，使公开启动所带来的对外交付承诺缺乏稳定支撑。。这个理解准确吗？如果不准确，请纠正。",
+        "proposal": {
+          "frame": {
+            "decision_axes": [
+              {
+                "name": "启动方式",
+                "option_a": "立即公开启动并形成对外交付承诺",
+                "option_b": "先做不公开的小范围试运行",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。"
+                  }
+                ]
+              }
+            ],
+            "stated_premises": [
+              {
+                "statement": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。"
+                  }
+                ]
+              },
+              {
+                "statement": "已经做过一次小范围内部测试，并收到两位潜在用户的正面反馈。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经做过一次小范围内部测试，收到两位潜在用户的正面反馈。"
+                  }
+                ]
+              },
+              {
+                "statement": "尚未确认合作人能否按时投入，也未确认第一轮交付需要多少资源。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 2,
+                    "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+                  }
+                ]
+              },
+              {
+                "statement": "如果一个月内能确定合作人的投入和第一轮交付资源，愿意先小范围试运行；否则继续准备。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果一个月内能确定合作人的投入和第一轮交付资源，我愿意先小范围试运行；否则继续准备。"
+                  }
+                ]
+              }
+            ],
+            "agency_and_authority": {
+              "initiator": {
+                "status": "GROUNDED",
+                "value": "我",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "如果只做不公开的小范围试运行，我愿意立即开始。"
+                  }
+                ]
+              },
+              "authorizer": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "decision_owner": {
+                "status": "GROUNDED",
+                "value": "我",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我现在最纠结的是要不要公开启动。"
+                  }
+                ]
+              },
+              "action_owner": {
+                "status": "GROUNDED",
+                "value": "我",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "如果只做不公开的小范围试运行，我愿意立即开始。"
+                  }
+                ]
+              }
+            },
+            "motive_and_feared_cost": {
+              "desired_outcome": {
+                "status": "GROUNDED",
+                "value": "立即开始不公开的小范围试运行",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "如果只做不公开的小范围试运行，我愿意立即开始。"
+                  }
+                ]
+              },
+              "feared_cost": {
+                "status": "GROUNDED",
+                "value": "公开启动会形成对外交付承诺",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "我主要担心的是公开启动会形成对外交付承诺"
+                  }
+                ]
+              }
+            },
+            "highest_value_unknown": null
+          },
+          "candidate_hypothesis": {
+            "statement": "当前决策的候选瓶颈不是是否开始项目，而是合作人投入与第一轮交付资源尚未确定，使公开启动所带来的对外交付承诺缺乏稳定支撑。",
+            "why_decision_is_stuck": "提问者愿意立即进行不公开的小范围试运行，但在合作人能否按时投入、第一轮交付需要多少资源尚未确认时，不愿承担公开启动形成的对外交付承诺。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。"
+              }
+            ],
+            "uncertainty_note": "这是基于现有回答提出的候选瓶颈；回答未说明公开启动的具体承诺内容。"
+          },
+          "proposal_note": "框架将原问题从“是否启动项目”收束为“是否立即公开启动并承担对外交付承诺，还是先不公开试运行”。"
+        },
+        "review": {
+          "verdict": "ALLOW_CONFIRM",
+          "critical_gap": null,
+          "alternative_problem_definition": null,
+          "definition_change_reason": null,
+          "question": null,
+          "ready_reason": "现有回答已明确区分了两个可能的决策轴：是否开始项目与是否立即公开启动并形成对外交付承诺；提问者表示愿意立即进行不公开的小范围试运行，因此当前真正的选择对象、行动主体、关键代价与情景前提均已收束。公开启动的具体承诺内容尚未细化，但这属于执行层面的细节，不会形成另一种实质不同的问题定义。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 4,
+              "quote": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 0,
+              "quote": "初步方案已经有了，但资源、合作人和交付流程都还没稳定。我现在最纠结的是要不要公开启动。"
+            }
+          ]
+        },
+        "hypothesis": {
+          "statement": "当前决策的候选瓶颈不是是否开始项目，而是合作人投入与第一轮交付资源尚未确定，使公开启动所带来的对外交付承诺缺乏稳定支撑。",
+          "why_decision_is_stuck": "提问者愿意立即进行不公开的小范围试运行，但在合作人能否按时投入、第一轮交付需要多少资源尚未确认时，不愿承担公开启动形成的对外交付承诺。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道合作人能否按时投入，也没确认第一轮交付需要多少资源。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 4,
+              "quote": "我主要担心的是公开启动会形成对外交付承诺，不是因为三个月太短；如果只做不公开的小范围试运行，我愿意立即开始。"
+            }
+          ],
+          "uncertainty_note": "这是基于现有回答提出的候选瓶颈；回答未说明公开启动的具体承诺内容。"
+        },
+        "proposer_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 1897,
+          "output_tokens": 1771,
+          "total_tokens": 3668,
+          "latency_ms": 15414
+        },
+        "critic_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2564,
+          "output_tokens": 425,
+          "total_tokens": 2989,
+          "latency_ms": 4440
+        },
+        "review_error": null,
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "machine_gates": {
+        "initial_status_matches_frozen_expectation": true,
+        "veto_has_exactly_one_question": true,
+        "veto_hides_hypothesis": true,
+        "review_error_fails_closed": true,
+        "after_one_answer_confirms_or_stops": true,
+        "no_second_question": true
+      }
+    },
+    {
+      "case_id": "GXID-M02",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？",
+      "frozen_answers": [
+        "合作当前数据良好，但尚未经历完整交付周期。我在考虑现在就快速增加投入，还是先建立回调和风险控制。",
+        "我已经增加过一次小额投入，目前获客和成交都比原计划好。",
+        "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。",
+        "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+      ],
+      "initial_proposal_source": "FROZEN_STAGE1B",
+      "initial": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M02-initial",
+        "status": "CONFIRM",
+        "assistant_message": "独立审查没有发现仍会改变卜题定义的关键缺口，可以请你确认当前理解。",
+        "next_question": "我的理解是：当前决策瓶颈不是获客和成交表现是否良好，而是尚未完成一轮交付，因而缺少退款率、维护成本及高负荷履约稳定性的验证；在这些证据出现前，“是否适合继续快速增加投入”无法被明确转化为快速投入的决定。。这个理解准确吗？如果不准确，请纠正。",
+        "proposal": {
+          "frame": {
+            "decision_axes": [
+              {
+                "name": "增加投入的时机与速度",
+                "option_a": "现在就快速增加投入",
+                "option_b": "先完成一轮交付并核实退款率、维护成本在预算内后，再分阶段增加投入",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我在考虑现在就快速增加投入，还是先建立回调和风险控制。"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                  }
+                ]
+              }
+            ],
+            "stated_premises": [
+              {
+                "statement": "合作当前数据良好，但尚未经历完整交付周期。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "合作当前数据良好，但尚未经历完整交付周期。"
+                  }
+                ]
+              },
+              {
+                "statement": "此前已经增加过一次小额投入，获客和成交都比原计划好。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+                  }
+                ]
+              },
+              {
+                "statement": "完整交付后的退款率、维护成本，以及合作方高负荷时能否稳定履约尚未验证。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 2,
+                    "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+                  }
+                ]
+              },
+              {
+                "statement": "只有在完成一轮交付后退款率和维护成本仍在预算内，才会分阶段增加投入。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                  }
+                ]
+              }
+            ],
+            "agency_and_authority": {
+              "initiator": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我在考虑现在就快速增加投入，还是先建立回调和风险控制。"
+                  }
+                ]
+              },
+              "authorizer": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "decision_owner": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我才会分阶段增加投入。"
+                  }
+                ]
+              },
+              "action_owner": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经增加过一次小额投入"
+                  }
+                ]
+              }
+            },
+            "motive_and_feared_cost": {
+              "desired_outcome": {
+                "status": "GROUNDED",
+                "value": "在满足交付后退款率和维护成本预算条件时分阶段增加投入",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+                  }
+                ]
+              },
+              "feared_cost": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              }
+            },
+            "highest_value_unknown": null
+          },
+          "candidate_hypothesis": {
+            "statement": "当前决策瓶颈不是获客和成交表现是否良好，而是尚未完成一轮交付，因而缺少退款率、维护成本及高负荷履约稳定性的验证；在这些证据出现前，“是否适合继续快速增加投入”无法被明确转化为快速投入的决定。",
+            "why_decision_is_stuck": "已有一次小额投入后的获客和成交正向结果，但完整交付后的退款率、维护成本和高负荷履约能力尚未验证；用户已明确表示，只有退款率和维护成本仍在预算内，才会分阶段增加投入。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+              }
+            ],
+            "uncertainty_note": "高负荷履约稳定性已被指出为未验证因素，但用户明确给出的分阶段增加投入条件只涉及退款率和维护成本；二者在最终决策中的相对权重尚未明确。"
+          },
+          "proposal_note": "冻结的阶段1B候选框架；未重新生成。"
+        },
+        "review": {
+          "verdict": "ALLOW_CONFIRM",
+          "critical_gap": null,
+          "alternative_problem_definition": null,
+          "definition_change_reason": null,
+          "question": null,
+          "ready_reason": "当前问题已将决策对象收束为未来三个月内增加投入的时机与速度：是在完整交付验证前快速增加，还是完成一轮交付并核实关键成本后再分阶段增加。用户既确认自己是行动与决策主体，也明确给出了分阶段增加投入的条件。尚未验证的履约稳定性属于执行判断中的证据因素，尚未形成会改变卜题对象、选择轴或情景前提的另一种合理问题定义。",
+          "evidence_refs": [
+            {
+              "source": "QUESTION_TEXT",
+              "turn_index": null,
+              "quote": "未来三个月，在合作进展顺利的情况下，我是否适合继续快速增加投入？"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 0,
+              "quote": "我在考虑现在就快速增加投入，还是先建立回调和风险控制。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+            }
+          ]
+        },
+        "hypothesis": {
+          "statement": "当前决策瓶颈不是获客和成交表现是否良好，而是尚未完成一轮交付，因而缺少退款率、维护成本及高负荷履约稳定性的验证；在这些证据出现前，“是否适合继续快速增加投入”无法被明确转化为快速投入的决定。",
+          "why_decision_is_stuck": "已有一次小额投入后的获客和成交正向结果，但完整交付后的退款率、维护成本和高负荷履约能力尚未验证；用户已明确表示，只有退款率和维护成本仍在预算内，才会分阶段增加投入。",
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "我已经增加过一次小额投入，目前获客和成交都比原计划好。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道完整交付后的退款率和维护成本，也没验证合作方高负荷时能否稳定履约。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果完成一轮交付后退款率和维护成本仍在预算内，我才会分阶段增加投入。"
+            }
+          ],
+          "uncertainty_note": "高负荷履约稳定性已被指出为未验证因素，但用户明确给出的分阶段增加投入条件只涉及退款率和维护成本；二者在最终决策中的相对权重尚未明确。"
+        },
+        "proposer_metrics": {
+          "model": "frozen-stage1b-no-new-call",
+          "input_tokens": null,
+          "output_tokens": null,
+          "total_tokens": 0,
+          "latency_ms": 0
+        },
+        "critic_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2501,
+          "output_tokens": 734,
+          "total_tokens": 3235,
+          "latency_ms": 8321
+        },
+        "review_error": null,
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "合作进展顺利是这次判断的固定前提。我已经决定继续增加投入，真正犹豫的是应该快速扩大，还是分阶段缓慢增加。",
+      "after_critical": null,
+      "machine_gates": {
+        "initial_status_matches_frozen_expectation": false,
+        "veto_has_exactly_one_question": true,
+        "veto_hides_hypothesis": true,
+        "review_error_fails_closed": true,
+        "after_one_answer_confirms_or_stops": true,
+        "no_second_question": true
+      }
+    },
+    {
+      "case_id": "GXID-M03",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？",
+      "frozen_answers": [
+        "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。我想判断现在推动重启是否合适。",
+        "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。",
+        "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。",
+        "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+      ],
+      "initial_proposal_source": "FROZEN_STAGE1B",
+      "initial": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M03-initial",
+        "status": "ASK_CRITICAL",
+        "assistant_message": "在形成瓶颈前，还需要先澄清一个会改变卜题定义的问题。",
+        "next_question": "未来三个月，你要判断的具体对象是直接推动项目开始，还是先争取管理层形成明确的负责人、资源、验收和启动授权？",
+        "proposal": {
+          "frame": {
+            "decision_axes": [
+              {
+                "name": "未来三个月是否推动项目重启",
+                "option_a": "暂不推动重启，等待负责人、最低资源和阶段验收明确",
+                "option_b": "在这些条件明确后，先推动一个小范围里程碑",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "QUESTION_TEXT",
+                    "turn_index": null,
+                    "quote": "未来三个月，我是否适合推动一个长期停滞的内部项目重新启动？"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+                  }
+                ]
+              }
+            ],
+            "stated_premises": [
+              {
+                "statement": "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "管理层开始重新关注这个长期停滞的项目，但资源和责任机制仍不稳定。"
+                  }
+                ]
+              },
+              {
+                "statement": "用户已经整理停滞原因并向直属负责人汇报，直属负责人表示愿意再讨论。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。"
+                  }
+                ]
+              },
+              {
+                "statement": "管理层投入多少资源、最终由谁承担交付责任尚未确认。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 2,
+                    "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+                  }
+                ]
+              },
+              {
+                "statement": "如果项目负责人、最低资源和阶段验收能够明确，用户愿意先重启一个小范围里程碑。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+                  }
+                ]
+              }
+            ],
+            "agency_and_authority": {
+              "initiator": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经整理了停滞原因并向直属负责人汇报"
+                  }
+                ]
+              },
+              "authorizer": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "decision_owner": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "action_owner": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我愿意先重启一个小范围里程碑"
+                  }
+                ]
+              }
+            },
+            "motive_and_feared_cost": {
+              "desired_outcome": {
+                "status": "GROUNDED",
+                "value": "在条件明确的前提下先重启一个小范围里程碑",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+                  }
+                ]
+              },
+              "feared_cost": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              }
+            },
+            "highest_value_unknown": null
+          },
+          "candidate_hypothesis": {
+            "statement": "当前瓶颈假设是：项目重启的判断被“是否能先获得明确的项目负责人、最低资源和阶段验收”卡住；在这些条件尚未明确前，用户无法判断未来三个月是否适合推动重启。",
+            "why_decision_is_stuck": "管理层重新关注项目，但资源投入和最终交付责任仍未确认；用户只在这些条件明确时愿意启动小范围里程碑。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+              }
+            ],
+            "uncertainty_note": "尚未确认最终由谁拥有项目决策权，也尚未确认管理层是否会明确承诺最低资源和交付责任。"
+          },
+          "proposal_note": "冻结的阶段1B候选框架；未重新生成。"
+        },
+        "review": {
+          "verdict": "VETO_ASK",
+          "critical_gap": "尚未明确用户要判断的是自己能否推动项目实际启动，还是先促成管理层对启动事项作出正式授权与承诺；行动主体虽已明确，但授权主体和决策归属仍未确定。",
+          "alternative_problem_definition": "未来三个月的卜题可能不是“是否重启项目”，而是“是否先争取管理层明确项目负责人、最低资源和阶段验收，并取得启动授权”。",
+          "definition_change_reason": "前者判断项目在既定条件下是否适合实际启动，后者判断是否应先进行授权与承诺的争取；两者的行动对象、决策主体和选择轴不同。",
+          "question": "未来三个月，你要判断的具体对象是直接推动项目开始，还是先争取管理层形成明确的负责人、资源、验收和启动授权？",
+          "ready_reason": null,
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 1,
+              "quote": "我已经整理了停滞原因并向直属负责人汇报，负责人表示愿意再讨论。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 2,
+              "quote": "我还不知道管理层会投入多少资源，也没确认最终由谁承担交付责任。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果能明确项目负责人、最低资源和阶段验收，我愿意先重启一个小范围里程碑。"
+            }
+          ]
+        },
+        "hypothesis": null,
+        "proposer_metrics": {
+          "model": "frozen-stage1b-no-new-call",
+          "input_tokens": null,
+          "output_tokens": null,
+          "total_tokens": 0,
+          "latency_ms": 0
+        },
+        "critic_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2346,
+          "output_tokens": 715,
+          "total_tokens": 3061,
+          "latency_ms": 8588
+        },
+        "review_error": null,
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "是我主动想借管理层重新关注的机会推动，领导没有明确要求我负责重启；我在决定要不要主动承担推动责任。",
+      "after_critical": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M03-after",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "决策框架提议未通过证据审查，本次不能进入瓶颈确认。",
+        "next_question": null,
+        "proposal": null,
+        "review": null,
+        "hypothesis": null,
+        "proposer_metrics": null,
+        "critic_metrics": null,
+        "review_error": "PROPOSER_ERROR:Stage1CError:unknown proposal values cannot invent content",
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "machine_gates": {
+        "initial_status_matches_frozen_expectation": true,
+        "veto_has_exactly_one_question": true,
+        "veto_hides_hypothesis": true,
+        "review_error_fails_closed": true,
+        "after_one_answer_confirms_or_stops": false,
+        "no_second_question": true
+      }
+    },
+    {
+      "case_id": "GXID-M04",
+      "set": "CORE",
+      "synthetic": true,
+      "question_text": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？",
+      "frozen_answers": [
+        "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊，我在考虑是否继续推动关系确认。",
+        "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。",
+        "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。",
+        "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+      ],
+      "initial_proposal_source": "FROZEN_STAGE1B",
+      "initial": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M04-initial",
+        "status": "ASK_CRITICAL",
+        "assistant_message": "在形成瓶颈前，还需要先澄清一个会改变卜题定义的问题。",
+        "next_question": "对你而言，未来六周继续推动关系确认与停止单方面推进之间，最需要权衡的核心目标或代价是什么？",
+        "proposal": {
+          "frame": {
+            "decision_axes": [
+              {
+                "name": "未来六周是否继续推动关系确认",
+                "option_a": "继续推动关系确认并继续了解",
+                "option_b": "停止单方面推进",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "QUESTION_TEXT",
+                    "turn_index": null,
+                    "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              }
+            ],
+            "stated_premises": [
+              {
+                "statement": "双方目前有持续联系，但对未来安排没有形成明确共识，对方回应含糊。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊"
+                  }
+                ]
+              },
+              {
+                "statement": "用户已经直接询问过对方对未来的想法，对方只说最近很忙，之后没有给出具体安排。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+                  }
+                ]
+              },
+              {
+                "statement": "目前尚未确认对方是否愿意建立稳定关系，也未确认下一次见面的时间。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 2,
+                    "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+                  }
+                ]
+              },
+              {
+                "statement": "如果对方给出具体见面安排并正面回应关系期待，用户会继续了解；否则停止单方面推进。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              }
+            ],
+            "agency_and_authority": {
+              "initiator": {
+                "status": "GROUNDED",
+                "value": "用户发起了关系确认，并在考虑是否继续推动。",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我在考虑是否继续推动关系确认。"
+                  }
+                ]
+              },
+              "authorizer": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "decision_owner": {
+                "status": "GROUNDED",
+                "value": "用户决定继续了解或停止单方面推进。",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              },
+              "action_owner": {
+                "status": "GROUNDED",
+                "value": "用户承担后续是否继续推动或停止推进的行动。",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              }
+            },
+            "motive_and_feared_cost": {
+              "desired_outcome": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "feared_cost": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              }
+            },
+            "highest_value_unknown": null
+          },
+          "candidate_hypothesis": {
+            "statement": "当前决策瓶颈在于：对方尚未对稳定关系意愿作出正面回应，也未给出下一次见面的具体安排，导致用户无法判断是否满足继续了解的前提，只能在继续单方面推动与停止推进之间犹豫。",
+            "why_decision_is_stuck": "用户已经直接询问过，但得到的只是“最近很忙”，而用户明确把“具体见面安排”和“正面回应关系期待”设为继续了解的条件；这两个条件目前都未被满足。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 1,
+                "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 3,
+                "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+              }
+            ],
+            "uncertainty_note": "对方的真实意愿尚未被确认；本假设仅描述信息缺口如何造成决策停滞，不推断对方的动机或授权。"
+          },
+          "proposal_note": "冻结的阶段1B候选框架；未重新生成。"
+        },
+        "review": {
+          "verdict": "VETO_ASK",
+          "critical_gap": "用户尚未说明继续推动关系确认与停止单方面推进之间真正要权衡的核心目标或代价。",
+          "alternative_problem_definition": "真正的问题可能不是判断对方是否满足继续了解的条件，而是在保留建立稳定关系的可能性与避免继续承担单方面推进的代价之间作取舍。",
+          "definition_change_reason": "这会把卜题对象从“对方是否给出足够明确回应后再继续”改变为“用户应优先争取关系可能性，还是优先避免持续投入与不确定性”，从而产生不同的选择轴。",
+          "question": "对你而言，未来六周继续推动关系确认与停止单方面推进之间，最需要权衡的核心目标或代价是什么？",
+          "ready_reason": null,
+          "evidence_refs": [
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 0,
+              "quote": "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊，我在考虑是否继续推动关系确认。"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 3,
+              "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+            }
+          ]
+        },
+        "hypothesis": null,
+        "proposer_metrics": {
+          "model": "frozen-stage1b-no-new-call",
+          "input_tokens": null,
+          "output_tokens": null,
+          "total_tokens": 0,
+          "latency_ms": 0
+        },
+        "critic_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2457,
+          "output_tokens": 697,
+          "total_tokens": 3154,
+          "latency_ms": 7100
+        },
+        "review_error": null,
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。",
+      "after_critical": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-M04-after",
+        "status": "INSUFFICIENT_TO_CONFIRM",
+        "assistant_message": "唯一一次关键追问后，仍存在会改变卜题定义的缺口；本次停止形成瓶颈。",
+        "next_question": null,
+        "proposal": {
+          "frame": {
+            "decision_axes": [
+              {
+                "name": "未来六周是否继续推动关系确认",
+                "option_a": "在信息不完整、对方回应含糊时继续主动推动",
+                "option_b": "停止单方面推进",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "QUESTION_TEXT",
+                    "turn_index": null,
+                    "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+                  },
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              },
+              {
+                "name": "何种回应构成继续了解的依据",
+                "option_a": "对方给出具体见面安排并正面回应关系期待",
+                "option_b": "对方仍未给出具体安排或未正面回应关系期待",
+                "status": "GROUNDED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              }
+            ],
+            "stated_premises": [
+              {
+                "statement": "双方有持续联系，但对未来安排没有形成明确共识，对方回应含糊。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 0,
+                    "quote": "我们有持续联系，但对未来安排没有形成明确共识。对方回应含糊，我在考虑是否继续推动关系确认。"
+                  }
+                ]
+              },
+              {
+                "statement": "用户已经直接询问过对方对未来的想法，对方只表示最近很忙，之后没有给出具体安排。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 1,
+                    "quote": "我已经直接问过一次对未来的想法，对方只说最近很忙，之后没有给出具体安排。"
+                  }
+                ]
+              },
+              {
+                "statement": "目前尚未确认对方是否愿意建立稳定关系，也未确认下一次见面的时间。",
+                "treatment": "RESPECT_AS_STATED",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 2,
+                    "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+                  }
+                ]
+              }
+            ],
+            "agency_and_authority": {
+              "initiator": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。"
+                  }
+                ]
+              },
+              "authorizer": {
+                "status": "UNKNOWN",
+                "value": null,
+                "evidence_refs": []
+              },
+              "decision_owner": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "QUESTION_TEXT",
+                    "turn_index": null,
+                    "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+                  }
+                ]
+              },
+              "action_owner": {
+                "status": "GROUNDED",
+                "value": "用户",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 3,
+                    "quote": "如果对方愿意给出具体见面安排并正面回应关系期待，我会继续了解；否则我会停止单方面推进。"
+                  }
+                ]
+              }
+            },
+            "motive_and_feared_cost": {
+              "desired_outcome": {
+                "status": "GROUNDED",
+                "value": "得到一个明确的关系答案",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。"
+                  }
+                ]
+              },
+              "feared_cost": {
+                "status": "GROUNDED",
+                "value": "继续主动可能只是继续消耗自己",
+                "evidence_refs": [
+                  {
+                    "source": "TURN_ANSWER",
+                    "turn_index": 4,
+                    "quote": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。"
+                  }
+                ]
+              }
+            },
+            "highest_value_unknown": null
+          },
+          "candidate_hypothesis": {
+            "statement": "当前决策的候选瓶颈是：用户希望通过再次主动获得明确的关系答案，但对方尚未提供具体安排或正面回应，因此“继续推动是否能带来澄清”与“是否会继续消耗自己”之间无法区分。",
+            "why_decision_is_stuck": "用户已表达继续推动与停止单方面推进的条件，但现有信息仍未显示对方是否愿意建立稳定关系，也未形成下一次见面的具体安排。",
+            "evidence_refs": [
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 2,
+                "quote": "我还不知道对方是否愿意建立稳定关系，也没确认下一次见面的时间。"
+              },
+              {
+                "source": "TURN_ANSWER",
+                "turn_index": 4,
+                "quote": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。"
+              }
+            ],
+            "uncertainty_note": "仅能确认用户的期待、条件和已知回应，不能据此判断对方的真实意愿或再次主动后的实际结果。"
+          },
+          "proposal_note": "以上框架仅整理现有原文中的选择、条件、动机与代价，不对继续或停止作出结论。"
+        },
+        "review": {
+          "verdict": "VETO_ASK",
+          "critical_gap": "“继续推动”在当前框架中可能指未来六周持续主动推进，也可能只指再主动联系一次；行动的持续期限与次数尚未确定。",
+          "alternative_problem_definition": "要判断的不是未来六周是否持续推动关系确认，而是是否进行一次额外的主动联系，以获得明确关系答案。",
+          "definition_change_reason": "这会把卜题对象从一项持续六周的推进策略，改变为一次性行动及其是否值得尝试的判断，行动主体相同但选择轴和时间范围实质不同。",
+          "question": "未来六周，你要判断的是持续主动推进关系确认，还是只进行一次额外的主动联系？",
+          "ready_reason": null,
+          "evidence_refs": [
+            {
+              "source": "QUESTION_TEXT",
+              "turn_index": null,
+              "quote": "未来六周，我是否适合在信息不完整、对方回应含糊时继续推动关系确认？"
+            },
+            {
+              "source": "TURN_ANSWER",
+              "turn_index": 4,
+              "quote": "我继续推动是因为希望得到一个明确的关系答案；我犹豫的是再主动一次可能得到澄清，也可能只是继续消耗自己。"
+            }
+          ]
+        },
+        "hypothesis": null,
+        "proposer_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 1934,
+          "output_tokens": 1465,
+          "total_tokens": 3399,
+          "latency_ms": 9128
+        },
+        "critic_metrics": {
+          "model": "gpt-5.6-luna",
+          "input_tokens": 2761,
+          "output_tokens": 656,
+          "total_tokens": 3417,
+          "latency_ms": 6663
+        },
+        "review_error": null,
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "machine_gates": {
+        "initial_status_matches_frozen_expectation": true,
+        "veto_has_exactly_one_question": true,
+        "veto_hides_hypothesis": true,
+        "review_error_fails_closed": true,
+        "after_one_answer_confirms_or_stops": true,
+        "no_second_question": true
+      }
+    },
+    {
+      "case_id": "GXID-H09",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "新服务准备开放给现有客户，我是先做五个客户的封闭试用，还是直接向全部存量客户开放？",
+      "frozen_answers": [
+        "核心流程已经通过验收和压力测试；目前有四十六家存量客户，五家已书面同意参加封闭试用，全部开放也不涉及新增开发。",
+        "两种方案都能由现有服务器承载；封闭试用需要两周，全部开放可立即开始，现有客服排班足以覆盖两种方案的预计咨询量。",
+        "我负责这项服务并拥有开放范围的最终决定权；法务、信息安全和客户成功团队都已完成审核，没有尚待批准的前置事项。",
+        "我已经决定开放这项服务，当前只在试用范围与直接全量开放之间选择；我最优先控制的是首轮问题波及范围，其次才是提前两周覆盖全部客户，预算、个人评价和团队偏好都不构成额外决策条件。"
+      ],
+      "initial_proposal_source": "LIVE_STAGE1C_PROPOSER",
+      "initial": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-H09-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "决策框架提议未通过证据审查，本次不能进入瓶颈确认。",
+        "next_question": null,
+        "proposal": null,
+        "review": null,
+        "hypothesis": null,
+        "proposer_metrics": null,
+        "critic_metrics": null,
+        "review_error": "PROPOSER_ERROR:Stage1CError:unknown proposal values cannot invent content",
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": null,
+      "after_critical": null,
+      "machine_gates": {
+        "initial_status_matches_frozen_expectation": false,
+        "veto_has_exactly_one_question": true,
+        "veto_hides_hypothesis": true,
+        "review_error_fails_closed": true,
+        "after_one_answer_confirms_or_stops": true,
+        "no_second_question": true
+      }
+    },
+    {
+      "case_id": "GXID-H10",
+      "set": "HELDOUT",
+      "synthetic": true,
+      "question_text": "项目需要新增计算资源，我是直接采购一台专用服务器，还是先使用三个月云服务？",
+      "frozen_answers": [
+        "现有资源会在下一轮数据处理开始时达到容量上限；专用服务器和云服务都满足已经确认的计算、存储与安全要求，技术团队对两种方案都能按时部署。",
+        "专用服务器采购与三年维护的总报价是九万六千元，预计可使用三年；云服务按当前负载每月一万一千元，可按月停用，三个月试用不会产生迁移违约金。",
+        "项目预算足以覆盖两种方案；负载在三个月后是保持当前水平还是下降尚未确定，这正是采购与先试用之间需要权衡的客观不确定性。",
+        "我是项目协调人，负责整理技术与成本比较并推进资源到位；现有材料没有说明最终采购决定是否由我作出，或必须由基础设施委员会批准。"
+      ],
+      "initial_proposal_source": "LIVE_STAGE1C_PROPOSER",
+      "initial": {
+        "contract_version": "GUANXIANG_READINESS_VETO_EXPERIMENT_V1",
+        "session_id": "GXID-H10-initial",
+        "status": "REVIEW_ERROR",
+        "assistant_message": "决策框架提议未通过证据审查，本次不能进入瓶颈确认。",
+        "next_question": null,
+        "proposal": null,
+        "review": null,
+        "hypothesis": null,
+        "proposer_metrics": null,
+        "critic_metrics": null,
+        "review_error": "PROPOSER_ERROR:Stage1CError:unknown proposal values cannot invent content",
+        "boundary_note": "本结果仅用于阶段1C独立就绪否决实验；不解卦、不排盘、不替用户决定。"
+      },
+      "critical_answer": "公司制度规定这类采购必须由基础设施委员会作出最终决定；我没有批准权限，只能提交方案并决定是否推动委员会本轮审议。",
+      "after_critical": null,
+      "machine_gates": {
+        "initial_status_matches_frozen_expectation": false,
+        "veto_has_exactly_one_question": true,
+        "veto_hides_hypothesis": true,
+        "review_error_fails_closed": true,
+        "after_one_answer_confirms_or_stops": true,
+        "no_second_question": true
+      }
+    }
+  ],
+  "aggregate": {
+    "live_model_call_count": 8,
+    "input_tokens": 18841,
+    "output_tokens": 6972,
+    "total_tokens": 25813,
+    "latency_total_ms": 68605,
+    "estimated_cost_usd": null,
+    "all_machine_gates_pass": false
+  }
+}

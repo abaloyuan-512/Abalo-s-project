@@ -1,0 +1,12 @@
+{
+  "stage_id": "DIRECT_READING_V2_CONDITIONAL_ROUTER_V013",
+  "verdict": "DESIGN_STOP_BEFORE_CANDIDATE_FREEZE",
+  "candidate_manifest_created": false,
+  "independent_acceptance_started": false,
+  "reason": "A same-process sys.setprofile boundary is mutable by Router code, current-thread only, and observes attempted function entry rather than completed deterministic casts. It cannot prove mechanical isolation or truthful total-cast accounting.",
+  "live_calls": 0,
+  "product_wiring": false,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

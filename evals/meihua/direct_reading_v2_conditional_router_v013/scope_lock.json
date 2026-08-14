@@ -1,0 +1,23 @@
+{
+  "stage_id": "DIRECT_READING_V2_CONDITIONAL_ROUTER_V013",
+  "objective": "Repair only the V012 Router-stage deterministic cast boundary and authoritative cast accounting defect.",
+  "historical_lock": {
+    "v012_verdict": "OFFLINE_CANDIDATE_FAIL_STOP",
+    "v012_manifest_sha256": "D838188446B232C3946F3EAE75CFE758DB5818F2DA43FED51CF6490CF3C2378C",
+    "v012_rewritten": false
+  },
+  "allowed": [
+    "one independent V013 cast-boundary wrapper",
+    "fixture-only adversarial tests and offline evidence",
+    "scope, contract, decision, execution, risk, deviation, ledger, manifest, acceptance records"
+  ],
+  "forbidden": [
+    "modifying V012 candidate files or verdict",
+    "modifying engine, specs, calendar, fixed-high prompt, validator, P8/P9, or security gates",
+    "live call, real provider, HTTP, UI, database, queue, deployment, production, default replacement, or P9 art"
+  ],
+  "live_calls": 0,
+  "deployment": false,
+  "production": false,
+  "default_replacement": false
+}

@@ -1,0 +1,52 @@
+{
+  "stage_id": "DIRECT_READING_V2_STABILITY_V011",
+  "status": "OFFLINE_CANDIDATE_FROZEN_FOR_ONE_TIME_INDEPENDENT_ACCEPTANCE",
+  "acceptance_contract": "DRV2-STABILITY-LEDGER-COMPLETENESS-V011-DIFF-V1",
+  "candidate_files": [
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/__init__.py", "sha256": "C5B8177B1C5470BFDF96ADE94E19032A375F72BF7198FBFDCE1355F40B32B7B1"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/scope_lock.json", "sha256": "8E256DC9E120436EE8488CB3AD9CA6554DDC44CF7347CA1CF9B4B8AE853A25F1"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/run_stability_batch.py", "sha256": "D288E2E6202B592BF10B4F3C1121512054C91FF606C91A6F759F599219C8E128"},
+    {"path": "outputs/v011_stability_call_ledger.json", "sha256": "B4B5E93DCD200D243155C0F1C73C3B8751BE0D43935CC924E8C07C9949CFEF27"},
+    {"path": "tests/test_direct_reading_v2_stability_v011.py", "sha256": "C475558933395CCA04BD6A5A7BA8D6906C6FD18D4F71549B3BEA39B9F6E93C3C"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/governance/execution_log.md", "sha256": "6F31F66A3C6712E9A7992CED956F265E3F144E61317F333FDFE6273FE1854744"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/governance/decision_log.md", "sha256": "D3B19872F45437EA295D5FF524174F1C6C08B0A183D01755A3B5A4EBD02BAE2C"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/governance/risk_log.md", "sha256": "21F7C63DCE7124D2CD8E92C792346120146FE44A2FECA5C829C58DEE87136CDE"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v011/governance/deviation_log.md", "sha256": "F2D0779C561108A4B10CAAFE51A51199A52819B62C40632C59E7161FF97FED25"}
+  ],
+  "immutable_authority_evidence": [
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/candidate_manifest.json", "sha256": "9AC57B5C7CD873C23AA8F2833D115616813F4C3F763BDBB713FADF8641405D0E"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/frozen_cases.json", "sha256": "0C5C82AA0645CF4CCED4942317B7FB3381C941A47ECDA39B85FF5CFF01B3C9D3"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/stability_executor.py", "sha256": "E3E94DF0EB894D591169BFD2945C637CC34B3BDC8732A62708EAB2E3C69C28E7"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/final_outcome.json", "sha256": "39A888E64519B76FD863B9E3B168BDCD24222F4DEF189B878060B07E295E734C"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v010/independent_acceptance_result.json", "sha256": "F54A5A2F172FCA3EA8A2AB8E8CCB242E5703F5E7149D55167095E81E68ACBE32"},
+    {"path": "src/abalo_iching/application/sites_direct_reading_v2.py", "sha256": "1CD851EE815F876A693F84B0632C1FFC6F20C12768EEA7E1313B289DCB23B928"},
+    {"path": "outputs/v009_canary_real_result.json", "sha256": "BE35C9632A9D65BD683E9AD36A213F79CC7533E93EF04FC1E83371EB876A56C6"},
+    {"path": "outputs/v009_canary_page8_page9.md", "sha256": "E62B0B8CD9D1E85D7F84610D13BBC9433201E1F46AE4834C543C08F1379D8ED7"},
+    {"path": "outputs/v009_canary_provenance.json", "sha256": "1B6FDB9BBF7B04A215D6E40AC2DE0A532A417F31CF1B0E05D26B3917E5CEC0ED"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v009/final_outcome.json", "sha256": "972AECED2687810C597B855385C832928A5061CAF31C73409C19F47D88501AC4"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/canary_outcome.json", "sha256": "A47E940CBDC32019F1A611131992E9D29CD27B79CE100C79CAF3E4AD1B20D069"},
+    {"path": "evals/meihua/direct_reading_v2_stability_v008/offline_gate_evidence.json", "sha256": "2EB3D9F3D6DFB29C820B9392912DD3A593B13502096FF79B385C73C287DE0D31"},
+    {"path": "outputs/v007_s1_stage_summary.json", "sha256": "8265C3676EB1E4F5FB4B44DFFB76C317B3A63AA8DF069F3D8257E5953572A032"}
+  ],
+  "offline_verification": {
+    "focused": "154 passed",
+    "full": "1200 passed",
+    "live_model_calls": 0,
+    "v011_real_casts": 0,
+    "provider_instantiated": false
+  },
+  "repair_claim": {
+    "only_change": "append complete NOT_EXECUTED_DUE_TO_PRIOR_FAILURE rows after the first failure",
+    "v010_rewritten": false,
+    "prompt_or_validator_changed": false,
+    "cases_or_order_changed": false,
+    "router_or_retry_added": false
+  },
+  "external_state": {
+    "deployment": false,
+    "production": false,
+    "default_replacement": false,
+    "router_wiring": false,
+    "page9_art_or_product_implementation": false
+  }
+}

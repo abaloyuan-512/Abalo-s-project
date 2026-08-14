@@ -9,7 +9,8 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "vinext start",
-    "test": "npm run build && node --test tests/preview-poll.test.mjs tests/rendered-html.test.mjs tests/result-presentation.test.mjs tests/page8-model.test.mjs",
+    "test": "npm run build && node --test tests/preview-poll.test.mjs tests/rendered-html.test.mjs tests/result-presentation.test.mjs tests/page8-model.test.mjs tests/direct-reading-v2-route.test.mjs && tsx --test tests/direct-reading-v2-preview.test.tsx",
+    "test:direct-reading-v2": "tsx --test tests/direct-reading-v2-preview.test.tsx",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

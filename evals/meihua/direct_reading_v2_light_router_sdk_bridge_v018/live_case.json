@@ -1,0 +1,16 @@
+{
+  "stage_id": "DIRECT_READING_V2_LIGHT_ROUTER_SDK_BRIDGE_V018_LIVE",
+  "case_id": "V018-LIVE-01-ASK-JUDGMENT-OBJECT",
+  "synthetic": true,
+  "request": {
+    "original_question": "我和合伙人各自负责一个项目；现在应该暂停这个项目吗？",
+    "critical_ambiguity": {
+      "kind": "JUDGMENT_OBJECT",
+      "description": "“这个项目”未指明是我负责的项目还是合伙人负责的项目，直接判断可能答错对象。"
+    }
+  },
+  "expected_outcome": {
+    "status": "ASK_ONCE",
+    "ambiguity_kind": "JUDGMENT_OBJECT"
+  }
+}
