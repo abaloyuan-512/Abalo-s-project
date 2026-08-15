@@ -100,7 +100,10 @@ test("page eight opens from page seven and keeps all later reserved sections hid
   assert.match(source, /继续查询原任务/);
   assert.match(source, /重新生成详细解卦/);
   assert.match(source, /function editQuestion\(\) \{[\s\S]+setFlowPage\(3\)[\s\S]+primary-question/);
-  assert.match(source, /setResponse\(\(current\) => current\?\.page8_reading \? current : payload\)/);
+  assert.match(source, /function directHighPage8Reading\(question: string, presentation: ProductPresentation\): Page8Reading/);
+  assert.match(source, /<DirectHighResultView response=\{response\}/);
+  assert.match(source, /async function launchDirectHigh\(numbersInput: number\[\]\)/);
+  assert.match(source, /"CONDITIONAL_INTAKE_THEN_HIGH"/);
   assert.match(source, /page8ScrollIsOpen/);
   assert.match(source, /root\.classList\.add\("page8-reading-open"\)/);
   assert.match(source, /root\.classList\.remove\("page8-reading-open"\)/);

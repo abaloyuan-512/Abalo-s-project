@@ -1,25 +1,38 @@
 # Abalo-s-project（观象）
 
-当前可运行产品是一个本地网页：用户选择关注领域、目标和时间范围，输入三个数字后，可以看到确定性排盘、导师式导读、判断依据、现实行动建议、注意事项和复盘问题。当前版本不调用真实模型、不保存输入，也不收费。
+当前主产品是九页“观象”体验。确定性程序负责三数成卦；AI只参与现有的条件辨识与解卦，不参与排盘。
 
-## 当前产品治理基线（2026-08-09）
+## 当前产品治理基线（2026-08-15）
 
-- 产品结构固定为 `Project → Module → Stage → Task`；观象当前包含十个页面模块和正式升格的第十一模块“解卦系统”。
-- 产品战略主线已转为“问题＋确定性卦盘直接解卦”。辨识 Stage 1E 已暂停；当前执行线是经用户批准的非生产 Direct Reading V2 V002，辨识与定问不再作为生成资格门，但旧入口在迁移验收前继续保留。
-- 第一至第七页按产品设计层面确认完成；第八页受解卦质量阻塞；第九页“回到现实·个性化解读”和第十页“最终收束·行动与复盘”为暂定名称，后续细化。
-- 解卦系统六项体验验收标准已按 v0.1 执行；模块权重尚未确认，因此不声明项目完成百分比。
+- P1首页、P2观象之法与准备、P3正问、P7卦象、P8读卦五幕、P9观象寄语均以各自最终定稿为准，不擅自改写。
+- 无歧义：`P3 → P6`。有歧义：`P3 → P4（现有系统最多问一次）→ P5 → P6`。
+- P6三数取数由确定性程序排盘，AI不参与。
+- P7不呈现用户所问问题，只呈现既定卦象信息及详细读卦入口。
+- P9文本和内核冻结；缺少经过批准的P9动态内容时，不得用旧五面板或临时生成文案替代。
 
-完整的人类可读说明见 [`docs/governance/guanxiang-current-state-reconstruction-v0.1.md`](docs/governance/guanxiang-current-state-reconstruction-v0.1.md)，机器可读任务树见 [`docs/governance/guanxiang-current-state-map-v0.1.json`](docs/governance/guanxiang-current-state-map-v0.1.json)。该治理基线不等同于当前部署或发布状态证明。
+完整基线见 [`docs/governance/guanxiang-release-baseline-v4-2026-08-15.md`](docs/governance/guanxiang-release-baseline-v4-2026-08-15.md) 与 [`docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V4.md`](docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V4.md)。这不等同于部署或发布证明。
 
 ## 现在打开产品
 
-在项目目录打开 PowerShell，运行：
+旧版入口仍保留：
 
 ```powershell
 .\scripts\start_local_product.ps1
 ```
 
 看到 `http://127.0.0.1:8765/` 后，用浏览器打开这个地址。保持 PowerShell 窗口开启；结束时按 `Ctrl+C`。
+
+九页集成本地预览需要有效的 `OPENAI_API_KEY`、Python 3.12环境和已安装的前端依赖：
+
+```powershell
+cd .\sites\hosted-app
+pnpm install
+cd ..\..
+$env:OPENAI_API_KEY = "<仅设置在当前终端，不要写入仓库>"
+.\scripts\start_conditional_p1_p8_preview.ps1
+```
+
+脚本只监听 `127.0.0.1`，会输出站点地址、两个进程ID和日志位置；不会部署到公网。
 
 ### 首次准备
 

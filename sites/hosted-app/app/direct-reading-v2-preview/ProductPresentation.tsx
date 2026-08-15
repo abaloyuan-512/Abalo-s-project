@@ -44,6 +44,7 @@ export type ProductPresentation = {
   source_reading_sha256: string;
   reconstructed_reading_sha256: string;
   reconstructed_equals_source: true;
+  prepared_chart_sha256: string;
   page8: {
     responsibility: "BASE_MUTUAL_MOVING_CHANGED_PROGRAM_STRENGTH";
     base_hexagram: HexagramScene;
@@ -322,6 +323,7 @@ export function Page9FinaleView({ content }: { content: Page9FinaleContent }) {
       </div>
 
       <div className="page9FinaleActions" aria-label="继续追问或分享本次解卦">
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="page9Continue" href="/?continue-question=1#inquiry">继续追问</a>
         <button type="button" className="page9Share" onClick={() => void shareReading()} disabled={sharing}>{sharing ? "正在汇成画卷" : "分享解卦"}</button>
         <small><button type="button" className="page9BookLink" onClick={() => setBookOpen(true)}>本次观象已为您保存，可以前往观事簿进行回看。</button></small>

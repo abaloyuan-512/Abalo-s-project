@@ -7,7 +7,7 @@ import {
 } from "./personalized-reading-poll";
 import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
-import { requestDeterministicCast } from "./deterministic-cast-request";
+import { type ProductPresentation } from "./direct-reading-v2-preview/ProductPresentation";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -184,6 +184,11 @@ type ApiResponse = {
   deterministic_result?: ProductResult | null;
   personalized_reading?: PersonalizedReading | null;
   page8_reading?: Page8Reading | null;
+  direct_reading?: { text?: string } | null;
+  product_presentation?: ProductPresentation | null;
+  direct_high?: { route?: string; intake_status?: string; router_attempts?: number } | null;
+  chart_facts?: unknown;
+  terminal?: boolean;
   preview_meta?: {
     failure_stage?: string;
     failure_codes?: string[];
@@ -192,8 +197,140 @@ type ApiResponse = {
     [key: string]: unknown;
   } | null;
   error?: string;
+  error_message?: string | null;
   errors?: { message?: string }[];
 };
+
+type DirectHighSourceSection = {
+  heading: string;
+  markdown: string;
+  sha256: string;
+};
+
+function unicodeHexagram(kingWenNumber: number): string {
+  return String.fromCodePoint(0x4dbf + kingWenNumber);
+}
+
+function sourceSectionBody(section: DirectHighSourceSection): string {
+  const paragraphs = section.markdown
+    .replace(/^##[^\n]*\n+/, "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/^\s*(?:[-*]|\d+\.)\s+/gm, "")
+      .replace(/\s*\n\s*/g, " ")
+      .trim())
+    .filter(Boolean);
+  return paragraphs[0] ?? "本层解释已通过同一次解卦的完整性核验。";
+}
+
+function directHighPage8Reading(question: string, presentation: ProductPresentation): Page8Reading {
+  const mapped = presentation.page8;
+  const hexagramScene = (
+    sceneId: "BASE_HEXAGRAM" | "MUTUAL_HEXAGRAM" | "CHANGED_HEXAGRAM",
+    sequence: number,
+    title: string,
+    purpose: string,
+    scene: typeof mapped.base_hexagram,
+    formation: string,
+    readingRole: string,
+  ): Page8Scene => ({
+    scene_id: sceneId,
+    sequence,
+    title,
+    purpose,
+    deterministic: {
+      primary_name: scene.program_fact.name,
+      symbol: unicodeHexagram(scene.program_fact.king_wen_number),
+      king_wen_number: scene.program_fact.king_wen_number,
+      formation,
+      reading_role: readingRole,
+      facts: [
+        { label: "上卦", value: scene.program_fact.upper_trigram },
+        { label: "下卦", value: scene.program_fact.lower_trigram },
+      ],
+      source_name: "同一次确定性排盘",
+      source_reference: presentation.prepared_chart_sha256,
+    },
+    interpretation: {
+      scene_id: sceneId,
+      layer_summary: scene.model_section.heading,
+      reality_connection: sourceSectionBody(scene.model_section),
+      uncertainty_boundary: "这一幕只呈现同一次排盘与已通过核验的解卦正文，不把现实陈述伪装成卦象事实。",
+      reality_refs: [],
+      evidence_refs: [scene.model_section.sha256],
+      interpretation_hypothesis: true,
+    },
+  });
+
+  const strength = mapped.program_strength;
+  return {
+    template_version: "SITES_PAGE8_READING_V1",
+    stage_title: "读卦",
+    user_question: question,
+    scenes: [
+      hexagramScene("BASE_HEXAGRAM", 1, "本卦", "看清这件事眼下最主要的结构。", mapped.base_hexagram, "第一数定上卦，第二数定下卦；上下相叠形成本卦。", "本卦呈现当前局面的主要结构。"),
+      hexagramScene("MUTUAL_HEXAGRAM", 2, "互卦", "看清事情内部怎样发展。", mapped.mutual_hexagram, "取本卦中间四爻重新组合，形成互卦。", "互卦呈现事情内部的结构变化。"),
+      hexagramScene("CHANGED_HEXAGRAM", 3, "变卦", "看清动爻改变后结构重点转向哪里。", mapped.changed_hexagram, "本次动爻变化后形成变卦。", "变卦呈现变化后的结构重点，不代表必然未来。"),
+      {
+        scene_id: "MOVING_LINE",
+        sequence: 4,
+        title: "动爻",
+        purpose: "看清本次变化发生在哪一爻。",
+        deterministic: {
+          primary_name: mapped.moving_line.program_fact.name,
+          formation: "第三数按六数之余确定本次动爻。",
+          reading_role: "动爻标记本次卦象中发生结构变化的位置。",
+          canonical_label: "爻辞原文",
+          canonical_text: mapped.moving_line.program_fact.canonical_line_text,
+          facts: [{ label: "动爻位置", value: String(mapped.moving_line.program_fact.position) }],
+          source_name: "同一次确定性排盘",
+          source_reference: presentation.prepared_chart_sha256,
+        },
+        interpretation: {
+          scene_id: "MOVING_LINE",
+          layer_summary: mapped.moving_line.model_section.heading,
+          reality_connection: sourceSectionBody(mapped.moving_line.model_section),
+          uncertainty_boundary: "动爻解释不构成对现实结果的保证。",
+          reality_refs: [],
+          evidence_refs: [mapped.moving_line.model_section.sha256],
+          interpretation_hypothesis: true,
+        },
+      },
+      {
+        scene_id: "BODY_USE_STRENGTH",
+        sequence: 5,
+        title: "体用与旺衰",
+        purpose: "只看程序排出的体用关系与当前承接结构。",
+        deterministic: {
+          primary_name: `${strength.body_trigram}为体`,
+          formation: "体用与旺衰由确定性程序依据同一次排盘计算。",
+          reading_role: "帮助观察当前结构的承接关系，不单独生成吉凶总评。",
+          facts: [
+            { label: "初始用卦", value: strength.initial_use_trigram },
+            { label: "变化用卦", value: strength.changed_use_trigram },
+            { label: "初始体用", value: strength.initial_relation },
+            { label: "变化体用", value: strength.changed_relation },
+            { label: "体卦旺衰", value: strength.body_strength },
+          ],
+          source_name: "确定性体用与旺衰程序",
+          source_reference: presentation.prepared_chart_sha256,
+        },
+        interpretation: {
+          scene_id: "BODY_USE_STRENGTH",
+          layer_summary: "体用与旺衰只由程序呈现",
+          reality_connection: `初始关系为${strength.initial_relation}，变化后为${strength.changed_relation}；体卦当前为${strength.body_strength}。`,
+          uncertainty_boundary: "本幕不调用模型，也不据此单独推断现实事实。",
+          reality_refs: [],
+          evidence_refs: [presentation.prepared_chart_sha256],
+          interpretation_hypothesis: true,
+        },
+      },
+    ],
+    epistemic_boundary: "P8 只组合同一次程序排盘与已经核验的 Direct Reading 正文。",
+    page9_reserved: true,
+  };
+}
 type Page8TaskPhase = "NOT_REQUESTED" | "SUBMITTING" | "RUNNING" | "SUCCESS" | "FAILED" | "RECOVERABLE" | "TIMEOUT";
 type Page8TaskState = {
   phase: Page8TaskPhase;
@@ -510,6 +647,12 @@ type GuidedIntakeProps = {
   onCompletionReason: (reason: DiscernmentCompletionReason) => void;
   onComplete: (complete: boolean) => void;
   onContinue: () => void;
+};
+
+type ConditionalIntakeMeta = {
+  intakeId?: string;
+  status: "PASSED" | "ANSWERED" | "SKIPPED" | "FAIL_OPEN";
+  answer?: string;
 };
 
 type GuidedIntakeApiResponse = {
@@ -1247,9 +1390,114 @@ function GuidedIntake(props: GuidedIntakeProps) {
   </div>;
 }
 
+function ConditionalIntake({
+  question,
+  onFacts,
+  onUnknowns,
+  onActions,
+  onObservableResponses,
+  onSuggestion,
+  onStructured,
+  onCompletionReason,
+  onComplete,
+  onContinue,
+  onRoute,
+  onNeedsClarification,
+  onPass,
+}: GuidedIntakeProps & {
+  onRoute: (value: ConditionalIntakeMeta) => void;
+  onNeedsClarification: () => void;
+  onPass: () => void;
+}) {
+  const [intakeId] = useState(() => `intake-${crypto.randomUUID().replaceAll("-", "")}`);
+  const [mode, setMode] = useState<"CHECKING" | "CLEAR" | "ASK" | "DONE">("CHECKING");
+  const [prompt, setPrompt] = useState("");
+  const [answer, setAnswer] = useState("");
+
+  function applyBaseContext(extra = "") {
+    const combined = `${question}\n${extra}`;
+    const nextDomain = inferDomain(combined);
+    const desiredGoal = inferGoal(extra || question);
+    const allowed = GOALS_BY_DOMAIN[nextDomain] ?? [];
+    onStructured({
+      domain: nextDomain,
+      goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+      horizon: "CURRENT",
+      stage: "EXPLORING",
+      uncertainty: inferUncertainty(combined),
+      riskProfile: "STANDARD",
+    });
+    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
+    onSuggestion(null); onCompletionReason("ENOUGH"); onComplete(true);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/direct-reading/v2/intake", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contract_version: "SITES_CONDITIONAL_INTAKE_PRODUCT_V1",
+            intake_id: intakeId,
+            original_question: question,
+          }),
+        });
+        const payload = await response.json() as { status?: string; ambiguity_kind?: string; clarification_prompt?: string; intake_id?: string };
+        if (cancelled) return;
+        if (response.ok && payload.status === "ASK_ONCE" && payload.intake_id === intakeId && payload.clarification_prompt) {
+          setPrompt(payload.clarification_prompt); setMode("ASK"); onNeedsClarification();
+          return;
+        }
+        if (response.ok && payload.status === "PASS" && payload.intake_id === intakeId) {
+          applyBaseContext(); onRoute({ intakeId, status: "PASSED" }); setMode("CLEAR"); onPass();
+          return;
+        }
+        applyBaseContext(); onRoute({ status: "FAIL_OPEN" }); setMode("CLEAR"); onPass();
+      } catch {
+        if (!cancelled) { applyBaseContext(); onRoute({ status: "FAIL_OPEN" }); setMode("CLEAR"); onPass(); }
+      }
+    })();
+    return () => { cancelled = true; };
+  // One immutable question creates one one-shot intake transaction.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intakeId, question]);
+
+  function finishWithAnswer() {
+    const value = answer.trim();
+    if (!value) return;
+    applyBaseContext(value); onRoute({ intakeId, status: "ANSWERED", answer: value }); setMode("DONE");
+  }
+
+  function skip() {
+    applyBaseContext(); onRoute({ intakeId, status: "SKIPPED" }); setMode("DONE");
+  }
+
+  return <div className="guided-intake ai-guided-intake conditional-intake">
+    {mode === "CHECKING" && <div className="discernment-working" role="status"><span>正在看这一问是否已经足够明确<br />这里不会排盘，也不会开始解卦</span></div>}
+    {mode === "ASK" && <>
+      <div className="discernment-turn" aria-live="polite">
+        <p className="discernment-understanding">对问题的不同理解，会让解卦指向不同对象。让我们确认一下。</p>
+        <div className="discernment-current"><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{prompt}</p></div>
+      </div>
+      <div className="dialogue-compose"><textarea aria-label="回答唯一澄清问题" value={answer} maxLength={400} onChange={(event) => setAnswer(event.target.value)} placeholder="用自己的原话简短说明……" /><button type="button" disabled={!answer.trim()} onClick={finishWithAnswer}><span>带着这句回答<br />进入第三步：定问</span></button></div>
+      <div className="discernment-controls"><button type="button" onClick={skip}>跳过这一问，仍按原题继续</button></div>
+    </>}
+    {(mode === "CLEAR" || mode === "DONE") && <div className="dialogue-review discernment-complete">
+      <p className="eyebrow">有疑则问 · 无疑直行</p>
+      <h3>{mode === "CLEAR" ? "原题已经足够明确" : "这一处已经确认"}</h3>
+      <p>原问题保持不变；下一步只需在心中确认它。</p>
+      <div className="dialogue-review-actions"><button type="button" onClick={onContinue}>进入第三步：定问</button></div>
+    </div>}
+  </div>;
+}
+
 type FinalQuestionProps = {
   hidden: boolean;
   originalQuestion: string;
+  finalQuestion: string;
+  clarificationAnswer?: string;
   suggestedQuestion: string;
   earlyExit: boolean;
   decisionMade: boolean;
@@ -1263,7 +1511,7 @@ function normalizedQuestion(value: string): string {
   return value.replace(/[\s，。！？、,.!?；;：:]/g, "").toLocaleLowerCase("zh-CN");
 }
 
-function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit, decisionMade, confirmed, onChooseOriginal, onChooseSuggestion, onConfirm }: FinalQuestionProps) {
+function FinalQuestion({ hidden, originalQuestion, finalQuestion, clarificationAnswer, suggestedQuestion, earlyExit, decisionMade, confirmed, onChooseOriginal, onChooseSuggestion, onConfirm }: FinalQuestionProps) {
   const hasSuggestion = suggestedQuestion.trim().length >= 6;
   const suggestionChangesQuestion = !earlyExit && hasSuggestion && normalizedQuestion(suggestedQuestion) !== normalizedQuestion(originalQuestion);
   const ready = earlyExit || !suggestionChangesQuestion || decisionMade;
@@ -1289,6 +1537,11 @@ function FinalQuestion({ hidden, originalQuestion, suggestedQuestion, earlyExit,
 
       {ready && <div className="final-question-ready" role="status" aria-live="polite">
         <p>{earlyExit ? "我感受到你想尽快进入取数卜卦的环节。" : <span>最终问题已经定下<br />接下来，请把注意力重新放回这一问</span>}</p>
+        <blockquote className="final-question-confirmed-text">{finalQuestion}</blockquote>
+        {clarificationAnswer?.trim() && <div className="final-question-clarification">
+          <span>辨识确认</span>
+          <p>{clarificationAnswer.trim()}</p>
+        </div>}
         <strong className="final-question-breathing"><span>请在心中再默念一遍最终问题</span><span>缓缓深呼吸</span></strong>
       </div>}
 
@@ -1679,6 +1932,8 @@ function Page8ModelReview({ reading }: { reading: Page8Reading }) {
   const isLast = activeIndex === reading.scenes.length - 1;
 
   useEffect(() => {
+    // This reset is tied to a newly loaded immutable reading record.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
   }, [reading.template_version, reading.user_question]);
 
@@ -1978,6 +2233,8 @@ export function Page8KunStory({
   }
 
   useEffect(() => {
+    // This reset is tied to a newly loaded immutable reading record.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
   }, [reading.template_version, reading.user_question]);
 
@@ -1986,6 +2243,8 @@ export function Page8KunStory({
   }, []);
 
   useEffect(() => {
+    // Scene navigation closes any transient oracle focus before the next scene is shown.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOracleFocusVisible(false);
     setFocusedOracleSceneId(null);
   }, [activeIndex]);
@@ -2139,6 +2398,62 @@ export function Page8KunStory({
   </section>;
 }
 
+function DirectHighResultView({ response, onEdit, onClear }: {
+  response: ApiResponse;
+  onEdit: () => void;
+  onClear: () => void;
+}) {
+  const [readingStarted, setReadingStarted] = useState(false);
+  const presentation = response.product_presentation!;
+  const reading = directHighPage8Reading(response.user_question ?? "你所问之事", presentation);
+  const baseFact = presentation.page8.base_hexagram.program_fact;
+  const baseHexagram: Hexagram = {
+    king_wen_number: baseFact.king_wen_number,
+    name: baseFact.name,
+    symbol: unicodeHexagram(baseFact.king_wen_number),
+  };
+
+  function openDetailedReading() {
+    setReadingStarted(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("result-reading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.querySelector<HTMLElement>("#result-reading h2")?.focus({ preventScroll: true });
+    }));
+  }
+
+  useLayoutEffect(() => {
+    if (!readingStarted) return;
+    document.documentElement.classList.remove("flow-scroll-locked");
+    document.body.classList.remove("flow-scroll-locked");
+    document.documentElement.classList.add("page8-reading-open");
+    return () => {
+      document.documentElement.classList.remove("page8-reading-open");
+      document.documentElement.classList.add("flow-scroll-locked");
+      document.body.classList.add("flow-scroll-locked");
+    };
+  }, [readingStarted]);
+
+  return <section id="result" className={`result-shell${readingStarted ? " is-reading-started" : " flow-lock-screen"}`} aria-labelledby="result-title">
+    <section className="result-overview scroll-section viewport-page" data-reveal hidden={readingStarted}>
+      <ResultKoiPond />
+      <div className="result-verdict"><BrushHexagram hexagram={baseHexagram} /></div>
+      <div className="result-summary">
+        <span className="result-number">第 {baseHexagram.king_wen_number} 卦</span>
+        <h2 id="result-title" tabIndex={-1}>{baseHexagram.name}</h2>
+        <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>查看详细解卦</button>
+      </div>
+    </section>
+    <div id="result-reading" hidden={!readingStarted}>
+      <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} />
+      <div className="direct-high-p8-actions">
+        <button type="button" onClick={onEdit}>返回修改原问</button>
+        <button type="button" onClick={onClear}>重新开始</button>
+      </div>
+    </div>
+  </section>;
+}
+
 function ResultView({
   response,
   page8Task,
@@ -2179,6 +2494,9 @@ function ResultView({
       body.classList.add("flow-scroll-locked");
     };
   }, [readingStarted]);
+  if (response.product_presentation) {
+    return <DirectHighResultView response={response} onEdit={onEdit} onClear={onClear} />;
+  }
   if (!result) return null;
   const report = result.clarity_report;
   const cultural = result.cultural_reading;
@@ -2611,6 +2929,7 @@ export function GuanxiangApp() {
   const [discernmentCompletionReason, setDiscernmentCompletionReason] = useState<DiscernmentCompletionReason>("ENOUGH");
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
+  const [conditionalIntake, setConditionalIntake] = useState<ConditionalIntakeMeta | null>(null);
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [page8Task, setPage8Task] = useState<Page8TaskState>({
     phase: "NOT_REQUESTED",
@@ -2643,6 +2962,8 @@ export function GuanxiangApp() {
     if (url.searchParams.get("continue-question") !== "1") return;
 
     flowPageRef.current = 3;
+    // This effect restores an explicit query-gated continuation state from P9.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMethodReady(true);
     setFlowPage(3);
     url.searchParams.delete("continue-question");
@@ -2795,11 +3116,17 @@ export function GuanxiangApp() {
     setSuggestedQuestion("");
     setSuggestionReason("");
     setIntakeComplete(false);
+    setConditionalIntake(null);
     setDiscernmentCompletionReason("ENOUGH");
     setFinalQuestionDecisionMade(false);
     setFinalQuestionConfirmed(false);
     setQuestionConfirmed(true);
-    advanceFlow(4);
+  }
+
+  function continueClearQuestionToCasting() {
+    setFinalQuestionDecisionMade(true);
+    setFinalQuestionConfirmed(true);
+    advanceFlow(6, "casting-title");
   }
 
   function continueToFinalQuestion() {
@@ -2840,6 +3167,7 @@ export function GuanxiangApp() {
     if (activePersonalizedRequestRef.current === requestId) activePersonalizedRequestRef.current = null;
     sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
     setPage8Task({ phase: "FAILED", message, requestId, retryable });
+    setError(message);
     setProgress("");
   }
 
@@ -2859,7 +3187,7 @@ export function GuanxiangApp() {
     }
     activePersonalizedRequestRef.current = null;
     sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-    setResponse(payload);
+    setResponse({ ...payload, user_question: question });
     setPage8Task({ phase: "SUCCESS", message: "详细解卦已经生成。", requestId });
     setProgress("");
     return true;
@@ -2986,6 +3314,8 @@ export function GuanxiangApp() {
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (!activeRequestId || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(activeRequestId)) return;
     activePersonalizedRequestRef.current = activeRequestId;
+    // This effect restores the persisted idempotent task exactly once on mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage8Task({
       phase: "RUNNING",
       message: "正在恢复上一次详细解卦任务，不会重复生成。",
@@ -2995,7 +3325,10 @@ export function GuanxiangApp() {
     });
     let cancelled = false;
     const resumeTimer = window.setTimeout(() => {
-      void pollPersonalizedRequest(activeRequestId, () => cancelled);
+      // The declared polling function is stable for this one mount-only recovery callback.
+      // eslint-disable-next-line react-hooks/immutability
+      if (activeRequestId.startsWith("drv2-")) void pollDirectHigh(activeRequestId);
+      else void pollPersonalizedRequest(activeRequestId, () => cancelled);
     }, 0);
     return () => { cancelled = true; window.clearTimeout(resumeTimer); };
   // An unfinished request is intentionally resumed only once when the formal page mounts.
@@ -3050,7 +3383,8 @@ export function GuanxiangApp() {
   }, [response]);
 
   function editQuestion() {
-    setResponse(null); setFlowPage(3); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError("");
+    flowPageRef.current = 3;
+    setResponse(null); setFlowPage(3); setQuestionConfirmed(false); setIntakeComplete(false); setConditionalIntake(null); setFinalQuestionConfirmed(false); setNumbers(["", "", ""]); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError("");
     window.setTimeout(() => {
       document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" });
       document.getElementById("primary-question")?.focus({ preventScroll: true });
@@ -3058,9 +3392,12 @@ export function GuanxiangApp() {
   }
 
   function clearQuestion() {
+    flowPageRef.current = 3;
+    setFlowPage(3);
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError(""); setSavedRecordId(null);
+    setOriginalQuestion(""); setFinalQuestionDraft(""); setSuggestedQuestion(""); setSuggestionReason(""); setQuestionConfirmed(false);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setConditionalIntake(null); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -3082,6 +3419,69 @@ export function GuanxiangApp() {
     finally { setSavingRecord(false); }
   }
 
+  function finishDirectHigh(payload: ApiResponse, requestId: string): boolean {
+    if (activePersonalizedRequestRef.current !== requestId) return false;
+    if (
+      payload.status !== "SUCCESS" || !payload.direct_reading?.text || !payload.product_presentation ||
+      !["DIRECT_HIGH", "CONDITIONAL_INTAKE_THEN_HIGH"].includes(payload.direct_high?.route ?? "")
+    ) {
+      failPersonalizedRequest(requestId, payload.error_message || payload.error || "本次解卦没有通过完整性与安全核验。", false);
+      return false;
+    }
+    activePersonalizedRequestRef.current = null;
+    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    setResponse({ ...payload, user_question: question });
+    setPage8Task({ phase: "SUCCESS", message: "第八页详细解卦已经生成。", requestId });
+    setProgress("");
+    return true;
+  }
+
+  async function pollDirectHigh(requestId: string): Promise<void> {
+    for (let attempt = 0; attempt < 140; attempt += 1) {
+      await sleep(1_500);
+      const response = await fetch(`/api/direct-reading/v2?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" });
+      const payload = await response.json() as ApiResponse;
+      if (response.status === 202 || payload.status === "RUNNING") {
+        setPage8Task((current) => ({ ...current, phase: "RUNNING", stage: typeof payload.preview_meta?.stage === "string" ? payload.preview_meta.stage : "GENERATING", message: "同一次程序排盘已经完成，fixed-high 正在生成第八页正文。" }));
+        continue;
+      }
+      if (response.ok) { finishDirectHigh(payload, requestId); return; }
+      failPersonalizedRequest(requestId, payload.error_message || payload.error || "解卦任务已停止。", false);
+      return;
+    }
+    setPage8Task((current) => ({ ...current, phase: "TIMEOUT", message: "本地预览等待已到上限；任务没有自动重试。", requestId }));
+  }
+
+  async function launchDirectHigh(numbersInput: number[]): Promise<void> {
+    const requestId = `drv2-${crypto.randomUUID().replaceAll("-", "")}`;
+    activePersonalizedRequestRef.current = requestId;
+    sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
+    setPage8Task({ phase: "SUBMITTING", message: "正在建立一次排盘、一次 fixed-high 的第八页任务。", requestId, startedAt: Date.now(), stage: "SUBMITTING" });
+    const entryMode = conditionalIntake?.status === "ANSWERED" ? "CONFIRMED" : conditionalIntake?.status === "SKIPPED" ? "SKIP" : "CLEAR";
+    const body = JSON.stringify({
+      contract_version: "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1",
+      request_id: requestId,
+      question_text: question,
+      numbers: numbersInput,
+      entry_mode: entryMode,
+      ...(conditionalIntake?.intakeId ? { intake_id: conditionalIntake.intakeId } : {}),
+      ...(conditionalIntake?.status === "ANSWERED" && conditionalIntake.answer ? { clarification_answer: conditionalIntake.answer } : {}),
+    });
+    try {
+      const response = await fetch("/api/direct-reading/v2", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+      const payload = await response.json() as ApiResponse;
+      if (response.status === 202) {
+        setPage8Task((current) => ({ ...current, phase: "RUNNING", message: "程序正在按三数成卦；辨识不会参与排盘。" }));
+        await pollDirectHigh(requestId);
+        return;
+      }
+      if (response.ok) { finishDirectHigh(payload, requestId); return; }
+      failPersonalizedRequest(requestId, payload.error_message || payload.error || "第八页解卦任务未能建立。", false);
+    } catch {
+      setPage8Task({ phase: "RECOVERABLE", message: "提交状态暂时无法确认；只能继续查询同一个任务，不会重复提交。", requestId, retryable: false });
+    }
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault(); setError(""); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setSavedRecordId(null);
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
@@ -3090,60 +3490,12 @@ export function GuanxiangApp() {
       sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
     }
 
-    const factLines = nonemptyLines(facts);
-    const unknownLines = nonemptyLines(unknowns);
-    const actionLines = nonemptyLines(actions);
-    const responseLines = nonemptyLines(observableResponses);
     const parsed = numbers.map(Number);
-    const textLists = [factLines, unknownLines, actionLines, responseLines];
-    const earlyExit = discernmentCompletionReason === "USER_EARLY";
-    const useDeterministicOnly = earlyExit || factLines.length < 1 || unknownLines.length < 1;
-    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
+    if (question.length < 6 || question.length > 160 || question !== question.trim() || !intakeComplete || !conditionalIntake || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
       setError("请在右侧三个位置，各输入一个1–999的整数。"); return;
     }
-    setLoading(true); setProgress("正在按三数成卦……");
-    const deterministicBody = JSON.stringify({
-      contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
-      request_id: `sites-${crypto.randomUUID()}`,
-      question_text: question.trim(), question_domain: domain, decision_goal: goal,
-      time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
-      numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-      user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
-    });
-    const deterministicRequest = requestDeterministicCast<ApiResponse>({
-      fetchResult: () => fetch("/api/v3/meihua", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        cache: "no-store",
-        body: deterministicBody,
-      }),
-      sleep,
-      onRetry: () => setProgress("排盘服务正在唤醒，正在继续成卦……"),
-    });
-
-    if (!useDeterministicOnly) {
-      launchPersonalizedRequest({
-        question_text: question.trim(), question_domain: domain, decision_goal: goal,
-        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile,
-        confirmed_facts: factLines, unknowns: unknownLines, options: [],
-        actions_already_taken: actionLines, observable_responses: responseLines,
-        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-        user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
-      });
-    } else {
-      setPage8Task({
-        phase: "NOT_REQUESTED",
-        message: "前面的辨识没有同时形成至少一项已确认事实和一项未知内容，因此本次不凭空生成个性解释；五幕卦象结构仍可完整查看。",
-      });
-    }
-
-    try {
-      const { request, payload } = await deterministicRequest;
-      if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
-        throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
-      }
-      setResponse((current) => current?.page8_reading ? current : payload);
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "本次未能完成排盘。"); }
+    setLoading(true); setProgress("正在建立唯一一次排盘与解卦任务……");
+    try { await launchDirectHigh(parsed); }
     finally { setLoading(false); setProgress(""); }
   }
 
@@ -3217,10 +3569,10 @@ export function GuanxiangApp() {
 
             <div className="inquiry-writing">
               <label className="question-label" htmlFor="primary-question"><span>此刻，你想问的是什么？</span></label>
-              <textarea id="primary-question" aria-label="你想问的问题" aria-describedby="question-guidance question-count" placeholder="请把你的问题写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
-              <div className="question-meta"><p id="question-guidance">不必担心问得是否准确。<br />先把心里的话写下来，下一步，我会陪你慢慢辨清。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
+              <textarea id="primary-question" aria-label="你想问的问题" aria-describedby="question-guidance question-count" placeholder="请把你的问题写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setConditionalIntake(null); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
+              <div className="question-meta"><p id="question-guidance">不必担心问得是否准确。<br />写下之后，系统只在必要时请你辨清一处歧义。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
 
-              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "这一问已写下" : <span>问题已经写好<br />进入第二步：辨识</span>}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "请再写详细一点，让我更清楚你想问的是什么。" : ""}</p></div>
+              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6 || questionConfirmed} onClick={confirmQuestion}><span>{questionConfirmed ? "正在判断是否需要辨识" : <span>问题已经写好<br />继续</span>}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "请再写详细一点，让我更清楚你想问的是什么。" : questionConfirmed ? "系统正在判断是否存在会影响解卦的歧义。" : ""}</p></div>
             </div>
           </div>
 
@@ -3234,7 +3586,7 @@ export function GuanxiangApp() {
               <header className="discernment-heading flow-title-heading">
                 <p className="eyebrow">观象之法 · 贰</p>
                 <h2 id="discernment-title" tabIndex={-1}>辨识</h2>
-                <p>卜卦之前<br />我还有一些问题<br />帮助你把纷繁的念头慢慢理清</p>
+                <p>卜卦之前，<br />让我帮你把纷繁的念头<br />慢慢理清。</p>
               </header>
               <div className="discernment-dialogue">
                 <div className="discernment-cranes" aria-hidden="true">
@@ -3255,14 +3607,14 @@ export function GuanxiangApp() {
                     </i>
                   </span>
                 </div>
-                {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
+                {originalQuestion.length >= 6 ? <ConditionalIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} onRoute={setConditionalIntake} onNeedsClarification={() => advanceFlow(4, "discernment-title")} onPass={continueClearQuestionToCasting} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识才会开始。</p>}
               </div>
             </div>
           </section>
 
 
 
-          <FinalQuestion hidden={!intakeComplete || flowPage !== 5} originalQuestion={originalQuestion} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
+          <FinalQuestion hidden={!intakeComplete || flowPage !== 5} originalQuestion={originalQuestion} finalQuestion={finalQuestionDraft} clarificationAnswer={conditionalIntake?.answer} suggestedQuestion={suggestedQuestion} earlyExit={discernmentCompletionReason === "USER_EARLY"} decisionMade={finalQuestionDecisionMade} confirmed={finalQuestionConfirmed} onChooseOriginal={chooseOriginalQuestion} onChooseSuggestion={chooseSuggestedQuestion} onConfirm={confirmFinalQuestion} />
 
           <section id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen" hidden={!finalQuestionConfirmed || flowPage !== 6} aria-labelledby="casting-title">
             <div className="casting-peony-scene" aria-hidden="true">
@@ -3336,6 +3688,7 @@ export function GuanxiangApp() {
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
               <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? <span>正在成卦，请稍候<br />完成后将自动进入卦象页</span> : <span>三个数已经取好<br />开始成卦</span>}</button>
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
+              {page8Task.phase === "FAILED" && <button type="button" className="text-button casting-recovery-button" onClick={editQuestion}>返回正问，重新确认</button>}
             </header>
 
             <div className="casting-number-workspace" aria-hidden="true">

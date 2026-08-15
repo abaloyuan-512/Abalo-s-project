@@ -6,6 +6,7 @@ import { shouldContinuePolling } from "./pollPolicy";
 import styles from "./page.module.css";
 
 const CONTRACT_VERSION = "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1";
+const INTAKE_CONTRACT_VERSION = "SITES_CONDITIONAL_INTAKE_PRODUCT_V1";
 const POLL_MS = 1500;
 const POLL_LIMIT_ATTEMPTS = 140;
 const ACTIVE_REQUEST_KEY = "guanxiang.direct-reading-v2.active-request";
@@ -17,13 +18,22 @@ type ReadingResponse = {
   chart_facts?: ChartFacts | null;
   direct_reading?: { text?: string; chart_facts?: ChartFacts | null } | null;
   product_presentation?: ProductPresentation | null;
-  direct_high?: { route?: string; entry_mode?: EntryMode; router_attempts?: number; automatic_retries?: number } | null;
+  direct_high?: { route?: string; entry_mode?: EntryMode; intake_status?: string; router_attempts?: number; automatic_retries?: number } | null;
   error_message?: string | null;
   error?: string;
   terminal?: boolean;
 };
 
 type EntryMode = "CLEAR" | "CONFIRMED" | "SKIP";
+type IntakeChoice = "AUTO" | "CONFIRMED" | "SKIP";
+type IntakeResponse = {
+  intake_id?: string;
+  status?: "PASS" | "ASK_ONCE";
+  ambiguity_kind?: "SUBJECT" | "DECISION_AXIS" | "JUDGMENT_OBJECT" | null;
+  clarification_prompt?: string | null;
+  error?: string;
+  fail_open?: boolean;
+};
 
 type HexagramFact = {
   king_wen_number?: number;
@@ -55,7 +65,9 @@ const stageText: Record<string, string> = {
 
 export default function DirectReadingV2PreviewPage() {
   const [question, setQuestion] = useState("");
-  const [entryMode, setEntryMode] = useState<EntryMode>("CLEAR");
+  const [intakeChoice, setIntakeChoice] = useState<IntakeChoice>("AUTO");
+  const [waitingIntake, setWaitingIntake] = useState<{ id: string; prompt: string; kind: string } | null>(null);
+  const [clarificationAnswer, setClarificationAnswer] = useState("");
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [stage, setStage] = useState("等待输入");
@@ -83,7 +95,10 @@ export default function DirectReadingV2PreviewPage() {
   const handlePayload = (payload: ReadingResponse, id: string) => {
     const receivedFacts = payload.chart_facts ?? payload.direct_reading?.chart_facts;
     if (receivedFacts) setChartFacts(receivedFacts);
-    if (payload.status === "SUCCESS" && payload.direct_reading?.text && payload.product_presentation && payload.direct_high?.route === "DIRECT_HIGH") {
+    if (
+      payload.status === "SUCCESS" && payload.direct_reading?.text && payload.product_presentation &&
+      ["DIRECT_HIGH", "CONDITIONAL_INTAKE_THEN_HIGH"].includes(payload.direct_high?.route ?? "")
+    ) {
       clearTimer();
       setStage("解卦完成");
       setReading(payload.direct_reading.text);
@@ -129,6 +144,7 @@ export default function DirectReadingV2PreviewPage() {
       return;
     }
     setError(null);
+    setRequestId(null);
     setReading(null);
     setPresentation(null);
     setChartFacts(null);
@@ -138,13 +154,13 @@ export default function DirectReadingV2PreviewPage() {
     void poll(existing as string);
   };
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
+  const startHigh = async (entryMode: EntryMode, intakeId?: string, answer?: string) => {
     clearTimer();
     setReading(null);
     setPresentation(null);
     setChartFacts(null);
     setError(null);
+    setWaitingIntake(null);
     const id = newRequestId();
     window.sessionStorage.setItem(ACTIVE_REQUEST_KEY, id);
     pollAttempts.current = 0;
@@ -161,6 +177,8 @@ export default function DirectReadingV2PreviewPage() {
           question_text: question,
           numbers: parsed,
           entry_mode: entryMode,
+          ...(intakeId ? { intake_id: intakeId } : {}),
+          ...(answer ? { clarification_answer: answer } : {}),
         }),
       });
       const payload = await response.json() as ReadingResponse;
@@ -175,7 +193,47 @@ export default function DirectReadingV2PreviewPage() {
     }
   };
 
-  const busy = Boolean(requestId && !reading && !error && stage !== "等待输入");
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setWaitingIntake(null);
+    setClarificationAnswer("");
+    if (intakeChoice === "CONFIRMED" || intakeChoice === "SKIP") {
+      await startHigh(intakeChoice);
+      return;
+    }
+    setStage("正在辨识原题是否需要确认一个关键对象");
+    const intakeId = `intake-${crypto.randomUUID().replaceAll("-", "")}`;
+    try {
+      const response = await fetch("/api/direct-reading/v2/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contract_version: INTAKE_CONTRACT_VERSION,
+          intake_id: intakeId,
+          original_question: question,
+        }),
+      });
+      const payload = await response.json() as IntakeResponse;
+      if (response.ok && payload.status === "ASK_ONCE" && payload.intake_id && payload.clarification_prompt && payload.ambiguity_kind) {
+        setWaitingIntake({ id: payload.intake_id, prompt: payload.clarification_prompt, kind: payload.ambiguity_kind });
+        setStage("辨识完成：只需确认一次，不会排盘或解卦");
+        return;
+      }
+      if (response.ok && payload.status === "PASS" && payload.intake_id) {
+        setStage("原题已经足够明确，直接进入解卦");
+        await startHigh("CLEAR", payload.intake_id);
+        return;
+      }
+      setStage("辨识暂时不可用，按原题直接进入解卦");
+      await startHigh("CLEAR");
+    } catch {
+      setStage("辨识连接暂时不可用，按原题直接进入解卦");
+      await startHigh("CLEAR");
+    }
+  };
+
+  const busy = Boolean(!waitingIntake && requestId && !reading && !error && stage !== "等待输入");
 
   if (offlinePage9) {
     return <main className={styles.offlineShell} data-offline-p9-review="true">
@@ -188,19 +246,19 @@ export default function DirectReadingV2PreviewPage() {
       <section className={styles.panel}>
         <p className={styles.eyebrow}>Owner-only · Non-production</p>
         <h1>Direct Reading V2</h1>
-        <p className={styles.lead}>只输入所问之事和三个数字，直接成卦、直接解卦。辨识与定问不是生成资格门。</p>
+        <p className={styles.lead}>默认先做一次轻量辨识：问题足够明确就直接解卦；只有主体、比较轴或判断对象会导致答错时，才固定问一次。你也可以确认原题或跳过辨识。</p>
         <form onSubmit={submit} className={styles.form}>
           <label>
             所问之事
             <textarea value={question} onChange={(event) => setQuestion(event.target.value)} minLength={6} maxLength={160} required />
           </label>
           <fieldset>
-            <legend>Direct-high 入口状态</legend>
+            <legend>辨识方式</legend>
             <div className={styles.entryModes}>
-              {(["CLEAR", "CONFIRMED", "SKIP"] as const).map((mode) => (
+              {(["AUTO", "CONFIRMED", "SKIP"] as const).map((mode) => (
                 <label key={mode}>
-                  <input type="radio" name="entry-mode" value={mode} checked={entryMode === mode} onChange={() => setEntryMode(mode)} />
-                  {mode === "CLEAR" ? "问题清晰" : mode === "CONFIRMED" ? "我已确认原题" : "跳过辨识，直接解卦"}
+                  <input type="radio" name="intake-mode" value={mode} checked={intakeChoice === mode} onChange={() => setIntakeChoice(mode)} />
+                  {mode === "AUTO" ? "自动辨识（推荐）" : mode === "CONFIRMED" ? "我已确认原题" : "跳过辨识，直接解卦"}
                 </label>
               ))}
             </div>
@@ -223,8 +281,25 @@ export default function DirectReadingV2PreviewPage() {
               ))}
             </div>
           </fieldset>
-          <button type="submit" disabled={busy}>{busy ? "正在解卦" : "直接取数解卦"}</button>
+          <button type="submit" disabled={busy}>{busy ? "正在处理" : intakeChoice === "AUTO" ? "辨识后取数解卦" : "直接取数解卦"}</button>
         </form>
+        {waitingIntake ? (
+          <section className={styles.clarification} aria-labelledby="clarification-title">
+            <p className={styles.eyebrow}>只问一次 · {waitingIntake.kind}</p>
+            <h2 id="clarification-title">{waitingIntake.prompt}</h2>
+            <textarea
+              aria-label="一次澄清回答"
+              value={clarificationAnswer}
+              onChange={(event) => setClarificationAnswer(event.target.value)}
+              maxLength={400}
+              placeholder="用你自己的原话简短说明；这段内容只作为用户背景，不会变成卦象证据。"
+            />
+            <div className={styles.clarificationActions}>
+              <button type="button" disabled={!clarificationAnswer.trim()} onClick={() => void startHigh("CONFIRMED", waitingIntake.id, clarificationAnswer.trim())}>带着回答继续解卦</button>
+              <button type="button" className={styles.secondary} onClick={() => void startHigh("SKIP", waitingIntake.id)}>跳过这次确认，按原题解卦</button>
+            </div>
+          </section>
+        ) : null}
         <div className={styles.status} role="status" aria-live="polite">{stage}</div>
         {requestId ? <p className={styles.requestId}>任务编号：{requestId}</p> : null}
         {!busy && !reading ? <button type="button" className={styles.restore} onClick={restore}>恢复上次任务</button> : null}

@@ -1,1 +1,21 @@
 evals/meihua/personalization_gate0_v001/*.json text eol=lf
+
+# Byte-frozen evaluation evidence. These endings are part of their recorded SHA-256.
+evals/meihua/direct_reading_v2_stability_v010/candidate_manifest.json text eol=lf
+evals/meihua/direct_reading_v2_research_v0011/prompts/prompt_package.json text eol=lf
+evals/meihua/direct_reading_v2_research_v0011/evaluation/blind_evaluation_report.md text eol=lf
+evals/meihua/direct_reading_v2_research_v0011/evaluation/unblinded_results.md text eol=lf
+evals/meihua/direct_reading_v2_research_v0011/research_report.md text eol=lf
+evals/meihua/direct_reading_v2_research_v0011/runs/candidate_canary_run.json text eol=crlf
+evals/meihua/direct_reading_v2_research_v0011/runs/remaining_run.json text eol=crlf
+evals/meihua/direct_reading_v2_research_v0011/evaluation/blinded_pack.json text eol=crlf
+evals/meihua/direct_reading_v2_research_v0011/evaluation/private_mapping.json text eol=crlf
+evals/meihua/direct_reading_v2_pure_data_router_v014/candidate_manifest.json text eol=lf
+evals/meihua/direct_reading_v2_light_router_adapter_v015/candidate_manifest.json text eol=lf
+evals/meihua/direct_reading_v2_light_router_receipt_v016/candidate_manifest.json text eol=lf
+evals/meihua/direct_reading_v2_light_router_atomic_receipt_v017/candidate_manifest.json text eol=lf
+outputs/v007_s1_case_freeze.json text eol=lf
+outputs/v015_router_only_live_ledger.json text eol=lf
+src/abalo_iching/application/sites_direct_reading_v2.py text eol=lf
+src/abalo_iching/application/sites_light_router_adapter_v015.py text eol=lf
+src/abalo_iching/application/sites_pure_data_router_v014.py text eol=lf
