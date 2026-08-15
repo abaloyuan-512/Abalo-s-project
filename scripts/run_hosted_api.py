@@ -12,6 +12,7 @@ import re
 import sys
 import threading
 import time
+import unicodedata
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -45,6 +46,11 @@ from abalo_iching.application.sites_direct_high_product_v1 import (  # noqa: E40
     DirectHighEntryMode,
     build_direct_high_product_presentation,
 )
+from abalo_iching.application.sites_conditional_intake_product_v1 import (  # noqa: E402
+    CONTRACT_VERSION as CONDITIONAL_INTAKE_CONTRACT_VERSION,
+    OpenAIConditionalIntakeProvider,
+    process_conditional_intake_request,
+)
 from abalo_iching.application.sites_owner_preview_v1 import (  # noqa: E402
     OWNER_PREVIEW_CONTRACT_VERSION,
     OWNER_PREVIEW_PROMPT_VERSION,
@@ -61,6 +67,7 @@ OWNER_PREVIEW_JOB_PREFIX = "/api/preview/v1/meihua/jobs/"
 OWNER_PREVIEW_JOB_PATH = "/api/preview/v1/meihua/jobs"
 DIRECT_READING_JOB_PREFIX = "/api/preview/v2/direct-reading/jobs/"
 DIRECT_READING_JOB_PATH = "/api/preview/v2/direct-reading/jobs"
+CONDITIONAL_INTAKE_PATH = "/api/preview/v2/direct-reading/intake"
 GUIDED_INTAKE_PATH = "/api/intake/v1/turn"
 # Completed jobs remain retrievable after the model polling lifecycle ends.
 OWNER_PREVIEW_JOB_TTL_SECONDS = 45 * 60
@@ -92,6 +99,8 @@ class HostedApiServer(ThreadingHTTPServer):
     owner_preview_jobs_lock: threading.Lock
     direct_reading_jobs: dict[str, dict[str, Any]]
     direct_reading_jobs_lock: threading.Lock
+    conditional_intake_sessions: dict[str, dict[str, Any]]
+    conditional_intake_sessions_lock: threading.Lock
     direct_reading_diagnostic_sink: Callable[[dict[str, Any]], None] | None
     direct_reading_internal_audit_sink: Callable[[dict[str, Any]], None] | None
     direct_reading_synthetic_diagnostic_confirmed: bool
@@ -245,6 +254,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
         request_id: str,
         prepared: DirectReadingPreparedRequest,
         entry_mode: DirectHighEntryMode,
+        route_audit: dict[str, Any],
     ) -> None:
         try:
             configured_effort = os.environ.get("ABALO_DIRECT_READING_REASONING_EFFORT", "high").strip().lower()
@@ -279,8 +289,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                         "product_presentation": None,
                         "direct_high": {
                             "entry_mode": entry_mode.value,
-                            "route": "DIRECT_HIGH",
-                            "router_attempts": 0,
+                            **route_audit,
                             "automatic_retries": 0,
                         },
                         "error_code": "P8_P9_PRODUCT_MAPPING_FAILED",
@@ -292,8 +301,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                     response["product_presentation"] = presentation.model_dump(mode="json")
                     response["direct_high"] = {
                         "entry_mode": entry_mode.value,
-                        "route": "DIRECT_HIGH",
-                        "router_attempts": 0,
+                        **route_audit,
                         "automatic_retries": 0,
                     }
         except Exception:  # pragma: no cover - final background boundary
@@ -319,6 +327,96 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                 job["response"] = response
                 job["updated_at"] = time.monotonic()
         LOGGER.info("direct_reading_job status=%s request_id=%s", response.get("status", "UNKNOWN"), request_id)
+
+    def _submit_conditional_intake(self, payload: dict[str, Any]) -> None:
+        if payload.get("contract_version") != CONDITIONAL_INTAKE_CONTRACT_VERSION:
+            self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_contract"})
+            return
+        enabled = os.environ.get("ABALO_CONDITIONAL_INTAKE_ENABLED", "").strip().lower() == "true"
+        if not enabled:
+            self._send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"status": "conditional_intake_disabled"})
+            return
+        response = process_conditional_intake_request(
+            payload,
+            provider=OpenAIConditionalIntakeProvider(),
+        )
+        if response.get("status") == "INVALID_REQUEST":
+            self._send_json(HTTPStatus.BAD_REQUEST, response)
+            return
+        intake_id = str(response["intake_id"])
+        with self.hosted_server.conditional_intake_sessions_lock:
+            self.hosted_server.conditional_intake_sessions[intake_id] = {
+                "question_sha256": response["original_question_sha_before"],
+                "status": response["status"],
+                "ambiguity_kind": response.get("ambiguity_kind"),
+                "failure_code": response.get("failure_code"),
+                "router_attempts": response["router_attempts"],
+                "consumed": False,
+                "created_at": time.monotonic(),
+            }
+        self._send_json(HTTPStatus.OK, response)
+
+    @staticmethod
+    def _canonical_question_sha(question: object) -> str | None:
+        if type(question) is not str:
+            return None
+        return hashlib.sha256(question.encode("utf-8")).hexdigest().upper()
+
+    def _intake_route_for_high(
+        self,
+        payload: dict[str, Any],
+        entry_mode: DirectHighEntryMode,
+        *,
+        consume: bool,
+    ) -> tuple[dict[str, Any], dict[str, str] | None] | None:
+        intake_id = payload.get("intake_id")
+        if intake_id is None:
+            return ({
+                "route": "DIRECT_HIGH",
+                "router_attempts": 0,
+                "intake_status": "BYPASSED",
+                "router_failure_code": None,
+            }, None)
+        if type(intake_id) is not str:
+            return None
+        with self.hosted_server.conditional_intake_sessions_lock:
+            session = self.hosted_server.conditional_intake_sessions.get(intake_id)
+            if session is None or session.get("consumed") is True:
+                return None
+            if session.get("question_sha256") != self._canonical_question_sha(payload.get("question_text")):
+                return None
+            decision = session.get("status")
+            answer = payload.get("clarification_answer")
+            optional_context: dict[str, str] | None = None
+            if decision == "PASS":
+                if entry_mode is not DirectHighEntryMode.CLEAR or answer is not None:
+                    return None
+                intake_status = "PASSED"
+            elif decision == "ASK_ONCE":
+                if entry_mode is DirectHighEntryMode.CONFIRMED:
+                    if type(answer) is not str:
+                        return None
+                    normalized = unicodedata.normalize("NFC", answer).strip()
+                    if normalized != answer or not 1 <= len(answer) <= 400:
+                        return None
+                    if any(unicodedata.category(char) in {"Cc", "Cf", "Cs"} for char in answer):
+                        return None
+                    optional_context = {"discernment_note": f"[用户一次澄清原话] {answer}"}
+                    intake_status = "ASKED_ONCE_ANSWERED"
+                elif entry_mode is DirectHighEntryMode.SKIP and answer is None:
+                    intake_status = "ASKED_ONCE_SKIPPED"
+                else:
+                    return None
+            else:
+                return None
+            if consume:
+                session["consumed"] = True
+            return ({
+                "route": "CONDITIONAL_INTAKE_THEN_HIGH",
+                "router_attempts": int(session.get("router_attempts", 1)),
+                "intake_status": intake_status,
+                "router_failure_code": session.get("failure_code"),
+            }, optional_context)
 
     def _submit_direct_reading_job(self, payload: dict[str, Any]) -> None:
         request_id = str(payload.get("request_id", ""))
@@ -359,6 +457,10 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                 else:
                     self._send_json(HTTPStatus.ACCEPTED, self._direct_pending_payload(request_id, job))
                 return
+            intake_route = self._intake_route_for_high(payload, entry_mode, consume=False)
+            if intake_route is None:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_or_consumed_intake"})
+                return
             active_jobs = sum(1 for item in jobs.values() if item.get("response") is None)
             if active_jobs >= OWNER_PREVIEW_MAX_ACTIVE_JOBS:
                 self._send_json(
@@ -382,8 +484,20 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             }
             jobs[request_id] = job
 
+        intake_route = self._intake_route_for_high(payload, entry_mode, consume=True)
+        if intake_route is None:
+            with self.hosted_server.direct_reading_jobs_lock:
+                jobs.pop(request_id, None)
+            self._send_json(HTTPStatus.CONFLICT, {"status": "intake_already_consumed"})
+            return
+        route_audit, optional_context = intake_route
+
         prepared = prepare_direct_reading_v2_request(
-            {"question_text": payload.get("question_text"), "numbers": payload.get("numbers")},
+            {
+                "question_text": payload.get("question_text"),
+                "numbers": payload.get("numbers"),
+                "optional_context": optional_context,
+            },
             request_id=request_id,
         )
         if isinstance(prepared, dict):
@@ -404,7 +518,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             job["updated_at"] = time.monotonic()
         threading.Thread(
             target=self._run_direct_reading_job,
-            args=(request_id, prepared, entry_mode),
+            args=(request_id, prepared, entry_mode, route_audit),
             daemon=True,
             name=f"direct-reading-{request_id[:24]}",
         ).start()
@@ -460,6 +574,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             OWNER_PREVIEW_JOB_PATH,
             GUIDED_INTAKE_PATH,
             DIRECT_READING_JOB_PATH,
+            CONDITIONAL_INTAKE_PATH,
         }:
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
@@ -529,6 +644,12 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                     turn_count,
                     round((time.perf_counter() - started) * 1000),
                 )
+                return
+            if path == CONDITIONAL_INTAKE_PATH:
+                if not isinstance(payload, dict):
+                    self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_request"})
+                    return
+                self._submit_conditional_intake(payload)
                 return
             if path == DIRECT_READING_JOB_PATH:
                 if not isinstance(payload, dict):
@@ -709,6 +830,8 @@ def create_server(
     server.owner_preview_jobs_lock = threading.Lock()
     server.direct_reading_jobs = {}
     server.direct_reading_jobs_lock = threading.Lock()
+    server.conditional_intake_sessions = {}
+    server.conditional_intake_sessions_lock = threading.Lock()
     server.direct_reading_diagnostic_sink = direct_reading_diagnostic_sink
     server.direct_reading_internal_audit_sink = direct_reading_internal_audit_sink
     server.direct_reading_synthetic_diagnostic_confirmed = (

@@ -7,6 +7,7 @@ import {
 } from "./personalized-reading-poll";
 import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
+import ProductPresentationView, { type ProductPresentation } from "./direct-reading-v2-preview/ProductPresentation";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -183,6 +184,11 @@ type ApiResponse = {
   deterministic_result?: ProductResult | null;
   personalized_reading?: PersonalizedReading | null;
   page8_reading?: Page8Reading | null;
+  direct_reading?: { text?: string } | null;
+  product_presentation?: ProductPresentation | null;
+  direct_high?: { route?: string; intake_status?: string; router_attempts?: number } | null;
+  chart_facts?: unknown;
+  terminal?: boolean;
   preview_meta?: {
     failure_stage?: string;
     failure_codes?: string[];
@@ -191,6 +197,7 @@ type ApiResponse = {
     [key: string]: unknown;
   } | null;
   error?: string;
+  error_message?: string | null;
   errors?: { message?: string }[];
 };
 type Page8TaskPhase = "NOT_REQUESTED" | "SUBMITTING" | "RUNNING" | "SUCCESS" | "FAILED" | "RECOVERABLE" | "TIMEOUT";
@@ -509,6 +516,12 @@ type GuidedIntakeProps = {
   onCompletionReason: (reason: DiscernmentCompletionReason) => void;
   onComplete: (complete: boolean) => void;
   onContinue: () => void;
+};
+
+type ConditionalIntakeMeta = {
+  intakeId?: string;
+  status: "PASSED" | "ANSWERED" | "SKIPPED" | "FAIL_OPEN";
+  answer?: string;
 };
 
 type GuidedIntakeApiResponse = {
@@ -1243,6 +1256,103 @@ function GuidedIntake(props: GuidedIntakeProps) {
     {mode === "ASKING" && !error && <div className="discernment-controls"><button type="button" disabled={busy || !currentPrompt} onClick={() => answerWithValue("暂不回答")}>这一问暂时不知道</button><button type="button" disabled={busy} onClick={() => setMode("STOPPED")}>我已经说清，可以结束辨识</button></div>}
     {mode === "REVIEW" && review && <div className="dialogue-review discernment-complete"><p className="eyebrow">清空杂念，拨开迷雾</p><h3>你的思路已经慢慢清晰</h3><p>接下来，我们一起定下真正要问的事。</p><div className="dialogue-review-actions"><button type="button" onClick={completeDiscernment}>进入第三步：定问</button></div></div>}
     {mode === "STOPPED" && <div className="dialogue-review discernment-complete discernment-classic"><p className="eyebrow">《周易·系辞下》</p><blockquote>穷则变，变则通，通则久。</blockquote><div className="dialogue-review-actions"><button type="button" onClick={finishWithoutSuggestion}>进入第三步：定问</button></div></div>}
+  </div>;
+}
+
+function ConditionalIntake({
+  question,
+  onFacts,
+  onUnknowns,
+  onActions,
+  onObservableResponses,
+  onSuggestion,
+  onStructured,
+  onCompletionReason,
+  onComplete,
+  onContinue,
+  onRoute,
+}: GuidedIntakeProps & { onRoute: (value: ConditionalIntakeMeta) => void }) {
+  const [intakeId] = useState(() => `intake-${crypto.randomUUID().replaceAll("-", "")}`);
+  const [mode, setMode] = useState<"CHECKING" | "CLEAR" | "ASK" | "DONE">("CHECKING");
+  const [prompt, setPrompt] = useState("");
+  const [answer, setAnswer] = useState("");
+
+  function applyBaseContext(extra = "") {
+    const combined = `${question}\n${extra}`;
+    const nextDomain = inferDomain(combined);
+    const desiredGoal = inferGoal(extra || question);
+    const allowed = GOALS_BY_DOMAIN[nextDomain] ?? [];
+    onStructured({
+      domain: nextDomain,
+      goal: allowed.includes(desiredGoal) ? desiredGoal : allowed[0] ?? "PLAN_NEXT_STEP",
+      horizon: "CURRENT",
+      stage: "EXPLORING",
+      uncertainty: inferUncertainty(combined),
+      riskProfile: "STANDARD",
+    });
+    onFacts(""); onUnknowns(""); onActions(""); onObservableResponses("");
+    onSuggestion(null); onCompletionReason("ENOUGH"); onComplete(true);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/direct-reading/v2/intake", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contract_version: "SITES_CONDITIONAL_INTAKE_PRODUCT_V1",
+            intake_id: intakeId,
+            original_question: question,
+          }),
+        });
+        const payload = await response.json() as { status?: string; ambiguity_kind?: string; clarification_prompt?: string; intake_id?: string };
+        if (cancelled) return;
+        if (response.ok && payload.status === "ASK_ONCE" && payload.intake_id === intakeId && payload.clarification_prompt) {
+          setPrompt(payload.clarification_prompt); setMode("ASK");
+          return;
+        }
+        if (response.ok && payload.status === "PASS" && payload.intake_id === intakeId) {
+          applyBaseContext(); onRoute({ intakeId, status: "PASSED" }); setMode("CLEAR");
+          return;
+        }
+        applyBaseContext(); onRoute({ status: "FAIL_OPEN" }); setMode("CLEAR");
+      } catch {
+        if (!cancelled) { applyBaseContext(); onRoute({ status: "FAIL_OPEN" }); setMode("CLEAR"); }
+      }
+    })();
+    return () => { cancelled = true; };
+  // One immutable question creates one one-shot intake transaction.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intakeId, question]);
+
+  function finishWithAnswer() {
+    const value = answer.trim();
+    if (!value) return;
+    applyBaseContext(value); onRoute({ intakeId, status: "ANSWERED", answer: value }); setMode("DONE");
+  }
+
+  function skip() {
+    applyBaseContext(); onRoute({ intakeId, status: "SKIPPED" }); setMode("DONE");
+  }
+
+  return <div className="guided-intake ai-guided-intake conditional-intake">
+    {mode === "CHECKING" && <div className="discernment-working" role="status"><span>正在看这一问是否已经足够明确<br />这里不会排盘，也不会开始解卦</span></div>}
+    {mode === "ASK" && <>
+      <div className="discernment-turn" aria-live="polite">
+        <p className="discernment-understanding">对问题的不同理解，会让解卦指向不同对象。让我们确认一下。</p>
+        <div className="discernment-current"><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{prompt}</p></div>
+      </div>
+      <div className="dialogue-compose"><textarea aria-label="回答唯一澄清问题" value={answer} maxLength={400} onChange={(event) => setAnswer(event.target.value)} placeholder="用自己的原话简短说明……" /><button type="button" disabled={!answer.trim()} onClick={finishWithAnswer}><span>带着这句回答<br />进入第三步：定问</span></button></div>
+      <div className="discernment-controls"><button type="button" onClick={skip}>跳过这一问，仍按原题继续</button></div>
+    </>}
+    {(mode === "CLEAR" || mode === "DONE") && <div className="dialogue-review discernment-complete">
+      <p className="eyebrow">有疑则问 · 无疑直行</p>
+      <h3>{mode === "CLEAR" ? "原题已经足够明确" : "这一处已经确认"}</h3>
+      <p>原问题保持不变；下一步只需在心中确认它。</p>
+      <div className="dialogue-review-actions"><button type="button" onClick={onContinue}>进入第三步：定问</button></div>
+    </div>}
   </div>;
 }
 
@@ -2159,6 +2269,16 @@ function ResultView({
   saving: boolean;
   saved: boolean;
 }) {
+  if (response.product_presentation) {
+    return <section id="result" className="result-shell direct-high-p8-shell" aria-labelledby="direct-high-p8-title">
+      <h2 id="direct-high-p8-title" className="sr-only">第八页 · 读卦</h2>
+      <ProductPresentationView presentation={response.product_presentation} page8Only />
+      <div className="direct-high-p8-actions">
+        <button type="button" onClick={onEdit}>返回修改原问</button>
+        <button type="button" onClick={onClear}>重新开始</button>
+      </div>
+    </section>;
+  }
   const result = response.deterministic_result;
   const page8Reading = response.page8_reading ?? buildPage8Scaffold(response);
   const initialAction = response.personalized_reading?.action ?? result?.personalized_reading?.action ?? result?.clarity_report.next_action ?? "";
@@ -2610,6 +2730,7 @@ export function GuanxiangApp() {
   const [discernmentCompletionReason, setDiscernmentCompletionReason] = useState<DiscernmentCompletionReason>("ENOUGH");
   const [numbers, setNumbers] = useState(["", "", ""]);
   const [intakeComplete, setIntakeComplete] = useState(false);
+  const [conditionalIntake, setConditionalIntake] = useState<ConditionalIntakeMeta | null>(null);
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [page8Task, setPage8Task] = useState<Page8TaskState>({
     phase: "NOT_REQUESTED",
@@ -2778,6 +2899,7 @@ export function GuanxiangApp() {
     setSuggestedQuestion("");
     setSuggestionReason("");
     setIntakeComplete(false);
+    setConditionalIntake(null);
     setDiscernmentCompletionReason("ENOUGH");
     setFinalQuestionDecisionMade(false);
     setFinalQuestionConfirmed(false);
@@ -2978,7 +3100,8 @@ export function GuanxiangApp() {
     });
     let cancelled = false;
     const resumeTimer = window.setTimeout(() => {
-      void pollPersonalizedRequest(activeRequestId, () => cancelled);
+      if (activeRequestId.startsWith("drv2-")) void pollDirectHigh(activeRequestId);
+      else void pollPersonalizedRequest(activeRequestId, () => cancelled);
     }, 0);
     return () => { cancelled = true; window.clearTimeout(resumeTimer); };
   // An unfinished request is intentionally resumed only once when the formal page mounts.
@@ -3043,7 +3166,7 @@ export function GuanxiangApp() {
   function clearQuestion() {
     setQuestion(""); setDomain(""); setGoal(""); setHorizon(""); setStage(""); setUncertainty(""); setRiskProfile("STANDARD");
     setFacts(""); setUnknowns(""); setActions(""); setObservableResponses("");
-    setNumbers(["", "", ""]); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError(""); setSavedRecordId(null);
+    setNumbers(["", "", ""]); setIntakeComplete(false); setConditionalIntake(null); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setError(""); setSavedRecordId(null);
     window.setTimeout(() => document.getElementById("inquiry")?.scrollIntoView({ behavior: "smooth" }), 0);
   }
 
@@ -3065,6 +3188,69 @@ export function GuanxiangApp() {
     finally { setSavingRecord(false); }
   }
 
+  function finishDirectHigh(payload: ApiResponse, requestId: string): boolean {
+    if (activePersonalizedRequestRef.current !== requestId) return false;
+    if (
+      payload.status !== "SUCCESS" || !payload.direct_reading?.text || !payload.product_presentation ||
+      !["DIRECT_HIGH", "CONDITIONAL_INTAKE_THEN_HIGH"].includes(payload.direct_high?.route ?? "")
+    ) {
+      failPersonalizedRequest(requestId, payload.error_message || payload.error || "本次解卦没有通过完整性与安全核验。", false);
+      return false;
+    }
+    activePersonalizedRequestRef.current = null;
+    sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    setResponse(payload);
+    setPage8Task({ phase: "SUCCESS", message: "第八页详细解卦已经生成。", requestId });
+    setProgress("");
+    return true;
+  }
+
+  async function pollDirectHigh(requestId: string): Promise<void> {
+    for (let attempt = 0; attempt < 140; attempt += 1) {
+      await sleep(1_500);
+      const response = await fetch(`/api/direct-reading/v2?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" });
+      const payload = await response.json() as ApiResponse;
+      if (response.status === 202 || payload.status === "RUNNING") {
+        setPage8Task((current) => ({ ...current, phase: "RUNNING", stage: typeof payload.preview_meta?.stage === "string" ? payload.preview_meta.stage : "GENERATING", message: "同一次程序排盘已经完成，fixed-high 正在生成第八页正文。" }));
+        continue;
+      }
+      if (response.ok) { finishDirectHigh(payload, requestId); return; }
+      failPersonalizedRequest(requestId, payload.error_message || payload.error || "解卦任务已停止。", false);
+      return;
+    }
+    setPage8Task((current) => ({ ...current, phase: "TIMEOUT", message: "本地预览等待已到上限；任务没有自动重试。", requestId }));
+  }
+
+  async function launchDirectHigh(numbersInput: number[]): Promise<void> {
+    const requestId = `drv2-${crypto.randomUUID().replaceAll("-", "")}`;
+    activePersonalizedRequestRef.current = requestId;
+    sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
+    setPage8Task({ phase: "SUBMITTING", message: "正在建立一次排盘、一次 fixed-high 的第八页任务。", requestId, startedAt: Date.now(), stage: "SUBMITTING" });
+    const entryMode = conditionalIntake?.status === "ANSWERED" ? "CONFIRMED" : conditionalIntake?.status === "SKIPPED" ? "SKIP" : "CLEAR";
+    const body = JSON.stringify({
+      contract_version: "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1",
+      request_id: requestId,
+      question_text: question,
+      numbers: numbersInput,
+      entry_mode: entryMode,
+      ...(conditionalIntake?.intakeId ? { intake_id: conditionalIntake.intakeId } : {}),
+      ...(conditionalIntake?.status === "ANSWERED" && conditionalIntake.answer ? { clarification_answer: conditionalIntake.answer } : {}),
+    });
+    try {
+      const response = await fetch("/api/direct-reading/v2", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+      const payload = await response.json() as ApiResponse;
+      if (response.status === 202) {
+        setPage8Task((current) => ({ ...current, phase: "RUNNING", message: "程序正在按三数成卦；辨识不会参与排盘。" }));
+        await pollDirectHigh(requestId);
+        return;
+      }
+      if (response.ok) { finishDirectHigh(payload, requestId); return; }
+      failPersonalizedRequest(requestId, payload.error_message || payload.error || "第八页解卦任务未能建立。", false);
+    } catch {
+      setPage8Task({ phase: "RECOVERABLE", message: "提交状态暂时无法确认；只能继续查询同一个任务，不会重复提交。", requestId, retryable: false });
+    }
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault(); setError(""); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setSavedRecordId(null);
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
@@ -3073,56 +3259,12 @@ export function GuanxiangApp() {
       sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
     }
 
-    const factLines = nonemptyLines(facts);
-    const unknownLines = nonemptyLines(unknowns);
-    const actionLines = nonemptyLines(actions);
-    const responseLines = nonemptyLines(observableResponses);
     const parsed = numbers.map(Number);
-    const textLists = [factLines, unknownLines, actionLines, responseLines];
-    const earlyExit = discernmentCompletionReason === "USER_EARLY";
-    const useDeterministicOnly = earlyExit || factLines.length < 1 || unknownLines.length < 1;
-    if (question.trim().length < 6 || question.trim().length > 160 || !intakeComplete || !domain || !goal || !horizon || !stage || !uncertainty || !riskProfile || factLines.length > 8 || unknownLines.length > 6 || actionLines.length > 6 || responseLines.length > 6 || textLists.some((items) => items.some((item) => item.length > 400)) || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
+    if (question.length < 6 || question.length > 160 || question !== question.trim() || !intakeComplete || !conditionalIntake || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
       setError("请在右侧三个位置，各输入一个1–999的整数。"); return;
     }
-    setLoading(true); setProgress("正在按三数成卦……");
-    const deterministicRequest = fetch("/api/v3/meihua", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-      body: JSON.stringify({
-        contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
-        request_id: `sites-${crypto.randomUUID()}`,
-        question_text: question.trim(), question_domain: domain, decision_goal: goal,
-        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
-        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-        user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
-      }),
-    });
-
-    if (!useDeterministicOnly) {
-      launchPersonalizedRequest({
-        question_text: question.trim(), question_domain: domain, decision_goal: goal,
-        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty, decision_risk_profile: riskProfile,
-        confirmed_facts: factLines, unknowns: unknownLines, options: [],
-        actions_already_taken: actionLines, observable_responses: responseLines,
-        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-        user_acknowledgements: { no_automatic_regeneration: true, user_statements_not_verified_facts: true },
-      });
-    } else {
-      setPage8Task({
-        phase: "NOT_REQUESTED",
-        message: "前面的辨识没有同时形成至少一项已确认事实和一项未知内容，因此本次不凭空生成个性解释；五幕卦象结构仍可完整查看。",
-      });
-    }
-
-    try {
-      const request = await deterministicRequest;
-      const payload = await request.json() as ApiResponse;
-      if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
-        throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
-      }
-      setResponse((current) => current?.page8_reading ? current : payload);
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "本次未能完成排盘。"); }
+    setLoading(true); setProgress("正在建立唯一一次排盘与解卦任务……");
+    try { await launchDirectHigh(parsed); }
     finally { setLoading(false); setProgress(""); }
   }
 
@@ -3196,7 +3338,7 @@ export function GuanxiangApp() {
 
             <div className="inquiry-writing">
               <label className="question-label" htmlFor="primary-question"><span>此刻，你想问的是什么？</span></label>
-              <textarea id="primary-question" aria-label="你想问的问题" aria-describedby="question-guidance question-count" placeholder="请把你的问题写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
+              <textarea id="primary-question" aria-label="你想问的问题" aria-describedby="question-guidance question-count" placeholder="请把你的问题写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setConditionalIntake(null); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
               <div className="question-meta"><p id="question-guidance">不必担心问得是否准确。<br />先把心里的话写下来，下一步，我会陪你慢慢辨清。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
 
               <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6} onClick={confirmQuestion}><span>{questionConfirmed ? "这一问已写下" : <span>问题已经写好<br />进入第二步：辨识</span>}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "请再写详细一点，让我更清楚你想问的是什么。" : ""}</p></div>
@@ -3213,7 +3355,7 @@ export function GuanxiangApp() {
               <header className="discernment-heading flow-title-heading">
                 <p className="eyebrow">观象之法 · 贰</p>
                 <h2 id="discernment-title" tabIndex={-1}>辨识</h2>
-                <p>卜卦之前<br />我还有一些问题<br />帮助你把纷繁的念头慢慢理清</p>
+                <p>卜卦之前，<br />让我帮你把纷繁的念头<br />慢慢理清。</p>
               </header>
               <div className="discernment-dialogue">
                 <div className="discernment-cranes" aria-hidden="true">
@@ -3234,7 +3376,7 @@ export function GuanxiangApp() {
                     </i>
                   </span>
                 </div>
-                {originalQuestion.length >= 6 ? <GuidedIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识对话才会开始。</p>}
+                {originalQuestion.length >= 6 ? <ConditionalIntake key={originalQuestion} question={originalQuestion} onFacts={setFacts} onUnknowns={setUnknowns} onActions={setActions} onObservableResponses={setObservableResponses} onSuggestion={receiveQuestionSuggestion} onStructured={({ domain: nextDomain, goal: nextGoal, horizon: nextHorizon, stage: nextStage, uncertainty: nextUncertainty, riskProfile: nextRiskProfile }) => { setDomain(nextDomain); setGoal(nextGoal); setHorizon(nextHorizon); setStage(nextStage); setUncertainty(nextUncertainty); if (nextRiskProfile) setRiskProfile(nextRiskProfile); }} onCompletionReason={setDiscernmentCompletionReason} onComplete={setIntakeComplete} onContinue={continueToFinalQuestion} onRoute={setConditionalIntake} /> : <p className="dialogue-prerequisite">先在上一步写下至少六个字的具体问题，辨识才会开始。</p>}
               </div>
             </div>
           </section>

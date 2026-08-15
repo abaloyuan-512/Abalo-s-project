@@ -43,6 +43,13 @@
 .entryModes { display: flex; flex-wrap: wrap; gap: 10px 18px; }
 .entryModes label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: 7px; font-weight: 500; }
 .entryModes input { width: 16px; height: 16px; }
+.clarification { margin-top: 22px; padding: 22px; border: 1px solid rgb(142 63 44 / 28%); border-radius: 14px; background: #f7ecdc; }
+.clarification h2 { margin: 6px 0 16px; font-size: 22px; color: #5d2f24; }
+.clarification textarea { width: 100%; min-height: 96px; box-sizing: border-box; padding: 12px; border: 1px solid #bcaa93; border-radius: 10px; background: #fffdf8; color: inherit; font: inherit; resize: vertical; }
+.clarificationActions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.clarificationActions button { padding: 11px 18px; border: 0; border-radius: 999px; background: #8e3f2c; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+.clarificationActions button:disabled { opacity: .55; cursor: not-allowed; }
+.clarificationActions .secondary { border: 1px solid #9a8068; background: transparent; color: #6b4735; }
 :global(.productPage) { margin-top: 24px; }
 :global(.productPage > h2) { margin: 6px 0 8px; color: #5d2f24; }
 :global(.productBoundary) { max-width: 720px; margin: 0 0 24px; color: #705b46; line-height: 1.75; }

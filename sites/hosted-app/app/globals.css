@@ -3270,3 +3270,25 @@ textarea::placeholder,
   .page8-oracle-mark,
   .page8-oracle-moving-body { transition-duration: .01ms; }
 }
+/* Local P1–P8 direct-high result: content projection only; P9 remains hidden. */
+.direct-high-p8-shell { min-height: 100vh; padding: clamp(24px, 5vw, 64px); background: #f1e9d9; color: #292219; }
+.direct-high-p8-shell .productPage { width: min(920px, 100%); margin: 0 auto; padding: clamp(22px, 4vw, 42px); border: 1px solid rgb(86 65 40 / 18%); border-radius: 18px; background: rgb(255 252 245 / 88%); box-shadow: 0 20px 50px rgb(69 47 24 / 9%); }
+.direct-high-p8-shell .productPage > h2 { margin: 6px 0 8px; color: #5d2f24; }
+.direct-high-p8-shell .productBoundary { max-width: 720px; margin: 0 0 24px; color: #705b46; line-height: 1.75; }
+.direct-high-p8-shell .productScenes { display: grid; gap: 16px; }
+.direct-high-p8-shell .productScene { padding: 20px; border: 1px solid rgb(86 65 40 / 14%); border-radius: 14px; background: #fffdf8; line-height: 1.85; }
+.direct-high-p8-shell .productScene header { display: grid; gap: 5px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgb(86 65 40 / 12%); }
+.direct-high-p8-shell .productScene header span { color: #9a4e35; font-size: 12px; letter-spacing: .08em; }
+.direct-high-p8-shell .productScene header strong { font-size: 19px; }
+.direct-high-p8-shell .productScene header small { color: #705b46; }
+.direct-high-p8-shell .productScene h2 { margin: 0 0 .55em; color: #7d3324; font-size: 20px; }
+.direct-high-p8-shell .programOnly { background: #f4ead9; }
+.direct-high-p8-shell .strengthGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.direct-high-p8-shell .strengthGrid div { padding: 12px; border-radius: 10px; background: rgb(255 253 248 / 72%); }
+.direct-high-p8-shell .strengthGrid dt { color: #8e3f2c; font-size: 12px; }
+.direct-high-p8-shell .strengthGrid dd { margin: 5px 0 0; font-weight: 650; }
+.direct-high-p8-shell .lineage { width: min(920px, 100%); margin: 12px auto 0; color: #877665; font-size: 11px; overflow-wrap: anywhere; }
+.direct-high-p8-actions { display: flex; justify-content: center; gap: 12px; margin: 24px auto 0; }
+.direct-high-p8-actions button { padding: 11px 18px; border: 1px solid #8e3f2c; border-radius: 999px; background: #8e3f2c; color: white; font: inherit; cursor: pointer; }
+.direct-high-p8-actions button + button { background: transparent; color: #8e3f2c; }
+@media (max-width: 620px) { .direct-high-p8-shell { padding: 14px; } .direct-high-p8-shell .strengthGrid { grid-template-columns: 1fr; } }

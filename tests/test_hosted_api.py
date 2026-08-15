@@ -419,6 +419,14 @@ def test_direct_reading_job_twenty_duplicates_call_processor_once(monkeypatch) -
         "question_text": "我现在必须二选一：把主要资源集中到一个新产品并承担更大波动，还是继续平均分散在多个成熟方向？",
         "numbers": [38, 71, 24],
     }
+
+
+def valid_conditional_intake_request() -> dict[str, object]:
+    return {
+        "contract_version": "SITES_CONDITIONAL_INTAKE_PRODUCT_V1",
+        "intake_id": "intake-2222222222222222",
+        "original_question": "我和合伙人各自负责一个项目；现在应该暂停这个项目吗？",
+    }
     with running_server() as port:
         with ThreadPoolExecutor(max_workers=20) as pool:
             futures = [
@@ -558,3 +566,77 @@ def test_direct_reading_prepare_error_log_does_not_include_exception_message(mon
     assert secret not in caplog.text
     assert "direct_reading_submit" in caplog.text
     assert "error_code=UNHANDLED" in caplog.text
+
+
+def test_conditional_intake_asks_once_then_answer_reaches_high_as_context(monkeypatch) -> None:
+    from abalo_iching.application.sites_conditional_intake_product_v1 import (
+        ConditionalIntakeDecision,
+    )
+
+    class AskingProvider:
+        calls = 0
+
+        def classify(self, _request):
+            type(self).calls += 1
+            return ConditionalIntakeDecision(status="ASK_ONCE", ambiguity_kind="JUDGMENT_OBJECT")
+
+    monkeypatch.setenv("ABALO_CONDITIONAL_INTAKE_ENABLED", "true")
+    monkeypatch.setenv("ABALO_DIRECT_READING_V2_ENABLED", "true")
+    monkeypatch.setattr(hosted_api, "OpenAIConditionalIntakeProvider", AskingProvider)
+    original_prepare = hosted_api.prepare_direct_reading_v2_request
+    captured: list[dict[str, object]] = []
+
+    def prepare(payload, **kwargs):
+        captured.append(payload)
+        return original_prepare(payload, **kwargs)
+
+    def processor(prepared, **_kwargs):
+        return {
+            "contract_version": hosted_api.DIRECT_READING_CONTRACT_VERSION,
+            "request_id": prepared.request_id,
+            "status": "UNAVAILABLE",
+            "direct_reading": None,
+            "audit": None,
+            "error_code": "FIXTURE_STOP",
+            "error_message": "fixture stop",
+            "retryable": False,
+            "failure_stage": "PROVIDER",
+        }
+
+    monkeypatch.setattr(hosted_api, "prepare_direct_reading_v2_request", prepare)
+    monkeypatch.setattr(hosted_api, "process_prepared_direct_reading_v2_request", processor)
+    intake_request = valid_conditional_intake_request()
+    with running_server() as port:
+        intake = request(port, "POST", hosted_api.CONDITIONAL_INTAKE_PATH, key=ENGINE_KEY, payload=intake_request)
+        assert intake[0] == 200
+        assert intake[2]["status"] == "ASK_ONCE"
+        assert intake[2]["clarification_prompt"] == "你这次希望判断的具体对象是哪一个？"
+        assert captured == []
+
+        high_payload = {
+            **valid_direct_reading_request(),
+            "request_id": "drv2-9999999999999999",
+            "question_text": intake_request["original_question"],
+            "entry_mode": "CONFIRMED",
+            "intake_id": intake_request["intake_id"],
+            "clarification_answer": "我指的是我负责的项目。",
+        }
+        submitted = request(port, "POST", hosted_api.DIRECT_READING_JOB_PATH, key=ENGINE_KEY, payload=high_payload)
+        assert submitted[0] == 202
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline and len(captured) < 1:
+            time.sleep(0.01)
+        assert len(captured) == 1
+        assert captured[0]["question_text"] == intake_request["original_question"]
+        assert captured[0]["optional_context"] == {"discernment_note": "[用户一次澄清原话] 我指的是我负责的项目。"}
+
+        replay = request(
+            port,
+            "POST",
+            hosted_api.DIRECT_READING_JOB_PATH,
+            key=ENGINE_KEY,
+            payload={**high_payload, "request_id": "drv2-aaaaaaaaaaaaaaaa"},
+        )
+        assert replay[0] == 400
+        assert replay[2]["status"] == "invalid_or_consumed_intake"
+    assert AskingProvider.calls == 1

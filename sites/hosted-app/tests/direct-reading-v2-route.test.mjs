@@ -109,6 +109,65 @@ function postRequest(requestId, question = "我现在必须二选一：把主要
   });
 }
 
+test("conditional intake public boundary exposes only one fixed question decision", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousGate = process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;
+  process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED = "true";
+  process.env.PYTHON_ENGINE_URL = "http://127.0.0.1:8765";
+  process.env.PYTHON_ENGINE_KEY = "cross-layer-test-engine-key-that-is-long-enough";
+  process.env.ABALO_PREVIEW_OWNER_EMAIL = "owner@example.com";
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    if (url.includes("/api/preview/v2/direct-reading/intake")) {
+      return Response.json({
+        contract_version: "SITES_CONDITIONAL_INTAKE_PRODUCT_V1",
+        intake_id: "intake-3333333333333333",
+        status: "ASK_ONCE",
+        ambiguity_kind: "JUDGMENT_OBJECT",
+        clarification_prompt: "你这次希望判断的具体对象是哪一个？",
+        failure_code: null,
+        original_question_sha_before: "A".repeat(64),
+        original_question_sha_after: "A".repeat(64),
+        original_question_preserved: true,
+        router_attempts: 1,
+        automatic_retries: 0,
+        router_cast_count: 0,
+        router_high_calls: 0,
+        secret_raw_output: "must-not-cross",
+      });
+    }
+    return previousFetch(input);
+  };
+  try {
+    const app = await worker();
+    const response = await app.fetch(new Request("http://localhost/api/direct-reading/v2/intake", {
+      method: "POST",
+      headers: ownerHeaders,
+      body: JSON.stringify({
+        contract_version: "SITES_CONDITIONAL_INTAKE_PRODUCT_V1",
+        intake_id: "intake-3333333333333333",
+        original_question: "我和合伙人各自负责一个项目；现在应该暂停这个项目吗？",
+      }),
+    }), baseEnv, context);
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.equal(payload.status, "ASK_ONCE");
+    assert.equal(payload.ambiguity_kind, "JUDGMENT_OBJECT");
+    assert.equal(payload.clarification_prompt, "你这次希望判断的具体对象是哪一个？");
+    assert.equal(JSON.stringify(payload).includes("must-not-cross"), false);
+    assert.equal(JSON.stringify(payload).includes("我和合伙人"), false);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousGate === undefined) delete process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED; else process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED = previousGate;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL; else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY; else process.env.PYTHON_ENGINE_KEY = previousKey;
+    if (previousOwner === undefined) delete process.env.ABALO_PREVIEW_OWNER_EMAIL; else process.env.ABALO_PREVIEW_OWNER_EMAIL = previousOwner;
+  }
+});
+
 test("direct preview is owner-only and disabled by default", async () => {
   const previous = process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED;
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;

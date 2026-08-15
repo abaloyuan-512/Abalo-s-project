@@ -72,7 +72,7 @@ function HexagramCard({ label, scene }: { label: string; scene: HexagramScene })
   );
 }
 
-export default function ProductPresentationView({ presentation }: { presentation: ProductPresentation }) {
+export default function ProductPresentationView({ presentation, page8Only = false }: { presentation: ProductPresentation; page8Only?: boolean }) {
   const { page8, page9 } = presentation;
   return (
     <>
@@ -108,7 +108,7 @@ export default function ProductPresentationView({ presentation }: { presentation
           </article>
         </div>
       </section>
-      <section className="productPage" aria-labelledby="p9-title">
+      {!page8Only && <section className="productPage" aria-labelledby="p9-title">
         <p className="eyebrow">P9 · 决策落地</p>
         <h2 id="p9-title">判断、行动边界与转向信号</h2>
         <p className="productBoundary">以下五节均为本次已通过安全核验的九章原文切片；页面没有摘要、补写或二次模型调用。</p>
@@ -119,7 +119,7 @@ export default function ProductPresentationView({ presentation }: { presentation
             </article>
           ))}
         </div>
-      </section>
+      </section>}
       <p className="lineage">正文 SHA：{presentation.source_reading_sha256} · 机械重建一致</p>
     </>
   );

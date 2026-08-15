@@ -26,6 +26,8 @@ type Payload = {
   product_presentation?: unknown;
   direct_high?: unknown;
   entry_mode?: unknown;
+  intake_id?: unknown;
+  clarification_answer?: unknown;
   error_code?: unknown;
   error_message?: unknown;
   retryable?: unknown;
@@ -46,6 +48,9 @@ function safeJson(body: unknown, status: number): Response {
 }
 
 function isAuthenticatedOwner(request: Request): boolean {
+  const url = new URL(request.url);
+  const localBypass = process.env.ABALO_LOCAL_PREVIEW_BYPASS_AUTH?.trim().toLowerCase() === "true";
+  if (localBypass && ["127.0.0.1", "localhost"].includes(url.hostname)) return true;
   const email = request.headers.get("oai-authenticated-user-email")?.trim();
   const owner = process.env.ABALO_PREVIEW_OWNER_EMAIL?.trim();
   return Boolean(
@@ -266,7 +271,7 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
   const spansExact = typeof sourceText === "string" && orderedSections.every((item) => item !== null && item !== undefined) &&
     orderedSections.every((item, index) => {
       if (!item) return false;
-      const previousEnd = index === 0 ? 0 : orderedSections[index - 1]?.end_offset;
+      const previousEnd = index === 0 ? 0 : Number(orderedSections[index - 1]?.end_offset);
       return item.start_offset === previousEnd && sourceText.slice(item.start_offset, item.end_offset) === item.markdown;
     }) && orderedSections.at(-1)?.end_offset === sourceText.length &&
     orderedSections.map((item) => item?.markdown ?? "").join("") === sourceText;
@@ -321,14 +326,21 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
         },
       }
     : null;
+  const routerAttempts = directHigh?.router_attempts;
+  const intakeStatus = directHigh?.intake_status;
+  const directRoute = directHigh?.route === "DIRECT_HIGH" && routerAttempts === 0 && intakeStatus === "BYPASSED";
+  const conditionalRoute = directHigh?.route === "CONDITIONAL_INTAKE_THEN_HIGH" && routerAttempts === 1 &&
+    ["PASSED", "ASKED_ONCE_ANSWERED", "ASKED_ONCE_SKIPPED"].includes(String(intakeStatus));
   const safeDirectHigh = directHigh &&
-    directHigh.route === "DIRECT_HIGH" &&
+    (directRoute || conditionalRoute) &&
     ["CLEAR", "CONFIRMED", "SKIP"].includes(String(directHigh.entry_mode)) &&
-    directHigh.router_attempts === 0 && directHigh.automatic_retries === 0
+    directHigh.automatic_retries === 0
     ? {
-        route: "DIRECT_HIGH",
+        route: directHigh.route,
         entry_mode: directHigh.entry_mode,
-        router_attempts: 0,
+        router_attempts: routerAttempts,
+        intake_status: intakeStatus,
+        router_failure_code: typeof directHigh.router_failure_code === "string" ? directHigh.router_failure_code : null,
         automatic_retries: 0,
       }
     : null;
@@ -402,18 +414,28 @@ export async function POST(request: Request): Promise<Response> {
   try { payload = JSON.parse(body) as Payload; } catch { return safeJson({ error: "请求内容不是有效JSON。" }, 400); }
   const requestId = typeof payload.request_id === "string" ? payload.request_id.trim() : "";
   const entryMode = payload.entry_mode ?? "CLEAR";
+  const intakeId = payload.intake_id;
+  const clarificationAnswer = payload.clarification_answer;
+  const intakeValid = intakeId === undefined || (typeof intakeId === "string" && /^intake-[a-f0-9]{16,64}$/.test(intakeId));
+  const answerValid = clarificationAnswer === undefined || (
+    typeof clarificationAnswer === "string" && clarificationAnswer === clarificationAnswer.trim() &&
+    clarificationAnswer.length >= 1 && clarificationAnswer.length <= 400 && !/[\r\n]/.test(clarificationAnswer)
+  );
   if (
     payload.contract_version !== PUBLIC_CONTRACT_VERSION ||
     !REQUEST_ID_PATTERN.test(requestId) ||
     !validQuestion(payload.question_text) ||
     !validNumbers(payload.numbers) ||
-    !["CLEAR", "CONFIRMED", "SKIP"].includes(String(entryMode))
+    !["CLEAR", "CONFIRMED", "SKIP"].includes(String(entryMode)) ||
+    !intakeValid || !answerValid
   ) return safeJson({ error: "问题、三个数字或请求版本无效。" }, 400);
 
   const digest = await sha256(canonical({
     question_text: payload.question_text,
     numbers: payload.numbers,
     entry_mode: entryMode,
+    ...(typeof intakeId === "string" ? { intake_id: intakeId } : {}),
+    ...(typeof clarificationAnswer === "string" ? { clarification_answer: clarificationAnswer } : {}),
   }));
   const reservation = await reserveDirectReadingPreviewJob(requestId, digest, PROMPT_VERSION);
   if (reservation.state === "CONFLICT") return safeJson({ error: "请求编号与已有内容冲突。" }, 409);
@@ -446,6 +468,8 @@ export async function POST(request: Request): Promise<Response> {
         question_text: payload.question_text,
         numbers: payload.numbers,
         entry_mode: entryMode,
+        ...(typeof intakeId === "string" ? { intake_id: intakeId } : {}),
+        ...(typeof clarificationAnswer === "string" ? { clarification_answer: clarificationAnswer } : {}),
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),

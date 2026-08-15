@@ -50,7 +50,7 @@ test("parser does not create link or HTML node types", () => {
 test("preview is isolated and never retries the POST", async () => {
   const page = await readFile(new URL("../app/direct-reading-v2-preview/page.tsx", import.meta.url), "utf8");
   const route = await readFile(new URL("../app/api/direct-reading/v2/route.ts", import.meta.url), "utf8");
-  assert.equal((page.match(/method:\s*"POST"/g) ?? []).length, 1);
+  assert.equal((page.match(/method:\s*"POST"/g) ?? []).length, 2);
   assert.match(page, /setTimeout\(\(\) => void poll\(id\)/);
   assert.match(page, /sessionStorage\.setItem\(ACTIVE_REQUEST_KEY, id\)/);
   assert.match(page, /sessionStorage\.getItem\(ACTIVE_REQUEST_KEY\)/);
@@ -108,11 +108,17 @@ test("product view keeps P8 and P9 responsibilities separate", () => {
   assert.equal((html.match(/>本卦：本卦名正文。</g) ?? []).length, 1);
 });
 
-test("preview posts an explicit direct-high entry mode and requires product mapping", async () => {
+test("preview conditionally asks once and then enters the same direct-high path", async () => {
   const page = await readFile(new URL("../app/direct-reading-v2-preview/page.tsx", import.meta.url), "utf8");
   assert.match(page, /type EntryMode = "CLEAR" \| "CONFIRMED" \| "SKIP"/);
+  assert.match(page, /type IntakeChoice = "AUTO" \| "CONFIRMED" \| "SKIP"/);
+  assert.match(page, /\/api\/direct-reading\/v2\/intake/);
+  assert.match(page, /payload\.status === "ASK_ONCE"/);
+  assert.match(page, /startHigh\("CONFIRMED", waitingIntake\.id/);
+  assert.match(page, /startHigh\("SKIP", waitingIntake\.id\)/);
+  assert.match(page, /辨识暂时不可用，按原题直接进入解卦/);
   assert.match(page, /entry_mode: entryMode/);
   assert.match(page, /payload\.product_presentation/);
-  assert.match(page, /payload\.direct_high\?\.route === "DIRECT_HIGH"/);
-  assert.doesNotMatch(page, /router_outcome|ASK_ONCE|critical_ambiguity/);
+  assert.match(page, /"CONDITIONAL_INTAKE_THEN_HIGH"/);
+  assert.doesNotMatch(page, /critical_ambiguity|question_rewrite/);
 });
