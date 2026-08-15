@@ -33,7 +33,7 @@ from abalo_iching.application.sites_guided_intake_v1 import (  # noqa: E402
 from abalo_iching.application.sites_meihua_service_v3 import (  # noqa: E402
     process_sites_meihua_v3_request,
 )
-from abalo_iching.application.sites_direct_reading_v2 import (  # noqa: E402
+from abalo_iching.application.sites_direct_reading_v3 import (  # noqa: E402
     CONTRACT_VERSION as DIRECT_READING_CONTRACT_VERSION,
     PROMPT_VERSION as DIRECT_READING_PROMPT_VERSION,
     OpenAIDirectReadingProvider,

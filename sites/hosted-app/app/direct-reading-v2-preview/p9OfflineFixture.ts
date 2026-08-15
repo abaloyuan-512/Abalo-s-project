@@ -1,7 +1,7 @@
 import type { Page9FinaleContent } from "./ProductPresentation";
 
 export const p9OfflineFixture: Page9FinaleContent = {
-  content_version: "GUANXIANG_P9_FINALE_OFFLINE_V1",
+  content_version: "GUANXIANG_P9_FINALE_V1",
   record_id: "V009-CANARY-01",
   question: "我和伴侣已经为共同搬家制定了预算和分工方案，但执行会暂时增加通勤与照护压力；我们应该按现方案开始搬家，还是继续维持现状？",
   gua_label: "火雷噬嗑 · 九四 → 山雷颐",

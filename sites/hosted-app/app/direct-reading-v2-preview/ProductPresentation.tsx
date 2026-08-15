@@ -72,7 +72,7 @@ export type ProductPresentation = {
 };
 
 export type Page9FinaleContent = {
-  content_version: "GUANXIANG_P9_FINALE_OFFLINE_V1";
+  content_version: "GUANXIANG_P9_FINALE_V1";
   record_id: string;
   question: string;
   gua_label: string;
@@ -80,6 +80,55 @@ export type Page9FinaleContent = {
   full_reading_markdown: string;
   export_bundle?: Page9ExportBundle;
 };
+
+function exportSectionBody(markdown: string): string[] {
+  return markdown.replace(/^##[^\n]*\n+/, "").trim().split(/\n\s*\n/).filter(Boolean);
+}
+
+export function buildPage9FinaleContent(
+  recordId: string,
+  question: string,
+  numbers: readonly number[],
+  reading: string,
+  presentation: ProductPresentation,
+  answer: readonly [string, string],
+): Page9FinaleContent {
+  const { page8 } = presentation;
+  return {
+    content_version: "GUANXIANG_P9_FINALE_V1",
+    record_id: recordId,
+    question,
+    gua_label: `${page8.base_hexagram.program_fact.name} · ${page8.moving_line.program_fact.name} → ${page8.changed_hexagram.program_fact.name}`,
+    answer,
+    full_reading_markdown: reading,
+    export_bundle: {
+      numbers: numbers as [number, number, number],
+      cast: {
+        base: page8.base_hexagram.program_fact.name,
+        mutual: page8.mutual_hexagram.program_fact.name,
+        moving: page8.moving_line.program_fact.name,
+        changed: page8.changed_hexagram.program_fact.name,
+        canonical_line: page8.moving_line.program_fact.canonical_line_text,
+      },
+      page8_acts: [
+        { title: "本卦", subtitle: page8.base_hexagram.program_fact.name, art: "base", body: exportSectionBody(page8.base_hexagram.model_section.markdown) },
+        { title: "互卦", subtitle: page8.mutual_hexagram.program_fact.name, art: "mutual", body: exportSectionBody(page8.mutual_hexagram.model_section.markdown) },
+        { title: "动爻", subtitle: page8.moving_line.program_fact.name, art: "moving", body: exportSectionBody(page8.moving_line.model_section.markdown) },
+        { title: "变卦", subtitle: page8.changed_hexagram.program_fact.name, art: "changed", body: exportSectionBody(page8.changed_hexagram.model_section.markdown) },
+        {
+          title: "旺衰",
+          subtitle: `体卦 ${page8.program_strength.body_trigram}`,
+          art: "strength",
+          body: [
+            `初始用卦 ${page8.program_strength.initial_use_trigram}，${page8.program_strength.initial_relation}。`,
+            `变化用卦 ${page8.program_strength.changed_use_trigram}，${page8.program_strength.changed_relation}。`,
+            `体卦旺衰：${page8.program_strength.body_strength}。`,
+          ],
+        },
+      ],
+    },
+  };
+}
 
 type ObservationRecord = {
   record_id: string;
@@ -350,10 +399,9 @@ export function Page9FinaleView({ content }: { content: Page9FinaleContent }) {
 }
 
 export default function ProductPresentationView({ presentation }: { presentation: ProductPresentation }) {
-  const { page8, page9 } = presentation;
+  const { page8 } = presentation;
   return (
-    <>
-      <section className="productPage" aria-labelledby="p8-title">
+    <section className="productPage" aria-labelledby="p8-title">
         <p className="eyebrow">P8 · 读卦五幕</p>
         <h2 id="p8-title">卦盘结构与四层解读</h2>
         <p className="productBoundary">四层解读逐字来自本次九章正文；第五幕只呈现同一次程序排盘的体用与旺衰，不承载建议或现实判断。</p>
@@ -384,20 +432,6 @@ export default function ProductPresentationView({ presentation }: { presentation
             </dl>
           </article>
         </div>
-      </section>
-      <section className="productPage" aria-labelledby="p9-source-title">
-        <p className="eyebrow">P9 · 决策落地</p>
-        <h2 id="p9-source-title">判断、行动边界与转向信号</h2>
-        <p className="productBoundary">以下五节均为本次已通过安全核验的九章原文切片；页面没有摘要、补写或二次模型调用。</p>
-        <div className="page9Sections">
-          {[page9.judgment, page9.suitable_actions, page9.unsuitable_actions, page9.reverse_risk, page9.change_signals].map((section) => (
-            <article key={section.heading} data-source-sha256={section.sha256}>
-              <SafeDirectReadingMarkdown source={section.markdown} />
-            </article>
-          ))}
-        </div>
-      </section>
-      <p className="lineage">正文 SHA：{presentation.source_reading_sha256} · 机械重建一致</p>
-    </>
+    </section>
   );
 }

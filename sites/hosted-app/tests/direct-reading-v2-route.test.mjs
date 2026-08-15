@@ -254,6 +254,7 @@ test("real Sites route and Python transport expose CAST_READY facts before the f
     }
     assert.equal(terminal?.status, "SUCCESS");
     assert.match(terminal?.direct_reading?.text ?? "", /^## 判断/);
+    assert.deepEqual(terminal?.page9_finale?.answer, ["可以推进，但要保留现实承接。", "先核实关键条件，再作最终决定。"]);
     assert.equal(terminal?.product_presentation?.reconstructed_equals_source, true);
     assert.equal(terminal?.direct_high?.route, "DIRECT_HIGH");
     assert.equal(db.jobs.get(requestId).state, "FINALIZED");
@@ -409,7 +410,7 @@ test("twenty concurrent duplicate submissions create one upstream job and persis
     assert.equal(db.jobs.size, 1);
     const persisted = db.jobs.get(requestId);
     assert.match(persisted.payload_sha256, /^[A-F0-9]{64}$/);
-    assert.equal(persisted.prompt_version, "GUANXIANG_DIRECT_READING_PROMPT_V2");
+    assert.equal(persisted.prompt_version, "GUANXIANG_DIRECT_READING_PROMPT_V3_P9_FINALE_SAME_CALL_V1");
     const bodies = await Promise.all(responses.map((response) => response.json()));
     assert.equal(bodies.some((body) => JSON.stringify(body).includes("must-not-leak")), false);
     const conflict = await app.fetch(postRequest(requestId, "这是另一个不同的问题，应当拒绝冲突。"), { ...baseEnv, DB: db }, context);

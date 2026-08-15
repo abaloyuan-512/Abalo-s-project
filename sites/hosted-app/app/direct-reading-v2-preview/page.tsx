@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import ProductPresentationView, { Page9FinaleView, type Page9FinaleContent, type ProductPresentation } from "./ProductPresentation";
+import ProductPresentationView, { buildPage9FinaleContent, Page9FinaleView, type Page9FinaleContent, type ProductPresentation } from "./ProductPresentation";
 import { shouldContinuePolling } from "./pollPolicy";
 import styles from "./page.module.css";
 
@@ -10,6 +10,7 @@ const INTAKE_CONTRACT_VERSION = "SITES_CONDITIONAL_INTAKE_PRODUCT_V1";
 const POLL_MS = 1500;
 const POLL_LIMIT_ATTEMPTS = 140;
 const ACTIVE_REQUEST_KEY = "guanxiang.direct-reading-v2.active-request";
+const ACTIVE_CONTEXT_KEY = "guanxiang.direct-reading-v2.active-context";
 
 type ReadingResponse = {
   request_id?: string;
@@ -18,6 +19,12 @@ type ReadingResponse = {
   chart_facts?: ChartFacts | null;
   direct_reading?: { text?: string; chart_facts?: ChartFacts | null } | null;
   product_presentation?: ProductPresentation | null;
+  page9_finale?: {
+    content_version?: string;
+    source?: string;
+    answer?: unknown;
+    additional_model_calls?: number;
+  } | null;
   direct_high?: { route?: string; entry_mode?: EntryMode; intake_status?: string; router_attempts?: number; automatic_retries?: number } | null;
   error_message?: string | null;
   error?: string;
@@ -49,6 +56,12 @@ type ChartFacts = {
   moving_line?: { position?: number; name?: string; canonical_line_text?: string } | null;
 };
 
+type ActiveContext = {
+  question: string;
+  numbers: [string, string, string];
+};
+
+
 function newRequestId(): string {
   return `drv2-${crypto.randomUUID().replaceAll("-", "")}`;
 }
@@ -73,11 +86,13 @@ export default function DirectReadingV2PreviewPage() {
   const [stage, setStage] = useState("等待输入");
   const [reading, setReading] = useState<string | null>(null);
   const [presentation, setPresentation] = useState<ProductPresentation | null>(null);
+  const [finale, setFinale] = useState<Page9FinaleContent | null>(null);
   const [chartFacts, setChartFacts] = useState<ChartFacts | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [offlinePage9, setOfflinePage9] = useState<Page9FinaleContent | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollAttempts = useRef(0);
+  const activeContext = useRef<ActiveContext>({ question: "", numbers: ["", "", ""] });
 
   const clearTimer = () => {
     if (timer.current) clearTimeout(timer.current);
@@ -97,12 +112,25 @@ export default function DirectReadingV2PreviewPage() {
     if (receivedFacts) setChartFacts(receivedFacts);
     if (
       payload.status === "SUCCESS" && payload.direct_reading?.text && payload.product_presentation &&
+      payload.page9_finale?.content_version === "GUANXIANG_P9_FINALE_V1" &&
+      payload.page9_finale.source === "SAME_PROVIDER_OUTPUT" && payload.page9_finale.additional_model_calls === 0 &&
+      Array.isArray(payload.page9_finale.answer) && payload.page9_finale.answer.length === 2 &&
+      payload.page9_finale.answer.every((line): line is string => typeof line === "string") &&
       ["DIRECT_HIGH", "CONDITIONAL_INTAKE_THEN_HIGH"].includes(payload.direct_high?.route ?? "")
     ) {
       clearTimer();
       setStage("解卦完成");
       setReading(payload.direct_reading.text);
       setPresentation(payload.product_presentation);
+      const context = activeContext.current;
+      setFinale(buildPage9FinaleContent(
+        id,
+        context.question,
+        context.numbers.map(Number),
+        payload.direct_reading.text,
+        payload.product_presentation,
+        payload.page9_finale.answer as [string, string],
+      ));
       return;
     }
     if (payload.status === "RUNNING") {
@@ -147,8 +175,19 @@ export default function DirectReadingV2PreviewPage() {
     setRequestId(null);
     setReading(null);
     setPresentation(null);
+    setFinale(null);
     setChartFacts(null);
     setRequestId(existing);
+    try {
+      const context = JSON.parse(window.sessionStorage.getItem(ACTIVE_CONTEXT_KEY) ?? "null") as ActiveContext | null;
+      if (context && typeof context.question === "string" && Array.isArray(context.numbers) && context.numbers.length === 3) {
+        activeContext.current = context;
+        setQuestion(context.question);
+        setNumbers(context.numbers);
+      }
+    } catch {
+      // A legacy task can still be queried; missing display context is handled by the release gate.
+    }
     setStage("正在恢复同一个任务");
     pollAttempts.current = 0;
     void poll(existing as string);
@@ -158,11 +197,14 @@ export default function DirectReadingV2PreviewPage() {
     clearTimer();
     setReading(null);
     setPresentation(null);
+    setFinale(null);
     setChartFacts(null);
     setError(null);
     setWaitingIntake(null);
     const id = newRequestId();
+    activeContext.current = { question, numbers: numbers as [string, string, string] };
     window.sessionStorage.setItem(ACTIVE_REQUEST_KEY, id);
+    window.sessionStorage.setItem(ACTIVE_CONTEXT_KEY, JSON.stringify({ question, numbers } satisfies ActiveContext));
     pollAttempts.current = 0;
     setRequestId(id);
     setStage("正在建立任务");
@@ -316,7 +358,10 @@ export default function DirectReadingV2PreviewPage() {
           </div>
         </section>
       ) : null}
-      {reading && presentation ? <ProductPresentationView presentation={presentation} /> : null}
+      {reading && presentation && finale ? <>
+        <ProductPresentationView presentation={presentation} />
+        <Page9FinaleView content={finale} />
+      </> : null}
     </main>
   );
 }

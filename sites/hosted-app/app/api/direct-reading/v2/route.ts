@@ -12,7 +12,7 @@ const SUBMIT_TIMEOUT_MS = 90_000;
 const REQUEST_ID_PATTERN = /^drv2-[a-f0-9]{16,64}$/;
 const PUBLIC_CONTRACT_VERSION = "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1";
 const UPSTREAM_CONTRACT_VERSION = "SITES_DIRECT_READING_V2_NONPROD_V2";
-const PROMPT_VERSION = "GUANXIANG_DIRECT_READING_PROMPT_V2";
+const PROMPT_VERSION = "GUANXIANG_DIRECT_READING_PROMPT_V3_P9_FINALE_SAME_CALL_V1";
 
 type Payload = {
   contract_version?: unknown;
@@ -23,6 +23,7 @@ type Payload = {
   stage?: unknown;
   chart_facts?: unknown;
   direct_reading?: unknown;
+  page9_finale?: unknown;
   product_presentation?: unknown;
   direct_high?: unknown;
   entry_mode?: unknown;
@@ -190,6 +191,20 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
     : null;
   const presentation = success ? record(payload.product_presentation) : null;
   const directHigh = success ? record(payload.direct_high) : null;
+  const finale = success ? record(payload.page9_finale) : null;
+  const finaleAnswer = Array.isArray(finale?.answer) ? finale.answer : null;
+  const safeFinale = finale?.content_version === "GUANXIANG_P9_FINALE_V1" &&
+    finale?.source === "SAME_PROVIDER_OUTPUT" && finale?.additional_model_calls === 0 &&
+    finaleAnswer?.length === 2 && finaleAnswer.every((line) => (
+      typeof line === "string" && line.length >= 4 && line.length <= 40 && !/[\r\n<>`#*]/.test(line)
+    )) && finaleAnswer.reduce((total, line) => total + String(line).length, 0) <= 72
+    ? {
+        content_version: "GUANXIANG_P9_FINALE_V1",
+        source: "SAME_PROVIDER_OUTPUT",
+        answer: [String(finaleAnswer[0]), String(finaleAnswer[1])],
+        additional_model_calls: 0,
+      }
+    : null;
   const section = (value: unknown, expectedHeading: string) => {
     const item = record(value);
     if (
@@ -344,7 +359,7 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
         automatic_retries: 0,
       }
     : null;
-  const releaseReady = !success || Boolean(safeReading && safePresentation && safeDirectHigh);
+  const releaseReady = !success || Boolean(safeReading && safePresentation && safeDirectHigh && safeFinale);
   return {
     contract_version: PUBLIC_CONTRACT_VERSION,
     request_id: payload.request_id,
@@ -352,10 +367,11 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
     ...(typeof payload.stage === "string" ? { stage: payload.stage } : {}),
     chart_facts: safeFacts,
     direct_reading: releaseReady ? safeReading : null,
+    page9_finale: releaseReady ? safeFinale : null,
     product_presentation: releaseReady ? safePresentation : null,
     direct_high: releaseReady ? safeDirectHigh : null,
     error_code: releaseReady ? (typeof payload.error_code === "string" ? payload.error_code : null) : "PRODUCT_PRESENTATION_REJECTED",
-    error_message: releaseReady ? (typeof payload.error_message === "string" ? payload.error_message : null) : "P8/P9 product presentation failed the public schema boundary.",
+    error_message: releaseReady ? (typeof payload.error_message === "string" ? payload.error_message : null) : "P8/P9 release payload failed the public schema boundary.",
     retryable: payload.retryable === true,
     failure_stage: typeof payload.failure_stage === "string" ? payload.failure_stage : null,
   };

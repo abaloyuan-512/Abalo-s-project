@@ -7,7 +7,8 @@ import {
 } from "./personalized-reading-poll";
 import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
-import { type ProductPresentation } from "./direct-reading-v2-preview/ProductPresentation";
+import { buildPage9FinaleContent, Page9FinaleView, type ProductPresentation } from "./direct-reading-v2-preview/ProductPresentation";
+import finaleStyles from "./direct-reading-v2-preview/page.module.css";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -185,6 +186,13 @@ type ApiResponse = {
   personalized_reading?: PersonalizedReading | null;
   page8_reading?: Page8Reading | null;
   direct_reading?: { text?: string } | null;
+  page9_finale?: {
+    content_version?: string;
+    source?: string;
+    answer?: unknown;
+    additional_model_calls?: number;
+  } | null;
+  input_numbers?: number[];
   product_presentation?: ProductPresentation | null;
   direct_high?: { route?: string; intake_status?: string; router_attempts?: number } | null;
   chart_facts?: unknown;
@@ -2190,6 +2198,7 @@ export function Page8KunStory({
   onRetry,
   onResume,
   onEdit,
+  finaleReady = false,
 }: {
   reading: Page8Reading;
   reviewMode?: boolean;
@@ -2197,6 +2206,7 @@ export function Page8KunStory({
   onRetry?: () => void;
   onResume?: () => void;
   onEdit?: () => void;
+  finaleReady?: boolean;
 }) {
   const storyRef = useRef<HTMLElement>(null);
   const oracleFocusTimerRef = useRef<number | null>(null);
@@ -2362,7 +2372,7 @@ export function Page8KunStory({
             <footer className="page8-kun-notes">
               <p><b>仍不能据此断定：</b>{task.phase === "SUCCESS" ? scene.interpretation.uncertainty_boundary : "个性化解释完成前，只能确认当前展示的排盘结构与经典资料。"}</p>
               <small>来源：{scene.deterministic.source_name} · {scene.deterministic.source_reference}</small>
-              {index === orderedScenes.length - 1 && <strong>五境阅毕 · 第九页尚未开启</strong>}
+              {index === orderedScenes.length - 1 && <strong>{finaleReady ? "五境阅毕 · 下行进入观象寄语" : "五境阅毕 · 第九页尚未开启"}</strong>}
             </footer>
           </div>
         </article>;
@@ -2405,6 +2415,11 @@ function DirectHighResultView({ response, onEdit, onClear }: {
 }) {
   const [readingStarted, setReadingStarted] = useState(false);
   const presentation = response.product_presentation!;
+  const finalePayload = response.page9_finale;
+  const finaleAnswer = Array.isArray(finalePayload?.answer) && finalePayload.answer.length === 2 &&
+    finalePayload.answer.every((line): line is string => typeof line === "string")
+    ? finalePayload.answer as [string, string]
+    : null;
   const reading = directHighPage8Reading(response.user_question ?? "你所问之事", presentation);
   const baseFact = presentation.page8.base_hexagram.program_fact;
   const baseHexagram: Hexagram = {
@@ -2412,6 +2427,16 @@ function DirectHighResultView({ response, onEdit, onClear }: {
     name: baseFact.name,
     symbol: unicodeHexagram(baseFact.king_wen_number),
   };
+  const finale = finaleAnswer && response.direct_reading?.text && response.request_id && response.input_numbers?.length === 3
+    ? buildPage9FinaleContent(
+        response.request_id,
+        response.user_question ?? "你所问之事",
+        response.input_numbers,
+        response.direct_reading.text,
+        presentation,
+        finaleAnswer,
+      )
+    : null;
 
   function openDetailedReading() {
     setReadingStarted(true);
@@ -2445,11 +2470,11 @@ function DirectHighResultView({ response, onEdit, onClear }: {
       </div>
     </section>
     <div id="result-reading" hidden={!readingStarted}>
-      <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} />
-      <div className="direct-high-p8-actions">
+      <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} finaleReady={Boolean(finale)} />
+      {finale ? <div className={finaleStyles.offlineShell}><Page9FinaleView content={finale} /></div> : <div className="direct-high-p8-actions">
         <button type="button" onClick={onEdit}>返回修改原问</button>
         <button type="button" onClick={onClear}>重新开始</button>
-      </div>
+      </div>}
     </div>
   </section>;
 }
@@ -3423,6 +3448,9 @@ export function GuanxiangApp() {
     if (activePersonalizedRequestRef.current !== requestId) return false;
     if (
       payload.status !== "SUCCESS" || !payload.direct_reading?.text || !payload.product_presentation ||
+      payload.page9_finale?.content_version !== "GUANXIANG_P9_FINALE_V1" ||
+      payload.page9_finale.source !== "SAME_PROVIDER_OUTPUT" || payload.page9_finale.additional_model_calls !== 0 ||
+      !Array.isArray(payload.page9_finale.answer) || payload.page9_finale.answer.length !== 2 ||
       !["DIRECT_HIGH", "CONDITIONAL_INTAKE_THEN_HIGH"].includes(payload.direct_high?.route ?? "")
     ) {
       failPersonalizedRequest(requestId, payload.error_message || payload.error || "本次解卦没有通过完整性与安全核验。", false);
@@ -3430,7 +3458,7 @@ export function GuanxiangApp() {
     }
     activePersonalizedRequestRef.current = null;
     sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
-    setResponse({ ...payload, user_question: question });
+    setResponse({ ...payload, user_question: question, input_numbers: numbers.map(Number) });
     setPage8Task({ phase: "SUCCESS", message: "第八页详细解卦已经生成。", requestId });
     setProgress("");
     return true;

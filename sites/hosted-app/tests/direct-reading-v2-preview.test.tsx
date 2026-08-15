@@ -87,7 +87,7 @@ test("known terminal errors stop polling while ambiguous service failures remain
   assert.equal(shouldContinuePolling(403, true), false);
 });
 
-test("default product view keeps the frozen P8/P9 source mapping untouched", () => {
+test("customer product view renders frozen P8 and does not expose the superseded P9 panels", () => {
   const section = (heading: string) => ({ heading, markdown: `## ${heading}\n\n${heading}正文。`, start_offset: 0, end_offset: 8, sha256: `${heading}-sha` });
   const hexagram = (role: "BASE" | "MUTUAL" | "CHANGED", name: string, heading: string) => ({
     program_fact: { role, king_wen_number: 1, name, upper_trigram: "乾", lower_trigram: "坤" },
@@ -115,14 +115,13 @@ test("default product view keeps the frozen P8/P9 source mapping untouched", () 
   const html = renderToStaticMarkup(<ProductPresentationView presentation={presentation} />);
   assert.match(html, /P8 · 读卦五幕/);
   assert.match(html, /PROGRAM_ONLY_BODY_USE_AND_SEASONAL_STRENGTH/);
-  assert.match(html, /P9 · 决策落地/);
-  assert.equal((html.match(/>判断正文。</g) ?? []).length, 1);
+  assert.doesNotMatch(html, /P9 · 决策落地|判断正文。|适合做什么|反向风险/);
   assert.equal((html.match(/>本卦：本卦名正文。</g) ?? []).length, 1);
 });
 
 test("P9 finale is one answer with continue and share actions, without a classic coda or five panels", () => {
   const content = {
-    content_version: "GUANXIANG_P9_FINALE_OFFLINE_V1",
+    content_version: "GUANXIANG_P9_FINALE_V1",
     record_id: "case-21-4-27",
     question: "是否开始共同搬家？",
     gua_label: "火雷噬嗑 · 九四 → 山雷颐",
@@ -182,7 +181,7 @@ test("continue question is an explicit, query-gated return to the existing P3 te
 
 test("P9 save and portable HTML export preserve the approved answer and complete reading", () => {
   const content = {
-    content_version: "GUANXIANG_P9_FINALE_OFFLINE_V1",
+    content_version: "GUANXIANG_P9_FINALE_V1",
     record_id: "case-21-4-27",
     question: "是否开始共同搬家？",
     gua_label: "火雷噬嗑 · 九四 → 山雷颐",
@@ -232,6 +231,16 @@ test("preview conditionally asks once and then enters the same direct-high path"
   assert.match(page, /辨识暂时不可用，按原题直接进入解卦/);
   assert.match(page, /entry_mode: entryMode/);
   assert.match(page, /payload\.product_presentation/);
+  assert.match(page, /payload\.page9_finale/);
   assert.match(page, /"CONDITIONAL_INTAKE_THEN_HIGH"/);
   assert.doesNotMatch(page, /critical_ambiguity|question_rewrite/);
+});
+
+test("main P1-P9 flow requires and renders the real same-call P9 finale", async () => {
+  const app = await readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  assert.match(app, /payload\.page9_finale\?\.content_version !== "GUANXIANG_P9_FINALE_V1"/);
+  assert.match(app, /payload\.page9_finale\.source !== "SAME_PROVIDER_OUTPUT"/);
+  assert.match(app, /buildPage9FinaleContent/);
+  assert.match(app, /<Page9FinaleView content=\{finale\}/);
+  assert.match(app, /finaleReady=\{Boolean\(finale\)\}/);
 });

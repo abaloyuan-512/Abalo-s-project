@@ -46,6 +46,12 @@ def _stub_model_phase(prepared, *, progress_callback=None, **_kwargs):
             "chart_facts": prepared.chart_facts.model_dump(mode="json"),
             "validation_status": "PASSED",
         },
+        "page9_finale": {
+            "content_version": "GUANXIANG_P9_FINALE_V1",
+            "source": "SAME_PROVIDER_OUTPUT",
+            "answer": ["可以推进，但要保留现实承接。", "先核实关键条件，再作最终决定。"],
+            "additional_model_calls": 0,
+        },
         "audit": {
             "request_id": prepared.request_id,
             "model": "must-not-cross-public-boundary",
