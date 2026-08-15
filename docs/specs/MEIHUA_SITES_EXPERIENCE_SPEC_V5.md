@@ -34,5 +34,5 @@
 2. 每次请求只有一次确定性排盘、一次 fixed-high 调用、零自动重试和零 P9 追加调用。
 3. Python 全量 `pytest`、Sites 全量 test/build/lint 通过。
 4. 正向、反向、失败恢复与回归验收通过。
-5. Render 与 Sites 必须发布同一个源码 SHA；任一端未更新都不得宣称上线。
+5. Render 必须发布统一发布候选的 monorepo SHA；Sites 可以发布从该 SHA 精确导出的 `sites/hosted-app` source commit。发布记录必须同时保存两者及相同的站点源树 SHA；任一端未更新都不得宣称上线。
 6. 线上最终验收必须确认真实 P9 两句话不是离线样例，且旧五板块没有出现在客户页面。
