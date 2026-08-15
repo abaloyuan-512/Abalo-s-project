@@ -7,6 +7,7 @@ import {
 } from "./personalized-reading-poll";
 import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
+import { requestDeterministicCast } from "./deterministic-cast-request";
 
 type Hexagram = { king_wen_number: number; name: string; symbol: string };
 type EvidenceItem = { title: string; text: string };
@@ -2637,6 +2638,22 @@ export function GuanxiangApp() {
   const lastPersonalizedPayloadRef = useRef<Record<string, unknown> | null>(null);
   const flowPageRef = useRef(1);
 
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("continue-question") !== "1") return;
+
+    flowPageRef.current = 3;
+    setMethodReady(true);
+    setFlowPage(3);
+    url.searchParams.delete("continue-question");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document.getElementById("primary-question")?.focus({ preventScroll: true });
+      });
+    });
+  }, []);
+
   function advanceFlow(nextPage: number, focusId?: string) {
     if (nextPage <= flowPageRef.current || nextPage > 7) return;
     flowPageRef.current = nextPage;
@@ -3085,18 +3102,23 @@ export function GuanxiangApp() {
       setError("请在右侧三个位置，各输入一个1–999的整数。"); return;
     }
     setLoading(true); setProgress("正在按三数成卦……");
-    const deterministicRequest = fetch("/api/v3/meihua", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-      body: JSON.stringify({
-        contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
-        request_id: `sites-${crypto.randomUUID()}`,
-        question_text: question.trim(), question_domain: domain, decision_goal: goal,
-        time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
-        numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
-        user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
+    const deterministicBody = JSON.stringify({
+      contract_version: "SITES_MEIHUA_API_CONTRACT_V3",
+      request_id: `sites-${crypto.randomUUID()}`,
+      question_text: question.trim(), question_domain: domain, decision_goal: goal,
+      time_horizon: horizon, decision_stage: stage, key_uncertainty: uncertainty,
+      numbers: parsed, locale: "zh-CN", client_timestamp: new Date().toISOString(),
+      user_acknowledgements: { deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true },
+    });
+    const deterministicRequest = requestDeterministicCast<ApiResponse>({
+      fetchResult: () => fetch("/api/v3/meihua", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: deterministicBody,
       }),
+      sleep,
+      onRetry: () => setProgress("排盘服务正在唤醒，正在继续成卦……"),
     });
 
     if (!useDeterministicOnly) {
@@ -3116,8 +3138,7 @@ export function GuanxiangApp() {
     }
 
     try {
-      const request = await deterministicRequest;
-      const payload = await request.json() as ApiResponse;
+      const { request, payload } = await deterministicRequest;
       if (!request.ok || payload.status !== "SUCCESS" || !payload.deterministic_result?.clarity_report) {
         throw new Error(payload.error || payload.errors?.[0]?.message || "本次未能完成排盘。");
       }
@@ -3178,7 +3199,7 @@ export function GuanxiangApp() {
           <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
           <div className="method-explainer">
             <p className="method-lead">炁是流动的<br />也带动象的变化</p>
-            <p className="method-breath"><span>请先放下急于知道答案的心<br />让我用四个步骤<br />带你进入观象的状态<br />现在缓缓做三次深呼吸<br />然后</span><b>进入第一步：正问</b></p>
+            <p className="method-breath"><span>请先放下急于知道答案的心<br />让我带你进入观象<br />现在缓缓做三次深呼吸<br />然后</span><b>进入第一步：正问</b></p>
           </div>
         </div>
         <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label="进入正问" aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">进入正问</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
@@ -3298,7 +3319,6 @@ export function GuanxiangApp() {
               <p className="eyebrow">观象之法 · 肆</p>
               <h3 id="casting-title" tabIndex={-1}>成卦</h3>
               <p className="casting-contemplation">
-                <span>心中默念最终确认的问题</span>
                 <span>缓缓做三次呼吸</span>
                 <span>每一息结束，凭第一直觉写下一个数</span>
               </p>
@@ -3314,8 +3334,8 @@ export function GuanxiangApp() {
               </fieldset>
               <p className="casting-range-note" id="casting-range-note">每次呼吸结束后，在右侧输入一个1–999的整数</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
-              {error && <p className="error casting-submit-error" role="alert">{error}</p>}
               <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? <span>正在成卦，请稍候<br />完成后将自动进入卦象页</span> : <span>三个数已经取好<br />开始成卦</span>}</button>
+              {error && <p className="error casting-submit-error" role="alert">{error}</p>}
             </header>
 
             <div className="casting-number-workspace" aria-hidden="true">

@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import ProductPresentationView, { type ProductPresentation } from "./ProductPresentation";
+import ProductPresentationView, { Page9FinaleView, type Page9FinaleContent, type ProductPresentation } from "./ProductPresentation";
 import { shouldContinuePolling } from "./pollPolicy";
 import styles from "./page.module.css";
 
@@ -63,6 +63,7 @@ export default function DirectReadingV2PreviewPage() {
   const [presentation, setPresentation] = useState<ProductPresentation | null>(null);
   const [chartFacts, setChartFacts] = useState<ChartFacts | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [offlinePage9, setOfflinePage9] = useState<Page9FinaleContent | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollAttempts = useRef(0);
 
@@ -72,6 +73,12 @@ export default function DirectReadingV2PreviewPage() {
   };
 
   useEffect(() => clearTimer, []);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    if (new URLSearchParams(window.location.search).get("offline-p9") !== "1") return;
+    void import("./p9OfflineFixture").then(({ p9OfflineFixture }) => setOfflinePage9(p9OfflineFixture));
+  }, []);
 
   const handlePayload = (payload: ReadingResponse, id: string) => {
     const receivedFacts = payload.chart_facts ?? payload.direct_reading?.chart_facts;
@@ -169,6 +176,12 @@ export default function DirectReadingV2PreviewPage() {
   };
 
   const busy = Boolean(requestId && !reading && !error && stage !== "等待输入");
+
+  if (offlinePage9) {
+    return <main className={styles.offlineShell} data-offline-p9-review="true">
+      <Page9FinaleView content={offlinePage9} />
+    </main>;
+  }
 
   return (
     <main className={styles.shell}>

@@ -73,6 +73,8 @@ test("server-renders the Guanxiang product", async () => {
   assert.doesNotMatch(html, /约三分钟/);
   assert.doesNotMatch(html, /第二阶段 · 明法/);
   assert.match(html, /观象之法 · 壹/);
+  assert.match(html, /让我带你进入观象/);
+  assert.doesNotMatch(html, /让我用四个步骤/);
   assert.doesNotMatch(html, /这段关系一直没有进展，我还要继续主动吗/);
   assert.match(html, /<h2[^>]+id="inquiry-title"[^>]*>正问<\/h2>/);
   assert.match(html, /<div[^>]+class="inquiry-future-flow"[^>]+hidden/);
@@ -94,7 +96,7 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /casting-peony-bloom-2-v1\.png/);
   assert.match(html, /casting-peony-bloom-3-v1\.png/);
   assert.match(html, /casting-peony-petal-v1\.png/);
-  assert.match(html, /心中默念最终确认的问题/);
+  assert.doesNotMatch(html, /心中默念最终确认的问题/);
   assert.match(html, /缓缓做三次呼吸/);
   assert.match(html, /每次呼吸结束后，在右侧输入一个1–999的整数/);
   assert.doesNotMatch(html, /casting-peony-wind-v1\.png/);
@@ -301,7 +303,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(petalMotionSource, /size: 108/);
   assert.match(petalMotionSource, /duration: 8\.5/);
   assert.match(petalMotionSource, /duration: 23\.2/);
-  assert.match(appSource, /心中默念最终确认的问题/);
+  assert.doesNotMatch(appSource, /心中默念最终确认的问题/);
   assert.match(appSource, /缓缓做三次呼吸/);
   assert.doesNotMatch(appSource, /<span>第四步：成卦<\/span>/);
   assert.match(appSource, /每次呼吸结束后，在右侧输入一个1–999的整数/);
@@ -312,6 +314,9 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
   assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+正在成卦，请稍候[\s\S]+三个数已经取好[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
   assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
+  assert.match(appSource, /requestDeterministicCast<ApiResponse>/);
+  assert.match(appSource, /排盘服务正在唤醒，正在继续成卦/);
+  assert.match(appSource, /className="cast-button casting-submit"[\s\S]+casting-submit-error/);
   assert.match(cssSource, /\.casting-heading \{ --casting-copy-size: clamp\(22px, 1\.7vw, 29px\)/);
   assert.match(cssSource, /\.casting-heading \.casting-contemplation \{[^}]+font-size: var\(--casting-copy-size\)/);
   assert.match(cssSource, /\.casting-heading \.peony-number-copy b \{ font-size: var\(--casting-copy-size\); \}/);
@@ -402,10 +407,10 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
   assert.match(appSource, /const earlyExit = discernmentCompletionReason === "USER_EARLY"/);
   assert.match(appSource, /const useDeterministicOnly = earlyExit \|\| factLines\.length < 1 \|\| unknownLines\.length < 1/);
-  assert.match(appSource, /const deterministicRequest = fetch\("\/api\/v3\/meihua"/);
+  assert.match(appSource, /const deterministicRequest = requestDeterministicCast<ApiResponse>\(\{[\s\S]+fetch\("\/api\/v3\/meihua"/);
   assert.match(appSource, /if \(!useDeterministicOnly\) \{[\s\S]+launchPersonalizedRequest\(\{/);
   assert.match(appSource, /else \{[\s\S]+phase: "NOT_REQUESTED"[\s\S]+五幕卦象结构仍可完整查看/);
-  assert.match(appSource, /const request = await deterministicRequest;[\s\S]+setResponse\(\(current\) => current\?\.page8_reading \? current : payload\)/);
+  assert.match(appSource, /const \{ request, payload \} = await deterministicRequest;[\s\S]+setResponse\(\(current\) => current\?\.page8_reading \? current : payload\)/);
   assert.match(appSource, /const page8Reading = response\.page8_reading \?\? buildPage8Scaffold\(response\)/);
   assert.match(appSource, /function Page8TaskPanel/);
   assert.match(appSource, /deterministic_only: true, narrative_unverified: true, question_text_not_evidence: true/);
