@@ -14,6 +14,8 @@
 
 完整恢复基线见 [`docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V6.md`](docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V6.md)。V4/V5 保留为历史版本；它们不能覆盖 V6 中记录的较晚明确决定。这不等同于部署或发布证明。
 
+产品负责人已于 2026-08-17 验收通过并正式冻结当前版本。冻结标识为 `guanxiang-p1-p9-v72-frozen-20260817`，完整发布记录见 [`docs/governance/guanxiang-p1-p9-v72-formal-freeze-2026-08-17.md`](docs/governance/guanxiang-p1-p9-v72-formal-freeze-2026-08-17.md)。
+
 ## 现在打开产品
 
 旧版入口仍保留：
