@@ -58,6 +58,19 @@ test("page eight localizes deterministic body-use facts and adds readable trigra
 });
 
 
+test("moving-line scene presents the canonical line text before its plain-language explanation", async () => {
+  const source = await readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const movingFact = source.indexOf('scene.scene_id === "MOVING_LINE" && <Page8FactList scene={scene} />');
+  const canonicalText = source.indexOf("scene.deterministic.canonical_text && <blockquote>", movingFact);
+  const plainExplanation = source.indexOf('scene.scene_id === "MOVING_LINE" ? "白话解释" : "结合所问"', canonicalText);
+
+  assert.ok(movingFact >= 0, "moving-line position should appear before the reading text");
+  assert.ok(canonicalText > movingFact, "canonical line text should follow the moving-line position");
+  assert.ok(plainExplanation > canonicalText, "plain-language explanation should follow the canonical line text");
+  assert.match(source, /scene\.scene_id === "MOVING_LINE" \? "这句爻辞的意思" : scene\.interpretation\.layer_summary/);
+});
+
+
 test("page eight adds one continuous photon river and source-based brush oracle marks", async () => {
   const source = await readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");

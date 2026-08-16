@@ -2434,17 +2434,18 @@ export function Page8KunStory({
                 </h3>
                 <p><b>如何形成</b>{scene.deterministic.formation}</p>
                 <p><b>此层所观</b>{scene.deterministic.reading_role}</p>
+                {scene.scene_id === "MOVING_LINE" && <Page8FactList scene={scene} />}
                 {scene.deterministic.canonical_text && <blockquote>
                   {scene.deterministic.canonical_label && <b>{scene.deterministic.canonical_label}</b>}
                   <span>{scene.deterministic.canonical_text}</span>
                 </blockquote>}
-                <Page8FactList scene={scene} />
+                {scene.scene_id !== "MOVING_LINE" && <Page8FactList scene={scene} />}
               </section>
 
               {task.phase === "SUCCESS"
-                ? <section className="page8-kun-interpretation" aria-label="结合所问">
-                  <p className="page8-kun-section-label">结合所问</p>
-                  <h3>{scene.interpretation.layer_summary}</h3>
+                ? <section className="page8-kun-interpretation" aria-label={scene.scene_id === "MOVING_LINE" ? "白话解释" : "结合所问"}>
+                  <p className="page8-kun-section-label">{scene.scene_id === "MOVING_LINE" ? "白话解释" : "结合所问"}</p>
+                  <h3>{scene.scene_id === "MOVING_LINE" ? "这句爻辞的意思" : scene.interpretation.layer_summary}</h3>
                   <p>{scene.interpretation.reality_connection}</p>
                   {index === orderedScenes.length - 1 && onEnterFinale && <div className="page8-kun-finale-action">
                     <button type="button" onClick={onEnterFinale}>进入观象寄语</button>
