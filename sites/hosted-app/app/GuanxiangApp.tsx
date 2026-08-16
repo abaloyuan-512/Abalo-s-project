@@ -2447,14 +2447,18 @@ export function Page8KunStory({
                   <p className="page8-kun-section-label">{scene.scene_id === "MOVING_LINE" ? "白话解释" : "结合所问"}</p>
                   <h3>{scene.scene_id === "MOVING_LINE" ? "这句爻辞的意思" : scene.interpretation.layer_summary}</h3>
                   <p>{scene.interpretation.reality_connection}</p>
-                  {index === orderedScenes.length - 1 && onEnterFinale && <div className="page8-kun-finale-action">
-                    <button type="button" onClick={onEnterFinale}>进入观象寄语</button>
-                  </div>}
                 </section>
                 : <Page8TaskPanel task={task} onRetry={onRetry} onResume={onResume} onEdit={onEdit} />}
             </div>
 
           </div>
+
+          {active && index === orderedScenes.length - 1 && task.phase === "SUCCESS" && onEnterFinale && <div className="page8-kun-finale-action">
+            <button type="button" className="method-cta final-question-cta page8-kun-finale-cta" onClick={onEnterFinale}>
+              <BaguaMark className="final-question-bagua page8-kun-finale-bagua" />
+              <span className="method-cta-label">进入观象寄语</span>
+            </button>
+          </div>}
         </article>;
       })}
 
@@ -2530,26 +2534,29 @@ function DirectHighResultView({ response, onEdit, onClear }: {
 
   function openFinale() {
     setFinaleStarted(true);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-      document.getElementById("page9-finale")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       document.querySelector<HTMLElement>("#page9-finale h2")?.focus({ preventScroll: true });
     }));
   }
 
   useLayoutEffect(() => {
     if (!readingStarted) return;
-    document.documentElement.classList.remove("flow-scroll-locked");
-    document.body.classList.remove("flow-scroll-locked");
-    document.documentElement.classList.add("page8-reading-open");
+    const root = document.documentElement;
+    const body = document.body;
+    root.classList.toggle("page8-reading-open", !finaleStarted);
+    root.classList.toggle("page9-finale-open", finaleStarted);
+    root.classList.toggle("flow-scroll-locked", finaleStarted);
+    body.classList.toggle("flow-scroll-locked", finaleStarted);
+    if (finaleStarted) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     return () => {
-      document.documentElement.classList.remove("page8-reading-open");
-      document.documentElement.classList.add("flow-scroll-locked");
-      document.body.classList.add("flow-scroll-locked");
+      root.classList.remove("page8-reading-open", "page9-finale-open");
+      root.classList.add("flow-scroll-locked");
+      body.classList.add("flow-scroll-locked");
     };
-  }, [readingStarted]);
+  }, [readingStarted, finaleStarted]);
 
-  return <section id="result" className={`result-shell${readingStarted ? " is-reading-started" : " flow-lock-screen"}`} aria-labelledby="result-title">
+  return <section id="result" className={`result-shell${readingStarted ? " is-reading-started" : " flow-lock-screen"}${finaleStarted ? " is-finale-started" : ""}`} aria-labelledby="result-title">
     <section className="result-overview scroll-section viewport-page" data-reveal hidden={readingStarted}>
       <ResultKoiPond />
       <div className="result-verdict"><BrushHexagram hexagram={baseHexagram} /></div>
@@ -2560,7 +2567,7 @@ function DirectHighResultView({ response, onEdit, onClear }: {
       </div>
     </section>
     <div id="result-reading" hidden={!readingStarted}>
-      <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} onEnterFinale={finale ? openFinale : undefined} />
+      {!finaleStarted && <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} onEnterFinale={finale ? openFinale : undefined} />}
       {finaleStarted && finale ? <div id="page9-finale" className={finaleStyles.offlineShell}><Page9FinaleView content={finale} /></div> : null}
       {finaleStarted && !finale && <div className="direct-high-p8-actions">
         <button type="button" onClick={onEdit}>返回修改原问</button>
@@ -3150,7 +3157,10 @@ export function GuanxiangApp() {
     window.history.scrollRestoration = "manual";
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-    const page8ScrollIsOpen = () => document.getElementById("result")?.classList.contains("is-reading-started") === true;
+    const page8ScrollIsOpen = () => {
+      const result = document.getElementById("result");
+      return result?.classList.contains("is-reading-started") === true && !result.classList.contains("is-finale-started");
+    };
     const blockScroll = (event: Event) => {
       if (!page8ScrollIsOpen()) event.preventDefault();
     };

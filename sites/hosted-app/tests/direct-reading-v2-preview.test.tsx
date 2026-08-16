@@ -243,6 +243,8 @@ test("main P1-P9 flow requires and renders the real same-call P9 finale", async 
   assert.match(app, /buildPage9FinaleContent/);
   assert.match(app, /<Page9FinaleView content=\{finale\}/);
   assert.match(app, /onEnterFinale=\{finale \? openFinale : undefined\}/);
+  assert.match(app, /!finaleStarted && <Page8KunStory/);
   assert.match(app, /finaleStarted && finale/);
   assert.match(app, /id="page9-finale"/);
+  assert.match(app, /className=\{`result-shell\$\{readingStarted \? " is-reading-started" : " flow-lock-screen"\}\$\{finaleStarted \? " is-finale-started" : ""\}`\}/);
 });

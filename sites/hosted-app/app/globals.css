@@ -46,6 +46,7 @@ html.flow-scroll-locked, body.flow-scroll-locked { height: 100%; overflow: hidde
 body.flow-scroll-locked { touch-action: manipulation; }
 .flow-shell { height: 100svh; overflow: hidden; }
 .page8-reading-open .flow-shell { height: auto; min-height: 100svh; overflow: visible; }
+.page9-finale-open .flow-shell { height: 100svh; min-height: 100svh; overflow: hidden; }
 .flow-lock-screen { width: 100%; height: 100svh !important; min-height: 100svh !important; max-height: 100svh !important; overflow: hidden !important; }
 .inquiry.is-nested-flow-page { padding: 0; align-items: start; }
 .inquiry.is-nested-flow-page form { width: 100%; max-width: none; margin: 0; }
@@ -3124,27 +3125,34 @@ textarea::placeholder,
 .page8-kun-task-actions button:hover,
 .page8-kun-task-actions button:focus-visible { color: #a1432d; border-bottom-color: #a1432d; }
 
-.page8-kun-finale-action { margin-top: 18px; }
-.page8-kun-finale-action button {
-  min-width: 172px;
-  min-height: 44px;
-  padding: 9px 22px 10px;
-  color: #fffaf0;
-  background: rgba(137, 65, 48, .94);
-  border: 1px solid rgba(137, 65, 48, .98);
-  border-radius: 999px;
-  box-shadow: 0 10px 28px rgba(92, 49, 33, .14);
-  cursor: pointer;
-  font: 400 16px/1 var(--kai);
-  letter-spacing: .16em;
-  transition: color .25s ease, background-color .25s ease, transform .25s ease;
+.page8-kun-finale-action {
+  position: absolute;
+  z-index: 12;
+  right: clamp(78px, 7.4vw, 142px);
+  bottom: clamp(46px, 6vh, 72px);
 }
-.page8-kun-finale-action button:hover,
-.page8-kun-finale-action button:focus-visible {
+.page8-kun-finale-action .page8-kun-finale-cta {
+  min-width: 206px;
+  height: 62px;
+  gap: 12px;
+  padding: 5px 16px;
+  color: #3a302a;
+  background: rgba(247, 239, 224, .2);
+  border-bottom: 0;
+  font-size: 19px;
+  text-decoration: none;
+  backdrop-filter: blur(1px);
+}
+.page8-kun-finale-action .page8-kun-finale-cta::after { content: none; display: none; }
+.page8-kun-finale-action .page8-kun-finale-bagua {
+  width: 38px;
+  height: 38px;
+  opacity: .76;
+}
+.page8-kun-finale-action .page8-kun-finale-cta:hover,
+.page8-kun-finale-action .page8-kun-finale-cta:focus-visible {
   color: #873f2f;
-  background: rgba(255, 249, 238, .9);
-  outline: 0;
-  transform: translateY(-1px);
+  background: rgba(255, 249, 238, .46);
 }
 
 .page8-kun-scene.is-body-use-strength .page8-kun-copy h2 { font-size: clamp(68px, 5.55vw, 94px); }
@@ -3320,8 +3328,9 @@ textarea::placeholder,
   .page8-kun-task-actions { margin-top: 12px; }
   .page8-kun-task-actions button { font-size: 13px; }
   .page8-inline-trigram { width: 60px; flex-basis: 60px; }
-  .page8-kun-finale-action { margin-top: 13px; }
-  .page8-kun-finale-action button { min-height: 42px; font-size: 14px; }
+  .page8-kun-finale-action { right: 18px; bottom: 24px; }
+  .page8-kun-finale-action .page8-kun-finale-cta { min-width: 172px; height: 52px; gap: 9px; font-size: 16px; }
+  .page8-kun-finale-action .page8-kun-finale-bagua { width: 30px; height: 30px; }
   .page8-kun-progress {
     top: 18px;
     right: 18px;

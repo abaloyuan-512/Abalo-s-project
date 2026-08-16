@@ -139,7 +139,14 @@ test("page eight opens from page seven and keeps all later reserved sections hid
   assert.match(source, /root\.classList\.remove\("page8-reading-open"\)/);
   assert.match(css, /\.page8-reading-open \.flow-shell \{ height: auto; min-height: 100svh; overflow: visible; \}/);
   assert.match(source, /onEnterFinale=\{finale \? openFinale : undefined\}/);
-  assert.match(source, />进入观象寄语<\/button>/);
+  assert.match(source, /<BaguaMark className="final-question-bagua page8-kun-finale-bagua" \/>/);
+  assert.match(source, /<span className="method-cta-label">进入观象寄语<\/span>/);
+  assert.match(source, /!finaleStarted && <Page8KunStory/);
   assert.match(source, /finaleStarted && finale/);
+  assert.match(source, /is-finale-started/);
+  assert.match(source, /page9-finale-open/);
+  assert.match(source, /!result\.classList\.contains\("is-finale-started"\)/);
+  assert.match(css, /\.page8-kun-finale-action \{[\s\S]*?position: absolute;[\s\S]*?right: clamp\([\s\S]*?bottom: clamp\(/);
+  assert.match(css, /\.page9-finale-open \.flow-shell \{ height: 100svh; min-height: 100svh; overflow: hidden; \}/);
   assert.doesNotMatch(source, /五境阅毕 · 下行进入观象寄语|五境阅毕 · 第九页尚未开启/);
 });
