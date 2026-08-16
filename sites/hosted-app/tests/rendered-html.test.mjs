@@ -80,6 +80,10 @@ test("server-renders the Guanxiang product", async () => {
   assert.match(html, /<h2[^>]+id="inquiry-title"[^>]*>正问<\/h2>/);
   assert.match(html, /<div[^>]+class="inquiry-future-flow"[^>]+hidden/);
   assert.match(html, /问题已经写好/);
+  assert.match(source, /系统正在判断是否存在会影响解卦的歧义/);
+  assert.doesNotMatch(source, /我想先理一理[\s\S]*再进入辨识/);
+  assert.doesNotMatch(source, /问题已经写好[\s\S]{0,200}直接进入成卦/);
+  assert.equal((source.match(/className="inquiry-advance"/g) ?? []).length, 1);
   assert.match(html, /观象之法 · 贰/);
   assert.match(html, /<h2[^>]+id="discernment-title"[^>]*>辨识<\/h2>/);
   assert.match(html, /卜卦之前，<br\/>让我帮你把纷繁的念头<br\/>慢慢理清。/);
@@ -414,6 +418,8 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /function ConditionalIntake\(/);
   assert.match(appSource, /status === "ASK_ONCE"/);
   assert.match(appSource, /status: "FAIL_OPEN"/);
+  assert.doesNotMatch(appSource, /conditional-intake[\s\S]{0,3000}discernment-chrysanthemum-progress/);
+  assert.doesNotMatch(appSource, /conditional-intake[\s\S]{0,3000}Math\.max\(0, 8 -/);
   assert.match(appSource, /function confirmQuestion\(\)[\s\S]+setQuestionConfirmed\(true\);\s+\}/);
   assert.match(appSource, /onNeedsClarification=\{\(\) => advanceFlow\(4, "discernment-title"\)\}/);
   assert.match(appSource, /function continueClearQuestionToCasting\(\)[\s\S]+advanceFlow\(6, "casting-title"\)/);

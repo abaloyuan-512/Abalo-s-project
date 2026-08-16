@@ -2,15 +2,17 @@
 
 当前主产品是九页“观象”体验。确定性程序负责三数成卦；AI只参与现有的条件辨识与解卦，不参与排盘。
 
-## 当前产品治理基线（2026-08-15）
+## 当前产品治理基线（2026-08-17）
 
-- P1首页、P2观象之法与准备、P3正问、P7卦象、P8读卦五幕、P9观象寄语均以各自最终定稿为准，不擅自改写。
+- P1–P9 以逐页定稿为底稿；较晚、明确提出的覆盖项只修改其点名内容，不能借系统升级重写整页。
+- P2 保留后期说明文字调整：删除“让我用四个步骤”，改为“让我带你进入观象”。
 - 无歧义：`P3 → P6`。有歧义：`P3 → P4（现有系统最多问一次）→ P5 → P6`。
+- P3 由系统自动判断，不允许客户主动选择“直接成卦”或“进入辨识”。
 - P6三数取数由确定性程序排盘，AI不参与。
 - P7不呈现用户所问问题，只呈现既定卦象信息及详细读卦入口。
 - P9文本和内核冻结；缺少经过批准的P9动态内容时，不得用旧五面板或临时生成文案替代。
 
-完整基线见 [`docs/governance/guanxiang-release-baseline-v4-2026-08-15.md`](docs/governance/guanxiang-release-baseline-v4-2026-08-15.md) 与 [`docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V4.md`](docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V4.md)。这不等同于部署或发布证明。
+完整恢复基线见 [`docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V6.md`](docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V6.md)。V4/V5 保留为历史版本；它们不能覆盖 V6 中记录的较晚明确决定。这不等同于部署或发布证明。
 
 ## 现在打开产品
 
