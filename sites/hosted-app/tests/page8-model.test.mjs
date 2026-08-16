@@ -31,13 +31,30 @@ test("page eight is a sticky five-screen scroll story with persistent environmen
   assert.doesNotMatch(css, /\.page8-kun-kicker|\.page8-kun-motif|\.page8-kun-scroll-cue/);
   assert.doesNotMatch(css, /\.page8-kun-reading \{[^}]*border-top:/);
   assert.doesNotMatch(css, /\.page8-kun-interpretation \{[^}]*border-top:/);
-  assert.doesNotMatch(css, /\.page8-kun-notes \{[^}]*border-top:/);
+  assert.doesNotMatch(source, /className="page8-kun-notes"/);
+  assert.doesNotMatch(css, /\.page8-kun-notes/);
   assert.match(source, /progress \* orderedScenes\.length - \.5/);
   assert.match(css, /\.page8-kun-story \{[\s\S]*?height: calc\(\(var\(--page8-scene-count\) \+ 1\) \* 100svh\);/);
   assert.match(css, /\.page8-kun-stage \{[\s\S]*?position: sticky;[\s\S]*?height: 100svh;[\s\S]*?overflow: hidden;/);
   assert.match(css, /@keyframes page8-mist-breathe/);
   assert.match(css, /@keyframes page8-kun-breathe/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.page8-kun-mist/);
+});
+
+
+test("page eight localizes deterministic body-use facts and adds readable trigram evidence", async () => {
+  const source = await readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(source, /USE_CONTROLS_BODY: "用克体"/);
+  assert.match(source, /SAME_ELEMENT: "比和"/);
+  assert.match(source, /PROSPEROUS: "旺"/);
+  assert.match(source, /CONFINED: "囚"/);
+  assert.match(source, /function Page8InlineTrigram/);
+  assert.match(source, /new Set\(\["上卦", "下卦", "初始用卦", "变化用卦"\]\)/);
+  assert.match(source, /className="page8-inline-trigram"/);
+  assert.match(css, /\.page8-inline-trigram/);
+  assert.match(source, /sourceSectionBody\(mapped\.moving_line\.model_section, true\)/);
+  assert.match(source, /将鼠标移到右侧卦象上，可放大看清动爻所在位置/);
 });
 
 
@@ -108,5 +125,8 @@ test("page eight opens from page seven and keeps all later reserved sections hid
   assert.match(source, /root\.classList\.add\("page8-reading-open"\)/);
   assert.match(source, /root\.classList\.remove\("page8-reading-open"\)/);
   assert.match(css, /\.page8-reading-open \.flow-shell \{ height: auto; min-height: 100svh; overflow: visible; \}/);
-  assert.match(source, /五境阅毕 · 第九页尚未开启/);
+  assert.match(source, /onEnterFinale=\{finale \? openFinale : undefined\}/);
+  assert.match(source, />进入观象寄语<\/button>/);
+  assert.match(source, /finaleStarted && finale/);
+  assert.doesNotMatch(source, /五境阅毕 · 下行进入观象寄语|五境阅毕 · 第九页尚未开启/);
 });

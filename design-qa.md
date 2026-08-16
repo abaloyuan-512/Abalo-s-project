@@ -52,3 +52,56 @@
 - Offline boundary preserved: no deployment, no default-flow switch, no real model call, and no changes to P8, deterministic casting, Direct Reading high prompt/validator, nine-chapter mapping, Router STOP history or legacy entries.
 
 final result: passed
+
+---
+
+# P8 五幕设计验收
+
+## Comparison setup
+
+- Source visual truth:
+  - `C:/Users/27622/AppData/Local/Temp/codex-clipboard-b1258599-3f9b-4662-b28b-b487cd07de4a.png`
+  - `C:/Users/27622/AppData/Local/Temp/codex-clipboard-30f43ad1-815e-4f81-8c84-ad8d7b97605a.png`
+  - `C:/Users/27622/AppData/Local/Temp/codex-clipboard-ba35f955-f8fc-49af-9adf-affdd1916859.png`
+  - `C:/Users/27622/AppData/Local/Temp/codex-clipboard-cac238ca-9098-42d6-8ff0-40c53161b9f8.png`
+  - `C:/Users/27622/AppData/Local/Temp/codex-clipboard-4b5a38ab-cd8b-4ee8-a017-c0ccb58ecc04.png`
+- Implementation evidence:
+  - `outputs/p8-ux-fix-20260816/local-p8-base.jpg`
+  - `outputs/p8-ux-fix-20260816/local-p8-mutual.jpg`
+  - `outputs/p8-ux-fix-20260816/local-p8-moving-line.jpg`
+  - `outputs/p8-ux-fix-20260816/local-p8-changed.jpg`
+  - `outputs/p8-ux-fix-20260816/local-p8-body-use.jpg`
+- Source pixels: 1919 × 1018 including browser chrome; source content region is approximately 1919 × 908.
+- Implementation CSS viewport: 1920 × 910 at device-pixel-ratio 1.
+- Implementation capture: 1905 × 902 after the in-app browser's native scrollbar/crop.
+- State: P8 detailed-reading mode, one active scene at a time, desktop viewport.
+- Normalization: comparison used the same desktop content height and scene state; browser chrome was excluded from implementation evidence and ignored in the source.
+
+## Findings
+
+- No actionable P0/P1/P2 mismatch remains.
+- Fonts and typography: existing brush, kai and body-font hierarchy is preserved. Enlarged trigram names, moving-line position and the fifth-scene summary remain readable without crowding or clipping.
+- Spacing and layout rhythm: all five scenes fit the desktop viewport. The former footer/debug block is absent, “结合所问” uses the released space, and the fifth-scene CTA remains visible without an inner scroll.
+- Colors and visual tokens: the existing paper, ink, cinnabar, mist and gold-photon tokens are unchanged. The CTA uses the product's cinnabar family and has a visible focus/hover state.
+- Image quality and asset fidelity: all original water-ink backgrounds and overlays are unchanged. Trigram evidence reuses the existing production brush-line raster assets; no placeholder or synthetic icon was introduced.
+- Copy and content: the moving-line scene now contains a modern Chinese explanation after the classical text. Body-use and seasonal-strength values use the frozen Chinese rule labels “用生体、体克用、比和、体生用、用克体” and “旺、相、休、囚、死”. No source hash, model note or user-irrelevant disclaimer is shown.
+- Accessibility and behavior: the oracle zoom target is keyboard focusable and labeled. Five-scene navigation, moving-line hover/focus zoom, P9 wheel gate and explicit P9 CTA were exercised. Console error/warning log was empty for the QA route.
+
+## Comparison history
+
+1. Source finding: user-facing source hashes and disclaimers occupied the bottom of every scene; the fifth scene overflowed; deterministic enum values leaked in English; moving-line copy repeated only the classical text; P9 followed the scroll path.
+2. Fix: removed the footer/debug presentation, localized frozen enums, reused brush-line assets for trigram evidence, selected the explanatory moving-line paragraph, compacted the fifth scene, and gated P9 behind the “进入观象寄语” button.
+3. Post-fix evidence: all five implementation screenshots show the complete scene inside the 1920 × 910 viewport. Scrolling at scene five leaves P9 unrendered; clicking the CTA renders and enters P9.
+
+## Implementation checklist
+
+- [x] Five common footer/debug blocks removed.
+- [x] Upper/lower trigram graphics added to base, mutual and changed scenes.
+- [x] Moving-line position enlarged and hover guidance added.
+- [x] Modern moving-line explanation shown after the canonical line text.
+- [x] Body-use and seasonal-strength values localized from frozen specifications.
+- [x] Initial/changed use trigram graphics added.
+- [x] Fifth scene fits one desktop screen.
+- [x] Explicit P8 → P9 button added; wheel no longer enters P9.
+
+final result: passed

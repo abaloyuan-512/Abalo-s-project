@@ -219,8 +219,8 @@ function unicodeHexagram(kingWenNumber: number): string {
   return String.fromCodePoint(0x4dbf + kingWenNumber);
 }
 
-function sourceSectionBody(section: DirectHighSourceSection): string {
-  const paragraphs = section.markdown
+function sourceSectionParagraphs(section: DirectHighSourceSection): string[] {
+  return section.markdown
     .replace(/^##[^\n]*\n+/, "")
     .split(/\n{2,}/)
     .map((paragraph) => paragraph
@@ -229,7 +229,52 @@ function sourceSectionBody(section: DirectHighSourceSection): string {
       .replace(/\s*\n\s*/g, " ")
       .trim())
     .filter(Boolean);
-  return paragraphs[0] ?? "本层解释已通过同一次解卦的完整性核验。";
+}
+
+function sourceSectionBody(section: DirectHighSourceSection, skipLeadingCanonicalQuote = false): string {
+  const paragraphs = sourceSectionParagraphs(section);
+  const selected = skipLeadingCanonicalQuote && paragraphs.length > 1 ? paragraphs[1] : paragraphs[0];
+  return selected ?? "本层解释已通过同一次解卦的完整性核验。";
+}
+
+const PAGE8_RELATION_LABELS_ZH: Record<string, string> = {
+  USE_GENERATES_BODY: "用生体",
+  BODY_CONTROLS_USE: "体克用",
+  SAME_ELEMENT: "比和",
+  BODY_GENERATES_USE: "体生用",
+  USE_CONTROLS_BODY: "用克体",
+};
+
+const PAGE8_RELATION_EXPLANATIONS_ZH: Record<string, string> = {
+  USE_GENERATES_BODY: "所问之事与外部条件对你形成支持，较有利于承接和推进",
+  BODY_CONTROLS_USE: "你对所问之事仍有主动调整空间，可以安排节奏、投入或边界",
+  SAME_ELEMENT: "你与所问之事目前较为同频，实际效果仍要看配合质量与现实反馈",
+  BODY_GENERATES_USE: "你需要向所问之事持续投入力量，宜留意投入与回报是否对等",
+  USE_CONTROLS_BODY: "所问之事与外部条件对你形成较强约束，宜先保护时间、资源与可承受边界",
+};
+
+const PAGE8_STRENGTH_LABELS_ZH: Record<string, string> = {
+  PROSPEROUS: "旺",
+  SUPPORTED: "相",
+  RESTING: "休",
+  CONFINED: "囚",
+  DEAD: "死",
+};
+
+const PAGE8_STRENGTH_EXPLANATIONS_ZH: Record<string, string> = {
+  PROSPEROUS: "当前可动用的力量较充足，更有余力承接任务和推动变化",
+  SUPPORTED: "当前仍能得到一定支持，适合借助条件稳步推进",
+  RESTING: "当前力量较为平稳，但余量有限，适合保留调整空间",
+  CONFINED: "当前力量受限，推进前应先处理约束并控制消耗",
+  DEAD: "当前承接能力偏弱，不宜仅凭意愿继续加码",
+};
+
+function page8RelationLabel(value: string): string {
+  return PAGE8_RELATION_LABELS_ZH[value] ?? value;
+}
+
+function page8StrengthLabel(value: string): string {
+  return PAGE8_STRENGTH_LABELS_ZH[value] ?? value;
 }
 
 function directHighPage8Reading(question: string, presentation: ProductPresentation): Page8Reading {
@@ -279,10 +324,9 @@ function directHighPage8Reading(question: string, presentation: ProductPresentat
     scenes: [
       hexagramScene("BASE_HEXAGRAM", 1, "本卦", "看清这件事眼下最主要的结构。", mapped.base_hexagram, "第一数定上卦，第二数定下卦；上下相叠形成本卦。", "本卦呈现当前局面的主要结构。"),
       hexagramScene("MUTUAL_HEXAGRAM", 2, "互卦", "看清事情内部怎样发展。", mapped.mutual_hexagram, "取本卦中间四爻重新组合，形成互卦。", "互卦呈现事情内部的结构变化。"),
-      hexagramScene("CHANGED_HEXAGRAM", 3, "变卦", "看清动爻改变后结构重点转向哪里。", mapped.changed_hexagram, "本次动爻变化后形成变卦。", "变卦呈现变化后的结构重点，不代表必然未来。"),
       {
         scene_id: "MOVING_LINE",
-        sequence: 4,
+        sequence: 3,
         title: "动爻",
         purpose: "看清本次变化发生在哪一爻。",
         deterministic: {
@@ -298,13 +342,14 @@ function directHighPage8Reading(question: string, presentation: ProductPresentat
         interpretation: {
           scene_id: "MOVING_LINE",
           layer_summary: mapped.moving_line.model_section.heading,
-          reality_connection: sourceSectionBody(mapped.moving_line.model_section),
+          reality_connection: sourceSectionBody(mapped.moving_line.model_section, true),
           uncertainty_boundary: "动爻解释不构成对现实结果的保证。",
           reality_refs: [],
           evidence_refs: [mapped.moving_line.model_section.sha256],
           interpretation_hypothesis: true,
         },
       },
+      hexagramScene("CHANGED_HEXAGRAM", 4, "变卦", "看清动爻改变后结构重点转向哪里。", mapped.changed_hexagram, "本次动爻变化后形成变卦。", "变卦呈现变化后的结构重点，不代表必然未来。"),
       {
         scene_id: "BODY_USE_STRENGTH",
         sequence: 5,
@@ -317,17 +362,17 @@ function directHighPage8Reading(question: string, presentation: ProductPresentat
           facts: [
             { label: "初始用卦", value: strength.initial_use_trigram },
             { label: "变化用卦", value: strength.changed_use_trigram },
-            { label: "初始体用", value: strength.initial_relation },
-            { label: "变化体用", value: strength.changed_relation },
-            { label: "体卦旺衰", value: strength.body_strength },
+            { label: "初始体用", value: page8RelationLabel(strength.initial_relation) },
+            { label: "变化体用", value: page8RelationLabel(strength.changed_relation) },
+            { label: "体卦旺衰", value: page8StrengthLabel(strength.body_strength) },
           ],
           source_name: "确定性体用与旺衰程序",
           source_reference: presentation.prepared_chart_sha256,
         },
         interpretation: {
           scene_id: "BODY_USE_STRENGTH",
-          layer_summary: "体用与旺衰只由程序呈现",
-          reality_connection: `初始关系为${strength.initial_relation}，变化后为${strength.changed_relation}；体卦当前为${strength.body_strength}。`,
+          layer_summary: `初始为${page8RelationLabel(strength.initial_relation)}，变化后为${page8RelationLabel(strength.changed_relation)}；体卦当前为${page8StrengthLabel(strength.body_strength)}`,
+          reality_connection: `放回你所问的这件事，初始阶段，${PAGE8_RELATION_EXPLANATIONS_ZH[strength.initial_relation] ?? "体用关系按程序结果呈现"}；变化之后，${PAGE8_RELATION_EXPLANATIONS_ZH[strength.changed_relation] ?? "体用关系按程序结果呈现"}。体卦为“${page8StrengthLabel(strength.body_strength)}”，${PAGE8_STRENGTH_EXPLANATIONS_ZH[strength.body_strength] ?? "当前承接条件按程序结果呈现"}。`,
           uncertainty_boundary: "本幕不调用模型，也不据此单独推断现实事实。",
           reality_refs: [],
           evidence_refs: [presentation.prepared_chart_sha256],
@@ -1822,6 +1867,10 @@ const PAGE8_TRIGRAM_NAMES: Record<string, string> = {
   "000": "坤",
 };
 
+const PAGE8_TRIGRAM_LINES: Record<string, string> = Object.fromEntries(
+  Object.entries(PAGE8_TRIGRAM_NAMES).map(([lines, name]) => [name, lines]),
+);
+
 function Page8BrushLine({ value, className = "" }: { value: "0" | "1"; className?: string }) {
   return <span className={`page8-brush-line ${value === "1" ? "is-yang" : "is-yin"}${className ? ` ${className}` : ""}`}>
     {value === "1"
@@ -1837,6 +1886,35 @@ function Page8YaoStack({ linesBottomUp, activePosition, className = "" }: { line
       return <Page8BrushLine key={`${position}-${value}`} value={value as "0" | "1"} className={activePosition === position ? "is-active-line" : ""} />;
     })}
   </div>;
+}
+
+function Page8InlineTrigram({ name }: { name: string }) {
+  const lines = PAGE8_TRIGRAM_LINES[name];
+  if (!lines) return null;
+  return <span className="page8-inline-trigram" role="img" aria-label={`${name}卦卦象`}>
+    <Page8YaoStack linesBottomUp={lines} />
+  </span>;
+}
+
+function Page8FactList({ scene }: { scene: Page8Scene }) {
+  if (scene.deterministic.facts.length === 0) return null;
+  const trigramLabels = new Set(["上卦", "下卦", "初始用卦", "变化用卦"]);
+  return <>
+    <dl className={scene.scene_id === "BODY_USE_STRENGTH" ? "is-body-use-facts" : undefined}>
+      {scene.deterministic.facts.map((fact) => {
+        const isTrigram = trigramLabels.has(fact.label) && Boolean(PAGE8_TRIGRAM_LINES[fact.value]);
+        const isMovingPosition = scene.scene_id === "MOVING_LINE" && fact.label === "动爻位置";
+        return <div
+          key={`${scene.scene_id}-${fact.label}`}
+          className={`${isTrigram ? "is-trigram-fact" : ""}${isMovingPosition ? " is-moving-position" : ""}`.trim() || undefined}
+        >
+          <dt>{fact.label}</dt>
+          <dd><span>{fact.value}</span>{isTrigram && <Page8InlineTrigram name={fact.value} />}</dd>
+        </div>;
+      })}
+    </dl>
+    {scene.scene_id === "MOVING_LINE" && <p className="page8-moving-hint">将鼠标移到右侧卦象上，可放大看清动爻所在位置。</p>}
+  </>;
 }
 
 function page8MovingPosition(scene: Page8Scene | undefined): number {
@@ -1884,14 +1962,20 @@ function Page8OracleMark({
   const mark = (className: string, content: ReactNode) => <div
     className={`page8-oracle-zone ${className}${isEngaged ? " is-oracle-engaged" : ""}`}
   >
-    <div
+    <button
+      type="button"
       className="page8-oracle-hit-area"
-      aria-hidden="true"
+      aria-label={`放大查看${scene.title}卦象`}
       onPointerEnter={(event) => {
         const markElement = event.currentTarget.nextElementSibling;
         if (markElement instanceof HTMLDivElement) onPointerEnter?.(markElement);
       }}
       onPointerLeave={onPointerLeave}
+      onFocus={(event) => {
+        const markElement = event.currentTarget.nextElementSibling;
+        if (markElement instanceof HTMLDivElement) onPointerEnter?.(markElement);
+      }}
+      onBlur={onPointerLeave}
     />
     <div
       className={`page8-oracle-mark ${className}${isEngaged ? focusVisible ? " is-oracle-focused" : " is-oracle-returning" : ""}`}
@@ -1973,14 +2057,11 @@ function Page8ModelReview({ reading }: { reading: Page8Reading }) {
           {scene.deterministic.canonical_text && <blockquote><b>{scene.deterministic.canonical_label}</b>{scene.deterministic.canonical_text}</blockquote>}
           {scene.deterministic.plain_note && <p className="page8-model-plain-note">{scene.deterministic.plain_note}</p>}
           {scene.deterministic.facts.length > 0 && <dl>{scene.deterministic.facts.map((fact) => <div key={`${scene.scene_id}-${fact.label}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
-          <small>来源：{scene.deterministic.source_name} · {scene.deterministic.source_reference}</small>
         </article>
         <article className="page8-model-interpretation">
           <span>结合所问</span>
           <h3>{scene.interpretation.layer_summary}</h3>
           <p>{scene.interpretation.reality_connection}</p>
-          <div className="page8-model-boundary"><b>仍不能据此断定</b><p>{scene.interpretation.uncertainty_boundary}</p></div>
-          <small>现实依据：{scene.interpretation.reality_refs.join("、")}　卦象依据：{scene.interpretation.evidence_refs.join("、")}</small>
         </article>
       </div>
       <footer>
@@ -2198,7 +2279,7 @@ export function Page8KunStory({
   onRetry,
   onResume,
   onEdit,
-  finaleReady = false,
+  onEnterFinale,
 }: {
   reading: Page8Reading;
   reviewMode?: boolean;
@@ -2206,7 +2287,7 @@ export function Page8KunStory({
   onRetry?: () => void;
   onResume?: () => void;
   onEdit?: () => void;
-  finaleReady?: boolean;
+  onEnterFinale?: () => void;
 }) {
   const storyRef = useRef<HTMLElement>(null);
   const oracleFocusTimerRef = useRef<number | null>(null);
@@ -2314,7 +2395,7 @@ export function Page8KunStory({
         const active = activeIndex === index;
         return <article
           key={scene.scene_id}
-          className={`page8-kun-scene is-copy-${art.copySide}${active ? " is-active" : ""}`}
+          className={`page8-kun-scene is-${scene.scene_id.toLowerCase().replaceAll("_", "-")} is-copy-${art.copySide}${active ? " is-active" : ""}`}
           aria-hidden={!active}
           style={{
             "--page8-mist-delay": `${index * -7}s`,
@@ -2357,7 +2438,7 @@ export function Page8KunStory({
                   {scene.deterministic.canonical_label && <b>{scene.deterministic.canonical_label}</b>}
                   <span>{scene.deterministic.canonical_text}</span>
                 </blockquote>}
-                {scene.deterministic.facts.length > 0 && <dl>{scene.deterministic.facts.map((fact) => <div key={`${scene.scene_id}-${fact.label}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
+                <Page8FactList scene={scene} />
               </section>
 
               {task.phase === "SUCCESS"
@@ -2365,15 +2446,13 @@ export function Page8KunStory({
                   <p className="page8-kun-section-label">结合所问</p>
                   <h3>{scene.interpretation.layer_summary}</h3>
                   <p>{scene.interpretation.reality_connection}</p>
+                  {index === orderedScenes.length - 1 && onEnterFinale && <div className="page8-kun-finale-action">
+                    <button type="button" onClick={onEnterFinale}>进入观象寄语</button>
+                  </div>}
                 </section>
                 : <Page8TaskPanel task={task} onRetry={onRetry} onResume={onResume} onEdit={onEdit} />}
             </div>
 
-            <footer className="page8-kun-notes">
-              <p><b>仍不能据此断定：</b>{task.phase === "SUCCESS" ? scene.interpretation.uncertainty_boundary : "个性化解释完成前，只能确认当前展示的排盘结构与经典资料。"}</p>
-              <small>来源：{scene.deterministic.source_name} · {scene.deterministic.source_reference}</small>
-              {index === orderedScenes.length - 1 && <strong>{finaleReady ? "五境阅毕 · 下行进入观象寄语" : "五境阅毕 · 第九页尚未开启"}</strong>}
-            </footer>
           </div>
         </article>;
       })}
@@ -2414,6 +2493,7 @@ function DirectHighResultView({ response, onEdit, onClear }: {
   onClear: () => void;
 }) {
   const [readingStarted, setReadingStarted] = useState(false);
+  const [finaleStarted, setFinaleStarted] = useState(false);
   const presentation = response.product_presentation!;
   const finalePayload = response.page9_finale;
   const finaleAnswer = Array.isArray(finalePayload?.answer) && finalePayload.answer.length === 2 &&
@@ -2447,6 +2527,15 @@ function DirectHighResultView({ response, onEdit, onClear }: {
     }));
   }
 
+  function openFinale() {
+    setFinaleStarted(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      document.getElementById("page9-finale")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      document.querySelector<HTMLElement>("#page9-finale h2")?.focus({ preventScroll: true });
+    }));
+  }
+
   useLayoutEffect(() => {
     if (!readingStarted) return;
     document.documentElement.classList.remove("flow-scroll-locked");
@@ -2470,8 +2559,9 @@ function DirectHighResultView({ response, onEdit, onClear }: {
       </div>
     </section>
     <div id="result-reading" hidden={!readingStarted}>
-      <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} finaleReady={Boolean(finale)} />
-      {finale ? <div className={finaleStyles.offlineShell}><Page9FinaleView content={finale} /></div> : <div className="direct-high-p8-actions">
+      <Page8KunStory reading={reading} task={{ phase: "SUCCESS", message: "详细解卦已经生成。" }} onEdit={onEdit} onEnterFinale={finale ? openFinale : undefined} />
+      {finaleStarted && finale ? <div id="page9-finale" className={finaleStyles.offlineShell}><Page9FinaleView content={finale} /></div> : null}
+      {finaleStarted && !finale && <div className="direct-high-p8-actions">
         <button type="button" onClick={onEdit}>返回修改原问</button>
         <button type="button" onClick={onClear}>重新开始</button>
       </div>}

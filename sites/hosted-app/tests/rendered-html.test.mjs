@@ -407,7 +407,8 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /aria-expanded=\{readingStarted\} onClick=\{openDetailedReading\}>查看详细解卦<\/button>/);
   assert.match(appSource, /function Page8KunStory/);
   assert.match(appSource, /鲲游五境/);
-  assert.match(appSource, /五境阅毕 · 第九页尚未开启/);
+  assert.match(appSource, />进入观象寄语<\/button>/);
+  assert.doesNotMatch(appSource, /五境阅毕 · 下行进入观象寄语|五境阅毕 · 第九页尚未开启/);
   assert.match(appSource, /function finishWithoutSuggestion\(\)[\s\S]+onStructured\(\{/);
   assert.match(appSource, /function ConditionalIntake\(/);
   assert.match(appSource, /status === "ASK_ONCE"/);

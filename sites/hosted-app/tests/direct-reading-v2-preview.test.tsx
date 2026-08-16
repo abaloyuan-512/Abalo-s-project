@@ -242,5 +242,7 @@ test("main P1-P9 flow requires and renders the real same-call P9 finale", async 
   assert.match(app, /payload\.page9_finale\.source !== "SAME_PROVIDER_OUTPUT"/);
   assert.match(app, /buildPage9FinaleContent/);
   assert.match(app, /<Page9FinaleView content=\{finale\}/);
-  assert.match(app, /finaleReady=\{Boolean\(finale\)\}/);
+  assert.match(app, /onEnterFinale=\{finale \? openFinale : undefined\}/);
+  assert.match(app, /finaleStarted && finale/);
+  assert.match(app, /id="page9-finale"/);
 });
