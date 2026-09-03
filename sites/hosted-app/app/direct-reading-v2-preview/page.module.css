@@ -406,17 +406,23 @@
   :global(.page9Finale) {
     height: 100svh;
     min-height: 620px;
-    padding: 0 20px 26px;
+    padding: 0 15px max(22px, env(safe-area-inset-bottom));
   }
   :global(.page9FinaleHeading) { padding-top: clamp(176px, 24vh, 216px); }
   :global(.page9FinaleHeading h2) { font-size: clamp(38px, 11vw, 48px); letter-spacing: .06em; white-space: nowrap; }
   :global(.page9FinaleHeading > p:last-child) { margin-top: 7px; font-size: 13px; line-height: 1.55; }
   :global(.page9Answer) { width: 100%; align-self: center; margin-top: 34px; margin-bottom: 34px; }
-  :global(.page9Answer p) { font-size: clamp(21px, 5.7vw, 25px); line-height: 1.65; letter-spacing: .025em; }
+  :global(.page9Answer p) {
+    font-size: clamp(20px, 5.35vw, 23px);
+    line-height: 1.68;
+    letter-spacing: .012em;
+    line-break: strict;
+    text-wrap: balance;
+  }
   :global(.page9FinaleActions) { grid-template-columns: 1fr 1fr; gap: 10px; }
   :global(.page9Continue), :global(.page9Share) { min-height: 46px; padding: 0 12px; font-size: 14px; letter-spacing: .05em; }
-  :global(.page9FinaleActions small) { font-size: 11px; text-align: center; }
-  :global(.page9Notice) { margin-top: 8px; font-size: 11px; }
+  :global(.page9FinaleActions small) { color: rgb(45 41 35 / 66%); font-size: 12px; line-height: 1.65; text-align: center; }
+  :global(.page9Notice) { margin-top: 8px; color: rgb(113 60 49 / 86%); font-size: 12px; line-height: 1.65; }
   :global(.page9Star), :global(.page9BaseSyntheticStar) { width: 18px; }
   :global(.page9TianShu) { width: 22px; }
   :global(.page9Book) { max-height: 92svh; padding: 26px 22px; }

@@ -1,0 +1,40 @@
+{
+  "fixture_version": "GUANXIANG_V73_COUNTERFACTUAL_FIXTURES_V1",
+  "status": "GATE_0_CANDIDATE",
+  "data_classification": "SYNTHETIC_ONLY",
+  "generation": {
+    "method": "deterministic cast_meihua; no AI",
+    "rule_version": "MEIHUA_RULE_SPEC_V1",
+    "engine_version": "MEIHUA_ENGINE_PHASE1_V1",
+    "cast_at": "2026-07-10T12:00:00+08:00",
+    "cast_at_source": "tests/test_mutual_hexagram.py::CAST_AT",
+    "timezone": "Asia/Shanghai",
+    "exact_date_feature_enabled": false
+  },
+  "rules": {
+    "same_question_within_pair": true,
+    "one_pre_authorized_generation_per_arm": true,
+    "silent_retry_forbidden": true,
+    "display_order_randomized_from_frozen_order_seed": "V73-PB1-CF-V1"
+  },
+  "pairs": [
+    {
+      "pair_id": "CF-01",
+      "question": "我是否应该在接下来三个月把主要精力投入到独立产品，还是继续当前合作项目？",
+      "arm_a": {"numbers": [1, 1, 1], "base_king_wen": 1, "moving_line": 1, "changed_king_wen": 44},
+      "arm_b": {"numbers": [8, 8, 6], "base_king_wen": 2, "moving_line": 6, "changed_king_wen": 23}
+    },
+    {
+      "pair_id": "CF-02",
+      "question": "我是否应该接受这个需要搬迁的工作机会？",
+      "arm_a": {"numbers": [100, 27, 368], "base_king_wen": 55, "moving_line": 2, "changed_king_wen": 34},
+      "arm_b": {"numbers": [4, 5, 2], "base_king_wen": 32, "moving_line": 2, "changed_king_wen": 62}
+    },
+    {
+      "pair_id": "CF-03",
+      "question": "我是否应该在本季度结束前结束当前合作关系？",
+      "arm_a": {"numbers": [999, 999, 999], "base_king_wen": 52, "moving_line": 3, "changed_king_wen": 23},
+      "arm_b": {"numbers": [2, 7, 5], "base_king_wen": 31, "moving_line": 5, "changed_king_wen": 62}
+    }
+  ]
+}

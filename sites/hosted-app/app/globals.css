@@ -3360,6 +3360,158 @@ textarea::placeholder,
   .page8-oracle-mark,
   .page8-oracle-moving-body { transition-duration: .01ms; }
 }
+
+/*
+ * M3 mobile layout corrections.
+ * Mobile-only overrides preserve the frozen desktop composition and flow.
+ */
+@media (max-width: 760px) {
+  /* P1: full-bleed portrait artwork without blurred top/bottom filler. */
+  .entry-hero-final::before {
+    content: "";
+    inset: 0;
+    background: url("/hero-entry-mobile-v8-extended-base.png") center / cover no-repeat;
+    filter: none;
+    opacity: 1;
+  }
+  .entry-hero-final img,
+  .entry-title-focus img {
+    object-fit: contain;
+    object-position: center;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 12%, #000 18%, #000 74%, transparent 88%);
+    mask-image: linear-gradient(to bottom, transparent 12%, #000 18%, #000 74%, transparent 88%);
+  }
+
+  /* P3: retain the existing action and state with a clearer mobile target. */
+  .inquiry-advance {
+    width: 100%;
+    min-height: 58px;
+    margin-top: 18px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .inquiry-advance button {
+    width: min(100%, 286px);
+    min-height: 50px;
+    padding: 8px 20px 10px;
+    color: var(--cinnabar-dark);
+    background: rgba(247, 239, 224, .72);
+    border: 1px solid rgba(150, 59, 40, .28);
+    box-shadow: 0 10px 28px rgba(68, 49, 35, .08);
+    font-size: 18px;
+  }
+  .inquiry-advance button::after { left: 24%; right: 24%; bottom: 7px; }
+  .inquiry-advance button:disabled {
+    color: rgba(80, 84, 75, .42);
+    background: rgba(247, 239, 224, .48);
+  }
+  .inquiry-advance p {
+    max-width: min(100%, 286px);
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  /* P6: branch and blossoms share one stable mobile composition. */
+  .casting-peony-backdrop {
+    inset: auto 0 auto 0;
+    top: 42svh;
+    height: 36svh;
+    background-size: 142% auto;
+    background-position: center top;
+    background-repeat: no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 88%, transparent 100%);
+  }
+  .peony-bloom,
+  .peony-petal-origin { width: clamp(64px, 18vw, 78px); }
+  .peony-number input { min-height: 44px; }
+  .peony-bloom-scene-1 {
+    left: 40.6%;
+    top: 65.6%;
+    transform: translate(-50%, -88%) rotate(-2deg);
+  }
+  .peony-bloom-scene-2 {
+    left: 60.8%;
+    top: 52.7%;
+    width: clamp(60px, 17vw, 74px);
+    transform: translate(-50%, -88%) rotate(1deg);
+  }
+  .peony-bloom-scene-3 {
+    left: 91.4%;
+    top: 59.4%;
+    width: clamp(62px, 17.5vw, 76px);
+    transform: translate(-50%, -88%) rotate(-1deg);
+  }
+
+  /* P7: center the complete result group, not a decorative layer. */
+  .result-overview {
+    justify-items: center;
+    grid-template-rows: minmax(0, auto) auto;
+    align-content: center;
+    padding-inline: 22px;
+  }
+  .result-verdict,
+  .result-summary {
+    width: 100%;
+    justify-self: center;
+  }
+  .brush-hexagram { margin-inline: auto; }
+
+  /* P8: reclaim upper space while protecting copy from scene contrast. */
+  .page8-kun-paper-veil {
+    bottom: 0;
+    height: 88svh;
+    background: rgba(239, 228, 209, .78);
+    opacity: .96;
+  }
+  .page8-kun-copy,
+  .page8-kun-scene.is-copy-left .page8-kun-copy,
+  .page8-kun-scene.is-copy-right .page8-kun-copy {
+    top: clamp(118px, 15svh, 138px);
+    bottom: 24px;
+    max-height: none;
+    padding: 10px 5px 18px;
+    text-shadow: 0 1px 0 rgba(255, 251, 242, .62), 0 0 16px rgba(247, 239, 224, .34);
+  }
+  .page8-kun-copy h2 { font-size: clamp(54px, 16vw, 68px); }
+  .page8-kun-purpose { font-size: 16px; line-height: 1.62; }
+  .page8-kun-deterministic > p:not(.page8-kun-section-label),
+  .page8-kun-interpretation > p:not(.page8-kun-section-label),
+  .page8-kun-task-state > p { font-size: 15px; line-height: 1.68; }
+  .page8-kun-deterministic blockquote { font-size: 14px; line-height: 1.68; }
+  .page8-kun-scene.is-body-use-strength .page8-kun-copy { bottom: 102px; }
+  .page8-kun-scene.is-body-use-strength .page8-kun-deterministic > p:not(.page8-kun-section-label),
+  .page8-kun-scene.is-body-use-strength .page8-kun-interpretation > p:not(.page8-kun-section-label),
+  .page8-kun-scene.is-body-use-strength .page8-kun-task-state > p {
+    font-size: 14px;
+    line-height: 1.58;
+  }
+  .page8-kun-scene.is-body-use-strength .page8-kun-copy h2 {
+    font-size: clamp(46px, 13.4vw, 55px);
+    line-height: 1.05;
+    letter-spacing: .035em;
+  }
+  .page8-kun-progress {
+    padding: 0 4px;
+    background: linear-gradient(180deg, rgba(239, 228, 209, .86), rgba(239, 228, 209, .58));
+    border-radius: 0 0 12px 12px;
+  }
+  .page8-kun-progress button {
+    font-size: 13px;
+    color: rgba(47, 41, 34, .76);
+  }
+  .page8-kun-progress button span { opacity: .86; }
+  .page8-kun-finale-action { right: 18px; bottom: max(22px, env(safe-area-inset-bottom)); }
+  .page8-kun-finale-action .page8-kun-finale-cta {
+    min-width: 190px;
+    background: rgba(247, 239, 224, .68);
+    box-shadow: 0 10px 28px rgba(68, 49, 35, .09);
+  }
+}
+
 /* Local P1–P8 direct-high result: content projection only; P9 remains hidden. */
 .direct-high-p8-shell { min-height: 100vh; padding: clamp(24px, 5vw, 64px); background: #f1e9d9; color: #292219; }
 .direct-high-p8-shell .productPage { width: min(920px, 100%); margin: 0 auto; padding: clamp(22px, 4vw, 42px); border: 1px solid rgb(86 65 40 / 18%); border-radius: 18px; background: rgb(255 252 245 / 88%); box-shadow: 0 20px 50px rgb(69 47 24 / 9%); }
