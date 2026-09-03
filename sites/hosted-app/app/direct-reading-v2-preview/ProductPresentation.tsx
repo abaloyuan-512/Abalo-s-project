@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import SafeDirectReadingMarkdown from "./SafeDirectReadingMarkdown";
+import { MobileScrollPetal } from "../MobileScrollPetal";
 import {
   buildReadingHtml,
   loadReadingExportAssets,
@@ -142,7 +143,7 @@ type ObservationRecord = {
 const OBSERVATION_BOOK_KEY = "guanxiang.observation-book.v1";
 const P9_STAR_BURST_MS = 4200;
 
-const P9_STARS: readonly { left: number; top: number; tianShu?: boolean; synthetic?: boolean }[] = [
+const P9_STARS: readonly { left: number; top: number; tianShu?: boolean; synthetic?: boolean; ambient?: boolean }[] = [
   { left: 17.9642, top: 9.4697, tianShu: true },
   { left: 20.582, top: 19.9023 },
   { left: 27.9199, top: 23.5849 },
@@ -150,6 +151,54 @@ const P9_STARS: readonly { left: number; top: number; tianShu?: boolean; synthet
   { left: 38.954, top: 16.1758 },
   { left: 44.3685, top: 13.8945, synthetic: true },
   { left: 49.832, top: 11.627 },
+  { left: 60.8, top: 8.9, ambient: true },
+  { left: 70.4, top: 13.7, ambient: true },
+  { left: 81.6, top: 8.1, ambient: true },
+  { left: 90.1, top: 17.2, ambient: true },
+  { left: 58.2, top: 24.8, ambient: true },
+  { left: 75.3, top: 27.1, ambient: true },
+  { left: 88.4, top: 29.6, ambient: true },
+  { left: 10.2, top: 14.6, ambient: true },
+  { left: 8.1, top: 27.9, ambient: true },
+  { left: 65.9, top: 34.1, ambient: true },
+  { left: 93.2, top: 36.3, ambient: true },
+  { left: 54.1, top: 5.6, ambient: true },
+  { left: 66.3, top: 20.6, ambient: true },
+  { left: 78.7, top: 20.9, ambient: true },
+  { left: 96.1, top: 7.8, ambient: true },
+  { left: 3.8, top: 8.7, ambient: true },
+  { left: 5.2, top: 20.4, ambient: true },
+  { left: 13.4, top: 34.2, ambient: true },
+  { left: 23.7, top: 31.1, ambient: true },
+  { left: 34.6, top: 28.7, ambient: true },
+  { left: 48.1, top: 31.8, ambient: true },
+  { left: 61.4, top: 39.4, ambient: true },
+  { left: 72.1, top: 37.1, ambient: true },
+  { left: 83.8, top: 39.7, ambient: true },
+  { left: 96.6, top: 27.4, ambient: true },
+  { left: 31.8, top: 6.2, ambient: true },
+  { left: 41.7, top: 7.4, ambient: true },
+  { left: 55.2, top: 17.4, ambient: true },
+  { left: 16.8, top: 4.7, ambient: true },
+  { left: 24.8, top: 8.3, ambient: true },
+  { left: 52.7, top: 26.3, ambient: true },
+  { left: 63.7, top: 31.4, ambient: true },
+  { left: 73.7, top: 31.5, ambient: true },
+  { left: 85.9, top: 33.5, ambient: true },
+  { left: 3.4, top: 38.2, ambient: true },
+  { left: 17.6, top: 41.6, ambient: true },
+  { left: 30.2, top: 39.2, ambient: true },
+  { left: 42.5, top: 41.7, ambient: true },
+  { left: 54.7, top: 46.1, ambient: true },
+  { left: 68.3, top: 44.8, ambient: true },
+  { left: 79.4, top: 46.7, ambient: true },
+  { left: 91.5, top: 43.9, ambient: true },
+  { left: 6.7, top: 48.8, ambient: true },
+  { left: 23.9, top: 47.2, ambient: true },
+  { left: 37.1, top: 45.5, ambient: true },
+  { left: 47.1, top: 11.5, ambient: true },
+  { left: 91.2, top: 12.2, ambient: true },
+  { left: 56.8, top: 12.1, ambient: true },
 ];
 
 export function chooseP9StarBurst(random: () => number = Math.random): number[] {
@@ -170,6 +219,7 @@ function P9StarField() {
 
   useEffect(() => {
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pageVisible = () => document.visibilityState === "visible";
     let burstTimer: ReturnType<typeof setTimeout> | undefined;
     let clearTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -181,6 +231,10 @@ function P9StarField() {
     const scheduleBurst = () => {
       const pause = 700 + Math.random() * 1100;
       burstTimer = window.setTimeout(() => {
+        if (!pageVisible()) {
+          scheduleBurst();
+          return;
+        }
         setActiveStars(chooseP9StarBurst());
         clearTimer = window.setTimeout(() => {
           setActiveStars([]);
@@ -192,22 +246,24 @@ function P9StarField() {
     const syncMotionPreference = () => {
       clearTimers();
       setActiveStars([]);
-      if (!motionPreference.matches) scheduleBurst();
+      if (!motionPreference.matches && pageVisible()) scheduleBurst();
     };
 
     syncMotionPreference();
     motionPreference.addEventListener("change", syncMotionPreference);
+    document.addEventListener("visibilitychange", syncMotionPreference);
 
     return () => {
       clearTimers();
       motionPreference.removeEventListener("change", syncMotionPreference);
+      document.removeEventListener("visibilitychange", syncMotionPreference);
     };
   }, []);
 
   const activeSet = new Set(activeStars);
 
   return (
-    <div className="page9StarField" aria-hidden="true" data-active-count={activeStars.length}>
+    <div className="page9StarField" aria-hidden="true" data-active-count={activeStars.length} data-total-count={P9_STARS.length}>
       {P9_STARS.filter((star) => star.synthetic).map((star) => (
         <img
           key={`base-${star.left}-${star.top}`}
@@ -226,7 +282,7 @@ function P9StarField() {
       {P9_STARS.map((star, index) => (
         <img
           key={`${star.left}-${star.top}`}
-          className={`page9Star${star.tianShu ? " page9TianShu" : ""}${star.synthetic ? " page9SyntheticStar" : ""}`}
+          className={`page9Star${star.tianShu ? " page9TianShu" : ""}${star.synthetic ? " page9SyntheticStar" : ""}${star.ambient ? " page9AmbientStar" : ""}`}
           src="/direct-reading-v2-preview/p9-star-spark-v1.png"
           alt=""
           draggable="false"
@@ -375,7 +431,7 @@ export function Page9FinaleView({ content }: { content: Page9FinaleContent }) {
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="page9Continue" href="/?continue-question=1#inquiry">继续追问</a>
         <button type="button" className="page9Share" onClick={() => void shareReading()} disabled={sharing}>{sharing ? "正在汇成画卷" : "分享解卦"}</button>
-        <small><button type="button" className="page9BookLink" onClick={() => setBookOpen(true)}>本次观象已为您保存，可以前往观事簿进行回看。</button></small>
+        <small><button type="button" className="page9BookLink" onClick={() => setBookOpen(true)}>本次观象已保存在当前浏览器，轻触打开观事簿回看。</button></small>
       </div>
 
       <p className="page9Notice" role="status" aria-live="polite">{notice}</p>
@@ -383,16 +439,19 @@ export function Page9FinaleView({ content }: { content: Page9FinaleContent }) {
       {bookOpen ? <div className="page9BookBackdrop" onMouseDown={(event) => {
         if (event.target === event.currentTarget) setBookOpen(false);
       }}>
-        <section ref={bookRef} className="page9Book" role="dialog" aria-modal="true" aria-labelledby="page9-book-title">
-          <header><div><p>留待事后来证</p><h3 id="page9-book-title">观事簿</h3></div><button type="button" onClick={() => setBookOpen(false)} aria-label="关闭观事簿">收起</button></header>
-          <p className="page9BookPrivacy">记录只保存在当前浏览器。这里可以重新打开本次问题、卦象与最后寄语。</p>
-          <div className="page9BookList">
-            {records.map((record, index) => <details key={`${record.record_id}-${record.saved_at}`} open={index === 0}>
-              <summary><span>{new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric" }).format(new Date(record.saved_at))}</span><strong>{record.gua_label}</strong></summary>
-              <div><p className="page9BookQuestion">{record.question}</p><blockquote><p>{record.answer[0]}</p><p>{record.answer[1]}</p></blockquote></div>
-            </details>)}
-          </div>
-        </section>
+        <div className="page9BookFrame">
+          <section ref={bookRef} className="page9Book" role="dialog" aria-modal="true" aria-labelledby="page9-book-title">
+            <header><div><p>留待事后来证</p><h3 id="page9-book-title">观事簿</h3></div><button type="button" onClick={() => setBookOpen(false)} aria-label="关闭观事簿">收起</button></header>
+            <p className="page9BookPrivacy">记录只保存在当前浏览器。这里可以重新打开本次问题、卦象与最后寄语。</p>
+            <div className="page9BookList">
+              {records.map((record, index) => <details key={`${record.record_id}-${record.saved_at}`} open={index === 0}>
+                <summary><span>{new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric" }).format(new Date(record.saved_at))}</span><strong>{record.gua_label}</strong></summary>
+                <div><p className="page9BookQuestion">{record.question}</p><blockquote><p>{record.answer[0]}</p><p>{record.answer[1]}</p></blockquote></div>
+              </details>)}
+            </div>
+          </section>
+          <MobileScrollPetal containerRef={bookRef} />
+        </div>
       </div> : null}
     </section>
   );

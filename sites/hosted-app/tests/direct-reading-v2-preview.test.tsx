@@ -137,12 +137,13 @@ test("P9 finale is one answer with continue and share actions, without a classic
   assert.match(html, />继续追问</);
   assert.match(html, /href="\/?\?continue-question=1#inquiry"/);
   assert.match(html, />分享解卦</);
-  assert.match(html, /本次观象已为您保存，可以前往观事簿进行回看。/);
+  assert.match(html, /本次观象已保存在当前浏览器，轻触打开观事簿回看。/);
   assert.doesNotMatch(html, /分享包含 P3、P7、P8 五幕与 P9/);
   assert.doesNotMatch(html, />存入观事簿<|>导出本次解卦</);
   assert.match(html, /p9-celestial-background-v2\.webp/);
-  assert.equal((html.match(/<img[^>]+p9-star-spark-v1\.png/g) ?? []).length, 8);
+  assert.equal((html.match(/<img[^>]+p9-star-spark-v1\.png/g) ?? []).length, 56);
   assert.match(html, /class="page9StarField" aria-hidden="true"/);
+  assert.match(html, /data-total-count="55"/);
   assert.doesNotMatch(html, /role="tab"|role="tabpanel"/);
   assert.doesNotMatch(html, /一卦一语|知止不殆|适合做|不适合做|反向风险|转向条件/);
 });
@@ -155,7 +156,7 @@ test("P9 star bursts always select one to three unique stars", () => {
   const burst = chooseP9StarBurst(() => samples[cursor++] ?? 0);
   assert.equal(burst.length, 3);
   assert.equal(new Set(burst).size, burst.length);
-  assert.ok(burst.every((index) => index >= 0 && index < 7));
+  assert.ok(burst.every((index) => index >= 0 && index < 55));
 });
 
 test("P9 stars keep a quiet native-color shimmer between stronger bursts", async () => {

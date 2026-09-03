@@ -54,6 +54,8 @@ test("page eight localizes deterministic body-use facts and adds readable trigra
   assert.match(source, /className="page8-inline-trigram"/);
   assert.match(css, /\.page8-inline-trigram/);
   assert.match(source, /sourceSectionBody\(mapped\.moving_line\.model_section, true\)/);
+  assert.match(source, /paragraphs\.slice\(1\)/);
+  assert.match(source, /selected\.join\("\\n\\n"\)/);
   assert.match(source, /将鼠标移到右侧卦象上，可放大看清动爻所在位置/);
 });
 
@@ -132,7 +134,12 @@ test("page eight opens from page seven and keeps all later reserved sections hid
   assert.match(source, /function editQuestion\(\) \{[\s\S]+setFlowPage\(3\)[\s\S]+primary-question/);
   assert.match(source, /function directHighPage8Reading\(question: string, presentation: ProductPresentation\): Page8Reading/);
   assert.match(source, /<DirectHighResultView response=\{response\}/);
-  assert.match(source, /async function launchDirectHigh\(numbersInput: number\[\]\)/);
+  assert.match(source, /async function launchDirectHigh\(numbersInput: number\[\], intakeRoute: ConditionalIntakeMeta \| null = conditionalIntake\)/);
+  assert.match(source, /async function refreshConditionalIntakeForRetry\(\)/);
+  assert.match(source, /const intakeRoute = await refreshConditionalIntakeForRetry\(\);/);
+  assert.match(source, /await launchDirectHigh\(parsed, intakeRoute\);/);
+  assert.match(source, /className="direct-high-pending-actions"/);
+  assert.match(source, /<button type="button" onClick=\{onClear\}>重新开始<\/button>/);
   assert.match(source, /"CONDITIONAL_INTAKE_THEN_HIGH"/);
   assert.match(source, /page8ScrollIsOpen/);
   assert.match(source, /root\.classList\.add\("page8-reading-open"\)/);
@@ -147,6 +154,8 @@ test("page eight opens from page seven and keeps all later reserved sections hid
   assert.match(source, /page9-finale-open/);
   assert.match(source, /!result\.classList\.contains\("is-finale-started"\)/);
   assert.match(css, /\.page8-kun-finale-action \{[\s\S]*?position: absolute;[\s\S]*?right: clamp\([\s\S]*?bottom: clamp\(/);
+  assert.match(css, /\.page8-kun-finale-action \.page8-kun-finale-cta::after \{[\s\S]*?method-current-cue-v1\.png/);
+  assert.match(css, /\.page8-kun-finale-action \.page8-kun-finale-cta \{[\s\S]*?background: transparent;[\s\S]*?backdrop-filter: none;/);
   assert.match(css, /\.page9-finale-open \.flow-shell \{ height: 100svh; min-height: 100svh; overflow: hidden; \}/);
   assert.doesNotMatch(source, /五境阅毕 · 下行进入观象寄语|五境阅毕 · 第九页尚未开启/);
 });

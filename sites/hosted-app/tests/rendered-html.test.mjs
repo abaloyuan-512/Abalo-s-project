@@ -322,7 +322,7 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
   assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+正在成卦，请稍候[\s\S]+三个数已经取好[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
   assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
-  assert.match(appSource, /async function launchDirectHigh\(numbersInput: number\[\]\)/);
+  assert.match(appSource, /async function launchDirectHigh\(numbersInput: number\[\], intakeRoute: ConditionalIntakeMeta \| null = conditionalIntake\)/);
   assert.match(appSource, /正在建立唯一一次排盘与解卦任务/);
   assert.match(appSource, /className="cast-button casting-submit"[\s\S]+casting-submit-error/);
   assert.match(cssSource, /\.casting-heading \{ --casting-copy-size: clamp\(22px, 1\.7vw, 29px\)/);
@@ -373,6 +373,10 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(cssSource, /peony-number-copy[^}]+justify-items: start[^}]+text-align: left/);
   assert.match(cssSource, /casting-heading \.casting-submit::after[^}]+content: none/);
   assert.match(cssSource, /@media \(max-width: 760px\)[\s\S]+\.casting-heading \{[^}]+display: block/);
+  assert.match(cssSource, /\.casting-number-step > \.vertical-brand \{[^}]+display: grid[^}]+justify-items: center/);
+  assert.match(appSource, /setResponse\(\{[\s\S]+status: "RUNNING"[\s\S]+chart_facts: chartFacts/);
+  assert.match(appSource, /function DirectHighPendingResultView/);
+  assert.match(appSource, /再次生成详细解卦/);
   assert.doesNotMatch(cssSource, /peony-number-wind/);
   assert.match(cssSource, /peony-falling-petal[^}]+mix-blend-mode: normal/);
   assert.match(cssSource, /@keyframes peony-petal-fall[\s\S]+rotateX\([^)]+\)[\s\S]+rotateY\([^)]+\)/);
@@ -409,6 +413,12 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.doesNotMatch(appSource, /className="result-question"/);
   assert.match(appSource, /aria-controls="result-reading" aria-expanded=\{readingStarted\}/);
   assert.match(appSource, /aria-expanded=\{readingStarted\} onClick=\{openDetailedReading\}>查看详细解卦<\/button>/);
+  assert.match(appSource, /data-name-length=\{Array\.from\(baseHexagram\.name\)\.length\}/);
+  assert.match(appSource, /data-name-length=\{Array\.from\(result\.base_hexagram\.name\)\.length\}/);
+  assert.match(cssSource, /\.result-summary h2 \{[^}]*white-space: nowrap;[^}]*word-break: keep-all;/);
+  assert.match(cssSource, /\.result-summary h2\[data-name-length="4"\] \{[^}]*width: 2\.18em;[^}]*white-space: normal;[^}]*word-break: break-all;/);
+  assert.match(cssSource, /\.result-summary \{[^}]*grid-template-columns: 100%;[^}]*grid-template-rows: auto 180px auto auto;/);
+  assert.match(cssSource, /\.result-detail-button \{[^}]*width: max-content;[^}]*white-space: nowrap;[^}]*overflow-wrap: normal;/);
   assert.match(appSource, /function Page8KunStory/);
   assert.match(appSource, /鲲游五境/);
   assert.match(appSource, /className="method-cta final-question-cta page8-kun-finale-cta"/);
@@ -430,7 +440,7 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(appSource, /page8Task\.phase === "FAILED"[^\n]+返回正问，重新确认/);
   assert.match(appSource, /flowPageRef\.current = 3;\s+setResponse\(null\); setFlowPage\(3\)/);
   assert.match(appSource, /setResponse\(\{ \.\.\.payload, user_question: question \}\)/);
-  assert.match(appSource, /async function launchDirectHigh\(numbersInput: number\[\]\)/);
+  assert.match(appSource, /async function launchDirectHigh\(numbersInput: number\[\], intakeRoute: ConditionalIntakeMeta \| null = conditionalIntake\)/);
   assert.match(appSource, /fetch\("\/api\/direct-reading\/v2"/);
   assert.match(appSource, /await launchDirectHigh\(parsed\)/);
   assert.doesNotMatch(appSource, /const deterministicRequest = fetch\("\/api\/v3\/meihua"/);
@@ -445,6 +455,51 @@ test("seventh page opens the page-eight data-model review", async () => {
   assert.match(cssSource, /page7-taiji-bg-v1\.png/);
   assert.match(cssSource, /result-koi-layer[^}]+pointer-events: none/);
   assert.match(cssSource, /result-detail-button:hover, \.result-detail-button:focus-visible/);
+});
+
+test("frozen P1–P9 mobile art is wired to the production flow", async () => {
+  const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
+  const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+
+  assert.match(appSource, /function MobileFrozenEntry\(\{ onEnter \}/);
+  assert.match(appSource, /p1-motion-pre-reveal-base-v2\.png/);
+  assert.match(appSource, /p1-mobile-motion-selected-v1\.mp4/);
+  assert.match(appSource, /p1-motion-ink-realm-v1\.png/);
+  assert.match(appSource, /<MobileFrozenEntry onEnter=\{enterMethod\} \/>/);
+  assert.match(cssSource, /\.p1-mobile-enter \{[\s\S]*?left: 31\.5%;[\s\S]*?bottom: 6\.9%;[\s\S]*?width: 37%;[\s\S]*?height: 14\.5%;/);
+
+  assert.match(appSource, /P2FrozenRiverFlowCanvas/);
+  assert.match(appSource, /<P2FrozenRiverFlowCanvas active=\{flowPage === 2\} \/>/);
+  assert.match(cssSource, /\.p2-frozen-river-flow\.is-ready \{ opacity: \.96; \}/);
+  const p2CanvasSource = await fs.readFile(new URL("../app/P2FrozenRiverFlowCanvas.tsx", import.meta.url), "utf8");
+  assert.match(p2CanvasSource, /method-river-motion-mask-v1\.png/);
+  assert.match(p2CanvasSource, /float riverCenter\(float y\)/);
+
+  assert.match(cssSource, /\.inquiry-mobile-pine \{[\s\S]*?animation: pine-breathe-v4 6\.8s ease-in-out infinite alternate;/);
+  assert.match(cssSource, /@keyframes pine-breathe-v4 \{[\s\S]*?translate3d\(-1\.4px,0,0\) rotate\(-\.11deg\);[\s\S]*?translate3d\(2\.8px,-1\.4px,0\) rotate\(\.27deg\);/);
+
+  assert.match(cssSource, /p4-frozen-crane-route-leading 48s \.4s linear infinite/);
+  assert.match(cssSource, /p4-frozen-crane-route-following 56s 8s linear infinite/);
+
+  assert.match(cssSource, /final-question-sunset-reeds-v2\.png/);
+
+  assert.match(appSource, /className="casting-peony-canvas"/);
+  assert.match(cssSource, /\.casting-peony-canvas \{[\s\S]*?width: 1440px;[\s\S]*?height: 900px;[\s\S]*?translate3d\(-305px, 360px, 0\) scale\(\.6\)/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-2 \{ top: 38px; left: 119px;/);
+  assert.match(cssSource, /\.casting-heading \.peony-number-3 \{ top: 76px; left: 226px;/);
+
+  assert.match(appSource, /mobileWidth: 294/);
+  assert.match(appSource, /mobileWidth: 248/);
+  assert.match(cssSource, /\.result-verdict \{[\s\S]*?top: 30\.69svh;[\s\S]*?left: 10\.7vw;[\s\S]*?width: 54\.88vw;/);
+  assert.match(cssSource, /\.result-summary \{[\s\S]*?top: 60\.73svh;[\s\S]*?right: 6vw;[\s\S]*?width: 52vw;/);
+
+  assert.match(appSource, /interactive=\{active\}/);
+  assert.match(appSource, /tabIndex=\{interactive \? 0 : -1\}/);
+  assert.match(appSource, /disabled=\{!interactive\}/);
+  assert.match(cssSource, /\.page8-kun-paper-veil \{[\s\S]*?height: 79svh;[\s\S]*?filter: blur\(24px\);[\s\S]*?opacity: \.9;/);
+
+  assert.match(appSource, /buildPage9FinaleContent/);
+  assert.match(appSource, /Page9FinaleView/);
 });
 
 test("first seven pages are single-screen, forward-only and scroll locked", async () => {

@@ -6,6 +6,7 @@ import {
   pollPersonalizedTask,
 } from "./personalized-reading-poll";
 import { InquiryCloudfallCanvas } from "./InquiryCloudfallCanvas";
+import { P2FrozenRiverFlowCanvas } from "./P2FrozenRiverFlowCanvas";
 import { resultSectionVisibility } from "./result-presentation.mjs";
 import { buildPage9FinaleContent, Page9FinaleView, type ProductPresentation } from "./direct-reading-v2-preview/ProductPresentation";
 import finaleStyles from "./direct-reading-v2-preview/page.module.css";
@@ -177,6 +178,15 @@ type StructuredIntake = {
   key_uncertainty: string;
   decision_risk_profile?: string;
 };
+type DirectHighChartFacts = {
+  base_hexagram: {
+    role?: "BASE";
+    king_wen_number: number;
+    name: string;
+    upper_trigram?: string;
+    lower_trigram?: string;
+  };
+};
 type ApiResponse = {
   status?: string;
   request_id?: string;
@@ -195,7 +205,7 @@ type ApiResponse = {
   input_numbers?: number[];
   product_presentation?: ProductPresentation | null;
   direct_high?: { route?: string; intake_status?: string; router_attempts?: number } | null;
-  chart_facts?: unknown;
+  chart_facts?: DirectHighChartFacts | null;
   terminal?: boolean;
   preview_meta?: {
     failure_stage?: string;
@@ -208,6 +218,26 @@ type ApiResponse = {
   error_message?: string | null;
   errors?: { message?: string }[];
 };
+
+function directHighChartFacts(value: unknown): DirectHighChartFacts | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const base = (value as { base_hexagram?: unknown }).base_hexagram;
+  if (!base || typeof base !== "object" || Array.isArray(base)) return null;
+  const fact = base as Record<string, unknown>;
+  if (
+    !Number.isInteger(fact.king_wen_number) || Number(fact.king_wen_number) < 1 || Number(fact.king_wen_number) > 64 ||
+    typeof fact.name !== "string" || !fact.name.trim()
+  ) return null;
+  return {
+    base_hexagram: {
+      role: fact.role === "BASE" ? "BASE" : undefined,
+      king_wen_number: Number(fact.king_wen_number),
+      name: fact.name,
+      upper_trigram: typeof fact.upper_trigram === "string" ? fact.upper_trigram : undefined,
+      lower_trigram: typeof fact.lower_trigram === "string" ? fact.lower_trigram : undefined,
+    },
+  };
+}
 
 type DirectHighSourceSection = {
   heading: string;
@@ -233,8 +263,8 @@ function sourceSectionParagraphs(section: DirectHighSourceSection): string[] {
 
 function sourceSectionBody(section: DirectHighSourceSection, skipLeadingCanonicalQuote = false): string {
   const paragraphs = sourceSectionParagraphs(section);
-  const selected = skipLeadingCanonicalQuote && paragraphs.length > 1 ? paragraphs[1] : paragraphs[0];
-  return selected ?? "本层解释已通过同一次解卦的完整性核验。";
+  const selected = skipLeadingCanonicalQuote && paragraphs.length > 1 ? paragraphs.slice(1) : paragraphs;
+  return selected.join("\n\n") || "本层解释已通过同一次解卦的完整性核验。";
 }
 
 const PAGE8_RELATION_LABELS_ZH: Record<string, string> = {
@@ -1534,14 +1564,14 @@ function ConditionalIntake({
         <p className="discernment-understanding">对问题的不同理解，会让解卦指向不同对象。让我们确认一下。</p>
         <div className="discernment-current"><img src="/fuxi-bagua-taiji.svg" alt="" /><p>{prompt}</p></div>
       </div>
-      <div className="dialogue-compose"><textarea aria-label="回答唯一澄清问题" value={answer} maxLength={400} onChange={(event) => setAnswer(event.target.value)} placeholder="用自己的原话简短说明……" /><button type="button" disabled={!answer.trim()} onClick={finishWithAnswer}><span>带着这句回答<br />进入第三步：定问</span></button></div>
+      <div className="dialogue-compose"><textarea aria-label="回答唯一澄清问题" value={answer} maxLength={400} onChange={(event) => setAnswer(event.target.value)} placeholder="用自己的原话简短说明……" /><button type="button" disabled={!answer.trim()} onClick={finishWithAnswer}><BaguaMark className="p4-action-mark" /><span>带着这句回答<br />进入第三步：定问</span></button></div>
       <div className="discernment-controls"><button type="button" onClick={skip}>跳过这一问，仍按原题继续</button></div>
     </>}
     {(mode === "CLEAR" || mode === "DONE") && <div className="dialogue-review discernment-complete">
       <p className="eyebrow">有疑则问 · 无疑直行</p>
       <h3>{mode === "CLEAR" ? "原题已经足够明确" : "这一处已经确认"}</h3>
       <p>原问题保持不变；下一步只需在心中确认它。</p>
-      <div className="dialogue-review-actions"><button type="button" onClick={onContinue}>进入第三步：定问</button></div>
+      <div className="dialogue-review-actions"><button type="button" onClick={onContinue}><BaguaMark className="p4-action-mark" /><span>进入第三步：定问</span></button></div>
     </div>}
   </div>;
 }
@@ -1672,6 +1702,7 @@ type KoiMotion = {
   phaseRate: number;
   scale: number;
   alpha: number;
+  mobileWidth: number;
 };
 
 function ResultKoiPond() {
@@ -1727,7 +1758,9 @@ function ResultKoiPond() {
 
     const drawKoi = (image: HTMLImageElement, motion: KoiMotion) => {
       const compact = width < 760;
-      const drawWidth = (compact ? Math.min(138, width * .37) : Math.min(258, width * .15)) * motion.scale;
+      const drawWidth = compact
+        ? motion.mobileWidth * width / 430
+        : Math.min(258, width * .15) * motion.scale;
       const drawHeight = drawWidth * image.height / image.width;
       const slices = compact ? 36 : 52;
       const destinationSlice = drawWidth / slices;
@@ -1796,8 +1829,8 @@ function ResultKoiPond() {
       if (disposed) return;
       const now = performance.now();
       const motions: KoiMotion[] = [
-        { x: width * .23, y: height * .78, heading: -.12, speed: 24, baseSpeed: 27, turnRate: .33, targetX: width * .7, targetY: height * .62, retargetAt: now + 4300, phase: .8, phaseRate: 3.35, scale: 1, alpha: .64 },
-        { x: width * .78, y: height * .24, heading: Math.PI + .1, speed: 21, baseSpeed: 24, turnRate: .29, targetX: width * .34, targetY: height * .35, retargetAt: now + 6600, phase: 3.7, phaseRate: 3.05, scale: .88, alpha: .57 },
+        { x: width * .23, y: height * .78, heading: -.12, speed: 24, baseSpeed: 27, turnRate: .33, targetX: width * .7, targetY: height * .62, retargetAt: now + 4300, phase: .8, phaseRate: 3.35, scale: 1, alpha: .53, mobileWidth: 294 },
+        { x: width * .78, y: height * .24, heading: Math.PI + .1, speed: 21, baseSpeed: 24, turnRate: .29, targetX: width * .34, targetY: height * .35, retargetAt: now + 6600, phase: 3.7, phaseRate: 3.05, scale: .88, alpha: .45, mobileWidth: 248 },
       ];
 
       redraw = () => {
@@ -1913,7 +1946,7 @@ function Page8FactList({ scene }: { scene: Page8Scene }) {
         </div>;
       })}
     </dl>
-    {scene.scene_id === "MOVING_LINE" && <p className="page8-moving-hint">将鼠标移到右侧卦象上，可放大看清动爻所在位置。</p>}
+    {scene.scene_id === "MOVING_LINE" && <p className="page8-moving-hint">将鼠标移到右侧卦象上，可放大看清动爻所在位置；手机上也可以轻触。</p>}
   </>;
 }
 
@@ -1946,6 +1979,7 @@ function Page8OracleMark({
   strengthVariant,
   isEngaged = false,
   focusVisible = false,
+  interactive = true,
   onPointerEnter,
   onPointerLeave,
 }: {
@@ -1956,6 +1990,7 @@ function Page8OracleMark({
   strengthVariant: Page8ReviewVariant;
   isEngaged?: boolean;
   focusVisible?: boolean;
+  interactive?: boolean;
   onPointerEnter?: (markElement: HTMLDivElement) => void;
   onPointerLeave?: () => void;
 }) {
@@ -1966,6 +2001,8 @@ function Page8OracleMark({
       type="button"
       className="page8-oracle-hit-area"
       aria-label={`放大查看${scene.title}卦象`}
+      tabIndex={interactive ? 0 : -1}
+      disabled={!interactive}
       onPointerEnter={(event) => {
         const markElement = event.currentTarget.nextElementSibling;
         if (markElement instanceof HTMLDivElement) onPointerEnter?.(markElement);
@@ -2411,6 +2448,7 @@ export function Page8KunStory({
             movingPosition={movingPosition}
             movingVariant={movingVariant}
             strengthVariant={strengthVariant}
+            interactive={active}
             isEngaged={focusedOracleSceneId === scene.scene_id}
             focusVisible={focusedOracleSceneId === scene.scene_id && oracleFocusVisible}
             onPointerEnter={(markElement) => showOracleFocus(scene.scene_id, markElement)}
@@ -2562,7 +2600,7 @@ function DirectHighResultView({ response, onEdit, onClear }: {
       <div className="result-verdict"><BrushHexagram hexagram={baseHexagram} /></div>
       <div className="result-summary">
         <span className="result-number">第 {baseHexagram.king_wen_number} 卦</span>
-        <h2 id="result-title" tabIndex={-1}>{baseHexagram.name}</h2>
+        <h2 id="result-title" data-name-length={Array.from(baseHexagram.name).length} tabIndex={-1}>{baseHexagram.name}</h2>
         <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>查看详细解卦</button>
       </div>
     </section>
@@ -2577,11 +2615,52 @@ function DirectHighResultView({ response, onEdit, onClear }: {
   </section>;
 }
 
+function DirectHighPendingResultView({
+  response,
+  task,
+  onRetry,
+  onEdit,
+  onClear,
+}: {
+  response: ApiResponse;
+  task: Page8TaskState;
+  onRetry: () => void;
+  onEdit: () => void;
+  onClear: () => void;
+}) {
+  const baseFact = response.chart_facts?.base_hexagram;
+  if (!baseFact) return null;
+  const baseHexagram: Hexagram = {
+    king_wen_number: baseFact.king_wen_number,
+    name: baseFact.name,
+    symbol: unicodeHexagram(baseFact.king_wen_number),
+  };
+  const failed = task.phase === "FAILED";
+
+  return <section id="result" className="result-shell flow-lock-screen direct-high-pending-result" aria-labelledby="result-title">
+    <section className="result-overview scroll-section viewport-page" data-reveal>
+      <ResultKoiPond />
+      <div className="result-verdict"><BrushHexagram hexagram={baseHexagram} /></div>
+      <div className="result-summary">
+        <span className="result-number">第 {baseHexagram.king_wen_number} 卦</span>
+        <h2 id="result-title" data-name-length={Array.from(baseHexagram.name).length} tabIndex={-1}>{baseHexagram.name}</h2>
+        {failed
+          ? <button type="button" className="result-detail-button" onClick={onRetry}>再次生成详细解卦</button>
+          : <span className="result-detail-button pending-detail-status" role="status">{task.phase === "TIMEOUT" ? "详细解卦仍在生成" : "详细解卦生成中"}</span>}
+        {failed
+          ? <div className="direct-high-pending-message" role="alert"><p>{task.message}</p><div className="direct-high-pending-actions"><button type="button" onClick={onEdit}>返回修改原问</button><button type="button" onClick={onClear}>重新开始</button></div></div>
+          : <p className="sr-only" role="status" aria-live="polite">{task.message}</p>}
+      </div>
+    </section>
+  </section>;
+}
+
 function ResultView({
   response,
   page8Task,
   onRetryPage8,
   onResumePage8,
+  onRetryDirectHigh,
   onEdit,
   onClear,
   onSave,
@@ -2592,6 +2671,7 @@ function ResultView({
   page8Task: Page8TaskState;
   onRetryPage8: () => void;
   onResumePage8: () => void;
+  onRetryDirectHigh: () => void;
   onEdit: () => void;
   onClear: () => void;
   onSave: (action: string, reviewOn: string | null) => Promise<void>;
@@ -2619,6 +2699,9 @@ function ResultView({
   }, [readingStarted]);
   if (response.product_presentation) {
     return <DirectHighResultView response={response} onEdit={onEdit} onClear={onClear} />;
+  }
+  if (response.chart_facts?.base_hexagram) {
+    return <DirectHighPendingResultView response={response} task={page8Task} onRetry={onRetryDirectHigh} onEdit={onEdit} onClear={onClear} />;
   }
   if (!result) return null;
   const report = result.clarity_report;
@@ -2655,7 +2738,7 @@ function ResultView({
       </div>
       <div className="result-summary">
         <span className="result-number">第 {result.base_hexagram.king_wen_number} 卦</span>
-        <h2 id="result-title" tabIndex={-1}>{result.base_hexagram.name}</h2>
+        <h2 id="result-title" data-name-length={Array.from(result.base_hexagram.name).length} tabIndex={-1}>{result.base_hexagram.name}</h2>
         {baseClassic && <blockquote className="result-canonical"><b>卦辞</b><span>{baseClassic.canonical_text}</span></blockquote>}
         <button type="button" className="result-detail-button" aria-controls="result-reading" aria-expanded={readingStarted} onClick={openDetailedReading}>查看详细解卦</button>
       </div>
@@ -2717,6 +2800,63 @@ function ResultView({
     </div>
     </div>
   </section>;
+}
+
+function MobileFrozenEntry({ onEnter }: { onEnter: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const enterTimerRef = useRef<number | null>(null);
+  const [motionEnabled, setMotionEnabled] = useState<boolean | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [settled, setSettled] = useState(false);
+  const [entering, setEntering] = useState(false);
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const applyPreference = () => {
+      const enabled = !preference.matches;
+      setMotionEnabled(enabled);
+      setSettled(!enabled);
+      setVideoReady(false);
+    };
+    applyPreference();
+    preference.addEventListener("change", applyPreference);
+    return () => preference.removeEventListener("change", applyPreference);
+  }, []);
+
+  useEffect(() => () => {
+    if (enterTimerRef.current !== null) window.clearTimeout(enterTimerRef.current);
+  }, []);
+
+  function revealFilm() {
+    setVideoReady(true);
+    void videoRef.current?.play().catch(() => setSettled(true));
+  }
+
+  function enter() {
+    if (!settled || entering) return;
+    setEntering(true);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    enterTimerRef.current = window.setTimeout(onEnter, reducedMotion ? 0 : 680);
+  }
+
+  return <div className={`p1-mobile-frozen${videoReady ? " is-playing" : ""}${settled ? " is-settled" : ""}${entering ? " is-entering" : ""}`}>
+    <img className="p1-mobile-base" src="/p1-motion-pre-reveal-base-v2.png" alt="" draggable="false" />
+    {motionEnabled ? <video
+      ref={videoRef}
+      className="p1-mobile-motion"
+      src="/p1-mobile-motion-selected-v1.mp4"
+      muted
+      playsInline
+      preload="auto"
+      onCanPlay={revealFilm}
+      onEnded={() => setSettled(true)}
+      onError={() => setSettled(true)}
+      aria-hidden="true"
+    /> : null}
+    <img className="p1-mobile-final" src="/p1-motion-ink-realm-v1.png" alt="水墨山水环抱观象题字，墨滴落入涟漪，小舟停泊于进入观象印圈之前" draggable="false" />
+    <button type="button" className="p1-mobile-enter" aria-label="进入观象" aria-disabled={!settled} onClick={enter} />
+    <p className="sr-only" aria-live="polite">{settled ? "水墨画境已经展开，可以进入观象" : "墨滴正在落入水面，水墨画境正在展开"}</p>
+  </div>;
 }
 
 function EntryArtwork({ className, imgRef }: { className: string; imgRef?: RefObject<HTMLImageElement | null> }) {
@@ -3013,11 +3153,18 @@ function EntryOpening({ sequenceStarted }: { sequenceStarted: boolean }) {
 
 function InquiryInkScene() {
   return <div className="inquiry-ink-scene" aria-hidden="true">
-    <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
-    <InquiryCloudfallCanvas layer="back" />
-    <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
-    <InquiryCloudfallCanvas layer="front" />
-    <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+    <div className="inquiry-ink-desktop">
+      <img className="inquiry-ink-layer inquiry-ink-base" src="/question-pine-cloud-base-v2.webp" alt="" loading="eager" decoding="async" />
+      <InquiryCloudfallCanvas layer="back" />
+      <img className="inquiry-ink-layer inquiry-mountain-occluder" src="/question-cloudfall-mountain-v5.png" alt="" loading="eager" decoding="async" />
+      <InquiryCloudfallCanvas layer="front" />
+      <img className="inquiry-ink-layer inquiry-pine-tree" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+    </div>
+    <div className="inquiry-ink-mobile-frozen">
+      <img className="inquiry-mobile-mountain" src="/question-cloudfall-base-v6.png" alt="" loading="eager" decoding="async" />
+      <img className="inquiry-mobile-pine" src="/question-pine-tree-v2.png" alt="" loading="eager" decoding="async" />
+      <span className="inquiry-mobile-paper-wash" />
+    </div>
   </div>;
 }
 
@@ -3581,25 +3728,65 @@ export function GuanxiangApp() {
     setPage8Task((current) => ({ ...current, phase: "TIMEOUT", message: "本地预览等待已到上限；任务没有自动重试。", requestId }));
   }
 
-  async function launchDirectHigh(numbersInput: number[]): Promise<void> {
+  async function refreshConditionalIntakeForRetry(): Promise<ConditionalIntakeMeta> {
+    const previous = conditionalIntake;
+    if (!previous?.intakeId) return previous ?? { status: "FAIL_OPEN" };
+    const intakeId = `intake-${crypto.randomUUID().replaceAll("-", "")}`;
+    try {
+      const response = await fetch("/api/direct-reading/v2/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({
+          contract_version: "SITES_CONDITIONAL_INTAKE_PRODUCT_V1",
+          intake_id: intakeId,
+          original_question: question,
+        }),
+      });
+      const payload = await response.json() as { status?: string; clarification_prompt?: string; intake_id?: string };
+      if (!response.ok || payload.intake_id !== intakeId) return { status: "FAIL_OPEN" };
+      if (payload.status === "PASS") return { intakeId, status: "PASSED" };
+      if (payload.status === "ASK_ONCE") {
+        if (previous.status === "ANSWERED" && previous.answer) return { intakeId, status: "ANSWERED", answer: previous.answer };
+        return { intakeId, status: "SKIPPED" };
+      }
+    } catch {
+      // A retry may safely use the already confirmed final question if intake is temporarily unavailable.
+    }
+    return { status: "FAIL_OPEN" };
+  }
+
+  async function launchDirectHigh(numbersInput: number[], intakeRoute: ConditionalIntakeMeta | null = conditionalIntake): Promise<void> {
     const requestId = `drv2-${crypto.randomUUID().replaceAll("-", "")}`;
     activePersonalizedRequestRef.current = requestId;
     sessionStorage.setItem(ACTIVE_REQUEST_KEY, requestId);
     setPage8Task({ phase: "SUBMITTING", message: "正在建立一次排盘、一次 fixed-high 的第八页任务。", requestId, startedAt: Date.now(), stage: "SUBMITTING" });
-    const entryMode = conditionalIntake?.status === "ANSWERED" ? "CONFIRMED" : conditionalIntake?.status === "SKIPPED" ? "SKIP" : "CLEAR";
+    const entryMode = intakeRoute?.status === "ANSWERED" ? "CONFIRMED" : intakeRoute?.status === "SKIPPED" ? "SKIP" : "CLEAR";
     const body = JSON.stringify({
       contract_version: "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1",
       request_id: requestId,
       question_text: question,
       numbers: numbersInput,
       entry_mode: entryMode,
-      ...(conditionalIntake?.intakeId ? { intake_id: conditionalIntake.intakeId } : {}),
-      ...(conditionalIntake?.status === "ANSWERED" && conditionalIntake.answer ? { clarification_answer: conditionalIntake.answer } : {}),
+      ...(intakeRoute?.intakeId ? { intake_id: intakeRoute.intakeId } : {}),
+      ...(intakeRoute?.status === "ANSWERED" && intakeRoute.answer ? { clarification_answer: intakeRoute.answer } : {}),
     });
     try {
       const response = await fetch("/api/direct-reading/v2", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
       const payload = await response.json() as ApiResponse;
       if (response.status === 202) {
+        const chartFacts = directHighChartFacts(payload.chart_facts);
+        if (!chartFacts) {
+          failPersonalizedRequest(requestId, "排盘结果不完整，请重新发起。", false);
+          return;
+        }
+        setResponse({
+          status: "RUNNING",
+          request_id: requestId,
+          user_question: question,
+          input_numbers: numbersInput,
+          chart_facts: chartFacts,
+        });
         setPage8Task((current) => ({ ...current, phase: "RUNNING", message: "程序正在按三数成卦；辨识不会参与排盘。" }));
         await pollDirectHigh(requestId);
         return;
@@ -3609,6 +3796,19 @@ export function GuanxiangApp() {
     } catch {
       setPage8Task({ phase: "RECOVERABLE", message: "提交状态暂时无法确认；只能继续查询同一个任务，不会重复提交。", requestId, retryable: false });
     }
+  }
+
+  async function retryDirectHighRequest(): Promise<void> {
+    const parsed = numbers.map(Number);
+    if (parsed.some((value, index) => !numbers[index] || !Number.isInteger(value) || value < 1 || value > 999)) return;
+    setError("");
+    setLoading(true);
+    setProgress("正在重新确认同一问题，随后生成详细解卦……");
+    try {
+      const intakeRoute = await refreshConditionalIntakeForRetry();
+      await launchDirectHigh(parsed, intakeRoute);
+    }
+    finally { setLoading(false); setProgress(""); }
   }
 
   async function submit(event: FormEvent) {
@@ -3637,6 +3837,7 @@ export function GuanxiangApp() {
     </header>
     <main id="top" className="scroll-canvas flow-shell" data-flow-page={flowPage}>
       <section className={`hero entry-hero scroll-section flow-lock-screen${entrySequenceStarted ? " is-sequence-started" : ""}${titleAwake ? " is-title-awake" : ""}`} hidden={flowPage !== 1} aria-labelledby="hero-title">
+        <MobileFrozenEntry onEnter={enterMethod} />
         <EntryArtwork className="entry-hero-final" imgRef={entryHeroImageRef} />
         <EntryOpening sequenceStarted={entrySequenceStarted} />
         <EntryArtwork className="entry-title-focus" />
@@ -3671,16 +3872,18 @@ export function GuanxiangApp() {
 
       <section id="method" className={`method scroll-section flow-lock-screen${methodReady ? " is-ready" : ""}`} hidden={flowPage !== 2} data-reveal aria-labelledby="method-title">
         <MethodRiverFlow />
+        <P2FrozenRiverFlowCanvas active={flowPage === 2} />
         <picture className="method-landscape">
           <source media="(max-width: 900px)" srcSet="/method-river-mobile-v2.webp" />
           <img src="/method-river-wide-v2.webp" alt="" />
         </picture>
+        <span className="method-paper-veil" aria-hidden="true" />
         <VerticalBrand />
         <div className="method-stage">
           <div className="method-quote"><h2 id="method-title" aria-label="在天成象 在地成形 变化见矣" className={emphasizedMethodLine === null ? undefined : "has-active"}>{METHOD_CLASSIC_LINES.map((line, index) => <button key={line} type="button" className={`method-ink-line${emphasizedMethodLine === index ? " is-active" : ""}${activeMethodLine === index ? " is-writing" : ""}`} aria-pressed={activeMethodLine === index} aria-label={`${line} 点击观看整句书写过程`} onPointerEnter={(event) => { if (event.pointerType !== "touch" && activeMethodLine === null) setPreviewMethodLine(index); }} onPointerLeave={(event) => { if (event.pointerType !== "touch") setPreviewMethodLine(null); }} onFocus={() => { if (activeMethodLine === null) setPreviewMethodLine(index); }} onBlur={() => setPreviewMethodLine(null)} onClick={() => writeMethodLine(index)}><span className="method-line-label">{line}</span>{activeMethodLine === index && <span key={`${line}-${methodWritingRun}`} className="method-writing-layer" aria-hidden="true">{Array.from(line).map((character, characterIndex) => <i key={`${character}-${characterIndex}`} style={{ "--char-index": characterIndex } as CSSProperties}>{character}</i>)}</span>}</button>)}</h2><cite>《周易·系辞上》</cite></div>
           <div className="method-explainer">
             <p className="method-lead">炁是流动的<br />也带动象的变化</p>
-            <p className="method-breath"><span>请先放下急于知道答案的心<br />让我带你进入观象<br />现在缓缓做三次深呼吸<br />然后</span><b>进入第一步：正问</b></p>
+            <p className="method-breath"><span>请先放下急于知道答案的心<br />让我带你进入观象<br />现在缓缓做三次深呼吸<br />然后我们进入正问</span></p>
           </div>
         </div>
         <div className="method-readiness"><button id="method-ready" className="method-cta" type="button" aria-label="进入正问" aria-pressed={methodReady} aria-describedby="method-ready-status" onClick={confirmMethodReady}><span className="method-cta-label">进入正问</span></button><p id="method-ready-status" className="method-ready-status" role="status" aria-live="polite">{methodReady ? "准备状态已确认，正在进入正问。" : ""}</p></div>
@@ -3700,15 +3903,15 @@ export function GuanxiangApp() {
               <label className="question-label" htmlFor="primary-question"><span>此刻，你想问的是什么？</span></label>
               <textarea id="primary-question" aria-label="你想问的问题" aria-describedby="question-guidance question-count" placeholder="请把你的问题写在这里……" value={question} maxLength={160} onChange={(event) => { setQuestion(event.target.value); setQuestionConfirmed(false); setIntakeComplete(false); setConditionalIntake(null); setDiscernmentCompletionReason("ENOUGH"); setFinalQuestionDecisionMade(false); setFinalQuestionConfirmed(false); }} />
               <div className="question-meta"><p id="question-guidance">不必担心问得是否准确。<br />写下之后，系统只在必要时请你辨清一处歧义。</p><span id="question-count" aria-live="polite">{question.trim().length} / 160</span></div>
-
-              <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6 || questionConfirmed} onClick={confirmQuestion}><span>{questionConfirmed ? "正在判断是否需要辨识" : <span>问题已经写好<br />继续</span>}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "请再写详细一点，让我更清楚你想问的是什么。" : questionConfirmed ? "系统正在判断是否存在会影响解卦的歧义。" : ""}</p></div>
             </div>
+            <div className="inquiry-advance"><button type="button" disabled={question.trim().length < 6 || questionConfirmed} onClick={confirmQuestion}><span>{questionConfirmed ? "正在判断是否需要辨识" : <span>问题已经写好<br />继续</span>}</span></button><p role="status" aria-live="polite">{question.trim().length > 0 && question.trim().length < 6 ? "请再写详细一点，让我更清楚你想问的是什么。" : questionConfirmed ? "系统正在判断是否存在会影响解卦的歧义。" : ""}</p></div>
           </div>
 
           <div className="inquiry-future-flow" hidden={!questionConfirmed || flowPage < 4 || flowPage > 6}>
           <section id="discernment" className="discernment scroll-section flow-lock-screen" hidden={flowPage !== 4} aria-labelledby="discernment-title">
             <div className="discernment-artwork" aria-hidden="true">
               <img src="/discernment-chrysanthemum-mountains-v2.png" alt="" />
+              <span className="discernment-paper-wash" />
             </div>
             <VerticalBrand />
             <div className="discernment-stage">
@@ -3747,52 +3950,54 @@ export function GuanxiangApp() {
 
           <section id="casting" className="inquiry-step inquiry-panel number-step casting-number-step viewport-page flow-lock-screen" hidden={!finalQuestionConfirmed || flowPage !== 6} aria-labelledby="casting-title">
             <div className="casting-peony-scene" aria-hidden="true">
-              <div className="casting-peony-backdrop" />
-              {PEONY_BREATHS.map((breath, index) => <span
-                className={`peony-bloom peony-bloom-scene-${index + 1}`}
-                key={breath.numeral}
-              >
-                <img className="peony-bloom-image" src={breath.flower} alt="" />
-              </span>)}
-              <div className="peony-petal-layer">
+              <div className="casting-peony-canvas">
+                <div className="casting-peony-backdrop" />
                 {PEONY_BREATHS.map((breath, index) => <span
-                  className={`peony-petal-origin peony-bloom-scene-${index + 1}`}
-                  key={`petals-${breath.numeral}`}
-                  style={{ "--breath-delay": `${index * -1.6}s` } as CSSProperties}
+                  className={`peony-bloom peony-bloom-scene-${index + 1}`}
+                  key={breath.numeral}
                 >
-                  {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
-                    className="peony-falling-petal"
-                    src="/casting-peony-petal-v1.png"
-                    alt=""
-                    key={`${breath.numeral}-${petalIndex}`}
-                    style={{
-                      "--petal-delay": `${motion.delay}s`,
-                      "--petal-left": `${motion.left}%`,
-                      "--petal-quarter-x": `${motion.midX * .45}vw`,
-                      "--petal-mid-x": `${motion.midX}vw`,
-                      "--petal-late-x": `${motion.travelX * .62}vw`,
-                      "--petal-travel-x": `${motion.travelX}vw`,
-                      "--petal-quarter-y": `${motion.travelY * .17}vh`,
-                      "--petal-mid-y": `${motion.travelY * .4}vh`,
-                      "--petal-late-y": `${motion.travelY * .7}vh`,
-                      "--petal-travel-y": `${motion.travelY}vh`,
-                      "--petal-quarter-spin": `${motion.spin * .18}deg`,
-                      "--petal-mid-spin": `${motion.spin * .43}deg`,
-                      "--petal-late-spin": `${motion.spin * .72}deg`,
-                      "--petal-spin": `${motion.spin}deg`,
-                      "--petal-quarter-flip-x": `${motion.flipX * .23}deg`,
-                      "--petal-mid-flip-x": `${motion.flipX * .48}deg`,
-                      "--petal-late-flip-x": `${motion.flipX * .76}deg`,
-                      "--petal-flip-x": `${motion.flipX}deg`,
-                      "--petal-quarter-flip-y": `${motion.flipY * .2}deg`,
-                      "--petal-mid-flip-y": `${motion.flipY * .46}deg`,
-                      "--petal-late-flip-y": `${motion.flipY * .74}deg`,
-                      "--petal-flip-y": `${motion.flipY}deg`,
-                      "--petal-size": `${motion.size}px`,
-                      "--petal-duration": `${motion.duration}s`,
-                    } as CSSProperties}
-                  />)}
+                  <img className="peony-bloom-image" src={breath.flower} alt="" />
                 </span>)}
+                <div className="peony-petal-layer">
+                  {PEONY_BREATHS.map((breath, index) => <span
+                    className={`peony-petal-origin peony-bloom-scene-${index + 1}`}
+                    key={`petals-${breath.numeral}`}
+                    style={{ "--breath-delay": `${index * -1.6}s` } as CSSProperties}
+                  >
+                    {PEONY_PETAL_MOTIONS.map((motion, petalIndex) => <img
+                      className="peony-falling-petal"
+                      src="/casting-peony-petal-v1.png"
+                      alt=""
+                      key={`${breath.numeral}-${petalIndex}`}
+                      style={{
+                        "--petal-delay": `${motion.delay}s`,
+                        "--petal-left": `${motion.left}%`,
+                        "--petal-quarter-x": `${motion.midX * .45}vw`,
+                        "--petal-mid-x": `${motion.midX}vw`,
+                        "--petal-late-x": `${motion.travelX * .62}vw`,
+                        "--petal-travel-x": `${motion.travelX}vw`,
+                        "--petal-quarter-y": `${motion.travelY * .17}vh`,
+                        "--petal-mid-y": `${motion.travelY * .4}vh`,
+                        "--petal-late-y": `${motion.travelY * .7}vh`,
+                        "--petal-travel-y": `${motion.travelY}vh`,
+                        "--petal-quarter-spin": `${motion.spin * .18}deg`,
+                        "--petal-mid-spin": `${motion.spin * .43}deg`,
+                        "--petal-late-spin": `${motion.spin * .72}deg`,
+                        "--petal-spin": `${motion.spin}deg`,
+                        "--petal-quarter-flip-x": `${motion.flipX * .23}deg`,
+                        "--petal-mid-flip-x": `${motion.flipX * .48}deg`,
+                        "--petal-late-flip-x": `${motion.flipX * .76}deg`,
+                        "--petal-flip-x": `${motion.flipX}deg`,
+                        "--petal-quarter-flip-y": `${motion.flipY * .2}deg`,
+                        "--petal-mid-flip-y": `${motion.flipY * .46}deg`,
+                        "--petal-late-flip-y": `${motion.flipY * .74}deg`,
+                        "--petal-flip-y": `${motion.flipY}deg`,
+                        "--petal-size": `${motion.size}px`,
+                        "--petal-duration": `${motion.duration}s`,
+                      } as CSSProperties}
+                    />)}
+                  </span>)}
+                </div>
               </div>
             </div>
             <VerticalBrand />
@@ -3836,6 +4041,7 @@ export function GuanxiangApp() {
         page8Task={page8Task}
         onRetryPage8={retryPersonalizedRequest}
         onResumePage8={resumePersonalizedRequest}
+        onRetryDirectHigh={retryDirectHighRequest}
         onEdit={editQuestion}
         onClear={clearQuestion}
         onSave={saveObservation}

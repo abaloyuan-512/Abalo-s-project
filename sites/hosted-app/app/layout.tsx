@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { MobileScrollPetal } from "./MobileScrollPetal";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://guanxiang-abalo.abaloyuan.chatgpt.site"),
@@ -27,7 +28,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>{children}<MobileScrollPetal /></body>
     </html>
   );
 }
