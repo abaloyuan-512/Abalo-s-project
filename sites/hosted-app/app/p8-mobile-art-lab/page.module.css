@@ -1,0 +1,212 @@
+.lab {
+  min-height: 100svh;
+  color: #2d2923;
+  background: #eee2cf;
+}
+
+.previewShell {
+  min-height: 100svh;
+  padding: 22px 24px 32px;
+  display: grid;
+  place-items: start center;
+  overflow: auto;
+  color: #2d2923;
+  background:
+    radial-gradient(circle at 50% 2%, rgba(255, 250, 239, .92), transparent 42%),
+    #d9cebc;
+}
+
+.previewColumn {
+  width: 430px;
+  display: grid;
+  gap: 10px;
+}
+
+.previewHeader {
+  min-height: 30px;
+  padding: 0 4px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: rgba(45, 41, 35, .66);
+  font-family: "STKaiti", "KaiTi", serif;
+  letter-spacing: .08em;
+}
+
+.previewHeader span { font-size: 13px; }
+.previewHeader b { color: #854534; font-size: 14px; font-weight: 400; }
+
+.deviceFrame {
+  width: 430px;
+  height: 932px;
+  overflow: hidden;
+  background: #eee2cf;
+  border: 1px solid rgba(62, 48, 38, .28);
+  border-radius: 34px;
+  box-shadow: 0 24px 70px rgba(54, 40, 30, .22), 0 2px 8px rgba(54, 40, 30, .14);
+}
+
+.deviceViewport {
+  width: 430px;
+  height: 932px;
+  display: block;
+  background: #eee2cf;
+  border: 0;
+}
+
+.previewNote {
+  margin: 0;
+  padding: 0 4px;
+  color: rgba(45, 41, 35, .5);
+  font: 400 11px/1.5 "STKaiti", "KaiTi", serif;
+  letter-spacing: .04em;
+  text-align: center;
+}
+
+.reference,
+.web-copy,
+.motionOn {}
+
+.labBadge {
+  position: fixed;
+  z-index: 40;
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  max-width: calc(100vw - 24px);
+  padding: 7px 10px;
+  display: grid;
+  gap: 2px;
+  color: rgba(45, 41, 35, .78);
+  background: rgba(246, 237, 221, .9);
+  border: 1px solid rgba(99, 71, 53, .18);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(71, 49, 35, .08);
+  font-family: "STKaiti", "KaiTi", serif;
+  pointer-events: none;
+}
+
+.labBadge b { font-size: 12px; font-weight: 400; letter-spacing: .08em; }
+.labBadge span { color: rgba(45, 41, 35, .52); font-size: 10px; }
+
+.motionOff :global(.page8-kun-mist),
+.motionOff :global(.page8-kun-breath) { animation: none !important; }
+.motionOff :global(.page8-photon-river) { display: none; }
+
+/* Keep the current visible after its first bright cluster passes: the canvas
+ * sits above the paper veil, while the reading copy remains above the canvas. */
+.motionOn :global(.page8-photon-river) {
+  z-index: 5;
+  opacity: .78;
+}
+
+.motionOn :global(.page8-kun-copy) { z-index: 6; }
+
+@media (max-width: 760px) {
+  .previewShell {
+    padding: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .previewColumn { width: 100vw; gap: 0; }
+  .previewHeader,
+  .previewNote { display: none; }
+
+  .deviceFrame,
+  .deviceViewport {
+    width: 100vw;
+    height: 100svh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Default candidate: preserve the web artwork's ink definition on a tall
+   * screen. The veil protects the reading area without washing the whole
+   * composition, and each act keeps its own useful focal crop. */
+  .web-copy :global(.page8-kun-background),
+  .web-copy :global(.page8-kun-mist),
+  .web-copy :global(.page8-kun-breath) {
+    object-position: 50% center;
+  }
+
+  .web-copy :global(.page8-kun-scene.is-changed-hexagram .page8-kun-background),
+  .web-copy :global(.page8-kun-scene.is-changed-hexagram .page8-kun-mist),
+  .web-copy :global(.page8-kun-scene.is-changed-hexagram .page8-kun-breath) {
+    object-position: 57% center;
+  }
+
+  .web-copy :global(.page8-kun-paper-veil) {
+    left: -8vw !important;
+    bottom: -4svh;
+    width: 116vw;
+    height: 79svh;
+    background: linear-gradient(
+      180deg,
+      rgba(239, 228, 209, 0) 0%,
+      rgba(239, 228, 209, .16) 18%,
+      rgba(239, 228, 209, .5) 46%,
+      rgba(239, 228, 209, .66) 74%,
+      rgba(239, 228, 209, .72) 100%
+    );
+    filter: blur(24px);
+    opacity: .9;
+  }
+
+  .web-near :global(.page8-kun-paper-veil) {
+    bottom: -5vh;
+    height: 84svh;
+    opacity: .94;
+  }
+
+  .web-near :global(.page8-kun-copy),
+  .web-near :global(.page8-kun-scene.is-copy-left .page8-kun-copy),
+  .web-near :global(.page8-kun-scene.is-copy-right .page8-kun-copy) {
+    right: 24px;
+    bottom: 46px;
+    left: 24px;
+    max-height: 78svh;
+  }
+
+  .web-near :global(.page8-kun-copy h2) { font-size: clamp(58px, 16vw, 70px); }
+  .web-near :global(.page8-kun-purpose) { font-size: 16px; line-height: 1.62; }
+  .web-near :global(.page8-kun-deterministic > p:not(.page8-kun-section-label)),
+  .web-near :global(.page8-kun-interpretation > p:not(.page8-kun-section-label)) {
+    font-size: 15px;
+    line-height: 1.68;
+  }
+  .web-near :global(.page8-kun-deterministic blockquote) { font-size: 14px; line-height: 1.68; }
+
+  .web-air :global(.page8-kun-background),
+  .web-air :global(.page8-kun-mist),
+  .web-air :global(.page8-kun-breath) { object-position: 52% center; }
+
+  .web-air :global(.page8-kun-paper-veil) {
+    bottom: -12vh;
+    height: 68svh;
+    opacity: .88;
+  }
+
+  .web-air :global(.page8-kun-copy),
+  .web-air :global(.page8-kun-scene.is-copy-left .page8-kun-copy),
+  .web-air :global(.page8-kun-scene.is-copy-right .page8-kun-copy) {
+    right: 28px;
+    bottom: 54px;
+    left: 28px;
+    max-height: 66svh;
+  }
+
+  .web-air :global(.page8-kun-copy h2) { font-size: clamp(56px, 15.5vw, 66px); }
+  .web-air :global(.page8-kun-purpose) { margin-bottom: 12px; font-size: 15px; }
+  .web-air :global(.page8-kun-reading) { padding-top: 10px; }
+  .web-air :global(.page8-kun-deterministic > p:not(.page8-kun-section-label)),
+  .web-air :global(.page8-kun-interpretation > p:not(.page8-kun-section-label)) {
+    font-size: 14px;
+    line-height: 1.62;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motionOn :global(.page8-kun-mist),
+  .motionOn :global(.page8-kun-breath) { animation: none !important; }
+}

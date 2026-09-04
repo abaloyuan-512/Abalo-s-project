@@ -1,0 +1,269 @@
+.lab {
+  --p6-paper: #f1ede5;
+  --p6-ink: #2d302b;
+  --p6-ink-soft: #555b53;
+  --p6-mist: #74776d;
+  --p6-cinnabar: #963b28;
+  --p6-cinnabar-dark: #742c20;
+  --p6-brush: var(--brush, "Ma Shan Zheng", "STKaiti", "KaiTi", serif);
+  --p6-input: var(--input-brush, "Zhi Mang Xing", "STKaiti", "KaiTi", serif);
+  min-height: 100svh;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--p6-ink);
+  background: #dfd9cf;
+  font-family: var(--p6-brush);
+}
+
+.lab * { box-sizing: border-box; }
+
+.screen {
+  position: relative;
+  isolation: isolate;
+  width: 430px;
+  height: 932px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: var(--p6-paper);
+  transform: scale(var(--p6-preview-scale, 1));
+  transform-origin: top center;
+}
+
+.paperWash {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  opacity: .56;
+  background: url("/casting-peony-background-v3.webp") left center / auto 100% no-repeat;
+  filter: saturate(.82) brightness(1.035);
+  pointer-events: none;
+}
+
+.peonyScene {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  overflow: hidden;
+  perspective: 760px;
+  pointer-events: none;
+}
+
+.sceneCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 900px;
+  transform: translate3d(-305px, 360px, 0) scale(.6);
+  transform-origin: left top;
+}
+
+.peonyBackdrop {
+  position: absolute;
+  inset: 0;
+  opacity: .9;
+  background: url("/casting-peony-background-v3.webp") center / cover no-repeat;
+  mix-blend-mode: multiply;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, .18) 10%, #000 31%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, .18) 10%, #000 31%, #000 86%, transparent 100%);
+}
+
+.bloom,
+.petalOrigin {
+  position: absolute;
+  width: 187px;
+  aspect-ratio: 1;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.bloom { z-index: 1; }
+.bloom img { width: 100%; height: 100%; display: block; object-fit: contain; opacity: .96; filter: saturate(.72) contrast(.92); mix-blend-mode: multiply; }
+.petalLayer { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+.petalOrigin { z-index: 0; }
+
+.bloom1 { left: 43.9%; top: 67.7%; transform: translate(-50%, -72%) rotate(-2deg); }
+.bloom2 { left: 59%; top: 35%; width: 176px; transform: translate(-50%, -72%) rotate(1deg); }
+.bloom3 { left: 78.8%; top: 54%; width: 170px; transform: translate(-50%, -72%) rotate(-1deg); }
+
+.fallingPetal {
+  position: absolute;
+  z-index: 2;
+  top: 48%;
+  left: var(--petal-left);
+  width: var(--petal-size);
+  height: auto;
+  display: block;
+  opacity: 1;
+  filter: saturate(.45) brightness(1.08) contrast(.96) drop-shadow(0 2px 2px rgba(80, 55, 42, .08));
+  transform: translate3d(-50%, -5px, 0) rotateZ(0) rotateX(0) rotateY(0);
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform, opacity;
+  animation: petalFall var(--petal-duration) linear infinite;
+  animation-delay: calc(var(--breath-delay) + var(--petal-delay));
+}
+
+.restingPetal { position: absolute; z-index: 0; width: 52px; height: auto; opacity: .9; filter: saturate(.72) brightness(1.03) drop-shadow(0 3px 4px rgba(80,55,42,.08)); }
+.restingPetal1 { left: 55%; bottom: 9%; transform: rotate(-72deg); }
+.restingPetal2 { left: 72%; bottom: 2%; width: 68px; transform: rotate(42deg) scaleX(-1); }
+.restingPetal3 { right: 6%; bottom: 12%; width: 60px; transform: rotate(78deg); }
+
+.brand {
+  position: absolute;
+  z-index: 3;
+  top: 70px;
+  left: 26px;
+  width: 52px;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  color: var(--p6-ink);
+}
+
+.brand b { font: 400 31px/.92 var(--p6-brush); letter-spacing: .06em; writing-mode: vertical-rl; }
+.brand i { color: var(--p6-cinnabar); font: 400 11px/1 var(--p6-brush); }
+.brand i::after { content: ""; width: 22px; height: 1px; margin: 6px auto 0; display: block; background: rgba(150, 59, 40, .45); }
+
+.composition { position: absolute; z-index: 2; inset: 0; margin: 0; }
+.heading { position: absolute; top: 62px; left: 88px; right: 22px; }
+.eyebrow { margin: 0; color: var(--p6-cinnabar); font: 400 13px/1.35 var(--p6-brush); letter-spacing: .2em; }
+.heading h1 { margin: 8px 0 0; color: var(--p6-ink); font: 400 70px/.92 var(--p6-brush); letter-spacing: .075em; }
+.contemplation { margin: 20px 0 0; display: grid; gap: 5px; color: var(--p6-ink-soft); font: 400 17px/1.38 var(--p6-brush); letter-spacing: .055em; }
+.contemplation span:last-child { color: var(--p6-ink); }
+
+.numberField {
+  position: absolute;
+  top: 276px;
+  left: 34px;
+  right: 24px;
+  height: 176px;
+  margin: 0;
+  padding: 0;
+  display: block;
+  border: 0;
+}
+
+.numberField legend { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.breath {
+  position: absolute;
+  width: 136px;
+  min-width: 0;
+  min-height: 92px;
+  display: grid;
+  grid-template-rows: auto 42px;
+  align-content: start;
+  color: var(--p6-ink);
+  cursor: text;
+}
+
+.breath:nth-of-type(1) { top: 0; left: 0; }
+.breath:nth-of-type(2) { top: 38px; left: 119px; }
+.breath:nth-of-type(3) { top: 76px; left: 226px; }
+
+.breathCopy { display: grid; align-content: start; gap: 2px; }
+.breathCopy b { color: var(--p6-cinnabar-dark); font: 400 23px/1.1 var(--p6-brush); letter-spacing: .12em; transition: color 240ms ease, transform 240ms ease; }
+.breathCopy small { color: var(--p6-ink-soft); font: 400 11px/1.2 var(--p6-brush); letter-spacing: .04em; white-space: nowrap; }
+
+.breath input {
+  width: 136px;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 5px 0 3px;
+  color: var(--p6-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  outline: 0;
+  caret-color: var(--p6-cinnabar);
+  font: 400 31px/1 var(--p6-input);
+  letter-spacing: .04em;
+  text-align: left;
+  transition: color 250ms ease, text-shadow 250ms ease, border-color 250ms ease;
+}
+
+.breath input::placeholder { color: rgba(72, 77, 70, .74); opacity: 1; }
+.breath input:focus-visible { color: var(--p6-cinnabar-dark); border-bottom-color: rgba(150, 59, 40, .32); text-shadow: 0 0 18px rgba(150, 59, 40, .16); }
+.breath:has(input:focus-visible) .breathCopy b { color: var(--p6-cinnabar); transform: translateY(-1px); }
+.breath input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+.breath input::-webkit-inner-spin-button,
+.breath input::-webkit-outer-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
+
+.rangeNote { position: absolute; top: 229px; left: 88px; right: 24px; margin: 0; color: var(--p6-mist); font: 400 11px/1.6 var(--p6-brush); letter-spacing: .035em; }
+
+.castButton {
+  position: absolute;
+  left: 24px;
+  bottom: 74px;
+  min-height: 58px;
+  margin: 0;
+  padding: 5px 7px 8px 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--p6-cinnabar-dark);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  font: 400 22px/1.18 var(--p6-brush);
+  letter-spacing: .075em;
+  text-align: center;
+  transform-origin: left center;
+  transition: color 240ms ease, transform 240ms cubic-bezier(.2, .75, .2, 1);
+}
+
+.castButton::after { content: ""; position: absolute; right: 7px; bottom: 2px; left: 43px; height: 1px; background: rgba(116, 44, 32, .42); transform: scaleX(.66); transform-origin: left center; transition: transform 280ms ease, opacity 280ms ease; }
+.castButton img { width: 31px; height: 31px; filter: sepia(.2); animation: baguaBreath 2s ease-in-out infinite; }
+.castButton:hover,
+.castButton:focus-visible { color: #8b3021; outline: 0; transform: translateY(-2px); }
+.castButton:hover::after,
+.castButton:focus-visible::after { transform: scaleX(1); }
+.castButton:active { transform: translateY(1px) scale(.985); }
+
+.message { position: absolute; left: 24px; bottom: 52px; width: 300px; margin: 0; color: var(--p6-cinnabar-dark); font: 400 11px/1.4 var(--p6-brush); letter-spacing: .04em; }
+
+@keyframes petalFall {
+  0% { opacity: 1; transform: translate3d(-50%, -5px, 0) rotateZ(0) rotateX(0) rotateY(0) scale(.76); }
+  10% { opacity: 1; }
+  24% { opacity: 1; transform: translate3d(calc(-50% + var(--petal-quarter-x)), var(--petal-quarter-y), 22px) rotateZ(var(--petal-quarter-spin)) rotateX(var(--petal-quarter-flip-x)) rotateY(var(--petal-quarter-flip-y)) scale(.92); }
+  47% { opacity: 1; transform: translate3d(calc(-50% + var(--petal-mid-x)), var(--petal-mid-y), -12px) rotateZ(var(--petal-mid-spin)) rotateX(var(--petal-mid-flip-x)) rotateY(var(--petal-mid-flip-y)) scale(1); }
+  71% { opacity: .56; transform: translate3d(calc(-50% + var(--petal-late-x)), var(--petal-late-y), 18px) rotateZ(var(--petal-late-spin)) rotateX(var(--petal-late-flip-x)) rotateY(var(--petal-late-flip-y)) scale(.9); }
+  91% { opacity: .14; }
+  100% { opacity: 0; transform: translate3d(calc(-50% + var(--petal-travel-x)), var(--petal-travel-y), -8px) rotateZ(var(--petal-spin)) rotateX(var(--petal-flip-x)) rotateY(var(--petal-flip-y)) scale(.72); }
+}
+
+@keyframes baguaBreath { 0%, 100% { opacity: .76; transform: scale(.96); } 50% { opacity: 1; transform: scale(1.04); } }
+
+@media (max-width: 370px) {
+  .heading { left: 82px; right: 14px; }
+  .heading h1 { font-size: 62px; }
+  .contemplation { font-size: 15px; }
+  .numberField { left: 24px; right: 16px; }
+  .breath { width: 122px; }
+  .breath:nth-of-type(2) { left: 106px; }
+  .breath:nth-of-type(3) { left: 202px; }
+  .breathCopy b { font-size: 20px; }
+  .breathCopy small { font-size: 9px; }
+  .breath input { width: 122px; font-size: 26px; }
+  .rangeNote { left: 82px; right: 16px; }
+  .castButton,
+  .message { left: 18px; }
+}
+
+@media (min-width: 761px) { .screen { border-radius: 0; } }
+@media (hover: none) { .castButton:hover { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fallingPetal { display: none; animation: none; }
+  .castButton img { animation: none; opacity: .92; transform: none; }
+  .breathCopy b,
+  .breath input,
+  .castButton,
+  .castButton::after { transition-duration: .01ms; }
+}

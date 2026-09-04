@@ -1,0 +1,44 @@
+.labShell {
+  position: relative;
+}
+
+.headingWithoutLabel {
+  min-height: 86px;
+}
+
+.backdrop {
+  display: block;
+  background: url("/direct-reading-v2-preview/p9-celestial-background-v2.webp") center / 100% 100% no-repeat;
+}
+
+.starAsset {
+  display: block;
+  aspect-ratio: 1;
+  background: url("/direct-reading-v2-preview/p9-star-spark-v1.png") center / contain no-repeat;
+}
+
+.ambientStar {
+  width: clamp(11px, 1.15vw, 16px) !important;
+  will-change: auto;
+}
+
+.ambientStar[data-active="true"] {
+  will-change: opacity, transform, filter;
+}
+
+@media (max-width: 760px) {
+  .headingWithoutLabel {
+    min-height: 78px;
+  }
+
+  .ambientStar {
+    width: 16px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambientStar {
+    opacity: .24 !important;
+    transform: translate(-40.87%, -49.85%) scale(.86) !important;
+  }
+}
