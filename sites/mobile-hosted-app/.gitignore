@@ -42,3 +42,10 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+/dist-portable/
+/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.tsbuildinfo
+/worker-runtime.d.ts

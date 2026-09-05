@@ -204,7 +204,7 @@ export default function DirectReadingV2PreviewPage() {
     const id = newRequestId();
     activeContext.current = { question, numbers: numbers as [string, string, string] };
     window.sessionStorage.setItem(ACTIVE_REQUEST_KEY, id);
-    window.sessionStorage.setItem(ACTIVE_CONTEXT_KEY, JSON.stringify({ question, numbers } satisfies ActiveContext));
+    window.sessionStorage.setItem(ACTIVE_CONTEXT_KEY, JSON.stringify(activeContext.current));
     pollAttempts.current = 0;
     setRequestId(id);
     setStage("正在建立任务");

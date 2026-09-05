@@ -176,6 +176,26 @@ def test_authorized_request_returns_real_provenance_and_mentor_report() -> None:
     assert payload["deterministic_result"]["mentor_report"]["template_version"] == "SITES_MENTOR_REPORT_V1"
 
 
+@pytest.mark.parametrize("declared_length", ["100", "999999999", "invalid"])
+def test_unauthorized_body_drain_is_bounded(monkeypatch, declared_length: str) -> None:
+    monkeypatch.setattr(hosted_api, "process_sites_meihua_v2_request", lambda *_a, **_k: pytest.fail("engine called"))
+    with running_server() as port:
+        connection = http.client.HTTPConnection("127.0.0.1", port, timeout=2)
+        try:
+            connection.putrequest("POST", "/api/v2/meihua")
+            connection.putheader("Content-Type", "application/json")
+            connection.putheader("Content-Length", declared_length)
+            connection.endheaders()
+            # Deliberately never send the promised body.
+            started = time.monotonic()
+            response = connection.getresponse()
+            assert response.status == 401
+            assert json.loads(response.read()) == {"status": "unauthorized"}
+            assert time.monotonic() - started < 1.5
+        finally:
+            connection.close()
+
+
 def test_authorized_v3_request_returns_concrete_question_and_clarity_report() -> None:
     with running_server() as port:
         status, _headers, payload = request(port, "POST", "/api/v3/meihua", key=ENGINE_KEY, payload=valid_v3_request())

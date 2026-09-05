@@ -4,6 +4,12 @@ import {
   readDirectReadingPreviewJob,
   reserveDirectReadingPreviewJob,
 } from "../../../../db/direct-reading-preview-jobs";
+import {
+  PUBLIC_RATE_LIMIT_MAX_REQUESTS,
+  PUBLIC_RATE_LIMIT_WINDOW_SECONDS,
+  publicRateLimitSubject,
+  reservePublicRequestRateLimit,
+} from "../../../../db/public-request-rate-limit";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -36,7 +42,7 @@ type Payload = {
   [key: string]: unknown;
 };
 
-function safeJson(body: unknown, status: number): Response {
+function safeJson(body: unknown, status: number, headers: Record<string, string> = {}): Response {
   return Response.json(body, {
     status,
     headers: {
@@ -44,6 +50,7 @@ function safeJson(body: unknown, status: number): Response {
       "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
       "Referrer-Policy": "no-referrer",
       "X-Content-Type-Options": "nosniff",
+      ...headers,
     },
   });
 }
@@ -62,6 +69,10 @@ function isAuthenticatedOwner(request: Request): boolean {
 
 function previewEnabled(): boolean {
   return process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED?.trim().toLowerCase() === "true";
+}
+
+function publicBetaEnabled(): boolean {
+  return process.env.ABALO_PUBLIC_BETA_ENABLED?.trim().toLowerCase() === "true";
 }
 
 function upstreamUrl(path: string): URL | null {
@@ -217,8 +228,8 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
     return {
       heading: expectedHeading,
       markdown: item.markdown,
-      start_offset: item.start_offset,
-      end_offset: item.end_offset,
+      start_offset: item.start_offset as number,
+      end_offset: item.end_offset as number,
       sha256: item.sha256,
     };
   };
@@ -378,7 +389,9 @@ async function publicAllowList(payload: Payload): Promise<Payload> {
 }
 
 function preflight(request: Request): Response | null {
-  if (!isAuthenticatedOwner(request)) return safeJson({ error: "请先登录私有预览。", terminal: true }, 403);
+  if (!publicBetaEnabled() && !isAuthenticatedOwner(request)) {
+    return safeJson({ error: "请先登录私有预览。", terminal: true }, 403);
+  }
   if (!previewEnabled()) return safeJson({ error: "Direct Reading V2 私有预览尚未开启。", terminal: true }, 503);
   return null;
 }
@@ -450,6 +463,24 @@ export async function POST(request: Request): Promise<Response> {
     !intakeValid || !answerValid
   ) return safeJson({ error: "问题、三个数字或请求版本无效。" }, 400);
 
+  const url = upstreamUrl("/api/preview/v2/direct-reading/jobs");
+  const key = process.env.PYTHON_ENGINE_KEY?.trim();
+  if (!isAuthenticatedOwner(request)) {
+    if (!url || !key) return safeJson({ error: "Direct Reading V2 引擎尚未连接，未发起模型请求。" }, 503);
+    const subjectHash = await publicRateLimitSubject(request, key, "direct-reading-v2");
+    if (!subjectHash) return safeJson({ error: "暂时无法确认访问来源，未发起模型请求。" }, 503);
+    try {
+      const rateLimit = await reservePublicRequestRateLimit(subjectHash, requestId);
+      if (!rateLimit.allowed) {
+        return safeJson({
+          error: `同一网络每小时最多发起 ${PUBLIC_RATE_LIMIT_MAX_REQUESTS} 次观象，请稍后再试。`,
+        }, 429, { "Retry-After": String(PUBLIC_RATE_LIMIT_WINDOW_SECONDS) });
+      }
+    } catch {
+      return safeJson({ error: "访问频率守门暂时不可用，未发起模型请求。" }, 503);
+    }
+  }
+
   const digest = await sha256(canonical({
     question_text: payload.question_text,
     numbers: payload.numbers,
@@ -472,8 +503,6 @@ export async function POST(request: Request): Promise<Response> {
     }, 202);
   }
 
-  const url = upstreamUrl("/api/preview/v2/direct-reading/jobs");
-  const key = process.env.PYTHON_ENGINE_KEY?.trim();
   if (!url || !key) {
     await markDirectReadingPreviewJobLost(requestId, "ENGINE_NOT_CONNECTED");
     return safeJson({ error: "Direct Reading V2 引擎尚未连接，未自动重复生成。" }, 503);

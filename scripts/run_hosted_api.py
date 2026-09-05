@@ -134,6 +134,35 @@ class HostedApiHandler(BaseHTTPRequestHandler):
         provided = self.headers.get("X-Abalo-Engine-Key", "")
         return hmac.compare_digest(provided.encode("utf-8"), self.hosted_server.engine_key.encode("utf-8"))
 
+    def _discard_unauthorized_body(self) -> None:
+        """Bounded drain prevents an unread POST body from resetting the 401.
+
+        Do not parse the body or reach the engine. A slow, oversized or malformed
+        unauthenticated request must not hold this handler open indefinitely.
+        """
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            return
+        if self.headers.get("Transfer-Encoding") or not 0 < length <= OWNER_PREVIEW_MAX_BODY_BYTES:
+            return
+        previous_timeout = self.connection.gettimeout()
+        deadline = time.monotonic() + 0.2
+        try:
+            while length > 0:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self.connection.settimeout(remaining)
+                chunk = self.rfile.read1(min(length, 4096))
+                if not chunk:
+                    break
+                length -= len(chunk)
+        except OSError:
+            pass
+        finally:
+            self.connection.settimeout(previous_timeout)
+
     def do_GET(self) -> None:  # noqa: N802
         path = self.path.split("?", 1)[0]
         if path == "/healthz":
@@ -579,6 +608,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.NOT_FOUND, {"status": "not_found"})
             return
         if not self._authorized():
+            self._discard_unauthorized_body()
             self._send_json(HTTPStatus.UNAUTHORIZED, {"status": "unauthorized"})
             return
         content_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()

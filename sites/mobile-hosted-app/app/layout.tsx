@@ -4,7 +4,7 @@ import { MobileScrollPetal } from "./MobileScrollPetal";
 import { PwaRuntime } from "./PwaRuntime";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://guanxiang-mobile.abaloyuan.chatgpt.site"),
+  metadataBase: new URL(process.env.GUANXIANG_PUBLIC_ORIGIN || "https://guanxiang-mobile.abaloyuan.chatgpt.site"),
   applicationName: "观象",
   manifest: "/manifest-v2.webmanifest",
   title: "观象 · 寂然不动，感而遂通天下之故",

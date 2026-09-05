@@ -7,6 +7,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
+    "dist-portable/**",
+    "work/**",
+    "worker-runtime.d.ts",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",

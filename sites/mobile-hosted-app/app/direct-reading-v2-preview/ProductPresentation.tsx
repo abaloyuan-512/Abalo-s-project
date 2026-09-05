@@ -220,8 +220,8 @@ function P9StarField() {
   useEffect(() => {
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const pageVisible = () => document.visibilityState === "visible";
-    let burstTimer: ReturnType<typeof setTimeout> | undefined;
-    let clearTimer: ReturnType<typeof setTimeout> | undefined;
+    let burstTimer: number | undefined;
+    let clearTimer: number | undefined;
 
     const clearTimers = () => {
       if (burstTimer) window.clearTimeout(burstTimer);

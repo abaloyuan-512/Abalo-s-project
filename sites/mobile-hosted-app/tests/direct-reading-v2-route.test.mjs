@@ -194,6 +194,73 @@ test("direct preview is owner-only and disabled by default", async () => {
   }
 });
 
+test("public beta opens the anonymous API boundary only behind its explicit switch", async () => {
+  const previousPublicBeta = process.env.ABALO_PUBLIC_BETA_ENABLED;
+  const previousDirectGate = process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED;
+  const previousIntakeGate = process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED;
+  process.env.ABALO_PUBLIC_BETA_ENABLED = "true";
+  process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED = "true";
+  process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED = "true";
+  try {
+    const app = await worker();
+    const direct = await app.fetch(new Request("http://localhost/api/direct-reading/v2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    }), { ...baseEnv, DB: createDirectDb() }, context);
+    const intake = await app.fetch(new Request("http://localhost/api/direct-reading/v2/intake", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    }), baseEnv, context);
+    assert.equal(direct.status, 400);
+    assert.equal(intake.status, 400);
+  } finally {
+    if (previousPublicBeta === undefined) delete process.env.ABALO_PUBLIC_BETA_ENABLED;
+    else process.env.ABALO_PUBLIC_BETA_ENABLED = previousPublicBeta;
+    if (previousDirectGate === undefined) delete process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED;
+    else process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED = previousDirectGate;
+    if (previousIntakeGate === undefined) delete process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED;
+    else process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED = previousIntakeGate;
+  }
+});
+
+test("public beta rejects an unidentifiable client before reserving a reading job", async () => {
+  const previousPublicBeta = process.env.ABALO_PUBLIC_BETA_ENABLED;
+  const previousDirectGate = process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED;
+  const previousUrl = process.env.PYTHON_ENGINE_URL;
+  const previousKey = process.env.PYTHON_ENGINE_KEY;
+  process.env.ABALO_PUBLIC_BETA_ENABLED = "true";
+  process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED = "true";
+  process.env.PYTHON_ENGINE_URL = "https://preview-engine.example";
+  process.env.PYTHON_ENGINE_KEY = "public-beta-test-engine-key-that-is-long-enough";
+  try {
+    const app = await worker();
+    const db = createDirectDb();
+    const response = await app.fetch(new Request("http://localhost/api/direct-reading/v2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contract_version: "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1",
+        request_id: "drv2-2222222222222222",
+        question_text: "我现在是否应该继续推进这个已经完成准备的测试项目？",
+        numbers: [17, 42, 88],
+      }),
+    }), { ...baseEnv, DB: db }, context);
+    assert.equal(response.status, 503);
+    assert.equal(db.jobs.size, 0);
+  } finally {
+    if (previousPublicBeta === undefined) delete process.env.ABALO_PUBLIC_BETA_ENABLED;
+    else process.env.ABALO_PUBLIC_BETA_ENABLED = previousPublicBeta;
+    if (previousDirectGate === undefined) delete process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED;
+    else process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED = previousDirectGate;
+    if (previousUrl === undefined) delete process.env.PYTHON_ENGINE_URL;
+    else process.env.PYTHON_ENGINE_URL = previousUrl;
+    if (previousKey === undefined) delete process.env.PYTHON_ENGINE_KEY;
+    else process.env.PYTHON_ENGINE_KEY = previousKey;
+  }
+});
+
 test("wrong owner and four-to-five-character questions fail before persistence", async () => {
   const previousGate = process.env.ABALO_DIRECT_READING_V2_PREVIEW_ENABLED;
   const previousOwner = process.env.ABALO_PREVIEW_OWNER_EMAIL;

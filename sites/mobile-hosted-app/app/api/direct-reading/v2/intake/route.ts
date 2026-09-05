@@ -1,9 +1,16 @@
+import {
+  PUBLIC_RATE_LIMIT_MAX_REQUESTS,
+  PUBLIC_RATE_LIMIT_WINDOW_SECONDS,
+  publicRateLimitSubject,
+  reservePublicRequestRateLimit,
+} from "../../../../../db/public-request-rate-limit";
+
 const MAX_REQUEST_BYTES = 4 * 1024;
 const TIMEOUT_MS = 25_000;
 const CONTRACT_VERSION = "SITES_CONDITIONAL_INTAKE_PRODUCT_V1";
 const INTAKE_ID_PATTERN = /^intake-[a-f0-9]{16,64}$/;
 
-function safeJson(body: unknown, status: number): Response {
+function safeJson(body: unknown, status: number, headers: Record<string, string> = {}): Response {
   return Response.json(body, {
     status,
     headers: {
@@ -11,6 +18,7 @@ function safeJson(body: unknown, status: number): Response {
       "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
       "Referrer-Policy": "no-referrer",
       "X-Content-Type-Options": "nosniff",
+      ...headers,
     },
   });
 }
@@ -26,6 +34,10 @@ function isAuthenticatedOwner(request: Request): boolean {
 
 function enabled(): boolean {
   return process.env.ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED?.trim().toLowerCase() === "true";
+}
+
+function publicBetaEnabled(): boolean {
+  return process.env.ABALO_PUBLIC_BETA_ENABLED?.trim().toLowerCase() === "true";
 }
 
 function upstreamUrl(): URL | null {
@@ -47,7 +59,9 @@ function validQuestion(value: unknown): value is string {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!isAuthenticatedOwner(request)) return safeJson({ error: "请先登录私有预览。", terminal: true }, 403);
+  if (!publicBetaEnabled() && !isAuthenticatedOwner(request)) {
+    return safeJson({ error: "请先登录私有预览。", terminal: true }, 403);
+  }
   if (!enabled()) return safeJson({ error: "条件辨识预览尚未开启。", terminal: true }, 503);
   if (request.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() !== "application/json") {
     return safeJson({ error: "请求格式不受支持。" }, 415);
@@ -65,6 +79,20 @@ export async function POST(request: Request): Promise<Response> {
   const url = upstreamUrl();
   const key = process.env.PYTHON_ENGINE_KEY?.trim();
   if (!url || !key) return safeJson({ error: "条件辨识引擎尚未连接。" }, 503);
+  if (!isAuthenticatedOwner(request)) {
+    const subjectHash = await publicRateLimitSubject(request, key, "conditional-intake-v2");
+    if (!subjectHash) return safeJson({ error: "暂时无法确认访问来源，未发起模型请求。" }, 503);
+    try {
+      const rateLimit = await reservePublicRequestRateLimit(subjectHash, String(payload.intake_id));
+      if (!rateLimit.allowed) {
+        return safeJson({
+          error: `同一网络每小时最多发起 ${PUBLIC_RATE_LIMIT_MAX_REQUESTS} 次辨识，请稍后再试。`,
+        }, 429, { "Retry-After": String(PUBLIC_RATE_LIMIT_WINDOW_SECONDS) });
+      }
+    } catch {
+      return safeJson({ error: "访问频率守门暂时不可用，未发起模型请求。" }, 503);
+    }
+  }
   try {
     const upstream = await fetch(url, {
       method: "POST",
@@ -85,7 +113,15 @@ export async function POST(request: Request): Promise<Response> {
         ? kind == null && prompt == null
         : ["SUBJECT", "DECISION_AXIS", "JUDGMENT_OBJECT"].includes(String(kind)) && typeof prompt === "string")
     );
-    if (!upstream.ok || !safe) return safeJson({ error: "条件辨识暂时不可用；请直接进入解卦。", fail_open: true }, 503);
+    if (!upstream.ok || !safe) {
+      console.error("conditional_intake_upstream_rejected", {
+        upstream_status: upstream.status,
+        response_status: typeof status === "string" ? status : "INVALID",
+        failure_code: typeof result.failure_code === "string" ? result.failure_code : null,
+        safe_shape: safe,
+      });
+      return safeJson({ error: "条件辨识暂时不可用；请直接进入解卦。", fail_open: true }, 503);
+    }
     return safeJson({
       contract_version: CONTRACT_VERSION,
       intake_id: result.intake_id,
@@ -96,7 +132,10 @@ export async function POST(request: Request): Promise<Response> {
       router_attempts: 1,
       automatic_retries: 0,
     }, 200);
-  } catch {
+  } catch (error) {
+    console.error("conditional_intake_upstream_fetch_failed", {
+      error_name: error instanceof Error ? error.name : "UNKNOWN",
+    });
     return safeJson({ error: "条件辨识暂时不可用；请直接进入解卦。", fail_open: true }, 503);
   }
 }
