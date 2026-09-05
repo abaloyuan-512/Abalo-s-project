@@ -2816,6 +2816,7 @@ function MobileFrozenEntry({ onEnter }: { onEnter: () => void }) {
   const [videoReady, setVideoReady] = useState(false);
   const [settled, setSettled] = useState(false);
   const [entering, setEntering] = useState(false);
+  const [mediaFailed, setMediaFailed] = useState(false);
 
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -2826,9 +2827,19 @@ function MobileFrozenEntry({ onEnter }: { onEnter: () => void }) {
       setVideoReady(false);
     };
     applyPreference();
-    preference.addEventListener("change", applyPreference);
-    return () => preference.removeEventListener("change", applyPreference);
+    if (typeof preference.addEventListener === "function") {
+      preference.addEventListener("change", applyPreference);
+      return () => preference.removeEventListener("change", applyPreference);
+    }
+    preference.addListener(applyPreference);
+    return () => preference.removeListener(applyPreference);
   }, []);
+
+  useEffect(() => {
+    if (motionEnabled !== true || settled) return;
+    const timer = window.setTimeout(() => setSettled(true), 12_000);
+    return () => window.clearTimeout(timer);
+  }, [motionEnabled, settled]);
 
   useEffect(() => () => {
     if (enterTimerRef.current !== null) window.clearTimeout(enterTimerRef.current);
@@ -2837,6 +2848,12 @@ function MobileFrozenEntry({ onEnter }: { onEnter: () => void }) {
   function revealFilm() {
     setVideoReady(true);
     void videoRef.current?.play().catch(() => setSettled(true));
+  }
+
+  function revealFallback() {
+    setMediaFailed(true);
+    setVideoReady(false);
+    setSettled(true);
   }
 
   function enter() {
@@ -2852,8 +2869,8 @@ function MobileFrozenEntry({ onEnter }: { onEnter: () => void }) {
     enterTimerRef.current = window.setTimeout(onEnter, reducedMotion ? 0 : 680);
   }
 
-  return <div className={`p1-mobile-frozen${videoReady ? " is-playing" : ""}${settled ? " is-settled" : ""}${entering ? " is-entering" : ""}`}>
-    <img className="p1-mobile-base" src="/p1-motion-pre-reveal-base-v2.png" alt="" draggable="false" />
+  return <div className={`p1-mobile-frozen${videoReady ? " is-playing" : ""}${settled ? " is-settled" : ""}${entering ? " is-entering" : ""}${mediaFailed ? " is-media-fallback" : ""}`}>
+    <img className="p1-mobile-base" src="/p1-motion-pre-reveal-base-v3.png" alt="" draggable="false" onError={revealFallback} />
     {motionEnabled ? <video
       ref={videoRef}
       className="p1-mobile-motion"
@@ -2866,8 +2883,8 @@ function MobileFrozenEntry({ onEnter }: { onEnter: () => void }) {
       onError={() => setSettled(true)}
       aria-hidden="true"
     /> : null}
-    <img className="p1-mobile-final" src="/p1-motion-ink-realm-v1.png" alt="水墨山水环抱观象题字，墨滴落入涟漪，小舟停泊于进入观象印圈之前" draggable="false" />
-    <button type="button" className="p1-mobile-enter" aria-label="进入观象" aria-disabled={!settled} onClick={enter} />
+    <img className="p1-mobile-final" src="/p1-motion-ink-realm-v2.png" alt="水墨山水环抱观象题字，墨滴落入涟漪，小舟停泊于进入观象印圈之前" draggable="false" onError={revealFallback} />
+    <button type="button" className="p1-mobile-enter" aria-label="进入观象" aria-disabled={!settled} onClick={enter}><span aria-hidden="true">进入观象</span></button>
     <p className="sr-only" aria-live="polite">{settled ? "水墨画境已经展开，可以进入观象" : "墨滴正在落入水面，水墨画境正在展开"}</p>
   </div>;
 }

@@ -513,9 +513,13 @@ test("frozen P1–P9 mobile art is wired to the production flow", async () => {
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
   assert.match(appSource, /function MobileFrozenEntry\(\{ onEnter \}/);
-  assert.match(appSource, /p1-motion-pre-reveal-base-v2\.png/);
+  assert.match(appSource, /p1-motion-pre-reveal-base-v3\.png/);
   assert.match(appSource, /p1-mobile-motion-selected-v1\.mp4/);
-  assert.match(appSource, /p1-motion-ink-realm-v1\.png/);
+  assert.match(appSource, /p1-motion-ink-realm-v2\.png/);
+  assert.match(appSource, /onError=\{revealFallback\}/);
+  assert.match(appSource, /12_000/);
+  assert.match(cssSource, /p1-motion-ink-realm-fallback-v1\.jpg/);
+  assert.match(cssSource, /\.p1-mobile-frozen\.is-media-fallback \.p1-mobile-enter/);
   assert.match(appSource, /<MobileFrozenEntry onEnter=\{enterMethod\} \/>/);
   assert.match(cssSource, /\.p1-mobile-enter \{[\s\S]*?left: 31\.5%;[\s\S]*?bottom: 6\.9%;[\s\S]*?width: 37%;[\s\S]*?height: 14\.5%;/);
 

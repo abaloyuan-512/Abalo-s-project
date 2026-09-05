@@ -146,7 +146,7 @@ test("portable HTTP serves frozen UI/assets, isolates journals, rejects forged a
     assert.equal(home.status, 200);
     const html = await home.text();
     assert.match(html, /观象/);
-    assert.match(html, /p1-motion-pre-reveal-base-v2.png/);
+    assert.match(html, /p1-motion-pre-reveal-base-v3.png/);
     assert.match(html, new RegExp(`${origin}/manifest-v2.webmanifest`));
     assert.doesNotMatch(html, /https:\/\/guanxiang-mobile\.abaloyuan\.chatgpt\.site/);
     // SSR alone is insufficient: verify every emitted hydration/style module.
@@ -165,7 +165,8 @@ test("portable HTTP serves frozen UI/assets, isolates journals, rejects forged a
     assert.equal((await fetch(`${origin}/.vite/manifest.json`)).status, 404);
     assert.equal((await fetch(`${origin}/assets/missing.js.map`)).status, 404);
     assert.equal((await fetch(`${origin}/.env`)).status, 404);
-    for (const asset of ["/manifest-v2.webmanifest", "/sw.js", "/icon-192.png", "/p1-mobile-motion-selected-v1.mp4"]) {
+    for (const asset of ["/manifest-v2.webmanifest", "/sw.js", "/icon-192.png", "/p1-motion-pre-reveal-base-v3.png",
+      "/p1-motion-ink-realm-v2.png", "/p1-motion-ink-realm-fallback-v1.jpg", "/p1-mobile-motion-selected-v1.mp4"]) {
       const response = await fetch(`${origin}${asset}`);
       assert.equal(response.status, 200, asset);
       await response.arrayBuffer();
