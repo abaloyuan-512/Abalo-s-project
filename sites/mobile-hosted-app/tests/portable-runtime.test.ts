@@ -8,8 +8,26 @@ import { createServer } from "node:net";
 import test from "node:test";
 import { SqliteDatabase } from "../portable/sqlite";
 import { sanitizeRequest } from "../portable/request-boundary";
+import { instrumentEngineFetch } from "../portable/upstream-diagnostics";
 import { setRuntimeDb } from "../db";
 import { reservePublicRequestRateLimit } from "../db/public-request-rate-limit";
+
+test("engine diagnostics preserve responses and never log private content", async () => {
+  const events: Record<string, string | number | boolean>[] = [];
+  const privateText = "secret-user-content";
+  const transport = instrumentEngineFetch(async () => new Response(privateText, {
+    status: 200, headers: { "Content-Type": "text/html", "cf-mitigated": "challenge" },
+  }), "https://engine.example", event => events.push(event));
+  const response = await transport("https://engine.example/api/preview/v2/direct-reading/jobs", {
+    method: "POST", headers: { "X-Abalo-Engine-Key": privateText }, body: privateText,
+  });
+  assert.equal(await response.text(), privateText);
+  assert.deepEqual(events, [{ event: "engine_transport", operation: "submit", status: 200,
+    format: "html", challenge: true, renderOrigin: false }]);
+  assert.ok(!JSON.stringify(events).includes(privateText));
+  await transport("https://other.example/");
+  assert.equal(events.length, 1);
+});
 
 test("SQLite persists data and preserves duplicate column order for Drizzle", async () => {
   const filename = resolve(mkdtempSync(resolve(tmpdir(), "gx-sqlite-")), "test.sqlite");

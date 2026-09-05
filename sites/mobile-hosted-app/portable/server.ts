@@ -3,6 +3,7 @@ import type { RequestListener } from "node:http";
 import { SqliteDatabase } from "./sqlite.ts";
 import { normalizedAddress, sanitizeRequest } from "./request-boundary.ts";
 import { createStaticHandler } from "./static-assets.ts";
+import { instrumentEngineFetch } from "./upstream-diagnostics.ts";
 
 const port = Number(process.env.PORT || "3000");
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid PORT");
@@ -31,6 +32,10 @@ if (process.env.RENDER === "true" && !resolve(filename).startsWith("/var/data/")
 }
 const db = new SqliteDatabase(filename);
 Object.assign(globalThis, { __guanxiangPortableDb: db });
+if (process.env.PYTHON_ENGINE_URL) {
+  globalThis.fetch = instrumentEngineFetch(globalThis.fetch, new URL(process.env.PYTHON_ENGINE_URL).origin,
+    event => console.info(JSON.stringify(event)));
+}
 const { startProdServer } = await import("vinext/server/prod-server");
 const serveStatic = await createStaticHandler(resolve("dist-portable/client"));
 // Import and initialize on loopback before installing the public boundary.
