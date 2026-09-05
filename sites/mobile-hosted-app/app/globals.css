@@ -4325,3 +4325,17 @@ textarea::placeholder,
 @media (prefers-reduced-motion: reduce) and (max-width: 760px) {
   main[data-flow-page="3"] .inquiry-mobile-pine { animation: none; }
 }
+
+/* VPN mobile v1.0.1: the IME may cover page 6, but it must not move the accepted composition. */
+@media (max-width: 760px) {
+  main[data-flow-page="6"].flow-shell {
+    height: var(--casting-height, 100svh);
+    overflow-y: auto;
+  }
+
+  main[data-flow-page="6"] .flow-lock-screen {
+    height: max(660px, var(--casting-height, 100svh)) !important;
+    min-height: max(660px, var(--casting-height, 100svh)) !important;
+    max-height: max(660px, var(--casting-height, 100svh)) !important;
+  }
+}
