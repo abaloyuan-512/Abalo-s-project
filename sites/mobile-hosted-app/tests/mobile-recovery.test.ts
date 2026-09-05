@@ -2,6 +2,47 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { castingViewport } from "../app/lib/casting-viewport";
 import { engineReadiness, retryAfterSeconds, uncertainEngineResponse } from "../app/lib/engine-readiness";
+import { createServiceWarmup } from "../app/lib/client-service-warmup";
+import { publicEngineHealthUrl } from "../portable/service-wakeup";
+
+test("only public credential-free Render health URLs can cross the client boundary", () => {
+  assert.equal(publicEngineHealthUrl("https://example.onrender.com"), "https://example.onrender.com/healthz");
+  for (const raw of [undefined, "http://example.onrender.com", "https://example.onrender.com.evil.test", "https://user:secret@example.onrender.com", "http://localhost:8080", "https://private.example", "https://example.onrender.com?key=secret", "https://example.onrender.com/private", "https://example.onrender.com:9000"]) {
+    assert.equal(publicEngineHealthUrl(raw), null);
+  }
+});
+
+test("concurrent user actions share one credential-free browser wake-up and never POST", async () => {
+  const calls: { input: string; init?: RequestInit }[] = [];
+  const warm = createServiceWarmup(async (input, init) => {
+    calls.push({ input: String(input), init });
+    return String(input).startsWith("/") ? Response.json({ health_url: "https://example.onrender.com/healthz" }) : new Response(null);
+  });
+  await Promise.all([warm(), warm(), warm()]);
+  await warm();
+  assert.equal(calls.length, 2);
+  const health = calls[1];
+  assert.equal(health.input, "https://example.onrender.com/healthz");
+  assert.equal(health.init?.method, "GET");
+  assert.equal(health.init?.mode, "no-cors");
+  assert.equal(health.init?.credentials, "omit");
+  assert.equal(health.init?.referrerPolicy, "no-referrer");
+  assert.equal(health.init?.body, undefined);
+  assert.equal(health.init?.headers, undefined);
+});
+
+test("untrusted config and failed wake-up cannot trigger private requests or automatic retries", async () => {
+  for (const health_url of ["https://user:secret@example.onrender.com/healthz", "http://127.0.0.1/healthz", "https://example.onrender.com/healthz?secret=1"]) {
+    let calls = 0;
+    const warm = createServiceWarmup(async () => { calls++; return Response.json({ health_url }); });
+    await warm();
+    assert.equal(calls, 1);
+  }
+  let failures = 0;
+  const warm = createServiceWarmup(async () => { failures++; throw new Error("offline"); });
+  await warm(); await warm();
+  assert.equal(failures, 1);
+});
 
 test("keyboard opening and focusout animation preserve the casting canvas at common widths", () => {
   for (const width of [320, 360, 390, 430]) {

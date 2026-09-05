@@ -4342,10 +4342,15 @@ textarea::placeholder,
   .casting-heading .peony-number-3 { left: 68%; }
   .casting-heading .peony-number input { width: 100%; }
   .casting-keyboard-note { display: none; }
+  html[data-casting-keyboard="true"] .casting-range-note { visibility: hidden; }
   html[data-casting-keyboard="true"] .casting-keyboard-note {
-    display: block; position: absolute; top: 194px; left: 0; right: 0;
-    font-size: 12px; line-height: 1.5; color: #873e2e;
+    display: block; position: absolute; top: 190px; left: 0; right: 2px; margin: 0;
+    font-size: 11px; line-height: 1.55; color: #873e2e;
   }
-  .casting-submit-error { max-width: calc(100vw - 48px); font-size: 12px; line-height: 1.5; }
+  .casting-submit-error {
+    top: calc(100% - max(82px, calc(env(safe-area-inset-bottom) + 82px)) + 3px);
+    bottom: auto; max-width: calc(100vw - 48px); max-height: 30px; overflow-y: auto;
+    font-size: 12px; line-height: 15px;
+  }
 }
 @media (min-width: 761px) { .casting-keyboard-note { display: none; } }

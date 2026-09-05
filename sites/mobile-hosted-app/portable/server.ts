@@ -4,6 +4,7 @@ import { SqliteDatabase } from "./sqlite.ts";
 import { normalizedAddress, sanitizeRequest } from "./request-boundary.ts";
 import { createStaticHandler } from "./static-assets.ts";
 import { instrumentEngineFetch } from "./upstream-diagnostics.ts";
+import { publicEngineHealthUrl } from "./service-wakeup.ts";
 
 const port = Number(process.env.PORT || "3000");
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid PORT");
@@ -47,6 +48,12 @@ server.removeAllListeners("request");
 server.on("request", (request, response) => {
   sanitizeRequest(request, trustedPeers, origin);
   if (serveStatic(request, response)) return;
+  if (request.url === "/api/service-wakeup" && request.method === "GET") {
+    response.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" });
+    response.end(JSON.stringify({ health_url: publicEngineHealthUrl(process.env.PYTHON_ENGINE_URL) }));
+    return;
+  }
   if (request.url?.split("?", 1)[0] === "/healthz") {
     try {
       db.connection.prepare("SELECT 1").get();

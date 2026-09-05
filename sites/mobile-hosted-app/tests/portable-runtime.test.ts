@@ -140,6 +140,8 @@ test("portable HTTP serves frozen UI/assets, isolates journals, rejects forged a
     await waitForOutput(app, /Guanxiang portable ready/);
     const health = await fetch(`${origin}/healthz`);
     assert.equal(health.status, 200);
+    const wakeup = await fetch(`${origin}/api/service-wakeup`);
+    assert.deepEqual(await wakeup.json(), { health_url: null }); // Never expose the loopback fixture URL.
     const home = await fetch(origin);
     assert.equal(home.status, 200);
     const html = await home.text();

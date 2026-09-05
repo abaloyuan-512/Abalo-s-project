@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { warmReadingService } from "./lib/client-service-warmup";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -1522,6 +1523,8 @@ function ConditionalIntake({
     let cancelled = false;
     void (async () => {
       try {
+        await warmReadingService();
+        if (cancelled) return;
         const response = await fetch("/api/direct-reading/v2/intake", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -3455,6 +3458,7 @@ export function GuanxiangApp() {
   }
 
   function enterMethod() {
+    void warmReadingService();
     setEntryReleased(true);
     advanceFlow(2, "method-title");
   }
@@ -3875,6 +3879,7 @@ export function GuanxiangApp() {
       ...(intakeRoute?.status === "ANSWERED" && intakeRoute.answer ? { clarification_answer: intakeRoute.answer } : {}),
     });
     try {
+      await warmReadingService();
       const response = await fetch("/api/direct-reading/v2", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
       const payload = await response.json() as ApiResponse;
       if (response.status === 202) {
@@ -4155,7 +4160,7 @@ export function GuanxiangApp() {
                 </label>)}
               </fieldset>
               <p className="casting-range-note" id="casting-range-note">每次呼吸结束后，在右侧输入一个1–999的整数</p>
-              <p className="casting-keyboard-note">输入完成后，请收起键盘，再点左下方开始成卦</p>
+              <p className="casting-keyboard-note">每个数1–999；输完收起键盘，再点左下方开始成卦</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
               <button type="submit" className="cast-button casting-submit" disabled={loading || retrySeconds > 0}><BaguaMark />{retrySeconds > 0 ? <span>服务暂时繁忙<br />请在 {retrySeconds} 秒后再试</span> : loading ? <span>正在连接与成卦，请稍候<br />免费服务唤醒可能需要一分钟</span> : page8Task.phase === "RECOVERABLE" || page8Task.phase === "TIMEOUT" ? <span>继续查询原任务<br />不会重复成卦</span> : <span>三个数已经取好<br />开始成卦</span>}</button>
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
