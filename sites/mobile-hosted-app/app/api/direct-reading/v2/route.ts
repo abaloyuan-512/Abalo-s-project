@@ -10,6 +10,7 @@ import {
   publicRateLimitSubject,
   reservePublicRequestRateLimit,
 } from "../../../../db/public-request-rate-limit";
+import { engineReadiness, uncertainEngineResponse } from "../../../lib/engine-readiness";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -424,7 +425,7 @@ export async function GET(request: Request): Promise<Response> {
       return safeJson({ error: "任务在引擎重启后无法恢复，系统没有自动重复生成。" }, 410);
     }
     const payload = await readUpstream(upstream);
-    if (!payload || payload.request_id !== requestId) return safeJson({ error: "解卦响应异常。" }, 502);
+    if (!payload || payload.request_id !== requestId) return uncertainEngineResponse(upstream);
     if (upstream.status === 202) return safeJson(await publicAllowList(payload), 202);
     if (!upstream.ok) return safeJson({ error: "解卦响应异常。" }, 502);
     const safePayload = await publicAllowList(payload);
@@ -465,6 +466,10 @@ export async function POST(request: Request): Promise<Response> {
 
   const url = upstreamUrl("/api/preview/v2/direct-reading/jobs");
   const key = process.env.PYTHON_ENGINE_KEY?.trim();
+  if (url && key) {
+    const unavailable = await engineReadiness(url);
+    if (unavailable) return unavailable;
+  }
   if (!isAuthenticatedOwner(request)) {
     if (!url || !key) return safeJson({ error: "Direct Reading V2 引擎尚未连接，未发起模型请求。" }, 503);
     const subjectHash = await publicRateLimitSubject(request, key, "direct-reading-v2");
@@ -474,6 +479,7 @@ export async function POST(request: Request): Promise<Response> {
       if (!rateLimit.allowed) {
         return safeJson({
           error: `同一网络每小时最多发起 ${PUBLIC_RATE_LIMIT_MAX_REQUESTS} 次观象，请稍后再试。`,
+          not_submitted: true, retryable: true, retry_after_seconds: PUBLIC_RATE_LIMIT_WINDOW_SECONDS,
         }, 429, { "Retry-After": String(PUBLIC_RATE_LIMIT_WINDOW_SECONDS) });
       }
     } catch {
@@ -532,7 +538,7 @@ export async function POST(request: Request): Promise<Response> {
       return safeJson({ error: "请求编号与引擎中的已有任务冲突。" }, 409);
     }
     const result = await readUpstream(upstream);
-    if (!result || result.request_id !== requestId) return safeJson({ error: "解卦响应异常。" }, 502);
+    if (!result || result.request_id !== requestId) return uncertainEngineResponse(upstream);
     if (upstream.status === 202) return safeJson(await publicAllowList(result), 202);
     if (!upstream.ok) {
       await finalizeDirectReadingPreviewJob(requestId, String(result.status));

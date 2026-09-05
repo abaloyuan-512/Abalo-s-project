@@ -18,6 +18,7 @@ if (process.env.NODE_ENV === "production" && origin.protocol !== "https:" &&
     !["localhost", "127.0.0.1"].includes(origin.hostname)) throw new Error("Public deployment requires HTTPS");
 process.env.GUANXIANG_PUBLIC_ORIGIN = origin.origin;
 process.env.VINEXT_TRUST_PROXY = "1";
+process.env.GUANXIANG_ENGINE_PREFLIGHT = "true";
 delete process.env.ABALO_LOCAL_PREVIEW_BYPASS_AUTH;
 
 const trustedPeers = new Set((process.env.GUANXIANG_TRUST_PROXY_PEERS || "").split(",").filter(Boolean).map(value => {

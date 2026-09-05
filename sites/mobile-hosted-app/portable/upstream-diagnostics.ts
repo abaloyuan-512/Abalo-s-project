@@ -12,11 +12,12 @@ export function instrumentEngineFetch(
     report({
       event: "engine_transport",
       operation: url.pathname.endsWith("/intake") ? "intake"
-        : url.pathname.endsWith("/jobs") ? "submit" : "poll",
+        : url.pathname.endsWith("/jobs") ? "submit" : url.pathname.endsWith("/healthz") ? "health" : "poll",
       status: response.status,
       format: type.includes("application/json") ? "json" : type.includes("text/html") ? "html" : "other",
       challenge: response.headers.get("cf-mitigated") === "challenge",
       renderOrigin: response.headers.has("x-render-origin-server"),
+      retryAfterPresent: response.headers.has("retry-after"),
     });
     return response;
   };

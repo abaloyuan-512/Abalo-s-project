@@ -341,8 +341,8 @@ test("casting uses a borderless windblown peony scene without changing number ro
   assert.match(appSource, /placeholder: "动爻"/);
   assert.match(appSource, /aria-describedby="casting-range-note"/);
   assert.doesNotMatch(appSource, /casting-peony-wind-v1\.png/);
-  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+正在成卦，请稍候[\s\S]+三个数已经取好[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
-  assert.match(appSource, /className="cast-button casting-submit"[^>]*><BaguaMark \/>/);
+  assert.match(appSource, /peony-number-field[\s\S]+casting-range-note[\s\S]+className="cast-button casting-submit"[\s\S]+正在连接与成卦，请稍候[\s\S]+三个数已经取好[\s\S]+<\/header>[\s\S]+casting-number-workspace/);
+  assert.match(appSource, /className="cast-button casting-submit"[^\n]*><BaguaMark \/>/);
   assert.match(appSource, /async function launchDirectHigh\(numbersInput: number\[\], intakeRoute: ConditionalIntakeMeta \| null = conditionalIntake\)/);
   assert.match(appSource, /正在建立唯一一次排盘与解卦任务/);
   assert.match(appSource, /className="cast-button casting-submit"[\s\S]+casting-submit-error/);
@@ -414,7 +414,7 @@ test("seventh page opens the page-eight data-model review", async () => {
   const appSource = await fs.readFile(new URL("../app/GuanxiangApp.tsx", import.meta.url), "utf8");
   const cssSource = await fs.readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.doesNotMatch(appSource, /const numbersReady = numbers\.every|acknowledged/);
-  assert.match(appSource, /className="cast-button casting-submit" disabled=\{loading\}/);
+  assert.match(appSource, /className="cast-button casting-submit" disabled=\{loading \|\| retrySeconds > 0\}/);
   assert.match(appSource, /const \[readingStarted, setReadingStarted\] = useState\(false\)/);
   assert.match(appSource, /function ResultKoiPond\(\)/);
   assert.match(appSource, /id="result" className=\{`result-shell\$\{readingStarted \? " is-reading-started" : " flow-lock-screen"\}`\}/);

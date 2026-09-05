@@ -4325,3 +4325,27 @@ textarea::placeholder,
 @media (prefers-reduced-motion: reduce) and (max-width: 760px) {
   main[data-flow-page="3"] .inquiry-mobile-pine { animation: none; }
 }
+
+/* The IME occludes the casting canvas; it must not move the submit action into the inputs. */
+@media (max-width: 760px) {
+  main[data-flow-page="6"].flow-shell {
+    height: var(--casting-height, 100svh);
+    overflow-y: auto;
+  }
+  main[data-flow-page="6"] .flow-lock-screen {
+    height: max(660px, var(--casting-height, 100svh)) !important;
+    min-height: max(660px, var(--casting-height, 100svh)) !important;
+    max-height: max(660px, var(--casting-height, 100svh)) !important;
+  }
+  .casting-heading .peony-number { width: 32%; }
+  .casting-heading .peony-number-2 { left: 36%; }
+  .casting-heading .peony-number-3 { left: 68%; }
+  .casting-heading .peony-number input { width: 100%; }
+  .casting-keyboard-note { display: none; }
+  html[data-casting-keyboard="true"] .casting-keyboard-note {
+    display: block; position: absolute; top: 194px; left: 0; right: 0;
+    font-size: 12px; line-height: 1.5; color: #873e2e;
+  }
+  .casting-submit-error { max-width: calc(100vw - 48px); font-size: 12px; line-height: 1.5; }
+}
+@media (min-width: 761px) { .casting-keyboard-note { display: none; } }

@@ -23,7 +23,7 @@ test("engine diagnostics preserve responses and never log private content", asyn
   });
   assert.equal(await response.text(), privateText);
   assert.deepEqual(events, [{ event: "engine_transport", operation: "submit", status: 200,
-    format: "html", challenge: true, renderOrigin: false }]);
+    format: "html", challenge: true, renderOrigin: false, retryAfterPresent: false }]);
   assert.ok(!JSON.stringify(events).includes(privateText));
   await transport("https://other.example/");
   assert.equal(events.length, 1);

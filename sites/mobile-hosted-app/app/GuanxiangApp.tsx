@@ -207,6 +207,9 @@ type ApiResponse = {
   direct_high?: { route?: string; intake_status?: string; router_attempts?: number } | null;
   chart_facts?: DirectHighChartFacts | null;
   terminal?: boolean;
+  not_submitted?: boolean;
+  submission_uncertain?: boolean;
+  retry_after_seconds?: number;
   preview_meta?: {
     failure_stage?: string;
     failure_codes?: string[];
@@ -3291,6 +3294,14 @@ export function GuanxiangApp() {
   const [error, setError] = useState("");
   const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [retryAt, setRetryAt] = useState(0);
+  const [retrySeconds, setRetrySeconds] = useState(0);
+  useEffect(() => {
+    const tick = () => setRetrySeconds(Math.max(0, Math.ceil((retryAt - Date.now()) / 1000)));
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [retryAt]);
   const [savingRecord, setSavingRecord] = useState(false);
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
   const [homeNavigationVisible, setHomeNavigationVisible] = useState(false);
@@ -3798,14 +3809,19 @@ export function GuanxiangApp() {
   async function pollDirectHigh(requestId: string): Promise<void> {
     for (let attempt = 0; attempt < 140; attempt += 1) {
       await sleep(1_500);
+      if (activePersonalizedRequestRef.current !== requestId) return;
       const response = await fetch(`/api/direct-reading/v2?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" });
       const payload = await response.json() as ApiResponse;
       if (response.status === 202 || payload.status === "RUNNING") {
+        const facts = directHighChartFacts(payload.chart_facts);
+        if (facts) setResponse(current => current ?? ({ status: "RUNNING", request_id: requestId, user_question: question, input_numbers: numbers.map(Number), chart_facts: facts }));
         setPage8Task((current) => ({ ...current, phase: "RUNNING", stage: typeof payload.preview_meta?.stage === "string" ? payload.preview_meta.stage : "GENERATING", message: "同一次程序排盘已经完成，fixed-high 正在生成第八页正文。" }));
         continue;
       }
       if (response.ok) { finishDirectHigh(payload, requestId); return; }
-      if (response.status === 503 && !payload.terminal) {
+      if ((response.status >= 500 || response.status === 429) && !payload.terminal) {
+        setRetryAt(Date.now() + (payload.retry_after_seconds ?? 30) * 1000);
+        setError(payload.error || "任务状态暂时无法确认，请稍后继续查询原任务。");
         setPage8Task({ phase: "RECOVERABLE", message: payload.error_message || payload.error || "任务状态暂时无法确认，可以继续查询原任务。", requestId, retryable: false });
         return;
       }
@@ -3863,11 +3879,7 @@ export function GuanxiangApp() {
       const payload = await response.json() as ApiResponse;
       if (response.status === 202) {
         const chartFacts = directHighChartFacts(payload.chart_facts);
-        if (!chartFacts) {
-          failPersonalizedRequest(requestId, "排盘结果不完整，请重新发起。", false);
-          return;
-        }
-        setResponse({
+        if (chartFacts) setResponse({
           status: "RUNNING",
           request_id: requestId,
           user_question: question,
@@ -3880,13 +3892,25 @@ export function GuanxiangApp() {
       }
       if (response.ok) { finishDirectHigh(payload, requestId); return; }
       const message = payload.error_message || payload.error || "第八页解卦任务未能建立。";
+      setRetryAt(Date.now() + (payload.retry_after_seconds ?? 30) * 1000);
+      if (!payload.not_submitted && !payload.terminal && (response.status >= 500 || response.status === 429)) {
+        setError(message);
+        setPage8Task({ phase: "RECOVERABLE", message, requestId, retryable: false });
+        return;
+      }
       failPersonalizedRequest(requestId, message, response.status >= 500 || payload.retryable === true);
     } catch {
+      setError("提交状态暂时无法确认，请继续查询原任务。");
       setPage8Task({ phase: "RECOVERABLE", message: "提交状态暂时无法确认；只能继续查询同一个任务，不会重复提交。", requestId, retryable: false });
     }
   }
 
   async function retryDirectHighRequest(): Promise<void> {
+    if (loading || Date.now() < retryAt) return;
+    if (activePersonalizedRequestRef.current || sessionStorage.getItem(ACTIVE_REQUEST_KEY)) {
+      await resumeDirectHighRequest();
+      return;
+    }
     const parsed = numbers.map(Number);
     if (parsed.some((value, index) => !numbers[index] || !Number.isInteger(value) || value < 1 || value > 999)) return;
     setError("");
@@ -3900,6 +3924,7 @@ export function GuanxiangApp() {
   }
 
   async function resumeDirectHighRequest(): Promise<void> {
+    if (loading || Date.now() < retryAt) return;
     const requestId = activePersonalizedRequestRef.current ?? sessionStorage.getItem(ACTIVE_REQUEST_KEY);
     if (!requestId) {
       setPage8Task((current) => ({ ...current, phase: "FAILED", message: "原任务编号已经失效，请重新尝试。", retryable: true }));
@@ -3910,16 +3935,23 @@ export function GuanxiangApp() {
     setLoading(true);
     setPage8Task((current) => ({ ...current, phase: "RUNNING", message: "正在继续查询原任务，不会重复提交。", requestId }));
     try { await pollDirectHigh(requestId); }
+    catch {
+      setError("查询暂时中断，请稍后继续查询原任务。");
+      setPage8Task({ phase: "RECOVERABLE", message: "查询暂时中断；不会重复提交。", requestId, retryable: false });
+    }
     finally { setLoading(false); }
   }
 
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError(""); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setSavedRecordId(null);
+    event.preventDefault();
+    if (loading || Date.now() < retryAt) return;
     const activeRequestId = sessionStorage.getItem(ACTIVE_REQUEST_KEY);
-    if (activeRequestId) {
-      activePersonalizedRequestRef.current = null;
-      sessionStorage.removeItem(ACTIVE_REQUEST_KEY);
+    if (activePersonalizedRequestRef.current || activeRequestId) {
+      await resumeDirectHighRequest();
+      return;
     }
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    setError(""); setResponse(null); setPage8Task({ phase: "NOT_REQUESTED", message: "卦象结构可以先行查看；个性化解读尚未发起。" }); setSavedRecordId(null);
 
     const parsed = numbers.map(Number);
     if (question.length < 6 || question.length > 160 || question !== question.trim() || !intakeComplete || !conditionalIntake || parsed.some((n, index) => !numbers[index] || !Number.isInteger(n) || n < 1 || n > 999)) {
@@ -4119,18 +4151,19 @@ export function GuanxiangApp() {
                   key={breath.numeral}
                 >
                   <span className="peony-number-copy"><b>{breath.numeral}</b><small>{breath.guidance}</small></span>
-                  <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" placeholder={breath.placeholder} type="number" inputMode="numeric" min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
+                  <input aria-label={`第${index + 1}个数字`} aria-describedby="casting-range-note" placeholder={breath.placeholder} type="number" inputMode="numeric" enterKeyHint={index === 2 ? "done" : "next"} onKeyDown={event => { if (event.key !== "Enter") return; event.preventDefault(); if (index === 2) event.currentTarget.blur(); else document.querySelector<HTMLInputElement>(`.peony-number-${index + 2} input`)?.focus(); }} min="1" max="999" value={numbers[index]} onChange={(event) => setNumbers(numbers.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
                 </label>)}
               </fieldset>
               <p className="casting-range-note" id="casting-range-note">每次呼吸结束后，在右侧输入一个1–999的整数</p>
+              <p className="casting-keyboard-note">输入完成后，请收起键盘，再点左下方开始成卦</p>
               {progress && <span className="sr-only" role="status" aria-live="polite">{progress}</span>}
-              <button type="submit" className="cast-button casting-submit" disabled={loading}><BaguaMark />{loading ? <span>正在成卦，请稍候<br />完成后将自动进入卦象页</span> : <span>三个数已经取好<br />开始成卦</span>}</button>
+              <button type="submit" className="cast-button casting-submit" disabled={loading || retrySeconds > 0}><BaguaMark />{retrySeconds > 0 ? <span>服务暂时繁忙<br />请在 {retrySeconds} 秒后再试</span> : loading ? <span>正在连接与成卦，请稍候<br />免费服务唤醒可能需要一分钟</span> : page8Task.phase === "RECOVERABLE" || page8Task.phase === "TIMEOUT" ? <span>继续查询原任务<br />不会重复成卦</span> : <span>三个数已经取好<br />开始成卦</span>}</button>
               {error && <p className="error casting-submit-error" role="alert">{error}</p>}
               {(page8Task.phase === "FAILED" || page8Task.phase === "RECOVERABLE") && <div className="casting-recovery-actions">
                 {page8Task.phase === "RECOVERABLE"
-                  ? <button type="button" className="text-button casting-recovery-button" onClick={resumeDirectHighRequest}>继续查询原任务</button>
-                  : page8Task.retryable && <button type="button" className="text-button casting-recovery-button" onClick={retryDirectHighRequest}>重新尝试</button>}
-                <button type="button" className="text-button casting-recovery-button" onClick={editQuestion}>返回正问</button>
+                  ? <button type="button" disabled={loading || retrySeconds > 0} className="text-button casting-recovery-button" onClick={resumeDirectHighRequest}>继续查询原任务</button>
+                  : page8Task.retryable && <button type="button" disabled={loading || retrySeconds > 0} className="text-button casting-recovery-button" onClick={retryDirectHighRequest}>重新尝试</button>}
+                <button type="button" disabled={loading || page8Task.phase === "RECOVERABLE"} className="text-button casting-recovery-button" onClick={editQuestion}>返回正问</button>
               </div>}
             </header>
 

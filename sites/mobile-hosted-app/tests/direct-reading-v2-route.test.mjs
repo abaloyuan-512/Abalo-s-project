@@ -19,6 +19,49 @@ const ownerHeaders = {
 };
 const here = dirname(fileURLToPath(import.meta.url));
 
+test("gateway 429 is recoverable and a duplicate submit never creates a second upstream job", async () => {
+  const previousFetch = globalThis.fetch;
+  const names = ["ABALO_DIRECT_READING_V2_PREVIEW_ENABLED", "PYTHON_ENGINE_URL", "PYTHON_ENGINE_KEY", "ABALO_PREVIEW_OWNER_EMAIL", "GUANXIANG_ENGINE_PREFLIGHT"];
+  const previous = names.map(name => process.env[name]);
+  Object.assign(process.env, { ABALO_DIRECT_READING_V2_PREVIEW_ENABLED: "true", PYTHON_ENGINE_URL: "https://engine.example", PYTHON_ENGINE_KEY: "test-only-key-long-enough", ABALO_PREVIEW_OWNER_EMAIL: "owner@example.com", GUANXIANG_ENGINE_PREFLIGHT: "true" });
+  let healthy = false;
+  let posts = 0;
+  globalThis.fetch = async (input, init) => {
+    if (String(input).endsWith("/healthz")) return healthy
+      ? Response.json({ status: "ok", service: "abalo-authoritative-engine" })
+      : new Response("Loading", { status: 429, headers: { "Retry-After": "45" } });
+    if (init?.method === "POST") posts++;
+    return new Response("Private gateway text", { status: 429, headers: { "Retry-After": "45" } });
+  };
+  try {
+    const app = await worker();
+    const db = createDirectDb();
+    const id = "drv2-abcdefabcdefabcdefabcdef";
+    const waiting = await app.fetch(postRequest(id), { ...baseEnv, DB: db }, context);
+    assert.equal(waiting.status, 503);
+    assert.equal((await waiting.json()).not_submitted, true);
+    assert.equal(db.jobs.size, 0);
+    assert.equal(posts, 0);
+    healthy = true;
+    const submitted = await app.fetch(postRequest(id), { ...baseEnv, DB: db }, context);
+    assert.equal(submitted.status, 503);
+    const body = await submitted.json();
+    assert.equal(body.submission_uncertain, true);
+    assert.equal(body.retryable, false);
+    assert.equal(body.retry_after_seconds, 45);
+    assert.doesNotMatch(JSON.stringify(body), /Private gateway text/);
+    assert.equal(db.jobs.get(id).state, "RUNNING");
+    assert.equal((await app.fetch(postRequest(id), { ...baseEnv, DB: db }, context)).status, 202);
+    const polled = await app.fetch(new Request(`http://localhost/api/direct-reading/v2?request_id=${id}`, { headers: ownerHeaders }), { ...baseEnv, DB: db }, context);
+    assert.equal(polled.status, 503);
+    assert.equal((await polled.json()).submission_uncertain, true);
+    assert.equal(posts, 1);
+  } finally {
+    globalThis.fetch = previousFetch;
+    names.forEach((name, index) => { if (previous[index] === undefined) delete process.env[name]; else process.env[name] = previous[index]; });
+  }
+});
+
 async function startPythonFixture() {
   const executable = process.env.ABALO_TEST_PYTHON || resolve(here, "../../../.venv/Scripts/python.exe");
   const script = resolve(here, "fixtures/direct-reading-python-server.py");

@@ -1,3 +1,4 @@
+import { engineReadiness, retryAfterSeconds } from "../../../../lib/engine-readiness";
 import {
   PUBLIC_RATE_LIMIT_MAX_REQUESTS,
   PUBLIC_RATE_LIMIT_WINDOW_SECONDS,
@@ -79,6 +80,8 @@ export async function POST(request: Request): Promise<Response> {
   const url = upstreamUrl();
   const key = process.env.PYTHON_ENGINE_KEY?.trim();
   if (!url || !key) return safeJson({ error: "条件辨识引擎尚未连接。" }, 503);
+  const unavailable = await engineReadiness(url);
+  if (unavailable) return unavailable;
   if (!isAuthenticatedOwner(request)) {
     const subjectHash = await publicRateLimitSubject(request, key, "conditional-intake-v2");
     if (!subjectHash) return safeJson({ error: "暂时无法确认访问来源，未发起模型请求。" }, 503);
@@ -101,6 +104,9 @@ export async function POST(request: Request): Promise<Response> {
       cache: "no-store",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
+    if (upstream.status === 429) return safeJson({
+      error: "辨识服务暂时限流，本次未取得辨识结果。", fail_open: true,
+    }, 503, { "Retry-After": String(retryAfterSeconds(upstream)) });
     const result = await upstream.json() as Record<string, unknown>;
     const status = result.status;
     const kind = result.ambiguity_kind;
