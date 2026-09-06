@@ -1,6 +1,42 @@
 # 大陆直连迁移准备与本地验证记录
 
+> 历史时点记录，非当前发布指令。最新阶段/渠道版本以 `继续观象.md` 与 `docs/governance/current-release-index.json` 为准；本文中“最新”“尚未部署”“不更新 VPN”等词仅描述当时状态。保留内容用于追溯，不覆盖原有冻结标签。
+
 记录日期：2026-09-05。目标：保持观象 0.5 产品基线，准备可脱离 chatgpt.site 运行的入口，由产品负责人最后完成大陆无 VPN 真机验收。
+
+## 最新进展：免费服务已创建，恢复后真实主流程通过，等待大陆真机
+
+- 诊断版本 `dff569d934fd82816dced3208c7177e32537cc68` 于 2026-09-05 19:29:50 GMT+8 Live。新服务日志显示 submit 202/json、challenge=false、renderOrigin=true。
+- 公网真实请求 `drv2-5208213bc400469d98a7f45bf06c99d8` 最终 200/SUCCESS，product_presentation 和 page9_finale 均存在，automatic_retries=0。此为真实后端/模型，不是固定测试样本。
+- Chrome 中同一虚拟问题手动重试后成功，逐步进入卦象→详细解卦 P8→“势”→“进入观象寄语” P9；DOM 与实际截图确认寄语及继续追问、分享、观事簿入口。点击本地观事簿后可看到该问题、卦象和两句寄语。
+- 额外隔离测试使用临时随机凭据保存本次真实返回：journal POST 201，同凭据 GET 200/1条，另一随机凭据 GET 200/0条，读取的记录含完整 product/finale。仅写入测试记录，未碰旧用户数据。
+- 最初非 JSON 的异常没有捕获到完整传输元数据，重启/服务唤醒后恢复；**根因未证明、冷启动稳定性未通过**，不能写成已根治。后续若复现，使用新增无敏感内容的 transport 日志定位。
+- 390×844 Chrome viewport 覆盖未实际生效，DOM 仍为 1536×730；该实际宽度无横向溢出，P9 截图正常。已 reset 覆盖，不能记作移动多尺寸通过。
+- 可交付此免费网址用于大陆无 VPN 实测，但不是正式生产验收完成；尚需真机网络、跨机型与免费冷启动复现检查。以下失败条目是恢复之前的历史证据。
+
+- 用户明确要求先免费验证大陆直连、验证后再考虑付费；未开通收费实例或磁盘。已告知临时记录可能随休眠、重启、重部署丢失，模型用量仍按原账号计费。
+- 新服务 `guanxiang-mobile-beta`：`srv-dadvfk740ujc73d5c6ug`，Singapore，Node 24.19.0，Free 512MB/0.1CPU，自动部署 Off，无持久磁盘。
+- 实际公网地址：`https://guanxiang-mobile-beta.onrender.com`。首次部署 `dep-dadvfkn40ujc73d5c97g` 于 2026-09-05 19:08:40 GMT+8 Live，来源 `4fa33c4bdfd66285b7a0ebc9be4ea4ca3799e572`。
+- 配置 `GUANXIANG_ALLOW_EPHEMERAL_BETA=true`，现有 Python 服务地址与连接密钥、公开 beta 与 direct/conditional 开关；没有复制模型 API key，没有修改旧 Sites 或原后端。
+- 公网检查：healthz 200、首页 200、10 个首页 JS/CSS 均 200、manifest/sw 200、视频 100 字节 Range 206、未认证 journal 401、.env 404；首页不再使用旧 Sites origin。
+- Chrome 实际点击通过首页→观象之法→正问→成卦；虚拟测试问题及数字 38/71/24 提交后显示“解卦响应异常。”，尚未通过完整真实模型和 P8/P9。不可宣布已完成验收。
+- 新服务日志 `conditional_intake_upstream_fetch_failed { error_name: 'SyntaxError' }`，说明收到非 JSON 响应；不能仅据此断言休眠或网络屏蔽。原后端 healthz 正常（commit 12c5f4307b16），控制台 direct-reading 开关 true。
+- 增加仅记录状态码、响应格式、challenge 布尔标记的独立运行诊断，不记录密钥、问题、URL 或响应正文。7/7 独立测试与 portable 类型检查通过。已上传 `dff569d934fd82816dced3208c7177e32537cc68`，tree `ab43a5d9edaa5eb4fa89db4e297b58484fa7682b`；正在手动部署后定位问题。
+- 接续 Chrome 浏览器 ID 当前为 `3`（extension ID `861c9993-9b6a-4989-95c8-39e7d9d6cc83`），不要沿用旧数字 2（现在是 Edge）。claim 旧用户标签可能 Debugger unattached；同一 Chrome 的 tabs.new + goto + playwright.domSnapshot 可以运行，每次操作约 21 秒。
+- 这一时间点尚未完成的项目已由上方恢复后记录更新；大陆直连、跨机型和冷启动稳定性仍未通过，不得宣布正式验收完成。
+
+## 历史进展：控制台恢复，等待费用确认（已被上方状态更新）
+
+以下进展更新本文件下方的历史状态：
+
+- 用户重新打开 Chrome 后，已成功读取登录状态下的 Render 工作区及现有两个 Deployed 服务。
+- 当前用户 Chrome 标签 `1223523880` 已进入同一仓库的 New Web Service 配置表单，Advanced 已展开；仅查看选项，未点击 Deploy web service，未新增收费资源。表单已标记保留供续接。
+- 页面当前报价：最低付费计算资源 $7/月；SSD $0.25/GB/月。计划用 1GB 时基础合计 $7.25/月，税费、超额用量及原有模型费用另计；须先获得用户费用授权。免费计算资源不能使用持久磁盘，若改为免费短期测试，须明确数据可能随重启/休眠丢失。
+- 不应将支付托管费解释为大陆直连保证；实际新网址仍需测试。
+- 本次迁移源代码已经提交并成功上传至 `codex/mainland-portable-beta`：提交 `4fa33c4bdfd66285b7a0ebc9be4ea4ca3799e572`，源码树 `8edaf7270a9223398daddad33a451793be386881`。本地及 GitHub 分支 SHA 已核对一致，未修改 main。
+- 常规 Git push 失败：`RPC failed; curl 28 Failed to connect to github.com:443 after 21123 ms`，尾部的 `Everything up-to-date` 不作为成功证据。诊断为 github.com DNS 可解析（20.205.243.166）但 TCP/HTTPS 超时；api.github.com（20.205.243.168）返回 200。无 HTTPS_PROXY/HTTP_PROXY/ALL_PROXY 环境变量，global http.sslBackend 未设值；没有修改永久配置或安全保护。
+- 恢复路径使用现有 gh 登录，通过 GitHub Git Data API 上传此提交涉及的 25 个文件，严格核对新 tree 与本地 HEAD tree、提交 SHA 完全相同后才创建新分支；再次读取远端引用验证成功。本地远端跟踪引用也已更新。
+- 当前仅剩本记录的进展补充未提交；部署来源仍选择上述已上传并验证的提交。未配置新服务环境密钥；现有服务与旧 Sites 未变更。
 
 ## 状态结论
 

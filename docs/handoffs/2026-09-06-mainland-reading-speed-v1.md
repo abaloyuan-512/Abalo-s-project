@@ -1,5 +1,7 @@
 # 大陆详细解卦提速候选 V1
 
+> 历史时点记录，非当前发布指令。最新阶段/渠道版本以 `继续观象.md` 与 `docs/governance/current-release-index.json` 为准；本文中“最新”“尚未部署”“不更新 VPN”等词仅描述当时状态。保留内容用于追溯，不覆盖原有冻结标签。
+
 ## 范围与发布状态
 
 用户授权详细解卦生成速度优化。本次独立候选保留模型、确定性排盘、所有发布校验、九章与同次生成的 P9 寄语；仅精简正文提示并将候选推理强度设为 medium、输出 verbosity 设为 low。不缩减 12000 token 完整性上限，不增加自动模型重试，不直接发布未校验流式正文。
@@ -57,3 +59,15 @@
 - 前端 portable/恢复：24 passed；TypeScript 检查通过。
 - 生产构建 portable 和 Sites 均通过；Sites 构建只用于确认默认兼容性，未发布 VPN。
 - 实际构建后的 API/跨 Python 测试：14 passed，包含服务器专有开关、能力协商、旧后端降级、浏览器字段不可越权、持久化版本及单次提交。
+
+## 2026-09-06 发布阻塞续记
+
+本地提交 `8e1e2da`，分支 `codex/mainland-portable-beta`；远端跟踪引用仍为 `bf66e99`，未确认上传。用户后续截图显示在前端 `guanxiang-mobile-beta` 手动重复部署 bf66e99（10:42:36 GMT+8），并非提速候选或后端服务。
+
+上一轮上传进程最终返回：`error: RPC failed; curl 28 Failed to connect to github.com:443 after 21076 ms: Could not connect to server`，另有 `send-pack: unexpected disconnect while reading sideband packet` 与 `fatal: the remote end hung up unexpectedly`。该失败结果中的 `Everything up-to-date` 不能作为成功证据。
+
+按网络运行手册检查：DNS 可解析 github.com 为 20.205.243.166；github.com TCP/443 为 False，api.github.com TCP/443 为 True。本轮一次间隔重试仍返回：`fatal: unable to access 'https://github.com/abaloyuan-512/Abalo-s-project.git/': Failed to connect to github.com:443 after 21086 ms: Could not connect to server`。归类为本机到 GitHub 的外部链路故障，停止重复推送。未改 VPN、代理、权限或 Git 配置；实际 sslBackend 为系统配置 schannel（与运行手册的 openssl 基线不同，但 TCP 建连失败在 TLS 之前，不能靠修改它代替定位）。
+
+需要恢复这台电脑的 GitHub 网络连通，再核对真实远端分支及推送。后台健康能力与大陆开关均尚未部署/开启。已有用户改动 `docs/handoffs/2026-09-05-mainland-portable-preparation.md` 保持不动。
+
+用户随后提供 Chrome 正常打开 GitHub 仓库的截图。基于这一新网络状态重新推送，成功返回 `bf66e99..8e1e2da codex/mainland-portable-beta -> codex/mainland-portable-beta`；提速代码已上传。后端控制台截图确认服务 ID 为 `srv-d9gbf261a83c73bo93lg`，目前配置分支 main、线上版本 12c5f43。下一步应核对手动部署菜单的指定提交能力，避免把 main 的旧代码当作提速候选直接发布；后台部署及大陆开关仍未确认。
