@@ -42,6 +42,11 @@ from abalo_iching.application.sites_direct_reading_v3 import (  # noqa: E402
     process_prepared_direct_reading_v2_request,
     public_direct_reading_payload,
 )
+from abalo_iching.application.sites_direct_reading_speed_v1 import (  # noqa: E402
+    PROMPT_SUFFIX as SPEED_PROMPT_SUFFIX,
+    READING_PROFILE as SPEED_READING_PROFILE,
+    prepare_concise_reading,
+)
 from abalo_iching.application.sites_direct_high_product_v1 import (  # noqa: E402
     DirectHighEntryMode,
     build_direct_high_product_presentation,
@@ -172,6 +177,7 @@ class HostedApiHandler(BaseHTTPRequestHandler):
                 {
                     "status": "ok",
                     "service": "abalo-authoritative-engine",
+                    "direct_reading_profiles": [SPEED_READING_PROFILE],
                     "git_commit": commit[:12] if commit else "unknown",
                     "owner_preview_contract": OWNER_PREVIEW_CONTRACT_VERSION,
                     "page8_contract": PAGE8_READING_VERSION,
@@ -288,9 +294,13 @@ class HostedApiHandler(BaseHTTPRequestHandler):
         try:
             configured_effort = os.environ.get("ABALO_DIRECT_READING_REASONING_EFFORT", "high").strip().lower()
             reasoning_effort = configured_effort if configured_effort in {"medium", "high"} else "high"
+            concise = prepared.prompt_version.endswith(SPEED_PROMPT_SUFFIX)
             internal = process_prepared_direct_reading_v2_request(
                 prepared,
-                provider=OpenAIDirectReadingProvider(reasoning_effort=reasoning_effort),
+                provider=OpenAIDirectReadingProvider(
+                    reasoning_effort="medium" if concise else reasoning_effort,
+                    output_profile="concise" if concise else "standard",
+                ),
                 progress_callback=lambda stage: self._update_direct_stage(request_id, stage),
                 diagnostic_sink=self.hosted_server.direct_reading_diagnostic_sink,
                 synthetic_diagnostic_confirmed=(
@@ -459,6 +469,10 @@ class HostedApiHandler(BaseHTTPRequestHandler):
         if payload.get("contract_version") != DIRECT_READING_CONTRACT_VERSION:
             self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_contract"})
             return
+        reading_profile = payload.get("reading_profile", "standard")
+        if reading_profile not in ("standard", SPEED_READING_PROFILE):
+            self._send_json(HTTPStatus.BAD_REQUEST, {"status": "invalid_reading_profile"})
+            return
         try:
             entry_mode = DirectHighEntryMode(payload.get("entry_mode", "CLEAR"))
         except (TypeError, ValueError):
@@ -540,6 +554,8 @@ class HostedApiHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.OK, response)
             return
 
+        if reading_profile == SPEED_READING_PROFILE:
+            prepared = prepare_concise_reading(prepared)
         with self.hosted_server.direct_reading_jobs_lock:
             job = jobs[request_id]
             job["stage"] = "CAST_READY"

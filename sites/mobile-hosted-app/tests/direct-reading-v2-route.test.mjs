@@ -19,6 +19,51 @@ const ownerHeaders = {
 };
 const here = dirname(fileURLToPath(import.meta.url));
 
+test("speed setting is server-owned, negotiated, versioned and never duplicated", async () => {
+  const previousFetch = globalThis.fetch;
+  const names = ["ABALO_DIRECT_READING_V2_PREVIEW_ENABLED", "PYTHON_ENGINE_URL", "PYTHON_ENGINE_KEY", "ABALO_PREVIEW_OWNER_EMAIL", "GUANXIANG_ENGINE_PREFLIGHT", "GUANXIANG_READING_PROFILE"];
+  const previous = names.map(name => process.env[name]);
+  Object.assign(process.env, { ABALO_DIRECT_READING_V2_PREVIEW_ENABLED: "true", PYTHON_ENGINE_URL: "https://engine.example", PYTHON_ENGINE_KEY: "test-only-key-long-enough", ABALO_PREVIEW_OWNER_EMAIL: "owner@example.com", GUANXIANG_ENGINE_PREFLIGHT: "true" });
+  try {
+    const configurations = [
+      { configured: undefined, supported: true, expected: undefined },
+      { configured: "concise-medium-v1", supported: false, expected: undefined },
+      { configured: "concise-medium-v1", supported: true, expected: "concise-medium-v1" },
+    ];
+    for (const [index, config] of configurations.entries()) {
+      if (config.configured) process.env.GUANXIANG_READING_PROFILE = config.configured;
+      else delete process.env.GUANXIANG_READING_PROFILE;
+      let posts = 0;
+      globalThis.fetch = async (input, init) => {
+        if (String(input).endsWith("/healthz")) return Response.json({
+          status: "ok", service: "abalo-authoritative-engine",
+          ...(config.supported ? { direct_reading_profiles: ["concise-medium-v1"] } : {}),
+        });
+        assert.equal(init.method, "POST");
+        posts++;
+        const sent = JSON.parse(init.body);
+        assert.equal(sent.reading_profile, config.expected);
+        return Response.json({ contract_version: "SITES_DIRECT_READING_V2_PREVIEW_PUBLIC_V1", request_id: sent.request_id, status: "RUNNING", stage: "CAST_READY" }, { status: 202 });
+      };
+      const app = await worker();
+      const db = createDirectDb();
+      const id = `drv2-${String(index).repeat(16)}`;
+      const body = await postRequest(id).json();
+      // A visitor cannot override server settings with an arbitrary body field.
+      body.reading_profile = "untrusted-override";
+      const makeRequest = () => new Request("http://localhost/api/direct-reading/v2", { method: "POST", headers: ownerHeaders, body: JSON.stringify(body) });
+      const submitted = await app.fetch(makeRequest(), { ...baseEnv, DB: db }, context);
+      assert.equal(submitted.status, 202, JSON.stringify({ index, response: await submitted.json() }));
+      assert.equal((await app.fetch(makeRequest(), { ...baseEnv, DB: db }, context)).status, 202);
+      assert.equal(posts, 1);
+      assert.equal(db.jobs.get(id).prompt_version.endsWith("_CONCISE_SPEED_V1"), Boolean(config.expected));
+    }
+  } finally {
+    globalThis.fetch = previousFetch;
+    names.forEach((name, index) => { if (previous[index] === undefined) delete process.env[name]; else process.env[name] = previous[index]; });
+  }
+});
+
 test("gateway 429 is recoverable and a duplicate submit never creates a second upstream job", async () => {
   const previousFetch = globalThis.fetch;
   const names = ["ABALO_DIRECT_READING_V2_PREVIEW_ENABLED", "PYTHON_ENGINE_URL", "PYTHON_ENGINE_KEY", "ABALO_PREVIEW_OWNER_EMAIL", "GUANXIANG_ENGINE_PREFLIGHT"];

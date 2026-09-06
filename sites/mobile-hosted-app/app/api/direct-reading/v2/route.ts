@@ -11,6 +11,7 @@ import {
   reservePublicRequestRateLimit,
 } from "../../../../db/public-request-rate-limit";
 import { engineReadiness, uncertainEngineResponse } from "../../../lib/engine-readiness";
+import { selectReadingProfile } from "../../../lib/reading-profile";
 
 const MAX_REQUEST_BYTES = 8 * 1024;
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -466,8 +467,12 @@ export async function POST(request: Request): Promise<Response> {
 
   const url = upstreamUrl("/api/preview/v2/direct-reading/jobs");
   const key = process.env.PYTHON_ENGINE_KEY?.trim();
+  let readingProfile: string | undefined;
   if (url && key) {
-    const unavailable = await engineReadiness(url);
+    const configuredProfile = process.env.GUANXIANG_READING_PROFILE;
+    const unavailable = await engineReadiness(url, configuredProfile ? profiles => {
+      readingProfile = selectReadingProfile(configuredProfile, profiles);
+    } : undefined);
     if (unavailable) return unavailable;
   }
   if (!isAuthenticatedOwner(request)) {
@@ -494,7 +499,9 @@ export async function POST(request: Request): Promise<Response> {
     ...(typeof intakeId === "string" ? { intake_id: intakeId } : {}),
     ...(typeof clarificationAnswer === "string" ? { clarification_answer: clarificationAnswer } : {}),
   }));
-  const reservation = await reserveDirectReadingPreviewJob(requestId, digest, PROMPT_VERSION);
+  const reservation = await reserveDirectReadingPreviewJob(
+    requestId, digest, readingProfile ? `${PROMPT_VERSION}_CONCISE_SPEED_V1` : PROMPT_VERSION,
+  );
   if (reservation.state === "CONFLICT") return safeJson({ error: "请求编号与已有内容冲突。" }, 409);
   if (reservation.state === "FINALIZED" || reservation.state === "LOST") {
     return safeJson({ error: "这个任务已经结束，系统不会重复生成。" }, 409);
@@ -523,6 +530,7 @@ export async function POST(request: Request): Promise<Response> {
         question_text: payload.question_text,
         numbers: payload.numbers,
         entry_mode: entryMode,
+        ...(readingProfile ? { reading_profile: readingProfile } : {}),
         ...(typeof intakeId === "string" ? { intake_id: intakeId } : {}),
         ...(typeof clarificationAnswer === "string" ? { clarification_answer: clarificationAnswer } : {}),
       }),

@@ -129,6 +129,7 @@ test("portable HTTP serves frozen UI/assets, isolates journals, rejects forged a
       stdio: ["ignore", "pipe", "pipe"], env: {
         ...process.env, PORT: String(port), HOST: "127.0.0.1", NODE_ENV: "production",
         GUANXIANG_PUBLIC_ORIGIN: origin, GUANXIANG_SQLITE_PATH: filename,
+        GUANXIANG_READING_PROFILE: "concise-medium-v1",
         ABALO_PUBLIC_BETA_ENABLED: "true", ABALO_DIRECT_READING_V2_PREVIEW_ENABLED: "true",
         ABALO_CONDITIONAL_INTAKE_PREVIEW_ENABLED: "true",
         ABALO_PREVIEW_OWNER_EMAIL: "owner@example.com",
@@ -218,6 +219,7 @@ test("portable HTTP serves frozen UI/assets, isolates journals, rejects forged a
     assert.equal(await db.prepare("SELECT count(*) AS n FROM observations").first("n"), 1);
     assert.equal(await db.prepare("SELECT count(*) AS n FROM public_request_rate_limits").first("n"), 6);
     assert.equal(await db.prepare("SELECT state FROM direct_reading_preview_jobs WHERE request_id = ?").bind(id).first("state"), "FINALIZED");
+    assert.match(String(await db.prepare("SELECT prompt_version FROM direct_reading_preview_jobs WHERE request_id = ?").bind(id).first("prompt_version")), /_CONCISE_SPEED_V1$/);
     db.close();
     app = startApp();
     await waitForOutput(app, /Guanxiang portable ready/);

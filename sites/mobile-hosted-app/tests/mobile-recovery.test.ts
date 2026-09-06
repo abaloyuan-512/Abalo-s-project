@@ -4,6 +4,40 @@ import { castingViewport } from "../app/lib/casting-viewport";
 import { engineReadiness, retryAfterSeconds, uncertainEngineResponse } from "../app/lib/engine-readiness";
 import { createServiceWarmup } from "../app/lib/client-service-warmup";
 import { publicEngineHealthUrl } from "../portable/service-wakeup";
+import { CONCISE_READING_PROFILE, selectReadingProfile } from "../app/lib/reading-profile";
+
+test("speed profile requires explicit server configuration and engine support", () => {
+  assert.equal(selectReadingProfile(CONCISE_READING_PROFILE, [CONCISE_READING_PROFILE]), CONCISE_READING_PROFILE);
+  for (const config of [undefined, "standard", "bogus"]) {
+    assert.equal(selectReadingProfile(config, [CONCISE_READING_PROFILE]), undefined);
+  }
+  for (const supported of [[], [null], ["other-version"]]) {
+    assert.equal(selectReadingProfile(CONCISE_READING_PROFILE, supported), undefined);
+  }
+});
+
+test("same health probe negotiates capabilities without another request or POST", async () => {
+  const original = globalThis.fetch;
+  try {
+    let calls = 0;
+    globalThis.fetch = async (_input, init) => {
+      calls++;
+      assert.notEqual(init?.method, "POST");
+      return Response.json({ status: "ok", service: "abalo-authoritative-engine", direct_reading_profiles: [CONCISE_READING_PROFILE] });
+    };
+    let selected: string | undefined;
+    assert.equal(await engineReadiness(new URL("https://engine.example"), profiles => {
+      selected = selectReadingProfile(CONCISE_READING_PROFILE, profiles);
+    }), null);
+    assert.equal(selected, CONCISE_READING_PROFILE);
+    assert.equal(calls, 1);
+    globalThis.fetch = async () => Response.json({ status: "ok", service: "abalo-authoritative-engine" });
+    assert.equal(await engineReadiness(new URL("https://engine.example"), profiles => {
+      selected = selectReadingProfile(CONCISE_READING_PROFILE, profiles);
+    }), null);
+    assert.equal(selected, undefined);
+  } finally { globalThis.fetch = original; }
+});
 
 test("only public credential-free Render health URLs can cross the client boundary", () => {
   assert.equal(publicEngineHealthUrl("https://example.onrender.com"), "https://example.onrender.com/healthz");
