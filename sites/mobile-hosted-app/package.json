@@ -11,7 +11,7 @@
     "start": "vinext start",
     "build:portable": "node scripts/build-portable.mjs",
     "start:portable": "node --experimental-strip-types portable/server.ts",
-    "test:portable": "tsx --test tests/portable-runtime.test.ts tests/mobile-recovery.test.ts",
+    "test:portable": "tsx --test tests/portable-runtime.test.ts tests/mobile-recovery.test.ts tests/direct-reading-transport.test.ts",
     "typecheck:portable": "tsc --project portable/tsconfig.json",
     "typecheck": "pnpm run build && wrangler types worker-runtime.d.ts --config dist/server/wrangler.json --include-env false && tsc --noEmit",
     "test": "pnpm run build && node --test tests/preview-poll.test.mjs tests/rendered-html.test.mjs tests/result-presentation.test.mjs tests/page8-model.test.mjs tests/direct-reading-v2-route.test.mjs && tsx --test tests/direct-reading-v2-preview.test.tsx",

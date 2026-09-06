@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { warmReadingService } from "./lib/client-service-warmup";
+import { directReadingProgress, queryDirectReading, submitDirectReading } from "./lib/direct-reading-transport";
 import {
   PersonalizedPollError,
   pollPersonalizedTask,
@@ -209,6 +210,7 @@ type ApiResponse = {
   chart_facts?: DirectHighChartFacts | null;
   terminal?: boolean;
   not_submitted?: boolean;
+  stage?: string;
   submission_uncertain?: boolean;
   retry_after_seconds?: number;
   preview_meta?: {
@@ -2628,12 +2630,16 @@ function DirectHighPendingResultView({
   onRetry,
   onEdit,
   onClear,
+  busy,
+  retrySeconds,
 }: {
   response: ApiResponse;
   task: Page8TaskState;
   onRetry: () => void;
   onEdit: () => void;
   onClear: () => void;
+  busy: boolean;
+  retrySeconds: number;
 }) {
   const baseFact = response.chart_facts?.base_hexagram;
   if (!baseFact) return null;
@@ -2643,6 +2649,7 @@ function DirectHighPendingResultView({
     symbol: unicodeHexagram(baseFact.king_wen_number),
   };
   const failed = task.phase === "FAILED";
+  const recoverable = task.phase === "RECOVERABLE" || task.phase === "TIMEOUT";
 
   return <section id="result" className="result-shell flow-lock-screen direct-high-pending-result" aria-labelledby="result-title">
     <section className="result-overview scroll-section viewport-page" data-reveal>
@@ -2651,12 +2658,12 @@ function DirectHighPendingResultView({
       <div className="result-summary">
         <span className="result-number">第 {baseHexagram.king_wen_number} 卦</span>
         <h2 id="result-title" data-name-length={Array.from(baseHexagram.name).length} tabIndex={-1}>{baseHexagram.name}</h2>
-        {failed
-          ? <button type="button" className="result-detail-button" onClick={onRetry}>再次生成详细解卦</button>
+        {failed || (recoverable && !busy)
+          ? <button type="button" className="result-detail-button" disabled={busy || retrySeconds > 0 || (failed && !task.retryable)} onClick={onRetry}>{retrySeconds > 0 ? `请在 ${retrySeconds} 秒后继续` : failed ? "再次生成详细解卦" : "继续获取解卦"}</button>
           : <span className="result-detail-button pending-detail-status" role="status">{task.phase === "TIMEOUT" ? "详细解卦仍在生成" : "详细解卦生成中"}</span>}
         {failed
           ? <div className="direct-high-pending-message" role="alert"><p>{task.message}</p><div className="direct-high-pending-actions"><button type="button" onClick={onEdit}>返回修改原问</button><button type="button" onClick={onClear}>重新开始</button></div></div>
-          : <p className="sr-only" role="status" aria-live="polite">{task.message}</p>}
+          : <div className="direct-high-pending-message" role="status" aria-live="polite"><p>{task.message}</p></div>}
       </div>
     </section>
   </section>;
@@ -2673,6 +2680,8 @@ function ResultView({
   onSave,
   saving,
   saved,
+  busy,
+  retrySeconds,
 }: {
   response: ApiResponse;
   page8Task: Page8TaskState;
@@ -2684,6 +2693,8 @@ function ResultView({
   onSave: (action: string, reviewOn: string | null) => Promise<void>;
   saving: boolean;
   saved: boolean;
+  busy: boolean;
+  retrySeconds: number;
 }) {
   const result = response.deterministic_result;
   const page8Reading = response.page8_reading ?? buildPage8Scaffold(response);
@@ -2708,7 +2719,7 @@ function ResultView({
     return <DirectHighResultView response={response} onEdit={onEdit} onClear={onClear} />;
   }
   if (response.chart_facts?.base_hexagram) {
-    return <DirectHighPendingResultView response={response} task={page8Task} onRetry={onRetryDirectHigh} onEdit={onEdit} onClear={onClear} />;
+    return <DirectHighPendingResultView response={response} task={page8Task} onRetry={onRetryDirectHigh} onEdit={onEdit} onClear={onClear} busy={busy} retrySeconds={retrySeconds} />;
   }
   if (!result) return null;
   const report = result.clarity_report;
@@ -3730,7 +3741,7 @@ export function GuanxiangApp() {
       setPage8Task((current) => ["SUBMITTING", "RUNNING"].includes(current.phase) ? {
         ...current,
         phase: "TIMEOUT",
-        message: "本次生成时间较长。你可以继续浏览五幕卦象结构；任务仍在后台查询，完成后文字会自动出现。",
+        message: "本次生成时间较长，仍在为你查询结果，请保留当前页面。",
       } : current);
     }, remaining);
     return () => window.clearTimeout(timer);
@@ -3831,12 +3842,17 @@ export function GuanxiangApp() {
     for (let attempt = 0; attempt < 140; attempt += 1) {
       await sleep(1_500);
       if (activePersonalizedRequestRef.current !== requestId) return;
-      const response = await fetch(`/api/direct-reading/v2?request_id=${encodeURIComponent(requestId)}`, { cache: "no-store" });
+      const response = await queryDirectReading(requestId, {
+        active: () => activePersonalizedRequestRef.current === requestId,
+        onWaiting: () => setPage8Task(current => ({ ...current, phase: "RUNNING", message: "连接暂时不稳定，正在继续获取同一次解卦，请保留当前页面。" })),
+      });
+      if (activePersonalizedRequestRef.current !== requestId) return;
       const payload = await response.json() as ApiResponse;
       if (response.status === 202 || payload.status === "RUNNING") {
         const facts = directHighChartFacts(payload.chart_facts);
         if (facts) setResponse(current => current ?? ({ status: "RUNNING", request_id: requestId, user_question: question, input_numbers: numbers.map(Number), chart_facts: facts }));
-        setPage8Task((current) => ({ ...current, phase: "RUNNING", stage: typeof payload.preview_meta?.stage === "string" ? payload.preview_meta.stage : "GENERATING", message: "同一次程序排盘已经完成，fixed-high 正在生成第八页正文。" }));
+        const stage = typeof payload.stage === "string" ? payload.stage : payload.preview_meta?.stage;
+        setPage8Task((current) => ({ ...current, phase: "RUNNING", stage, message: directReadingProgress(stage) }));
         continue;
       }
       if (response.ok) { finishDirectHigh(payload, requestId); return; }
@@ -3849,7 +3865,7 @@ export function GuanxiangApp() {
       failPersonalizedRequest(requestId, payload.error_message || payload.error || "解卦任务已停止。", response.status >= 500 || payload.retryable === true);
       return;
     }
-    setPage8Task((current) => ({ ...current, phase: "TIMEOUT", message: "本地预览等待已到上限；任务没有自动重试。", requestId }));
+    setPage8Task((current) => ({ ...current, phase: "TIMEOUT", message: "这次等待较久，可点击继续获取同一次解卦。", requestId }));
   }
 
   async function refreshConditionalIntakeForRetry(): Promise<ConditionalIntakeMeta> {
@@ -3896,8 +3912,15 @@ export function GuanxiangApp() {
       ...(intakeRoute?.status === "ANSWERED" && intakeRoute.answer ? { clarification_answer: intakeRoute.answer } : {}),
     });
     try {
-      await warmReadingService();
-      const response = await fetch("/api/direct-reading/v2", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body });
+      void warmReadingService();
+      const response = await submitDirectReading(body, {
+        active: () => activePersonalizedRequestRef.current === requestId,
+        onWaiting: () => {
+          setProgress("正在唤醒解卦服务，请保留当前页面，连接后会自动成卦。");
+          setPage8Task(current => ({ ...current, phase: "SUBMITTING", message: "正在连接解卦服务，连接后会自动成卦。" }));
+        },
+      });
+      if (activePersonalizedRequestRef.current !== requestId) return;
       const payload = await response.json() as ApiResponse;
       if (response.status === 202) {
         const chartFacts = directHighChartFacts(payload.chart_facts);
@@ -4211,6 +4234,8 @@ export function GuanxiangApp() {
         onSave={saveObservation}
         saving={savingRecord}
         saved={savedRecordId !== null}
+        busy={loading}
+        retrySeconds={retrySeconds}
       />}
       <aside className="version-note" hidden>卦象不是预先写好的判词，而是对当下结构的一次照见。所谓“穷则变，变则通”，心念与行动一变，后续条件也会随之改变。得顺势之象，不可因此停步；见阻力之象，也不必自弃。观象的意义，是让我们看见照旧前行可能抵达之处，从而及早准备、修正与行动。</aside>
     </main>

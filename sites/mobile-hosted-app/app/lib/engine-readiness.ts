@@ -8,18 +8,19 @@ export function retryAfterSeconds(response: Response, now = Date.now()): number 
 /** Read-only wake-up probe. Never replay a model POST, even after a timeout. */
 export async function engineReadiness(url: URL): Promise<Response | null> {
   if (process.env.GUANXIANG_ENGINE_PREFLIGHT !== "true") return null;
-  let seconds = 30;
+  let seconds = 3;
   let limited = false;
   try {
     const health = await fetch(new URL("/healthz", url), {
       cache: "no-store", signal: AbortSignal.timeout(25_000), redirect: "error",
     });
     limited = health.status === 429;
-    seconds = retryAfterSeconds(health);
+    seconds = health.headers.has("retry-after") || limited ? retryAfterSeconds(health) : 3;
     const body = (health.ok ? await health.json().catch(() => null) : null) as { status?: unknown; service?: unknown } | null;
     if (body?.status === "ok" && body?.service === "abalo-authoritative-engine") return null;
   } catch { /* A sleeping free service may outlive this probe. No model request was sent. */ }
   return Response.json({
+    error_code: limited ? "ENGINE_RATE_LIMITED" : "ENGINE_WAKING",
     error: limited ? "解读服务暂时限流，请稍后再试；尚未提交成卦任务。"
       : "免费解读服务正在唤醒或暂时无法连接，请稍后再试；尚未提交成卦任务。",
     not_submitted: true, retryable: true, retry_after_seconds: seconds,
