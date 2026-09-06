@@ -1,115 +1,30 @@
 # Abalo-s-project（观象）
 
-当前主产品是九页“观象”体验。确定性程序负责三数成卦；AI只参与现有的条件辨识与解卦，不参与排盘。
+**当前状态：第二阶段 Beta 交付基线冻结；第三阶段聚焦解卦系统与文本价值优化。**
 
-## 当前产品治理基线（2026-08-17）
+跨设备、跨任务继续时，只从 [继续观象.md](继续观象.md) 开始，再读 [工程规则](AGENTS.md)。不要按旧文件的“最新进展”或目录名称猜测版本。
 
-- P1–P9 以逐页定稿为底稿；较晚、明确提出的覆盖项只修改其点名内容，不能借系统升级重写整页。
-- P2 保留后期说明文字调整：删除“让我用四个步骤”，改为“让我带你进入观象”。
-- 无歧义：`P3 → P6`。有歧义：`P3 → P4（现有系统最多问一次）→ P5 → P6`。
-- P3 由系统自动判断，不允许客户主动选择“直接成卦”或“进入辨识”。
-- P6三数取数由确定性程序排盘，AI不参与。
-- P7不呈现用户所问问题，只呈现既定卦象信息及详细读卦入口。
-- P9文本和内核冻结；缺少经过批准的P9动态内容时，不得用旧五面板或临时生成文案替代。
+## 当前渠道
 
-完整恢复基线见 [`docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V6.md`](docs/specs/MEIHUA_SITES_EXPERIENCE_SPEC_V6.md)。V4/V5 保留为历史版本；它们不能覆盖 V6 中记录的较晚明确决定。这不等同于部署或发布证明。
+| 渠道 | 基线 | 源码选择 |
+| --- | --- | --- |
+| 网页版 | Sites V72，保持冻结 | 既有 V72 冻结来源，不改动 |
+| VPN 手机端 | Sites V11 | 独立 Sites 源仓库；不要用大陆目录替代 |
+| 大陆直连免费 Beta | 8e1e2da 发布基线 | codex/mainland-portable-beta 分支中的 sites/mobile-hosted-app |
+| 共享解卦后端 | 8e1e2da，手机端选用 concise-medium-v1 | 按完整发布提交选取，禁止用默认分支最新版推断线上版本 |
 
-产品负责人已于 2026-08-17 验收通过并正式冻结当前版本。冻结标识为 `guanxiang-p1-p9-v72-frozen-20260817`，完整发布记录见 [`docs/governance/guanxiang-p1-p9-v72-formal-freeze-2026-08-17.md`](docs/governance/guanxiang-p1-p9-v72-formal-freeze-2026-08-17.md)。
+完整提交、网址、验收边界及来源见 [渠道索引](docs/governance/current-release-index.json) 和 [冻结记录](docs/governance/guanxiang-phase2-beta-freeze-2026-09-06.md)。
 
-## 现在打开产品
+两个手机渠道共用产品改进，但部署、身份与存储不同，不要求字节完全一致。main 的产品源树保留历史状态，仅同步当前说明入口；后续实现从准确基线建立独立候选分支。
 
-旧版入口仍保留：
+## 不变边界
 
-```powershell
-.\scripts\start_local_product.ps1
-```
+确定性程序负责排盘，AI 不参与成卦计算。不得伪造日期、卦象证据或测试结果。未经授权不改冻结产品，不发布、不升级付费资源、不发起付费模型测试。最新补丁真机复核留待用户下一次真实问题。
 
-看到 `http://127.0.0.1:8765/` 后，用浏览器打开这个地址。保持 PowerShell 窗口开启；结束时按 `Ctrl+C`。
+旧版入口 streamlit_app.py、iching_tools.py 继续保留。使用旧本地脚本前，先检查其对应版本和是否调用模型。
 
-九页集成本地预览需要有效的 `OPENAI_API_KEY`、Python 3.12环境和已安装的前端依赖：
+## 历史材料
 
-```powershell
-cd .\sites\hosted-app
-pnpm install
-cd ..\..
-$env:OPENAI_API_KEY = "<仅设置在当前终端，不要写入仓库>"
-.\scripts\start_conditional_p1_p8_preview.ps1
-```
+原 README 的本地启动、工程 Phase 1/2 说明已保存在 [历史快照](docs/archive/project-readme-before-phase2-cleanup.md)，不能用其中“暂无公开部署”等旧状态描述当前产品。版本化术数规范仍以 docs/specs/ 为准。
 
-脚本只监听 `127.0.0.1`，会输出站点地址、两个进程ID和日志位置；不会部署到公网。
-
-### 首次准备
-
-只有在 `.venv` 不存在时才需要执行：
-
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-```
-
-项目严格使用 Python 3.12。当前网页只监听本机地址 `127.0.0.1`，同一网络中的其他设备也无法访问。
-
-## 当前产品边界
-
-- 已有：结构化提问、三数起卦、本卦/互卦/变卦、体用与旺衰、规则型导师导读、可逆行动建议。
-- 暂无：个性化 AI 深度解读、账户、云端保存、支付、公开部署。
-- 安全边界：结果是传统文化下的结构化思考参考，不保证事件结果；重要决定以现实事实和专业意见为准。
-
-## v2 Phase 1 development status
-
-The repository now contains a deterministic Meihua Yishu chart engine under
-`src/abalo_iching/meihua`. It calculates the chart from three integers, a
-timezone-aware casting time and an IANA timezone without asking an AI model to
-perform chart arithmetic.
-
-The existing `streamlit_app.py` and `iching_tools.py` remain the unchanged v1
-prototype entry points. They have not yet been migrated to the v2 engine.
-
-### Phase 1 verification
-
-```powershell
-.\.venv\Scripts\python.exe -m compileall src tests scripts
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m pytest --cov=src/abalo_iching --cov-report=term-missing
-.\.venv\Scripts\python.exe scripts\verify_wheel_install.py
-.\.venv\Scripts\python.exe scripts\demo_meihua_engine.py
-```
-
-Phase 1 does not implement accounts, databases, reports, Four Pillars, payment,
-AI interpretation or exact-date timing.
-
-## v2 Phase 2 interpretation layer (development baseline)
-
-Phase 2 adds a conservative, structured interpretation pipeline without
-changing the Phase 1 casting engine. It includes a versioned 64-hexagram / 384-
-line canonical text dataset, deterministic conclusion synthesis, strict local
-validation, an offline fake provider, and an optional OpenAI Responses API
-adapter. The explanatory knowledge baseline is `CANONICAL_ONLY`; it is not
-presented as human-approved interpretation. Canonical source text and
-explanatory knowledge are stored separately; draft knowledge is not production
-knowledge and is disabled by default.
-
-Program-owned rendering now produces the conclusion, chart facts, Evidence
-sections, uncertainty and timing. The optional model can return only typed
-plain-language explanations, action options, conditions to verify and review
-questions; it has no schema field for chart facts, conclusions, timing or free
-summaries.
-
-Narrative release is currently `UNVERIFIED`. Offline and any future explicitly
-authorized live-smoke output is preview-only, cannot consume a paid report
-credit, and cannot be persisted as a formal report until a versioned live-model
-evaluation is approved in the repository.
-
-Run the fully offline demonstration (it never calls OpenAI):
-
-```powershell
-.\.venv\Scripts\python.exe scripts\demo_meihua_interpretation_offline.py
-```
-
-The live adapter reads `OPENAI_API_KEY` from the environment and the optional
-model override from `ABALO_OPENAI_MODEL`. Do not store secrets in the
-repository. See `docs/specs/MEIHUA_OPENAI_ADAPTER_V1.md` for the adapter
-contract and explicit live-smoke safeguards.
-OpenAI calls are off by default; the smoke script requires both the environment
-key and `--confirm-live-call`. Phase 2 does not add a website UI, account
-system, database, payment, or report generator.
+整理范围与保留项见 [清理记录](docs/governance/phase2-reference-cleanup-2026-09-06.md)。

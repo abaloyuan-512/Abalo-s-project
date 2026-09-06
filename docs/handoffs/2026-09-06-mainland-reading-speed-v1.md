@@ -1,0 +1,73 @@
+# 大陆详细解卦提速候选 V1
+
+> 历史时点记录，非当前发布指令。最新阶段/渠道版本以 `继续观象.md` 与 `docs/governance/current-release-index.json` 为准；本文中“最新”“尚未部署”“不更新 VPN”等词仅描述当时状态。保留内容用于追溯，不覆盖原有冻结标签。
+
+## 范围与发布状态
+
+用户授权详细解卦生成速度优化。本次独立候选保留模型、确定性排盘、所有发布校验、九章与同次生成的 P9 寄语；仅精简正文提示并将候选推理强度设为 medium、输出 verbosity 设为 low。不缩减 12000 token 完整性上限，不增加自动模型重试，不直接发布未校验流式正文。
+
+已用线上静态资源核对前一补丁 bf66e99：大陆站包含 ENGINE_WAKING 与“继续获取解卦”，确认恢复热修复已上线。本次速度候选仍需单独部署和开启，不代表已经在线生效。
+
+网页版和 VPN Sites v10 均不发布、不改配置。共享 Python 后端无 reading_profile 时仍为原提示词、原 high/medium 环境配置和原 medium verbosity。新能力由大陆服务端开关选择，浏览器提交的同名字段被剥离。
+
+## 真实模型小样本对照
+
+固定程序时间、相同问题与数字；每个配置每个问题一次，无失败补跑。总计 7 次真实请求：3 组 baseline-high / concise-medium，加工作问题的 concise-high 对照。全部为脚本内虚构问题，不使用用户或同事的真实问题。
+
+| 虚构问题 | 原版模型耗时 | 候选模型耗时 | 原版可发布 | 候选可发布及页面映射 |
+| --- | ---: | ---: | --- | --- |
+| 换工作：留任观察或开始投递 | 54.055 秒 | 28.899 秒 | 是 | 是 |
+| 合伙开店：试卖或直接租店 | 59.074 秒 | 32.213 秒 | 是 | 是 |
+| 伴侣沟通：主动谈或先留空间 | 44.426 秒 | 26.168 秒 | 否，校验拦截 | 是 |
+
+原版两次成功的平均耗时 56.565 秒；相同两题候选平均 30.556 秒，减少约 46%。第三题原版生成完成但校验失败，不能计作成功体验。候选 3 次平均 29.093 秒、最大 32.213 秒，不是 p95 或线上 SLA，不能推断总体成功率。
+
+仅精简但保留 high 的工作问题耗时 50.591 秒（首字 32.230 秒、正文 18.361 秒），对比原版首字 16.661 秒、正文 37.394 秒。这说明正文减少有助于缩短输出，但高推理等待有波动，不能只按字数预测总延迟。中等推理三题首字分别 5.470 / 5.588 / 5.554 秒。
+
+候选正文含标题/标点的字符数为 1593 / 1830 / 1376；原版成功两题为 2844 / 2703。提示目标约 1000–1400 汉字，不是硬截断，字符数不等于汉字数。
+
+### 内容人工审读（非独立盲评）
+
+- 工作：保留边留边投、岗位筛选、书面条件和改变去留判断的信号；四层卦象与行动相连。
+- 合作：保留试卖门槛、分工与账目、鼎足承载风险、固定投入和退出成本；没有只给空泛鼓励。
+- 关系：保留缓冲后邀约、可拒绝的谈话、避免追逼及安全边界；未保证修复或替伴侣决定态度。
+- 仍存在术语和一些概括性表达；本次是可复测的速度候选，不等于解卦价值优化完成。
+
+原版关系题被 UNSUPPORTED_DATE 与 THIRD_PARTY_MIND_READING 拦截。原文含“不适合……要求‘今天必须说清楚’”和“不能替你判断对方一定愿意修复”等否定/引用语境，提示当前规则有误拦可能。此次未修改校验器；不能据此确定用户此前报错的同一根因，仍需线上任务证据。候选 3/3 通过也不能证明该问题消失。
+
+原始本机证据：`sites/mobile-hosted-app/work/speed-v1/case{0,1,2}-{profile}.json`（忽略目录）。脚本 `scripts/benchmark_direct_reading_speed.py` 每次最多一模型调用，显式要求 synthetic live 标志，独占创建结果文件避免误重跑；会保存失败，不自动重试。早期工作题候选审计 hash 为小写，后统一为既有大写格式；提示文本与模型参数未因此改变。
+
+## 兼容与回退
+
+1. 后端 `/healthz` 宣告 `direct_reading_profiles: ["concise-medium-v1"]`。旧请求完全保留默认路径。
+2. 大陆服务端设置 `GUANXIANG_READING_PROFILE=concise-medium-v1`；同一次健康探测确认能力后，才为新任务加入 reading_profile。旧后端没有宣告时自动使用原版，不阻塞用户。
+3. 候选提示版本追加 `_CONCISE_SPEED_V1`，摘要重新计算；两端任务身份持久化/幂等覆盖该版本，重复提交不再调模型。
+4. 回退：将大陆服务的 `GUANXIANG_READING_PROFILE` 清空并重启/重新部署。后续任务恢复原版；正在运行的任务继续按原编号查询，不自动改配置重算。
+5. 不改后台共享 `ABALO_DIRECT_READING_REASONING_EFFORT`，不改 VPN 的运行时设置。
+
+## 部署顺序与验收
+
+先部署 Python `abalo-owner-preview-engine` 的本次代码，保持启动命令、密钥和其他环境值；核对健康接口能力。再部署 `guanxiang-mobile-beta` 前端并仅在该服务开启上述开关。前端先部署也能安全降级原版，但不能宣称已提速。
+
+与已知线上后端 12c5f4307b16 比较，候选之前的 src 无差异，脚本既有差异仅为未授权 POST 的有界读取补丁；本次另加选配能力。仍应在控制台核对服务实际分支，不能猜测部署成功。
+
+随后用大陆真机原网址连续测至少工作、合作、关系问题，分别记录进入 P7 到 P8 的等待、是否需要重试、网络及浏览器；把免费冷启动独立记账，不混入纯模型提速承诺。第三阶段不因此自动封板。
+
+## 自动化检验
+
+- 全部 Python：1489 passed（含原引擎、默认路径、候选路径、九章/P9 完整性、幂等与错误拒绝）。
+- 前端 portable/恢复：24 passed；TypeScript 检查通过。
+- 生产构建 portable 和 Sites 均通过；Sites 构建只用于确认默认兼容性，未发布 VPN。
+- 实际构建后的 API/跨 Python 测试：14 passed，包含服务器专有开关、能力协商、旧后端降级、浏览器字段不可越权、持久化版本及单次提交。
+
+## 2026-09-06 发布阻塞续记
+
+本地提交 `8e1e2da`，分支 `codex/mainland-portable-beta`；远端跟踪引用仍为 `bf66e99`，未确认上传。用户后续截图显示在前端 `guanxiang-mobile-beta` 手动重复部署 bf66e99（10:42:36 GMT+8），并非提速候选或后端服务。
+
+上一轮上传进程最终返回：`error: RPC failed; curl 28 Failed to connect to github.com:443 after 21076 ms: Could not connect to server`，另有 `send-pack: unexpected disconnect while reading sideband packet` 与 `fatal: the remote end hung up unexpectedly`。该失败结果中的 `Everything up-to-date` 不能作为成功证据。
+
+按网络运行手册检查：DNS 可解析 github.com 为 20.205.243.166；github.com TCP/443 为 False，api.github.com TCP/443 为 True。本轮一次间隔重试仍返回：`fatal: unable to access 'https://github.com/abaloyuan-512/Abalo-s-project.git/': Failed to connect to github.com:443 after 21086 ms: Could not connect to server`。归类为本机到 GitHub 的外部链路故障，停止重复推送。未改 VPN、代理、权限或 Git 配置；实际 sslBackend 为系统配置 schannel（与运行手册的 openssl 基线不同，但 TCP 建连失败在 TLS 之前，不能靠修改它代替定位）。
+
+需要恢复这台电脑的 GitHub 网络连通，再核对真实远端分支及推送。后台健康能力与大陆开关均尚未部署/开启。已有用户改动 `docs/handoffs/2026-09-05-mainland-portable-preparation.md` 保持不动。
+
+用户随后提供 Chrome 正常打开 GitHub 仓库的截图。基于这一新网络状态重新推送，成功返回 `bf66e99..8e1e2da codex/mainland-portable-beta -> codex/mainland-portable-beta`；提速代码已上传。后端控制台截图确认服务 ID 为 `srv-d9gbf261a83c73bo93lg`，目前配置分支 main、线上版本 12c5f43。下一步应核对手动部署菜单的指定提交能力，避免把 main 的旧代码当作提速候选直接发布；后台部署及大陆开关仍未确认。

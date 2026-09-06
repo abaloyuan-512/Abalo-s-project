@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "updated": "2026-09-06",
+  "phase2": "BETA_BASELINE_FROZEN",
+  "phase3": "READING_VALUE_AND_TEXT_OPTIMIZATION",
+  "continuation": "继续观象.md",
+  "governance_branch": "codex/mainland-portable-beta",
+  "freeze_record": "docs/governance/guanxiang-phase2-beta-freeze-2026-09-06.md",
+  "freeze_tag": "guanxiang-phase2-beta-frozen-20260906",
+  "freeze_record_commit": "e40d200e8d2cfb4ac5851d1faa53e3d68a1a9d97",
+  "channels": [
+    {
+      "id": "desktop",
+      "version": "Sites V72",
+      "url": "https://guanxiang-owner-private-preview.abaloyuan.chatgpt.site",
+      "source_commit": "257f00a705391192bc36beb9f2027eda001f0da1",
+      "project_id": "appgprj_6a607f0e1f008191b980cd00c73ca268",
+      "source_provider": "Sites",
+      "status": "frozen"
+    },
+    {
+      "id": "vpn_mobile",
+      "version": "Sites V11",
+      "url": "https://guanxiang-mobile.abaloyuan.chatgpt.site",
+      "source_commit": "f5f6d8cf2eb2f076e9cb43237643b94b31594db3",
+      "project_id": "appgprj_6a9844ebd4ec819187c4114a11dcc759",
+      "source_provider": "Sites",
+      "source_repository": "https://git.chatgpt-team.site/f2b6281c-9e68-46bb-befc-eafe66c958cb/appgprj_6a9844ebd4ec819187c4114a11dcc759.git",
+      "deployment_id": "appgdep_6a9d43f44e188191a928cdb27d3288a4",
+      "environment_revision": 4,
+      "reading_profile": "concise-medium-v1",
+      "status": "frozen_pending_natural_phone_check"
+    },
+    {
+      "id": "mainland_mobile",
+      "version": "Render free Beta",
+      "url": "https://guanxiang-mobile-beta.onrender.com",
+      "source_commit": "8e1e2dafd843b74cf21eca34949a979eae01f00f",
+      "source_provider": "GitHub",
+      "source_repository": "https://github.com/abaloyuan-512/Abalo-s-project",
+      "source_path": "sites/mobile-hosted-app",
+      "render_service_id": "srv-dadvfk740ujc73d5c6ug",
+      "reading_profile": "concise-medium-v1",
+      "configuration_evidence": "prior user screenshots; not reread from private Render environment",
+      "status": "frozen_pending_natural_phone_check"
+    },
+    {
+      "id": "shared_engine",
+      "version": "phase2 optional speed profile",
+      "url": "https://abalo-owner-preview-engine.onrender.com",
+      "source_commit": "8e1e2dafd843b74cf21eca34949a979eae01f00f",
+      "source_provider": "GitHub",
+      "source_repository": "https://github.com/abaloyuan-512/Abalo-s-project",
+      "source_path": "src/abalo_iching",
+      "render_service_id": "srv-d9gbf261a83c73bo93lg",
+      "status": "frozen"
+    }
+  ],
+  "selection_rules": [
+    "Never deploy branch HEAD by name alone; select the channel's exact release commit.",
+    "main is a historical source checkout with current navigation, not the latest mobile implementation.",
+    "codex/mobile-vpn-button-hotfix is historical V10 evidence, not current VPN source.",
+    "Keep historical tags and saved Sites versions immutable.",
+    "Do not interpret historical engineering Phase/Gate numbers as current product stages."
+  ],
+  "pending": [
+    "Next genuine question: mobile end-to-end phone verification; no proactive paid generation.",
+    "No claimed all-network reachability, SLA or elimination of all provider/validation errors."
+  ]
+}
