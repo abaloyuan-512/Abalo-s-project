@@ -1,5 +1,7 @@
 # Abalo-s-project（观象）
 
+> 本分支是历史 VPN V10 按钮补丁，禁止用于当前发布。当前来源见 [主仓库渠道索引](https://github.com/abaloyuan-512/Abalo-s-project/blob/main/docs/governance/current-release-index.json)。下文均保留为历史说明。
+
 当前主产品是九页“观象”体验。确定性程序负责三数成卦；AI只参与现有的条件辨识与解卦，不参与排盘。
 
 ## 当前产品治理基线（2026-08-17）

@@ -1,5 +1,7 @@
 # Abalo-s-project Engineering Rules
 
+> 此工作区是历史 VPN V10 按钮补丁，禁止作为当前发布源。续接先读根目录 继续观象.md；当前第二阶段冻结渠道以 GitHub main 的 docs/governance/current-release-index.json 为准。
+
 1. 术数规则以 `docs/specs/` 中的版本化规范为准。
 2. 不得在没有升级规则版本时改变算法。
 3. AI 不得参与确定性排盘。
